@@ -1,0 +1,84 @@
+<class-diagram version="1.0.9" icons="true" automaticImage="JPEG" always-add-relationships="false" 
+  generalizations="true" realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" corner="BOTTOM_RIGHT" language="java" name="hr.fer.zemris.edaf.selection.Selection" project="EDAF" 
+    file="/EDAF/src/hr/fer/zemris/edaf/selection/Selection.java" binary="false">    
+    <position height="214" width="281" x="470" y="189"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="2" corner="BOTTOM_RIGHT" language="java" name="hr.fer.zemris.edaf.selection.SelectionFactory" 
+    project="EDAF" file="/EDAF/src/hr/fer/zemris/edaf/selection/SelectionFactory.java" binary="false">    
+    <position height="112" width="207" x="470" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="3" corner="BOTTOM_RIGHT" language="java" name="hr.fer.zemris.edaf.selection.rank.sort.TruncationSelection" 
+    project="EDAF" file="/EDAF/src/hr/fer/zemris/edaf/selection/rank/sort/TruncationSelection.java" binary="false">    
+    <position height="146" width="246" x="41" y="443"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="4" corner="BOTTOM_RIGHT" language="java" 
+    name="hr.fer.zemris.edaf.selection.rank.tournament.KTournamentSelection" project="EDAF" 
+    file="/EDAF/src/hr/fer/zemris/edaf/selection/rank/tournament/KTournamentSelection.java" binary="false">    
+    <position height="163" width="246" x="327" y="443"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="5" corner="BOTTOM_RIGHT" language="java" 
+    name="hr.fer.zemris.edaf.selection.proportional.SimpleProportionalSelection" project="EDAF" 
+    file="/EDAF/src/hr/fer/zemris/edaf/selection/proportional/SimpleProportionalSelection.java" binary="false">    
+    <position height="146" width="246" x="613" y="443"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="6" corner="BOTTOM_RIGHT" language="java" 
+    name="hr.fer.zemris.edaf.selection.proportional.StohasticUniversalSampling" project="EDAF" 
+    file="/EDAF/src/hr/fer/zemris/edaf/selection/proportional/StohasticUniversalSampling.java" binary="false">    
+    <position height="197" width="317" x="899" y="443"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <association id="7">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="8" name="selection"/>      
+      <multiplicity id="9" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="10">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="1"/>  
+  </generalization>  
+  <generalization id="11">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="1"/>  
+  </generalization>  
+  <generalization id="12">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="1"/>  
+  </generalization>  
+  <generalization id="13">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="1"/>  
+  </generalization>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true"/>    
+    <operations public="true" package="true" protected="true" private="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
