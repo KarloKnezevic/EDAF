@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EDAF>
     <Algorithm>
-        <Name>gag</Name>
+        <Name>pbil</Name>
     </Algorithm>
 	<WorkEnvironment>
 		<Name>coco.TEST</Name>
@@ -22,7 +22,7 @@
 		<Mortality>0.4</Mortality>
         <MaxNumberOfGen>10000</MaxNumberOfGen>
         <Stagnation>0</Stagnation>
-		<LogFrequency>200</LogFrequency>
+		<LogFrequency>500</LogFrequency>
         <LogDirectory>.</LogDirectory>
         <Selection key="truncation" ratio="0.3">3</Selection>
     </Registry>
