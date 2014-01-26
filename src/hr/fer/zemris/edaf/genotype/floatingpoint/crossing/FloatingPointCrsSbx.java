@@ -38,6 +38,13 @@ public class FloatingPointCrsSbx extends Crossing {
 	
 	}
 	
+	/**
+	 * Faculty of Electrical Engineering and Computing, University of Zagreb
+	 * Method source by Domagoj Jakobovic, PhD
+	 * @param parent1 first parent
+	 * @param parent2 second parent
+	 * @return child
+	 */
 	private FloatingPoint createChild (Individual parent1, Individual parent2) {
 		
 		final FloatingPoint p1 = (FloatingPoint) parent1;

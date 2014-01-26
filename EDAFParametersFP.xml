@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EDAF>
     <Algorithm>
-        <Name>gae</Name>
+        <Name>gag</Name>
     </Algorithm>
 	<WorkEnvironment>
-		<Name>nenr.Nenr2Lab</Name>
+		<Name>coco.TEST</Name>
 	</WorkEnvironment>
     <Genotype>
         <Gene>FP</Gene>
-        <lBound>-1</lBound>
-        <uBound>1</uBound>
-        <Dimension>59</Dimension>
+        <lBound>-50</lBound>
+        <uBound>50</uBound>
+        <Dimension>30</Dimension>
         <Precision>5</Precision>
-        <Crossing key="simpleArithmetic">0.4</Crossing>
+        <Crossing key="bga" ni="20">0.4</Crossing>
         <Mutation key="simple">0.05</Mutation>
     </Genotype>
     <Registry>
-        <PopulationSize>50</PopulationSize>
+        <PopulationSize>100</PopulationSize>
         <EstimationProbability>0.5</EstimationProbability>
         <Elitism>1</Elitism>
 		<Mortality>0.4</Mortality>
@@ -24,7 +24,7 @@
         <Stagnation>0</Stagnation>
 		<LogFrequency>200</LogFrequency>
         <LogDirectory>.</LogDirectory>
-        <Selection key="kTournament" ratio="0.3">5</Selection>
+        <Selection key="truncation" ratio="0.3">3</Selection>
     </Registry>
     <AlgorithmParam>
 		<RatioSelector ratio="0.5">dynamic</RatioSelector>
