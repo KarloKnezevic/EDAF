@@ -64,6 +64,12 @@ public interface IFrameworkContext {
 	public String getPrecisionDescription();
 
 	public String getCrossing();
+	
+	/**
+	 * SBX crossing parameter
+	 * @return sbx crossing parameter
+	 */
+	public int getNi();
 
 	public double getCrossingProb();
 

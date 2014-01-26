@@ -136,6 +136,13 @@ public class ClassPathFrameworkContext implements IFrameworkContext {
 				.getValue();
 
 	}
+	
+	@Override
+	public int getNi() {
+		return Integer.parseInt(root.getChildElements("Genotype").get(0)
+				.getChildElements("Crossing").get(0).getAttribute("ni")
+				.getValue());
+	}
 
 	@Override
 	public double getCrossingProb() {

@@ -10,6 +10,8 @@ import hr.fer.zemris.edaf.genotype.binary.decoder.GrayDecoder;
 import hr.fer.zemris.edaf.genotype.binary.mutation.MutSimple;
 import hr.fer.zemris.edaf.genotype.floatingpoint.FloatingPoint;
 import hr.fer.zemris.edaf.genotype.floatingpoint.crossing.CrxSimpleArithmeticRecombination;
+import hr.fer.zemris.edaf.genotype.floatingpoint.crossing.FloatingPointCrsBga;
+import hr.fer.zemris.edaf.genotype.floatingpoint.crossing.FloatingPointCrsSbx;
 import hr.fer.zemris.edaf.genotype.floatingpoint.mutation.MutSimpleFP;
 
 /**
@@ -118,6 +120,11 @@ public class GenotypeFactory {
 		if (context.getCrossing().equals("simpleArithmetic")) {
 			crossing = new CrxSimpleArithmeticRecombination(
 					context.getCrossingProb(), context.getRand());
+		} else if (context.getCrossing().equals("sbx")) {
+			crossing = new FloatingPointCrsSbx(
+					context.getRand(), context.getNi());
+		} else if (context.getCrossing().equals("bga")) {
+			crossing = new FloatingPointCrsBga(context.getRand());
 		} else {
 			MSGPrinter.printERROR(System.err,
 					"Unsupported floating point crossing type.", true, -1);
