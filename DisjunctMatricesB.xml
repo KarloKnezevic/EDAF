@@ -21,8 +21,8 @@
         <EstimationProbability>0.5</EstimationProbability>
         <Elitism>1</Elitism>
 		<Mortality>0.5</Mortality>
-        <MaxNumberOfGen>10000</MaxNumberOfGen>
-        <Stagnation>1000</Stagnation>
+        <MaxNumberOfGen>1000000</MaxNumberOfGen>
+        <Stagnation>100000</Stagnation>
 		<LogFrequency>5</LogFrequency>
         <LogDirectory>.</LogDirectory>
         <Selection key="truncation" ratio="0.2">3</Selection>

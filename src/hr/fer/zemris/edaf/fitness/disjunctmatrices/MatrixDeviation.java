@@ -9,77 +9,66 @@ public class MatrixDeviation {
 
 	private int t;
 	private List<Integer> indexes;
-	private List<Set<Integer>> X;
+	private List<Set<Integer>> support;
 
-	public MatrixDeviation(int t) {
+	private IMDeviation deviation;
+
+	public MatrixDeviation(IMDeviation deviation, int t) {
 		this.t = t;
 		indexes = new ArrayList<Integer>(t);
-		
+
+		this.deviation = deviation;
+
 		for (int i = 0; i < t; i++) {
 			indexes.add(0);
 		}
-		
-		X = new ArrayList<Set<Integer>>();
+
+		support = new ArrayList<Set<Integer>>();
 	}
 
 	public double computeDeviation(byte[] matrix, int columns) {
-		
-		//if any element in it, clear
-		X.clear();
-		
-		//make support vectors
-		int rows = matrix.length / columns;
-		for (int column = 0; column < columns; column++) {
-			
-			Set<Integer> support = new HashSet<Integer>();
-			for (int row = 0; row < rows; row++) {
-				
-				if (matrix[rows*column + row] == 1) {
-					support.add(row);
-				}
-			}
-			
-			X.add(support);
-		}
-		
-		return deviation(columns, t, 0, indexes);
+		computeSupport(matrix, columns);
+
+		return calculate(columns, t, 0, indexes);
 	}
 
-	private int deviation(int m, int n, int startPosition, List<Integer> support) {
+	private void computeSupport(byte[] matrix, int columns) {
+
+		// if any element in it, clear
+		support.clear();
+
+		// make support vectors
+		int rows = matrix.length / columns;
+		for (int column = 0; column < columns; column++) {
+
+			Set<Integer> columnSupport = new HashSet<Integer>();
+			for (int row = 0; row < rows; row++) {
+
+				if (matrix[rows * column + row] == 1) {
+					columnSupport.add(row);
+				}
+			}
+
+			support.add(columnSupport);
+		}
+	}
+
+	private double calculate(int m, int n, int startPosition, List<Integer> supportIndexes) {
 		if (n == 0) {
-			return deltaDeviation(support);
+			return deviation.compute(supportIndexes, support);
 		}
 
 		int sum = 0;
-		
+
 		/*
 		 * Calculate all t permutations
 		 */
 		for (int i = startPosition; i <= m - n; i++) {
-			support.set(support.size() - n, i);
-			sum += deviation(m, n - 1, i + 1, support);
+			supportIndexes.set(supportIndexes.size() - n, i);
+			sum += calculate(m, n - 1, i + 1, supportIndexes);
 		}
 
 		return sum;
-	}
-
-	private int deltaDeviation(List<Integer> support) {
-		
-		Set<Integer> union = new HashSet<Integer>();
-		
-		//make union
-		for (Integer i : support) {
-			union.addAll(X.get(i));
-		}
-		
-		int delta = 0;
-		for (int i = 0; i < X.size(); i++) {
-			if (!support.contains(i) && union.containsAll(X.get(i))) {
-				delta++;
-			}
-		}
-		
-		return delta;
 	}
 
 }
