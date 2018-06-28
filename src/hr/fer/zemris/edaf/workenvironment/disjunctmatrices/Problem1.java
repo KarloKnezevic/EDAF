@@ -11,7 +11,7 @@ import hr.fer.zemris.edaf.workenvironment.Evaluation;
 
 public class Problem1 extends Evaluation {
 
-	private MatrixDeviation fit1;
+	private MatrixDeviation fit;
 
 	private int columns;
 
@@ -27,7 +27,12 @@ public class Problem1 extends Evaluation {
 		columns = Integer.parseInt(cmdArgs[2]);
 
 		// fitness
-		fit1 = new MatrixDeviation(new TEpsilonDeviation(new TDeviation(), columns, t), t);
+		fit = new MatrixDeviation(new TDeviation(), t);
+		// fit2
+		// fit = new MatrixDeviation(new TFDeviation(Integer.parseInt(cmdArgs[3])), t);
+		// fit3
+		// fit = new MatrixDeviation(new TEpsilonDeviation(new TDeviation(), columns,
+		// t), t);
 
 		algorithm.run();
 	}
@@ -37,7 +42,7 @@ public class Problem1 extends Evaluation {
 
 		final Binary b = (Binary) individual;
 
-		individual.setFitness(fit1.computeDeviation(b.getBits(), columns));
+		individual.setFitness(fit.computeDeviation(b.getBits(), columns));
 
 	}
 

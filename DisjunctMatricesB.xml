@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EDAF>
     <Algorithm>
-        <Name>pbil</Name>
+        <Name>bmda</Name>
     </Algorithm>
 	<WorkEnvironment>
 		<Name>disjunctmatrices.Problem1</Name>
