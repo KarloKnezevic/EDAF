@@ -161,4 +161,17 @@ public class Binary extends Individual {
 		}
 		return iBits;
 	}
+	
+	@Override
+	public String toString() {
+		
+		StringBuilder sb = new StringBuilder();
+
+		for (byte b : bits) {
+			sb.append(b == 0 ? 0 : 1);
+			sb.append(", ");
+		}
+		
+		return sb.toString();
+	}
 }

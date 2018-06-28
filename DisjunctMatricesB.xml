@@ -4,15 +4,15 @@
         <Name>pbil</Name>
     </Algorithm>
 	<WorkEnvironment>
-		<Name>coco.TEST</Name>
+		<Name>disjunctmatrices.Problem1</Name>
 	</WorkEnvironment>
     <Genotype>
         <Gene>B</Gene>
 		<Encoding>binary</Encoding>
-        <lBound>-512</lBound>
-        <uBound>512</uBound>
-        <Dimension>30</Dimension>
-        <Precision key="decimal">5</Precision>
+        <lBound>0</lBound>
+        <uBound>1</uBound>
+        <Dimension>1</Dimension>
+        <Precision key="bits">200</Precision>
         <Crossing key="onePoint">0.7</Crossing>
         <Mutation key="simple">0.005</Mutation>
     </Genotype>

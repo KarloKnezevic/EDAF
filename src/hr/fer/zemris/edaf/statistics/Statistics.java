@@ -93,6 +93,7 @@ public class Statistics {
 
 	public static String stat2String(Individual[] samples, int iter) {
 		final DecimalFormat df = new DecimalFormat("0.000");
+		
 		return String.format("%-15s %-15s %-15s %-15s %-15s %-15s", iter,
 				df.format(getMinValue(samples)),
 				df.format(getMaxValue(samples)),
