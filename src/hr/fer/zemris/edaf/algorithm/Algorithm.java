@@ -176,8 +176,7 @@ public abstract class Algorithm extends Observable {
 	 */
 	protected void pushData(Individual[] population, int generation) {
 		printer(generation,
-				Statistics.stat2String(population, generation
-						* population.length));
+				Statistics.stat2String(population, generation));
 	}
 
 	/**
@@ -189,8 +188,7 @@ public abstract class Algorithm extends Observable {
 	 */
 	protected void pushData(Individual[] population, int generation, String opt) {
 		printer(generation,
-				Statistics.stat2String(population, generation
-						* population.length)
+				Statistics.stat2String(population, generation)
 						+ String.format(" %-15s", opt));
 	}
 

@@ -2,18 +2,18 @@ package hr.fer.zemris.edaf.workenvironment.disjunctmatrices;
 
 import hr.fer.zemris.edaf.algorithm.Algorithm;
 import hr.fer.zemris.edaf.fitness.disjunctmatrices.MatrixDeviation;
-import hr.fer.zemris.edaf.fitness.disjunctmatrices.TDeviation;
+import hr.fer.zemris.edaf.fitness.disjunctmatrices.TFDeviation;
 import hr.fer.zemris.edaf.genotype.Individual;
 import hr.fer.zemris.edaf.genotype.binary.Binary;
 import hr.fer.zemris.edaf.workenvironment.Evaluation;
 
-public class Problem1 extends Evaluation {
+public class Problem2 extends Evaluation {
 
 	private MatrixDeviation fit;
 
 	private int columns;
 
-	public Problem1(String[] args) {
+	public Problem2(String[] args) {
 		super(args);
 	}
 
@@ -25,7 +25,7 @@ public class Problem1 extends Evaluation {
 		columns = Integer.parseInt(cmdArgs[1]);
 
 		// fitness
-		fit = new MatrixDeviation(new TDeviation(), t);
+		fit = new MatrixDeviation(new TFDeviation(Integer.parseInt(cmdArgs[3])), t);
 
 		algorithm.run();
 	}
