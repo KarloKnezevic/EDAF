@@ -88,6 +88,8 @@ public interface IFrameworkContext {
 	public int getMaxNumberOfGen();
 
 	public int getStagnation();
+	
+	public double getDestValue();
 
 	public int getLogFrequency();
 

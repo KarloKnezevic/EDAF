@@ -6,7 +6,7 @@ import hr.fer.zemris.edaf.fitness.disjunctmatrices.TDeviation;
 public class DeviationTest {
 	public static void main(String[] args) {
 
-		MatrixDeviation deviation = new MatrixDeviation(new TDeviation(), 3);
+		MatrixDeviation deviation = new MatrixDeviation(new TDeviation(), 2);
 
 		System.out.println(deviation
 				.computeDeviation(new byte[] { 

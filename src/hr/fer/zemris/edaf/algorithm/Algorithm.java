@@ -38,6 +38,8 @@ public abstract class Algorithm extends Observable {
 	protected int maxGenerations;
 
 	protected int stagnation;
+	
+	protected double destValue;
 
 	protected int elitism;
 
@@ -106,6 +108,11 @@ public abstract class Algorithm extends Observable {
 
 		if (best.getFitness() < ind.getFitness()) {
 			++cntStagnation;
+			return;
+		}
+		
+		if (Math.abs(best.getFitness() - this.destValue) < 1e-5) {
+			cntStagnation = stagnation;
 			return;
 		}
 
@@ -213,6 +220,10 @@ public abstract class Algorithm extends Observable {
 
 	public void setLogFreq(int logFreq) {
 		this.logFreq = logFreq;
+	}
+	
+	public void setDestValue(double destValue) {
+		this.destValue = destValue;
 	}
 
 }

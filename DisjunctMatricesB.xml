@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EDAF>
     <Algorithm>
-        <Name>bmda</Name>
+        <Name>umda</Name>
     </Algorithm>
 	<WorkEnvironment>
 		<Name>disjunctmatrices.Problem1</Name>
@@ -12,7 +12,7 @@
         <lBound>0</lBound>
         <uBound>1</uBound>
         <Dimension>1</Dimension>
-        <Precision key="bits">200</Precision>
+        <Precision key="bits">8</Precision>
         <Crossing key="onePoint">0.7</Crossing>
         <Mutation key="simple">0.005</Mutation>
     </Genotype>
@@ -23,6 +23,7 @@
 		<Mortality>0.5</Mortality>
         <MaxNumberOfGen>1000000</MaxNumberOfGen>
         <Stagnation>100000</Stagnation>
+        <DestValue>0</DestValue>
 		<LogFrequency>5</LogFrequency>
         <LogDirectory>.</LogDirectory>
         <Selection key="truncation" ratio="0.2">3</Selection>

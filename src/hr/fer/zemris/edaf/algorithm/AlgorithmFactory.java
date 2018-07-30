@@ -54,6 +54,7 @@ public class AlgorithmFactory {
 		}
 
 		algorithm.setLogFreq(context.getLogFrequency());
+		algorithm.setDestValue(context.getDestValue());
 
 	}
 
