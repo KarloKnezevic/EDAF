@@ -3,108 +3,216 @@ package hr.fer.zemris.edaf;
 import java.util.Random;
 
 /**
- * Framework Context Interface. Returns necessary data for framework.
+ * This interface defines the contract for providing all the parameters to the
+ * EDA framework. An implementation of this interface is responsible for loading
+ * the configuration from a file (e.g., XML, JSON) and providing the values
+ * to the framework.
  * 
  * @author Karlo Knezevic, karlo.knezevic@fer.hr
- * 
+ * @version 1.1
  */
 public interface IFrameworkContext {
 
-	/**
-	 * Algorithm abbreviation.
-	 * 
-	 * @return String
-	 */
-	public String getAlgorithmName();
+    /**
+     * Gets the name of the algorithm to be used.
+     *
+     * @return the algorithm name
+     */
+    public String getAlgorithmName();
 
-	public String getWorkEnvironment();
+    /**
+     * Gets the name of the work environment (the problem to be solved).
+     *
+     * @return the work environment name
+     */
+    public String getWorkEnvironment();
 
-	/**
-	 * Genotype abbreviation.
-	 * 
-	 * @return String
-	 */
-	public String getGenotype();
+    /**
+     * Gets the type of the genotype (e.g., "B" for binary, "FP" for floating point).
+     *
+     * @return the genotype type
+     */
+    public String getGenotype();
 
-	/**
-	 * Encoding type. Binary or gray.
-	 * 
-	 * @return String
-	 */
-	public String getEncoding();
+    /**
+     * Gets the encoding type for the genotype (e.g., "binary", "gray").
+     *
+     * @return the encoding type
+     */
+    public String getEncoding();
 
-	/**
-	 * Lower bound of axis. Each axis has the same value.
-	 * 
-	 * @return int
-	 */
-	public int getLBound();
+    /**
+     * Gets the lower bound for the genotype's variables.
+     *
+     * @return the lower bound
+     */
+    public int getLBound();
 
-	/**
-	 * Upper bound of axis. Each axis has the same value.
-	 * 
-	 * @return int
-	 */
-	public int getUBound();
+    /**
+     * Gets the upper bound for the genotype's variables.
+     *
+     * @return the upper bound
+     */
+    public int getUBound();
 
-	/**
-	 * Space dimension.
-	 * 
-	 * @return int
-	 */
-	public int getDimension();
+    /**
+     * Gets the dimension of the problem space.
+     *
+     * @return the dimension
+     */
+    public int getDimension();
 
-	/**
-	 * Decimal place precision. Important for non floating point genotype.
-	 * 
-	 * @return int
-	 */
-	public int getPrecision();
+    /**
+     * Gets the precision for the genotype's variables.
+     *
+     * @return the precision
+     */
+    public int getPrecision();
 
-	public String getPrecisionDescription();
+    /**
+     * Gets the description of the precision (e.g., "decimal").
+     *
+     * @return the precision description
+     */
+    public String getPrecisionDescription();
 
-	public String getCrossing();
+    /**
+     * Gets the name of the crossing operator.
+     *
+     * @return the crossing operator name
+     */
+    public String getCrossing();
 	
 	/**
-	 * SBX crossing parameter
-	 * @return sbx crossing parameter
+	 * Gets the SBX crossing parameter.
+	 * @return the SBX crossing parameter
 	 */
 	public int getNi();
 
-	public double getCrossingProb();
+    /**
+     * Gets the crossing probability.
+     *
+     * @return the crossing probability
+     */
+    public double getCrossingProb();
 
-	public String getMutation();
+    /**
+     * Gets the name of the mutation operator.
+     *
+     * @return the mutation operator name
+     */
+    public String getMutation();
 
-	public double getMutationProb();
+    /**
+     * Gets the mutation probability.
+     *
+     * @return the mutation probability
+     */
+    public double getMutationProb();
 
-	public int getPopulationSize();
+    /**
+     * Gets the population size.
+     *
+     * @return the population size
+     */
+    public int getPopulationSize();
 
-	public double getEstimationProbability();
+    /**
+     * Gets the estimation probability for EDAs.
+     *
+     * @return the estimation probability
+     */
+    public double getEstimationProbability();
 
-	public int getElitism();
+    /**
+     * Gets the number of elite individuals to be preserved.
+     *
+     * @return the number of elite individuals
+     */
+    public int getElitism();
 
-	public double getMortality();
+    /**
+     * Gets the mortality rate for eliminative GAs.
+     *
+     * @return the mortality rate
+     */
+    public double getMortality();
 
-	public int getMaxNumberOfGen();
+    /**
+     * Gets the maximum number of generations.
+     *
+     * @return the maximum number of generations
+     */
+    public int getMaxNumberOfGen();
 
-	public int getStagnation();
+    /**
+     * Gets the stagnation limit (number of generations without improvement).
+     *
+     * @return the stagnation limit
+     */
+    public int getStagnation();
 	
+	/**
+	 * Gets the destination value (the target fitness value).
+	 *
+	 * @return the destination value
+	 */
 	public double getDestValue();
 
-	public int getLogFrequency();
+    /**
+     * Gets the frequency for logging.
+     *
+     * @return the log frequency
+     */
+    public int getLogFrequency();
 
-	public String getLogDirectory();
+    /**
+     * Gets the directory for logging.
+     *
+     * @return the log directory
+     */
+    public String getLogDirectory();
 
-	public String getSelection();
+    /**
+     * Gets the name of the selection operator.
+     *
+     * @return the selection operator name
+     */
+    public String getSelection();
 
-	public double getSelectionRatio();
+    /**
+     * Gets the selection ratio.
+     *
+     * @return the selection ratio
+     */
+    public double getSelectionRatio();
 
-	public double getSelectionParam();
+    /**
+     * Gets the selection parameter (e.g., for tournament selection).
+     *
+     * @return the selection parameter
+     */
+    public double getSelectionParam();
 
-	public String getRatioSelector();
+    /**
+     * Gets the name of the ratio selector.
+     *
+     * @return the ratio selector name
+     */
+    public String getRatioSelector();
 
-	public double getRatioSelectorRatio();
+    /**
+     * Gets the ratio for the ratio selector.
+     *
+     * @return the ratio selector ratio
+     */
+    public double getRatioSelectorRatio();
 
-	public Random getRand();
+    /**
+     * Gets the random number generator.
+     *
+     * @return the random number generator
+     */
+    public Random getRand();
 
 }

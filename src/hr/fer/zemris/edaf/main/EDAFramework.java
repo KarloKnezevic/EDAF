@@ -2,8 +2,7 @@ package hr.fer.zemris.edaf.main;
 
 import hr.fer.zemris.edaf.FrameworkExecutor;
 import hr.fer.zemris.edaf.IFrameworkContext;
-import hr.fer.zemris.edaf.xml.ClassPathFrameworkContext;
-import hr.fer.zemris.edaf.xml.DMClassPathContext;
+import hr.fer.zemris.edaf.json.JsonFrameworkContext;
 
 /**
  * ESTIMATION OF DISTRIBUTION ALGORITHMS FRAMEWORK Estimation of distribution
@@ -26,7 +25,7 @@ import hr.fer.zemris.edaf.xml.DMClassPathContext;
  * extend.
  * 
  * @author Karlo Knezevic, karlo.knezevic@fer.hr
- * @version 1.0
+ * @version 1.1
  * 
  */
 public class EDAFramework {
@@ -41,32 +40,17 @@ public class EDAFramework {
 	 */
 	public static void main(String[] args) throws Exception {
 
-		// 1st argument is framework initialize file and other are user
-		// arguments (args[1], ...)
+        if (args.length < 1) {
+            System.err.println("Usage: EDAFramework <config.json> [user_args...]");
+            System.exit(-1);
+        }
 
-		if (args.length != 4) {
-			System.err.println("4 arguments needed: parameters.xml, t, rows, max cols");
-			System.exit(-1);
-		}
+        String configFile = args[0];
+        String[] userArgs = new String[args.length - 1];
+        System.arraycopy(args, 1, userArgs, 0, userArgs.length);
 
-		int rows = Integer.parseInt(args[2]);
-
-		int maxColumns = Integer.parseInt(args[3]);
-		
-		DMClassPathContext context = new DMClassPathContext(args[0]);
-
-		for (int cols = 1; cols <= maxColumns; cols++) {
-			
-			System.out.println("\n------------------------");
-			System.out.println("t = " + args[1] + " Rows = " + rows + " Cols = " + cols);
-			System.out.println("------------------------");
-			
-			String cmdArgs[] = {args[1], String.valueOf(cols)};
-			
-			context.setPrecision(rows*cols);
-			
-			new FrameworkExecutor(context, cmdArgs).excute();
-		}
+        IFrameworkContext context = new JsonFrameworkContext(configFile);
+        new FrameworkExecutor(context, userArgs).excute();
 
 	}
 

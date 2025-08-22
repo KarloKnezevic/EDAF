@@ -1,0 +1,50 @@
+{
+  "algorithm": {
+    "name": "pbil"
+  },
+  "workEnvironment": {
+    "name": "coco.TEST"
+  },
+  "genotype": {
+    "gene": "B",
+    "encoding": "binary",
+    "lBound": -512,
+    "uBound": 512,
+    "dimension": 30,
+    "precision": {
+      "key": "decimal",
+      "value": 5
+    },
+    "crossing": {
+      "key": "onePoint",
+      "value": 0.7,
+      "ni": 0
+    },
+    "mutation": {
+      "key": "simple",
+      "value": 0.005
+    }
+  },
+  "registry": {
+    "populationSize": 50,
+    "estimationProbability": 0.5,
+    "elitism": 1,
+    "mortality": 0.5,
+    "maxNumberOfGen": 10000,
+    "stagnation": 1000,
+    "destValue": 0,
+    "logFrequency": 5,
+    "logDirectory": ".",
+    "selection": {
+      "key": "truncation",
+      "ratio": 0.2,
+      "value": 3
+    }
+  },
+  "algorithmParam": {
+    "ratioSelector": {
+      "value": "dynamic",
+      "ratio": 0.5
+    }
+  }
+}

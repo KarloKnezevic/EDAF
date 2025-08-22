@@ -10,75 +10,81 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * The Univariate Marginal Distribution Algorithm (UMDA) was introduced by
- * Műehlenbein. In contrast to PBIL, the population of solutions is kept and
- * processed.
- * 
- * In each iteration the frequency functions on each position for the selected
- * set of promising solutions are computed and these are then used to generate
- * new solutions. The new solutions replace the old ones and the process is
+ * The Univariate Marginal Distribution Algorithm (UMDA).
+ * <p>
+ * In each iteration, the frequency functions on each position for the selected
+ * set of promising solutions are computed, and these are then used to generate
+ * new solutions. The new solutions replace the old ones, and the process is
  * repeated until the termination criteria are met.
- * 
- * From the implementation point of view the UMDA matches the pseudo-code of
- * typical EDA algorithm, except that the dependence graph of constructed
+ * <p>
+ * From an implementation point of view, the UMDA matches the pseudo-code of a
+ * typical EDA algorithm, except that the dependence graph of the constructed
  * probabilistic model contains no edges.
- * 
+ *
  * @author Karlo Knezevic, karlo.knezevic@fer.hr
- * 
+ * @version 1.1
  */
 public class UMDA extends Algorithm {
 
-	private final double indEstimationRatio;
+    /**
+     * The ratio of individuals to be used for parameter estimation.
+     */
+    private final double indEstimationRatio;
 
-	public UMDA(Random rand, Genotype genotype, Selection selection,
-			Evaluation evaluation, int maxGenerations, int stagnation,
-			int elitism, double estimationProbab) {
+    /**
+     * Constructs a new UMDA algorithm.
+     *
+     * @param rand               the random number generator
+     * @param genotype           the genotype
+     * @param selection          the selection operator
+     * @param evaluation         the evaluation environment
+     * @param maxGenerations     the maximum number of generations
+     * @param stagnation         the stagnation limit
+     * @param elitism            the number of elite individuals
+     * @param estimationProbab the estimation probability
+     */
+    public UMDA(Random rand, Genotype genotype, Selection selection,
+                Evaluation evaluation, int maxGenerations, int stagnation,
+                int elitism, double estimationProbab) {
 
-		super(rand, genotype, selection, evaluation, maxGenerations,
-				stagnation, elitism);
+        super(rand, genotype, selection, evaluation, maxGenerations,
+                stagnation, elitism);
 
-		name = "umda";
+        name = "umda";
 
-		indEstimationRatio = estimationProbab;
+        indEstimationRatio = estimationProbab;
+    }
 
-	}
+    @Override
+    public void run() {
+        population = genotype.getIndividual().createPopulation(true);
+        evaluation.evaluate(population);
 
-	@Override
-	public void run() {
+        int generation = 0;
+        while ((generation < maxGenerations) && !stagnate()) {
+            ++generation;
+            runStep(population);
+            getBest(population);
+            pushData(population, generation);
+        }
+    }
 
-		population = genotype.getIndividual().createPopulation(true);
+    @Override
+    public Individual[] runStep(Individual[] population) {
+        Arrays.sort(population);
 
-		evaluation.evaluate(population);
+        // Estimate parameters from the selected individuals
+        statistics.independentlyEstimateParams(selection
+                .selectBetterIndividuals(population, indEstimationRatio));
 
-		int generation = 0;
-		while ((generation < maxGenerations) && !stagnate()) {
-			++generation;
+        // Sample a new population from the probabilistic model
+        final Individual[] sampled = statistics.createPopulation();
 
-			runStep(population);
+        evaluation.evaluate(sampled);
 
-			getBest(population);
+        // Insert the new individuals into the population
+        insertIntoPopulation(population, sampled, indEstimationRatio);
 
-			pushData(population, generation);
-
-		}
-
-	}
-
-	@Override
-	public Individual[] runStep(Individual[] population) {
-
-		Arrays.sort(population);
-
-		statistics.independentlyEstimateParams(selection
-				.selectBetterIndividuals(population, indEstimationRatio));
-
-		final Individual[] sampled = statistics.createPopulation();
-
-		evaluation.evaluate(sampled);
-
-		insertIntoPopulation(population, sampled, indEstimationRatio);
-
-		return population;
-	}
-
+        return population;
+    }
 }

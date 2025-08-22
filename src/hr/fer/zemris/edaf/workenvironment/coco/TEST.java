@@ -23,8 +23,8 @@ public class TEST extends Evaluation {
 
 	@Override
 	public void init(Algorithm algorithm) {
-		// 2. arg from command line if function num (1-24)
-		final int function = Integer.parseInt(cmdArgs[1]);
+		// 1. arg from command line if function num (1-24)
+		final int function = Integer.parseInt(cmdArgs[0]);
 
 		generic = new BBOB(function, 1, 30);
 		generic.init();
