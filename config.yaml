@@ -1,0 +1,15 @@
+problem:
+  class: hr.fer.zemris.edaf.problem.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+
+algorithm:
+  name: umda
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 5
+  termination:
+    max-generations: 100
