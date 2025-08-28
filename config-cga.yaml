@@ -1,0 +1,12 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.problems.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+
+algorithm:
+  name: cga
+  termination:
+    max-generations: 10000
+  parameters:
+    n: 100

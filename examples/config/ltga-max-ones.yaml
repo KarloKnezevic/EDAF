@@ -1,0 +1,14 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.maxones.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+
+algorithm:
+  name: LTGA
+  population:
+    size: 100
+  termination:
+    max-generations: 100
+  log-frequency: 10
+  log-directory: "logs/ltga-max-ones"

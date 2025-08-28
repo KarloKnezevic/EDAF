@@ -1,0 +1,22 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.maxones.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+
+algorithm:
+  name: PBIL
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 2
+  termination:
+    max-generations: 100
+  log-frequency: 10
+  log-directory: "logs/pbil-max-ones"
+  parameters:
+    learning-rate: 0.1
+    negative-learning-rate: 0.075
+    mutation-prob: 0.02
+    mutation-shift: 0.05

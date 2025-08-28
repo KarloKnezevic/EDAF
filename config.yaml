@@ -1,0 +1,24 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.problems.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+    # For floating point genotypes
+    # l-bound: -5.12
+    # u-bound: 5.12
+
+algorithm:
+  name: pbil
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 5
+  termination:
+    max-generations: 100
+  elitism: 1
+  stagnation: 100
+  log-frequency: 10
+  log-directory: "log"
+  parameters:
+    learningRate: 0.1
