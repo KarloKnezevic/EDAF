@@ -6,6 +6,8 @@ problem:
 
 algorithm:
   name: cGA
+  population:
+    size: 100
   termination:
     max-generations: 100
   log-frequency: 10
