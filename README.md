@@ -80,13 +80,50 @@ This will compile all the modules and create the JAR files in the `target` direc
 
 ## How to Run
 
-The `examples` module contains a `Framework` class with a `main` method that can be used to run experiments.
-You can run this class from your IDE or from the command line.
+The `examples` module produces an executable JAR file with all the necessary dependencies.
+You can run the framework from the command line using this JAR.
 
-To run an example, you need to provide a path to a configuration file in YAML format.
-An example configuration file `config.yaml` is provided in the root directory.
+First, build the project using `mvn clean install`. This will create the executable JAR in the `examples/target` directory.
+The JAR will be named `examples-2.0.0-SNAPSHOT-jar-with-dependencies.jar`.
 
-To run the example from the command line, use the `exec-maven-plugin`:
+To run an experiment, you need to provide a path to a configuration file in YAML format.
+The path to the configuration file should be relative to your current directory.
+There are several example configuration files in the `examples/config` directory.
+
+For example, to run the `cga-max-ones` example from the root directory of the project, use the following command:
 ```
-mvn -f examples/pom.xml exec:java -Dexec.mainClass="hr.fer.zemris.edaf.examples.Framework" -Dexec.args="../config.yaml"
+java -jar examples/target/examples-2.0.0-SNAPSHOT-jar-with-dependencies.jar examples/config/cga-max-ones.yaml
 ```
+
+## Extending the Framework
+
+You can extend the framework by adding your own custom problems. Here are the steps to do that:
+
+1.  **Create a new problem class.** Your class must implement the `hr.fer.zemris.edaf.core.Problem` interface.
+    This interface has a single method, `evaluate(Individual individual)`, which you need to implement.
+    For example, you could create a `MyProblem.java` file in your own package.
+
+    ```java
+    package com.mycompany.myproject;
+
+    import hr.fer.zemris.edaf.core.Problem;
+    import hr.fer.zemris.edaf.core.Individual;
+
+    public class MyProblem implements Problem {
+        @Override
+        public void evaluate(Individual individual) {
+            // Your evaluation logic here
+        }
+    }
+    ```
+
+2.  **Update the configuration file.** In your YAML configuration file, you need to specify the fully qualified name of your new problem class.
+
+    ```yaml
+    problem:
+        name: com.mycompany.myproject.MyProblem
+        # other problem parameters...
+    ```
+
+3.  **Build and run.** Rebuild the project with `mvn clean install` to include your new class.
+    Then, you can run the framework with your new configuration file.
