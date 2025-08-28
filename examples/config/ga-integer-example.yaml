@@ -1,0 +1,25 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.problems.MaxOnes # Note: This is not an integer problem, just for demonstration
+  genotype:
+    type: integer
+    length: 20
+    min-bound: 0
+    max-bound: 100
+    crossing:
+      name: onePoint
+    mutation:
+      name: simple
+      probability: 0.05
+
+algorithm:
+  name: gGA
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 3
+  termination:
+    max-generations: 100
+  elitism: 1
+  log-frequency: 10
+  log-directory: "logs/ga-integer-example"

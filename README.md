@@ -123,6 +123,40 @@ The framework uses YAML files for configuration.
 ### Validation
 The framework automatically validates the configuration file upon loading. If any required parameters are missing or have invalid values, it will print a clear error message and exit. This prevents runtime errors due to misconfiguration.
 
+### Available Components
+
+Here is a list of the currently available components that can be specified in the configuration file.
+
+**Genotypes (`genotype.type`)**
+| Name      | Description                               |
+|-----------|-------------------------------------------|
+| `binary`  | A genotype represented by a binary string.  |
+| `fp`      | A genotype represented by floating-point numbers. |
+| `integer` | A genotype represented by integers.       |
+
+**Selection (`selection.name`)**
+| Name            | Description                               |
+|-----------------|-------------------------------------------|
+| `tournament`    | Tournament selection.                     |
+| `rouletteWheel` | Roulette wheel selection.                 |
+
+**Crossover (`crossing.name`)**
+| Genotype  | Name          | Description                   |
+|-----------|---------------|-------------------------------|
+| `binary`  | `onePoint`    | One-point crossover.          |
+| `binary`  | `uniform`     | Uniform crossover.            |
+| `integer` | `onePoint`    | One-point crossover.          |
+| `integer` | `twoPoint`    | Two-point crossover.          |
+| `fp`      | `sbx`         | Simulated Binary Crossover.   |
+
+**Mutation (`mutation.name`)**
+| Genotype  | Name         | Description                  |
+|-----------|--------------|------------------------------|
+| `binary`  | `simple`     | Simple bit-flip mutation.    |
+| `integer` | `simple`     | Simple integer mutation.     |
+| `fp`      | `polynomial` | Polynomial mutation.         |
+
+
 ### Extending the Framework
 
 You can extend the framework by adding your own custom problems. Here are the steps to do that:

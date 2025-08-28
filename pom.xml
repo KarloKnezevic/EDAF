@@ -31,6 +31,7 @@
         <module>core</module>
         <module>genotype-binary</module>
         <module>genotype-fp</module>
+        <module>genotype-integer</module>
         <module>algorithm-umda</module>
         <module>algorithm-pbil</module>
         <module>algorithm-gga</module>

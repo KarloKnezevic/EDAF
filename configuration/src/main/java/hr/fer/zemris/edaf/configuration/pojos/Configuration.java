@@ -68,6 +68,10 @@ public class Configuration {
         private double lowerBound;
         @JsonProperty("u-bound")
         private double upperBound;
+        @JsonProperty("min-bound")
+        private int minBound;
+        @JsonProperty("max-bound")
+        private int maxBound;
         @Min(value = 1, message = "Genotype length must be at least 1.")
         private int length;
         private int precision;
@@ -84,6 +88,10 @@ public class Configuration {
         public void setLowerBound(double lowerBound) { this.lowerBound = lowerBound; }
         public double getUpperBound() { return upperBound; }
         public void setUpperBound(double upperBound) { this.upperBound = upperBound; }
+        public int getMinBound() { return minBound; }
+        public void setMinBound(int minBound) { this.minBound = minBound; }
+        public int getMaxBound() { return maxBound; }
+        public void setMaxBound(int maxBound) { this.maxBound = maxBound; }
         public int getLength() { return length; }
         public void setLength(int length) { this.length = length; }
         public int getPrecision() { return precision; }

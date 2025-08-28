@@ -26,30 +26,57 @@ public class GenerateConfigCommand implements Callable<Integer> {
     }
 
     private Configuration createDefaultConfig(String algorithmName) {
-        // This is a simplified example. A real implementation would have more
-        // sophisticated logic to create defaults for different algorithms.
         Configuration config = new Configuration();
 
+        // Problem section
         Configuration.ProblemConfig problem = new Configuration.ProblemConfig();
-        problem.setClassName("hr.fer.zemris.edaf.testing.maxones.MaxOnes");
+        problem.setClassName("hr.fer.zemris.edaf.testing.problems.MaxOnes");
+
+        // Genotype section
         Configuration.GenotypeConfig genotype = new Configuration.GenotypeConfig();
-        genotype.setType("binary");
+        genotype.setType("binary"); // binary, fp, or integer
         genotype.setLength(20);
+        // For fp genotype
+        genotype.setLowerBound(0.0);
+        genotype.setUpperBound(1.0);
+        // For integer genotype
+        genotype.setMinBound(0);
+        genotype.setMaxBound(1);
+
+        // Crossing section
+        Configuration.CrossingConfig crossing = new Configuration.CrossingConfig();
+        crossing.setName("onePoint"); // e.g., onePoint, uniform, sbx
+        crossing.setProbability(0.8); // For SBX, this is the distribution index
+        genotype.setCrossing(crossing);
+
+        // Mutation section
+        Configuration.MutationConfig mutation = new Configuration.MutationConfig();
+        mutation.setName("simple"); // e.g., simple, polynomial
+        mutation.setProbability(0.05); // For Polynomial, this is the distribution index
+        genotype.setMutation(mutation);
+
         problem.setGenotype(genotype);
         config.setProblem(problem);
 
+        // Algorithm section
         Configuration.AlgorithmConfig algorithm = new Configuration.AlgorithmConfig();
         algorithm.setName(algorithmName);
+
         Configuration.PopulationConfig population = new Configuration.PopulationConfig();
         population.setSize(100);
         algorithm.setPopulation(population);
+
         Configuration.SelectionConfig selection = new Configuration.SelectionConfig();
-        selection.setName("tournament");
-        selection.setSize(2);
+        selection.setName("tournament"); // e.g., tournament, rouletteWheel
+        selection.setSize(3);
         algorithm.setSelection(selection);
+
         Configuration.TerminationConfig termination = new Configuration.TerminationConfig();
         termination.setMaxGenerations(100);
         algorithm.setTermination(termination);
+
+        algorithm.setElitism(1);
+
         config.setAlgorithm(algorithm);
 
         return config;

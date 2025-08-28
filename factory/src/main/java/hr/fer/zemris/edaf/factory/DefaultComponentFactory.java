@@ -9,8 +9,15 @@ import hr.fer.zemris.edaf.core.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryGenotype;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 import hr.fer.zemris.edaf.genotype.binary.crossing.OnePointCrossover;
+import hr.fer.zemris.edaf.genotype.binary.crossing.UniformCrossover;
 import hr.fer.zemris.edaf.genotype.binary.mutation.SimpleMutation;
 import hr.fer.zemris.edaf.genotype.fp.FpGenotype;
+import hr.fer.zemris.edaf.genotype.fp.crossing.SimulatedBinaryCrossover;
+import hr.fer.zemris.edaf.genotype.fp.mutation.PolynomialMutation;
+import hr.fer.zemris.edaf.genotype.integer.IntegerGenotype;
+import hr.fer.zemris.edaf.genotype.integer.IntegerIndividual;
+import hr.fer.zemris.edaf.genotype.integer.crossing.TwoPointCrossover;
+import hr.fer.zemris.edaf.genotype.integer.mutation.SimpleIntegerMutation;
 import hr.fer.zemris.edaf.algorithm.mimic.MIMIC;
 import hr.fer.zemris.edaf.genotype.fp.FpIndividual;
 import hr.fer.zemris.edaf.statistics.mimic.MimicStatistics;
@@ -41,6 +48,10 @@ public class DefaultComponentFactory implements ComponentFactory {
             return new FpGenotype(config.getProblem().getGenotype().getLength(),
                     config.getProblem().getGenotype().getLowerBound(),
                     config.getProblem().getGenotype().getUpperBound(), random);
+        } else if ("integer".equals(type)) {
+            return new IntegerGenotype(config.getProblem().getGenotype().getLength(),
+                    config.getProblem().getGenotype().getMinBound(),
+                    config.getProblem().getGenotype().getMaxBound(), random);
         }
         return null;
     }
@@ -53,6 +64,8 @@ public class DefaultComponentFactory implements ComponentFactory {
                 population.add(new BinaryIndividual((byte[]) genotype.create()));
             } else if (genotype instanceof FpGenotype) {
                 population.add(new FpIndividual((double[]) genotype.create()));
+            } else if (genotype instanceof IntegerGenotype) {
+                population.add(new IntegerIndividual((int[]) genotype.create()));
             }
         }
         return population;
@@ -80,6 +93,8 @@ public class DefaultComponentFactory implements ComponentFactory {
         String selectionName = config.getAlgorithm().getSelection().getName();
         if ("tournament".equals(selectionName)) {
             return new TournamentSelection(random, config.getAlgorithm().getSelection().getSize());
+        } else if ("rouletteWheel".equals(selectionName)) {
+            return new RouletteWheelSelection(random);
         }
         return null;
     }
@@ -126,16 +141,52 @@ public class DefaultComponentFactory implements ComponentFactory {
 
     private Crossover createCrossover(Configuration config, Random random) {
         String crossoverName = config.getProblem().getGenotype().getCrossing().getName();
-        if ("onePoint".equals(crossoverName)) {
-            return new OnePointCrossover(random);
+        String genotypeType = config.getProblem().getGenotype().getType();
+
+        if ("binary".equals(genotypeType)) {
+            if ("onePoint".equals(crossoverName)) {
+                return new OnePointCrossover(random);
+            } else if ("uniform".equals(crossoverName)) {
+                return new UniformCrossover(random);
+            }
+        } else if ("integer".equals(genotypeType)) {
+            if ("onePoint".equals(crossoverName)) {
+                return new hr.fer.zemris.edaf.genotype.integer.crossing.OnePointCrossover(random);
+            } else if ("twoPoint".equals(crossoverName)) {
+                return new TwoPointCrossover(random);
+            }
+        } else if ("fp".equals(genotypeType)) {
+            if ("sbx".equals(crossoverName)) {
+                // A bit of a hack: using probability field for distribution index
+                return new SimulatedBinaryCrossover(random, config.getProblem().getGenotype().getCrossing().getProbability());
+            }
         }
         return null;
     }
 
     private Mutation createMutation(Configuration config, Random random) {
         String mutationName = config.getProblem().getGenotype().getMutation().getName();
-        if ("simple".equals(mutationName)) {
-            return new SimpleMutation(random, config.getProblem().getGenotype().getMutation().getProbability());
+        String genotypeType = config.getProblem().getGenotype().getType();
+        double mutationProbability = config.getProblem().getGenotype().getMutation().getProbability();
+
+        if ("binary".equals(genotypeType)) {
+            if ("simple".equals(mutationName)) {
+                return new SimpleMutation(random, mutationProbability);
+            }
+        } else if ("integer".equals(genotypeType)) {
+            if ("simple".equals(mutationName)) {
+                return new SimpleIntegerMutation(random, mutationProbability,
+                        config.getProblem().getGenotype().getMinBound(),
+                        config.getProblem().getGenotype().getMaxBound());
+            }
+        } else if ("fp".equals(genotypeType)) {
+            if ("polynomial".equals(mutationName)) {
+                // A bit of a hack: using probability field for distribution index
+                return new PolynomialMutation(random, mutationProbability,
+                        config.getProblem().getGenotype().getMutation().getProbability(),
+                        config.getProblem().getGenotype().getLowerBound(),
+                        config.getProblem().getGenotype().getUpperBound());
+            }
         }
         return null;
     }
