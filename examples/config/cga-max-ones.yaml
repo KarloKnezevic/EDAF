@@ -8,6 +8,9 @@ algorithm:
   name: cGA
   population:
     size: 100
+  selection:
+    name: tournament
+    size: 2
   termination:
     max-generations: 100
   log-frequency: 10
