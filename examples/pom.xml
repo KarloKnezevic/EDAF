@@ -46,6 +46,36 @@
             <artifactId>factory</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>testing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>algorithm-cga</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>algorithm-ega</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>algorithm-gga</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>algorithm-ltga</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>algorithm-pbil</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
