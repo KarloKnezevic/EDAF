@@ -24,6 +24,7 @@
         <hibernate-validator.version>8.0.0.Final</hibernate-validator.version>
         <jakarta.el.version>4.0.2</jakarta.el.version>
         <picocli.version>4.7.5</picocli.version>
+        <progressbar.version>0.10.0</progressbar.version>
     </properties>
 
     <modules>
@@ -108,6 +109,11 @@
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
                 <version>${picocli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>me.tongfei</groupId>
+                <artifactId>progressbar</artifactId>
+                <version>${progressbar.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

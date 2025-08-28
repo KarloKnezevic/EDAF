@@ -8,6 +8,8 @@ import hr.fer.zemris.edaf.factory.DefaultComponentFactory;
 import net.logstash.logback.marker.Markers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
@@ -18,13 +20,15 @@ import java.util.concurrent.Callable;
 @Command(name = "edaf", mixinStandardHelpOptions = true, version = "EDAF 2.0",
         description = "Estimation of Distribution Algorithms Framework.",
         subcommands = {GenerateConfigCommand.class})
-public class Framework implements Callable<Integer> {
+public class Framework implements Callable<Integer>, ProgressListener {
 
     private static final Logger log = LoggerFactory.getLogger(Framework.class);
     private static final Logger resultLog = LoggerFactory.getLogger("hr.fer.zemris.edaf.results");
 
     @Parameters(index = "0", description = "The configuration file to run.", arity = "0..1")
     private String configFile;
+
+    private ProgressBar progressBar;
 
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Framework()).execute(args);
@@ -66,12 +70,16 @@ public class Framework implements Callable<Integer> {
         Selection selection = factory.createSelection(config, random);
         TerminationCondition terminationCondition = factory.createTerminationCondition(config);
         Algorithm algorithm = factory.createAlgorithm(config, problem, population, selection, statistics, terminationCondition, random);
+        algorithm.setProgressListener(this);
         log.info("Framework components initialized successfully.");
 
         // 3. Run algorithm
         log.info("PHASE 3: Starting algorithm '{}'...", config.getAlgorithm().getName());
         if (algorithm != null) {
-            algorithm.run();
+            try (ProgressBar pb = new ProgressBar("Generations", config.getAlgorithm().getTermination().getMaxGenerations(), 1000, System.err, ProgressBarStyle.ASCII, " gen", 1)) {
+                this.progressBar = pb;
+                algorithm.run();
+            }
             log.info("Algorithm execution finished.");
 
             log.info("-------------------- RESULTS --------------------");
@@ -88,5 +96,14 @@ public class Framework implements Callable<Integer> {
         log.info("=================================================");
         log.info("   Framework execution finished.                 ");
         log.info("=================================================");
+    }
+
+    @Override
+    public void onGenerationDone(int generation, Population population) {
+        if (progressBar != null) {
+            progressBar.step();
+            Individual best = population.getBest();
+            progressBar.setExtraMessage(String.format("Best fitness: %.4f", best.getFitness()));
+        }
     }
 }

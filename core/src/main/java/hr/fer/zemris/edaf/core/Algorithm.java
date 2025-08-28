@@ -32,4 +32,11 @@ public interface Algorithm<T extends Individual> {
      * @return The current population.
      */
     Population<T> getPopulation();
+
+    /**
+     * Sets the progress listener for this algorithm.
+     *
+     * @param listener The progress listener.
+     */
+    void setProgressListener(ProgressListener listener);
 }

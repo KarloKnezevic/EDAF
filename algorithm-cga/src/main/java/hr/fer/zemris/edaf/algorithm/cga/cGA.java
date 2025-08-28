@@ -4,6 +4,7 @@ import hr.fer.zemris.edaf.core.Algorithm;
 import hr.fer.zemris.edaf.core.Individual;
 import hr.fer.zemris.edaf.core.Population;
 import hr.fer.zemris.edaf.core.Problem;
+import hr.fer.zemris.edaf.core.ProgressListener;
 import hr.fer.zemris.edaf.core.TerminationCondition;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
@@ -23,6 +24,7 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
     private BinaryIndividual best;
     private int generation;
+    private ProgressListener listener;
 
     public cGA(Problem<BinaryIndividual> problem, TerminationCondition<BinaryIndividual> terminationCondition,
                int n, int length, Random random) {
@@ -81,6 +83,9 @@ public class cGA implements Algorithm<BinaryIndividual> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, getPopulation());
+            }
         }
     }
 
@@ -96,7 +101,34 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> getPopulation() {
-        // cGA does not maintain a population
-        return null;
+        // cGA does not maintain a full population, but we can return a dummy
+        // population containing just the best individual for progress reporting.
+        if (best == null) {
+            return null;
+        }
+        return new Population<>() {
+            @Override
+            public int getSize() { return 1; }
+
+            @Override
+            public BinaryIndividual getIndividual(int index) { return best; }
+
+            @Override
+            public BinaryIndividual getBest() { return best; }
+
+            @Override
+            public void add(BinaryIndividual individual) { /* no-op */ }
+
+            @Override
+            public void setIndividual(int index, BinaryIndividual individual) { /* no-op */ }
+
+            @Override
+            public void sort() { /* no-op */ }
+        };
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }
