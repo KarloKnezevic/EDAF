@@ -1,0 +1,20 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.problems.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+    crossing:
+      name: onePoint
+    mutation:
+      name: simple
+      probability: 0.05
+
+algorithm:
+  name: ega
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 5
+  termination:
+    max-generations: 1000

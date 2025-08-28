@@ -1,12 +1,12 @@
 package hr.fer.zemris.edaf.algorithm.umda;
 
-import hr.fer.zemris.edaf.core.Algorithm;
-import hr.fer.zemris.edaf.core.Individual;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.Problem;
-import hr.fer.zemris.edaf.core.Selection;
-import hr.fer.zemris.edaf.core.Statistics;
-import hr.fer.zemris.edaf.core.TerminationCondition;
+import hr.fer.zemris.edaf.core.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The Univariate Marginal Distribution Algorithm (UMDA).
@@ -39,9 +39,7 @@ public class Umda<T extends Individual> implements Algorithm<T> {
     @Override
     public void run() {
         // 1. Initialize population
-        for (T individual : population) {
-            problem.evaluate(individual);
-        }
+        evaluatePopulation(population);
         population.sort();
         best = (T) population.getBest().copy();
         generation = 0;
@@ -58,9 +56,7 @@ public class Umda<T extends Individual> implements Algorithm<T> {
             Population<T> newPopulation = statistics.sample(population.size());
 
             // 2.4. Evaluate new individuals
-            for (T individual : newPopulation) {
-                problem.evaluate(individual);
-            }
+            evaluatePopulation(newPopulation);
 
             // 2.5. Replace old population
             population.clear();
@@ -75,6 +71,23 @@ public class Umda<T extends Individual> implements Algorithm<T> {
 
             generation++;
         }
+    }
+
+    private void evaluatePopulation(Population<T> population) {
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<Callable<Void>> tasks = new ArrayList<>();
+        for (T individual : population) {
+            tasks.add(() -> {
+                problem.evaluate(individual);
+                return null;
+            });
+        }
+        try {
+            executor.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        executor.shutdown();
     }
 
     @Override

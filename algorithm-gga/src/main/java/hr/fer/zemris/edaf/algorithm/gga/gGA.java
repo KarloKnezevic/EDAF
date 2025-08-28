@@ -10,6 +10,12 @@ import hr.fer.zemris.edaf.core.Selection;
 import hr.fer.zemris.edaf.core.SimplePopulation;
 import hr.fer.zemris.edaf.core.TerminationCondition;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * A generational Genetic Algorithm (gGA).
  *
@@ -43,9 +49,7 @@ public class gGA<T extends Individual> implements Algorithm<T> {
     @Override
     public void run() {
         // 1. Initialize population
-        for (T individual : population) {
-            problem.evaluate(individual);
-        }
+        evaluatePopulation(population);
         population.sort();
         best = (T) population.getBest().copy();
         generation = 0;
@@ -68,18 +72,19 @@ public class gGA<T extends Individual> implements Algorithm<T> {
                 T offspring = crossover.crossover(parents.get(0), parents.get(1));
                 // Mutation
                 mutation.mutate(offspring);
-                // Evaluate
-                problem.evaluate(offspring);
                 // Add to new population
                 newPopulation.add(offspring);
             }
 
-            // 2.4. Replace old population
+            // 2.4. Evaluate new individuals
+            evaluatePopulation(newPopulation);
+
+            // 2.5. Replace old population
             population.clear();
             population.addAll(newPopulation);
             population.sort();
 
-            // 2.5. Update best individual
+            // 2.6. Update best individual
             T currentBest = population.getBest();
             if (currentBest.getFitness() < best.getFitness()) {
                 best = (T) currentBest.copy();
@@ -87,6 +92,23 @@ public class gGA<T extends Individual> implements Algorithm<T> {
 
             generation++;
         }
+    }
+
+    private void evaluatePopulation(Population<T> population) {
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<Callable<Void>> tasks = new ArrayList<>();
+        for (T individual : population) {
+            tasks.add(() -> {
+                problem.evaluate(individual);
+                return null;
+            });
+        }
+        try {
+            executor.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        executor.shutdown();
     }
 
     @Override

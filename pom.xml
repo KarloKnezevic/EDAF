@@ -26,10 +26,16 @@
         <module>algorithm-umda</module>
         <module>algorithm-pbil</module>
         <module>algorithm-gga</module>
+        <module>algorithm-ega</module>
+        <module>algorithm-cga</module>
+        <module>algorithm-bmda</module>
+        <module>algorithm-mimic</module>
+        <module>algorithm-ltga</module>
         <module>configuration</module>
         <module>statistics</module>
         <module>testing</module>
         <module>examples</module>
+        <module>factory</module>
     </modules>
 
     <dependencyManagement>

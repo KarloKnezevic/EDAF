@@ -5,4 +5,6 @@ hr/fer/zemris/edaf/configuration/pojos/Configuration$SelectionConfig.class
 hr/fer/zemris/edaf/configuration/pojos/Configuration$GenotypeConfig.class
 hr/fer/zemris/edaf/configuration/pojos/Configuration.class
 hr/fer/zemris/edaf/configuration/pojos/Configuration$ProblemConfig.class
+hr/fer/zemris/edaf/configuration/pojos/Configuration$MutationConfig.class
 hr/fer/zemris/edaf/configuration/pojos/Configuration$TerminationConfig.class
+hr/fer/zemris/edaf/configuration/pojos/Configuration$CrossingConfig.class

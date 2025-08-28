@@ -1,0 +1,24 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.maxones.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+    crossing:
+      name: one-point
+      probability: 0.2
+    mutation:
+      name: bit-flip
+      probability: 0.1
+
+algorithm:
+  name: gGA
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 3
+  termination:
+    max-generations: 100
+  elitism: 1
+  log-frequency: 10
+  log-directory: "logs/gga-max-ones"

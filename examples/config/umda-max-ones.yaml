@@ -1,0 +1,19 @@
+problem:
+  class: hr.fer.zemris.edaf.testing.maxones.MaxOnes
+  genotype:
+    type: binary
+    length: 20
+
+algorithm:
+  name: UMDA
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 2
+  termination:
+    max-generations: 100
+  log-frequency: 10
+  log-directory: "logs/umda-max-ones"
+  parameters:
+    ratio: 0.5

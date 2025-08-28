@@ -41,6 +41,11 @@
             <artifactId>statistics</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>factory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

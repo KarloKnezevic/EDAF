@@ -36,6 +36,11 @@
             <artifactId>genotype-binary</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>genotype-fp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

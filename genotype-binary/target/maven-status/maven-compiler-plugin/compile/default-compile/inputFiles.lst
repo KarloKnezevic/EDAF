@@ -1,2 +1,4 @@
 /app/genotype-binary/src/main/java/hr/fer/zemris/edaf/genotype/binary/BinaryGenotype.java
 /app/genotype-binary/src/main/java/hr/fer/zemris/edaf/genotype/binary/BinaryIndividual.java
+/app/genotype-binary/src/main/java/hr/fer/zemris/edaf/genotype/binary/crossing/OnePointCrossover.java
+/app/genotype-binary/src/main/java/hr/fer/zemris/edaf/genotype/binary/mutation/SimpleMutation.java

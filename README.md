@@ -17,6 +17,46 @@ The main components are defined by interfaces in the `core` module, and the impl
 
 ### Modules
 
+Here is a diagram of the module dependencies:
+
+```mermaid
+graph TD;
+    core;
+    genotype-binary --> core;
+    genotype-fp --> core;
+    statistics --> core;
+    statistics --> genotype-binary;
+    statistics --> genotype-fp;
+    testing --> core;
+    testing --> genotype-binary;
+    testing --> genotype-fp;
+    algorithm-umda --> core;
+    algorithm-umda --> statistics;
+    algorithm-pbil --> core;
+    algorithm-pbil --> statistics;
+    algorithm-gga --> core;
+    algorithm-ega --> core;
+    algorithm-cga --> core;
+    algorithm-mimic --> core;
+    algorithm-mimic --> statistics;
+    algorithm-ltga --> core;
+    configuration --> core;
+    factory --> core;
+    factory --> configuration;
+    factory --> genotype-binary;
+    factory --> genotype-fp;
+    factory --> statistics;
+    factory --> algorithm-umda;
+    factory --> algorithm-pbil;
+    factory --> algorithm-gga;
+    factory --> algorithm-ega;
+    factory --> algorithm-cga;
+    factory --> algorithm-mimic;
+    factory --> algorithm-ltga;
+    examples --> core;
+    examples --> factory;
+```
+
 *   `core`: Core interfaces and classes.
 *   `genotype-binary`: Binary genotype implementation.
 *   `genotype-fp`: Floating-point genotype implementation.

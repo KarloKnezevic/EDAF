@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="hr.fer.zemris.edaf.algorithm.mimic.MIMICTest" time="0.16" tests="1" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.specification.version" value="21"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/app/algorithm-mimic/target/test-classes:/app/algorithm-mimic/target/classes:/app/core/target/core-2.0.0-SNAPSHOT.jar:/app/genotype-binary/target/genotype-binary-2.0.0-SNAPSHOT.jar:/app/statistics/target/statistics-2.0.0-SNAPSHOT.jar:/app/genotype-fp/target/genotype-fp-2.0.0-SNAPSHOT.jar:/home/jules/.m2/repository/nz/ac/waikato/cms/weka/weka-dev/3.9.5/weka-dev-3.9.5.jar:/home/jules/.m2/repository/com/github/vbmacher/java-cup/11b-20160615/java-cup-11b-20160615.jar:/home/jules/.m2/repository/com/github/vbmacher/java-cup-runtime/11b-20160615/java-cup-runtime-11b-20160615.jar:/home/jules/.m2/repository/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18.jar:/home/jules/.m2/repository/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1.jar:/home/jules/.m2/repository/com/github/fommil/jniloader/1.1/jniloader-1.1.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-natives.jar:/home/jules/.m2/repository/net/sourceforge/f2j/arpack_combined_all/0.1/arpack_combined_all-0.1.jar:/home/jules/.m2/repository/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar:/home/jules/.m2/repository/com/github/fommil/netlib/core/1.1/core-1.1.jar:/home/jules/.m2/repository/com/github/fracpete/jfilechooser-bookmarks/0.1.6/jfilechooser-bookmarks-0.1.6.jar:/home/jules/.m2/repository/com/github/fracpete/jclipboardhelper/0.1.0/jclipboardhelper-0.1.0.jar:/home/jules/.m2/repository/com/sun/istack/istack-commons-runtime/3.0.11/istack-commons-runtime-3.0.11.jar:/home/jules/.m2/repository/jakarta/activation/jakarta.activation-api/1.2.2/jakarta.activation-api-1.2.2.jar:/home/jules/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/2.3.3/jakarta.xml.bind-api-2.3.3.jar:/home/jules/.m2/repository/org/glassfish/jaxb/jaxb-runtime/2.3.3/jaxb-runtime-2.3.3.jar:/home/jules/.m2/repository/org/glassfish/jaxb/txw2/2.3.3/txw2-2.3.3.jar:/home/jules/.m2/repository/com/sun/activation/jakarta.activation/1.2.2/jakarta.activation-1.2.2.jar:/app/testing/target/testing-2.0.0-SNAPSHOT.jar:/home/jules/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.9.2/junit-jupiter-api-5.9.2.jar:/home/jules/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/jules/.m2/repository/org/junit/platform/junit-platform-commons/1.9.2/junit-platform-commons-1.9.2.jar:/home/jules/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/jules/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.9.2/junit-jupiter-engine-5.9.2.jar:/home/jules/.m2/repository/org/junit/platform/junit-platform-engine/1.9.2/junit-platform-engine-1.9.2.jar:"/>
+    <property name="java.vm.vendor" value="Ubuntu"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.vendor.url" value="https://ubuntu.com/"/>
+    <property name="os.name" value="Linux"/>
+    <property name="java.vm.specification.version" value="21"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk-amd64/lib"/>
+    <property name="sun.java.command" value="/app/algorithm-mimic/target/surefire/surefirebooter-20250828150906226_12.jar /app/algorithm-mimic/target/surefire 2025-08-28T15-08-59_668-jvmRun1 surefire-20250828150906226_10tmp surefire_3-20250828150906226_11tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="/app/algorithm-mimic/target/test-classes:/app/algorithm-mimic/target/classes:/app/core/target/core-2.0.0-SNAPSHOT.jar:/app/genotype-binary/target/genotype-binary-2.0.0-SNAPSHOT.jar:/app/statistics/target/statistics-2.0.0-SNAPSHOT.jar:/app/genotype-fp/target/genotype-fp-2.0.0-SNAPSHOT.jar:/home/jules/.m2/repository/nz/ac/waikato/cms/weka/weka-dev/3.9.5/weka-dev-3.9.5.jar:/home/jules/.m2/repository/com/github/vbmacher/java-cup/11b-20160615/java-cup-11b-20160615.jar:/home/jules/.m2/repository/com/github/vbmacher/java-cup-runtime/11b-20160615/java-cup-runtime-11b-20160615.jar:/home/jules/.m2/repository/nz/ac/waikato/cms/weka/thirdparty/bounce/0.18/bounce-0.18.jar:/home/jules/.m2/repository/com/googlecode/matrix-toolkits-java/mtj/1.0.4/mtj-1.0.4.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-osx-x86_64/1.1/netlib-native_ref-osx-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/native_ref-java/1.1/native_ref-java-1.1.jar:/home/jules/.m2/repository/com/github/fommil/jniloader/1.1/jniloader-1.1.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-linux-x86_64/1.1/netlib-native_ref-linux-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-linux-i686/1.1/netlib-native_ref-linux-i686-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-win-x86_64/1.1/netlib-native_ref-win-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-win-i686/1.1/netlib-native_ref-win-i686-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_ref-linux-armhf/1.1/netlib-native_ref-linux-armhf-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-osx-x86_64/1.1/netlib-native_system-osx-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/native_system-java/1.1/native_system-java-1.1.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-linux-x86_64/1.1/netlib-native_system-linux-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-linux-i686/1.1/netlib-native_system-linux-i686-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-linux-armhf/1.1/netlib-native_system-linux-armhf-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-win-x86_64/1.1/netlib-native_system-win-x86_64-1.1-natives.jar:/home/jules/.m2/repository/com/github/fommil/netlib/netlib-native_system-win-i686/1.1/netlib-native_system-win-i686-1.1-natives.jar:/home/jules/.m2/repository/net/sourceforge/f2j/arpack_combined_all/0.1/arpack_combined_all-0.1.jar:/home/jules/.m2/repository/com/googlecode/netlib-java/netlib-java/1.1/netlib-java-1.1.jar:/home/jules/.m2/repository/com/github/fommil/netlib/core/1.1/core-1.1.jar:/home/jules/.m2/repository/com/github/fracpete/jfilechooser-bookmarks/0.1.6/jfilechooser-bookmarks-0.1.6.jar:/home/jules/.m2/repository/com/github/fracpete/jclipboardhelper/0.1.0/jclipboardhelper-0.1.0.jar:/home/jules/.m2/repository/com/sun/istack/istack-commons-runtime/3.0.11/istack-commons-runtime-3.0.11.jar:/home/jules/.m2/repository/jakarta/activation/jakarta.activation-api/1.2.2/jakarta.activation-api-1.2.2.jar:/home/jules/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/2.3.3/jakarta.xml.bind-api-2.3.3.jar:/home/jules/.m2/repository/org/glassfish/jaxb/jaxb-runtime/2.3.3/jaxb-runtime-2.3.3.jar:/home/jules/.m2/repository/org/glassfish/jaxb/txw2/2.3.3/txw2-2.3.3.jar:/home/jules/.m2/repository/com/sun/activation/jakarta.activation/1.2.2/jakarta.activation-1.2.2.jar:/app/testing/target/testing-2.0.0-SNAPSHOT.jar:/home/jules/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.9.2/junit-jupiter-api-5.9.2.jar:/home/jules/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/jules/.m2/repository/org/junit/platform/junit-platform-commons/1.9.2/junit-platform-commons-1.9.2.jar:/home/jules/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/jules/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.9.2/junit-jupiter-engine-5.9.2.jar:/home/jules/.m2/repository/org/junit/platform/junit-platform-engine/1.9.2/junit-platform-engine-1.9.2.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="/home/jules"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2025-07-15"/>
+    <property name="java.home" value="/usr/lib/jvm/java-21-openjdk-amd64"/>
+    <property name="file.separator" value="/"/>
+    <property name="basedir" value="/app/algorithm-mimic"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="surefire.real.class.path" value="/app/algorithm-mimic/target/surefire/surefirebooter-20250828150906226_12.jar"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="21.0.8+9-Ubuntu-0ubuntu124.04.1"/>
+    <property name="user.name" value="jules"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="6.8.0"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="localRepository" value="/home/jules/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-21"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="java.version" value="21.0.8"/>
+    <property name="user.dir" value="/app/algorithm-mimic"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="java.vendor" value="Ubuntu"/>
+    <property name="java.vm.version" value="21.0.8+9-Ubuntu-0ubuntu124.04.1"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="65.0"/>
+  </properties>
+  <testcase name="testMaxOnes" classname="hr.fer.zemris.edaf.algorithm.mimic.MIMICTest" time="0.139">
+    <system-out><![CDATA[MI: [[0.0, 0.27435846855026524, 0.13412872290300426, 0.08161371152850785], [0.27435846855026524, 0.0, 0.07488176162235438, 0.16389659003355966], [0.13412872290300426, 0.07488176162235438, 0.0, 0.023666844386298787], [0.08161371152850785, 0.16389659003355966, 0.023666844386298787, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [0.7, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.8, 0.3333333333333333], [0.8571428571428571, 0.7142857142857143], [0.6666666666666666, 0.7272727272727273]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.05053430784314113, 0.0], [0.0, 0.05053430784314113, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.75], [0.75, 0.7], [0.75, 0.9]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.8333333333333334]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+MI: [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+Chain: [0, 1, 2, 3]
+p: [1.0, 0.0, 0.0, 0.0]
+CPT: [[0.0, 0.0], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666], [0.5, 0.9166666666666666]]
+]]></system-out>
+  </testcase>
+</testsuite>
