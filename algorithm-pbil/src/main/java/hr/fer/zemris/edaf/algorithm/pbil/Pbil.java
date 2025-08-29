@@ -4,6 +4,7 @@ import hr.fer.zemris.edaf.core.Algorithm;
 import hr.fer.zemris.edaf.core.Individual;
 import hr.fer.zemris.edaf.core.Population;
 import hr.fer.zemris.edaf.core.Problem;
+import hr.fer.zemris.edaf.core.ProgressListener;
 import hr.fer.zemris.edaf.core.Statistics;
 import hr.fer.zemris.edaf.core.TerminationCondition;
 
@@ -23,6 +24,7 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
     private T best;
     private int generation;
     private Population<T> population;
+    private ProgressListener listener;
 
     public Pbil(Problem<T> problem, Statistics<T> statistics,
                 TerminationCondition<T> terminationCondition, int populationSize,
@@ -62,6 +64,9 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -78,5 +83,10 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
     @Override
     public Population<T> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

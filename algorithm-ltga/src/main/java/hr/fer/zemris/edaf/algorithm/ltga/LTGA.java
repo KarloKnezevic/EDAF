@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.algorithm.ltga;
 
 import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.ProgressListener;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.*;
@@ -21,6 +22,7 @@ public class LTGA implements Algorithm<BinaryIndividual> {
 
     private BinaryIndividual best;
     private int generation;
+    private ProgressListener listener;
 
     public LTGA(Problem<BinaryIndividual> problem, Population<BinaryIndividual> population,
                 Selection<BinaryIndividual> selection, Mutation<BinaryIndividual> mutation,
@@ -72,6 +74,9 @@ public class LTGA implements Algorithm<BinaryIndividual> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -171,5 +176,10 @@ public class LTGA implements Algorithm<BinaryIndividual> {
     @Override
     public Population<BinaryIndividual> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

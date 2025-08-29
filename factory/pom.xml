@@ -23,6 +23,11 @@
         </dependency>
         <dependency>
             <groupId>hr.fer.zemris.edaf</groupId>
+            <artifactId>genotype-integer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>hr.fer.zemris.edaf</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
         </dependency>

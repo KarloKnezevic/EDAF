@@ -84,7 +84,7 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
             generation++;
             if (listener != null) {
-                listener.onGenerationDone(generation, getPopulation());
+                listener.onGenerationDone(generation, best, null);
             }
         }
     }
@@ -101,30 +101,8 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> getPopulation() {
-        // cGA does not maintain a full population, but we can return a dummy
-        // population containing just the best individual for progress reporting.
-        if (best == null) {
-            return null;
-        }
-        return new Population<>() {
-            @Override
-            public int getSize() { return 1; }
-
-            @Override
-            public BinaryIndividual getIndividual(int index) { return best; }
-
-            @Override
-            public BinaryIndividual getBest() { return best; }
-
-            @Override
-            public void add(BinaryIndividual individual) { /* no-op */ }
-
-            @Override
-            public void setIndividual(int index, BinaryIndividual individual) { /* no-op */ }
-
-            @Override
-            public void sort() { /* no-op */ }
-        };
+        // cGA does not maintain a population
+        return null;
     }
 
     @Override

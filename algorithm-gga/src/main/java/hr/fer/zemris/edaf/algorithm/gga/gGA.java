@@ -6,6 +6,7 @@ import hr.fer.zemris.edaf.core.Individual;
 import hr.fer.zemris.edaf.core.Mutation;
 import hr.fer.zemris.edaf.core.Population;
 import hr.fer.zemris.edaf.core.Problem;
+import hr.fer.zemris.edaf.core.ProgressListener;
 import hr.fer.zemris.edaf.core.Selection;
 import hr.fer.zemris.edaf.core.SimplePopulation;
 import hr.fer.zemris.edaf.core.TerminationCondition;
@@ -33,6 +34,7 @@ public class gGA<T extends Individual> implements Algorithm<T> {
 
     private T best;
     private int generation;
+    private ProgressListener listener;
 
     public gGA(Problem<T> problem, Population<T> population, Selection<T> selection,
                Crossover<T> crossover, Mutation<T> mutation,
@@ -91,6 +93,9 @@ public class gGA<T extends Individual> implements Algorithm<T> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -124,5 +129,10 @@ public class gGA<T extends Individual> implements Algorithm<T> {
     @Override
     public Population<T> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

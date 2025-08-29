@@ -6,6 +6,8 @@
 /app/core/src/main/java/hr/fer/zemris/edaf/core/Mutation.java
 /app/core/src/main/java/hr/fer/zemris/edaf/core/Population.java
 /app/core/src/main/java/hr/fer/zemris/edaf/core/Problem.java
+/app/core/src/main/java/hr/fer/zemris/edaf/core/ProgressListener.java
+/app/core/src/main/java/hr/fer/zemris/edaf/core/RouletteWheelSelection.java
 /app/core/src/main/java/hr/fer/zemris/edaf/core/Selection.java
 /app/core/src/main/java/hr/fer/zemris/edaf/core/SimplePopulation.java
 /app/core/src/main/java/hr/fer/zemris/edaf/core/Statistics.java

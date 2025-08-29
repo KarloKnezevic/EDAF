@@ -141,20 +141,20 @@ Here is a list of the currently available components that can be specified in th
 | `rouletteWheel` | Roulette wheel selection.                 |
 
 **Crossover (`crossing.name`)**
-| Genotype  | Name          | Description                   |
-|-----------|---------------|-------------------------------|
-| `binary`  | `onePoint`    | One-point crossover.          |
-| `binary`  | `uniform`     | Uniform crossover.            |
-| `integer` | `onePoint`    | One-point crossover.          |
-| `integer` | `twoPoint`    | Two-point crossover.          |
-| `fp`      | `sbx`         | Simulated Binary Crossover.   |
+| Genotype  | Name          | Description                   | Parameters |
+|-----------|---------------|-------------------------------|------------|
+| `binary`  | `onePoint`    | One-point crossover.          | - |
+| `binary`  | `uniform`     | Uniform crossover.            | - |
+| `integer` | `onePoint`    | One-point crossover.          | - |
+| `integer` | `twoPoint`    | Two-point crossover.          | - |
+| `fp`      | `sbx`         | Simulated Binary Crossover.   | `distribution-index` |
 
 **Mutation (`mutation.name`)**
-| Genotype  | Name         | Description                  |
-|-----------|--------------|------------------------------|
-| `binary`  | `simple`     | Simple bit-flip mutation.    |
-| `integer` | `simple`     | Simple integer mutation.     |
-| `fp`      | `polynomial` | Polynomial mutation.         |
+| Genotype  | Name         | Description                  | Parameters |
+|-----------|--------------|------------------------------|------------|
+| `binary`  | `simple`     | Simple bit-flip mutation.    | `probability` |
+| `integer` | `simple`     | Simple integer mutation.     | `probability` |
+| `fp`      | `polynomial` | Polynomial mutation.         | `probability`, `distribution-index` |
 
 
 ### Extending the Framework

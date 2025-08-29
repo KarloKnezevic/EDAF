@@ -4,7 +4,7 @@ import java.util.Random;
 
 /**
  * Roulette wheel selection.
- *
+ * <p>
  * This selection method assumes that all fitness values are non-negative.
  *
  * @param <T> The type of individual.
@@ -18,22 +18,35 @@ public class RouletteWheelSelection<T extends Individual> implements Selection<T
     }
 
     @Override
-    public T select(Population<T> population) {
-        double totalFitness = 0;
-        for (int i = 0; i < population.getSize(); i++) {
-            totalFitness += population.getIndividual(i).getFitness();
+    public Population<T> select(Population<T> population, int size) {
+        if (population.isEmpty()) {
+            return new SimplePopulation<>();
         }
 
+        double totalFitness = 0;
+        for (T individual : population) {
+            totalFitness += individual.getFitness();
+        }
+
+        Population<T> newPopulation = new SimplePopulation<>();
+        for (int i = 0; i < size; i++) {
+            newPopulation.add(selectOne(population, totalFitness));
+        }
+
+        return newPopulation;
+    }
+
+    private T selectOne(Population<T> population, double totalFitness) {
         double slice = random.nextDouble() * totalFitness;
         double currentSum = 0;
-        for (int i = 0; i < population.getSize(); i++) {
-            currentSum += population.getIndividual(i).getFitness();
+        for (T individual : population) {
+            currentSum += individual.getFitness();
             if (currentSum >= slice) {
-                return population.getIndividual(i);
+                return individual;
             }
         }
 
-        // Should not happen, but as a fallback, return the last individual
-        return population.getIndividual(population.getSize() - 1);
+        // Should not happen with positive fitness values, but as a fallback
+        return population.get(population.size() - 1);
     }
 }

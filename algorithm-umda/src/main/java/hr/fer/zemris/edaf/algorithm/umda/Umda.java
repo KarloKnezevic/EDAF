@@ -24,6 +24,7 @@ public class Umda<T extends Individual> implements Algorithm<T> {
 
     private T best;
     private int generation;
+    private ProgressListener listener;
 
     public Umda(Problem<T> problem, Population<T> population, Selection<T> selection,
                 Statistics<T> statistics, TerminationCondition<T> terminationCondition,
@@ -70,6 +71,9 @@ public class Umda<T extends Individual> implements Algorithm<T> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -103,5 +107,10 @@ public class Umda<T extends Individual> implements Algorithm<T> {
     @Override
     public Population<T> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

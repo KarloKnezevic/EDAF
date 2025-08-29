@@ -9,8 +9,9 @@ public interface ProgressListener {
      * Called by the algorithm at the end of each generation.
      *
      * @param generation The current generation number (starting from 1).
-     * @param population The population at the end of the generation.
+     * @param bestInGeneration The best individual in the current generation.
+     * @param population The population at the end of the generation (can be null).
      */
-    void onGenerationDone(int generation, Population population);
+    void onGenerationDone(int generation, Individual bestInGeneration, Population population);
 
 }

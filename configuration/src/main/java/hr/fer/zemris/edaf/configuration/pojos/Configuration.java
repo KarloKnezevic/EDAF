@@ -106,31 +106,37 @@ public class Configuration {
         @NotEmpty(message = "Crossing name is missing.")
         private String name;
         private double probability;
+        @JsonProperty("distribution-index")
+        private double distributionIndex;
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public double getProbability() { return probability; }
         public void setProbability(double probability) { this.probability = probability; }
+        public double getDistributionIndex() { return distributionIndex; }
+        public void setDistributionIndex(double distributionIndex) { this.distributionIndex = distributionIndex; }
     }
 
     public static class MutationConfig {
         @NotEmpty(message = "Mutation name is missing.")
         private String name;
         private double probability;
+        @JsonProperty("distribution-index")
+        private double distributionIndex;
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public double getProbability() { return probability; }
         public void setProbability(double probability) { this.probability = probability; }
+        public double getDistributionIndex() { return distributionIndex; }
+        public void setDistributionIndex(double distributionIndex) { this.distributionIndex = distributionIndex; }
     }
 
     public static class AlgorithmConfig {
         @NotEmpty(message = "Algorithm name is missing.")
         private String name;
-        @NotNull(message = "Population configuration is missing.")
         @Valid
         private PopulationConfig population;
-        @NotNull(message = "Selection configuration is missing.")
         @Valid
         private SelectionConfig selection;
         @NotNull(message = "Termination configuration is missing.")

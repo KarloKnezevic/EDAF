@@ -46,13 +46,15 @@ public class GenerateConfigCommand implements Callable<Integer> {
         // Crossing section
         Configuration.CrossingConfig crossing = new Configuration.CrossingConfig();
         crossing.setName("onePoint"); // e.g., onePoint, uniform, sbx
-        crossing.setProbability(0.8); // For SBX, this is the distribution index
+        crossing.setProbability(0.8);
+        crossing.setDistributionIndex(20.0); // For SBX
         genotype.setCrossing(crossing);
 
         // Mutation section
         Configuration.MutationConfig mutation = new Configuration.MutationConfig();
         mutation.setName("simple"); // e.g., simple, polynomial
-        mutation.setProbability(0.05); // For Polynomial, this is the distribution index
+        mutation.setProbability(0.05);
+        mutation.setDistributionIndex(20.0); // For Polynomial Mutation
         genotype.setMutation(mutation);
 
         problem.setGenotype(genotype);

@@ -1,0 +1,5 @@
+hr/fer/zemris/edaf/genotype/integer/IntegerGenotype.class
+hr/fer/zemris/edaf/genotype/integer/crossing/OnePointCrossover.class
+hr/fer/zemris/edaf/genotype/integer/crossing/TwoPointCrossover.class
+hr/fer/zemris/edaf/genotype/integer/IntegerIndividual.class
+hr/fer/zemris/edaf/genotype/integer/mutation/SimpleIntegerMutation.class

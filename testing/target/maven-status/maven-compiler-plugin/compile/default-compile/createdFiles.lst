@@ -6,8 +6,8 @@ hr/fer/zemris/edaf/testing/bbob/Util.class
 hr/fer/zemris/edaf/testing/bbob/Benchmark.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F20.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F10.class
-hr/fer/zemris/edaf/testing/bbob/noiseless/F5.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F14.class
+hr/fer/zemris/edaf/testing/bbob/noiseless/F5.class
 hr/fer/zemris/edaf/testing/bbob/IUtil.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F3.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F8.class
@@ -15,9 +15,9 @@ hr/fer/zemris/edaf/testing/bbob/noiseless/F15.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F12.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F22.class
 hr/fer/zemris/edaf/testing/problems/MaxOnes.class
-hr/fer/zemris/edaf/testing/bbob/noiseless/F21.class
-hr/fer/zemris/edaf/testing/bbob/noiseless/F6.class
 hr/fer/zemris/edaf/testing/bbob/BBOB.class
+hr/fer/zemris/edaf/testing/bbob/noiseless/F6.class
+hr/fer/zemris/edaf/testing/bbob/noiseless/F21.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F18.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F11.class
 hr/fer/zemris/edaf/testing/bbob/noiseless/F13.class

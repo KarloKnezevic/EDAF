@@ -9,6 +9,7 @@ import net.logstash.logback.marker.Markers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -76,7 +77,14 @@ public class Framework implements Callable<Integer>, ProgressListener {
         // 3. Run algorithm
         log.info("PHASE 3: Starting algorithm '{}'...", config.getAlgorithm().getName());
         if (algorithm != null) {
-            try (ProgressBar pb = new ProgressBar("Generations", config.getAlgorithm().getTermination().getMaxGenerations(), 1000, System.err, ProgressBarStyle.ASCII, " gen", 1)) {
+            ProgressBarBuilder pbb = new ProgressBarBuilder()
+                    .setTaskName("Generations")
+                    .setInitialMax(config.getAlgorithm().getTermination().getMaxGenerations())
+                    .setStyle(ProgressBarStyle.ASCII)
+                    .setUnit(" gen", 1)
+                    .setUpdateIntervalMillis(100);
+
+            try (ProgressBar pb = pbb.build()) {
                 this.progressBar = pb;
                 algorithm.run();
             }
@@ -99,11 +107,12 @@ public class Framework implements Callable<Integer>, ProgressListener {
     }
 
     @Override
-    public void onGenerationDone(int generation, Population population) {
+    public void onGenerationDone(int generation, Individual bestInGeneration, Population population) {
         if (progressBar != null) {
             progressBar.step();
-            Individual best = population.getBest();
-            progressBar.setExtraMessage(String.format("Best fitness: %.4f", best.getFitness()));
+            if (bestInGeneration != null) {
+                progressBar.setExtraMessage(String.format("Best fitness: %.4f", bestInGeneration.getFitness()));
+            }
         }
     }
 }

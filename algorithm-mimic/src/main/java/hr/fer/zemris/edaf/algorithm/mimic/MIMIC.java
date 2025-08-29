@@ -23,6 +23,7 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
 
     private BinaryIndividual best;
     private int generation;
+    private ProgressListener listener;
 
     public MIMIC(Problem<BinaryIndividual> problem, Population<BinaryIndividual> population,
                  Selection<BinaryIndividual> selection, Statistics<BinaryIndividual> statistics,
@@ -69,6 +70,9 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -102,5 +106,10 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
     @Override
     public Population<BinaryIndividual> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

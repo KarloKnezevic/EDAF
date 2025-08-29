@@ -113,18 +113,24 @@ public class DefaultComponentFactory implements ComponentFactory {
                                      TerminationCondition terminationCondition, Random random) throws Exception {
         String algorithmName = config.getAlgorithm().getName();
         if ("umda".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("UMDA requires a population.");
             return new Umda(problem, population, selection, statistics, terminationCondition,
                     config.getAlgorithm().getSelection().getSize());
         } else if ("pbil".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("PBIL requires a population.");
             return new Pbil(problem, statistics, terminationCondition,
                     config.getAlgorithm().getPopulation().getSize(),
                     (Double) config.getAlgorithm().getParameters().get("learningRate"));
         } else if ("gga".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("gGA requires a population.");
+            if (selection == null) throw new IllegalArgumentException("gGA requires a selection method.");
             Crossover crossover = createCrossover(config, random);
             Mutation mutation = createMutation(config, random);
             return new gGA(problem, population, selection, crossover, mutation, terminationCondition,
                     config.getAlgorithm().getElitism());
         } else if ("ega".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("eGA requires a population.");
+            if (selection == null) throw new IllegalArgumentException("eGA requires a selection method.");
             Crossover crossover = createCrossover(config, random);
             Mutation mutation = createMutation(config, random);
             return new eGA(problem, population, selection, crossover, mutation, terminationCondition);
@@ -133,6 +139,7 @@ public class DefaultComponentFactory implements ComponentFactory {
                     (Integer) config.getAlgorithm().getParameters().get("n"),
                     config.getProblem().getGenotype().getLength(), random);
         } else if ("mimic".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("MIMIC requires a population.");
             return new MIMIC(problem, population, selection, statistics, terminationCondition,
                     config.getAlgorithm().getSelection().getSize());
         }
@@ -157,8 +164,7 @@ public class DefaultComponentFactory implements ComponentFactory {
             }
         } else if ("fp".equals(genotypeType)) {
             if ("sbx".equals(crossoverName)) {
-                // A bit of a hack: using probability field for distribution index
-                return new SimulatedBinaryCrossover(random, config.getProblem().getGenotype().getCrossing().getProbability());
+                return new SimulatedBinaryCrossover(random, config.getProblem().getGenotype().getCrossing().getDistributionIndex());
             }
         }
         return null;
@@ -181,9 +187,8 @@ public class DefaultComponentFactory implements ComponentFactory {
             }
         } else if ("fp".equals(genotypeType)) {
             if ("polynomial".equals(mutationName)) {
-                // A bit of a hack: using probability field for distribution index
                 return new PolynomialMutation(random, mutationProbability,
-                        config.getProblem().getGenotype().getMutation().getProbability(),
+                        config.getProblem().getGenotype().getMutation().getDistributionIndex(),
                         config.getProblem().getGenotype().getLowerBound(),
                         config.getProblem().getGenotype().getUpperBound());
             }

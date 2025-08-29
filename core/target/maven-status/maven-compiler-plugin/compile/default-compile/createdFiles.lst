@@ -1,9 +1,11 @@
 hr/fer/zemris/edaf/core/Population.class
-hr/fer/zemris/edaf/core/SimplePopulation.class
 hr/fer/zemris/edaf/core/Problem.class
+hr/fer/zemris/edaf/core/SimplePopulation.class
 hr/fer/zemris/edaf/core/MaxGenerations.class
 hr/fer/zemris/edaf/core/Selection.class
 hr/fer/zemris/edaf/core/Crossover.class
+hr/fer/zemris/edaf/core/ProgressListener.class
+hr/fer/zemris/edaf/core/RouletteWheelSelection.class
 hr/fer/zemris/edaf/core/TournamentSelection.class
 hr/fer/zemris/edaf/core/TerminationCondition.class
 hr/fer/zemris/edaf/core/Mutation.class

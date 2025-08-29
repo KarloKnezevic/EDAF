@@ -1,5 +1,6 @@
 package hr.fer.zemris.edaf.algorithm.ega;
 
+import hr.fer.zemris.edaf.core.ProgressListener;
 import hr.fer.zemris.edaf.core.*;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class eGA<T extends Individual> implements Algorithm<T> {
 
     private T best;
     private int generation;
+    private ProgressListener listener;
 
     public eGA(Problem<T> problem, Population<T> population, Selection<T> selection,
                Crossover<T> crossover, Mutation<T> mutation,
@@ -70,6 +72,9 @@ public class eGA<T extends Individual> implements Algorithm<T> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -103,5 +108,10 @@ public class eGA<T extends Individual> implements Algorithm<T> {
     @Override
     public Population<T> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

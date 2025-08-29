@@ -1,2 +1,4 @@
 /app/genotype-fp/src/main/java/hr/fer/zemris/edaf/genotype/fp/FpGenotype.java
 /app/genotype-fp/src/main/java/hr/fer/zemris/edaf/genotype/fp/FpIndividual.java
+/app/genotype-fp/src/main/java/hr/fer/zemris/edaf/genotype/fp/crossing/SimulatedBinaryCrossover.java
+/app/genotype-fp/src/main/java/hr/fer/zemris/edaf/genotype/fp/mutation/PolynomialMutation.java

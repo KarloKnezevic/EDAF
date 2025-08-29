@@ -1,0 +1,5 @@
+/app/genotype-integer/src/main/java/hr/fer/zemris/edaf/genotype/integer/IntegerGenotype.java
+/app/genotype-integer/src/main/java/hr/fer/zemris/edaf/genotype/integer/IntegerIndividual.java
+/app/genotype-integer/src/main/java/hr/fer/zemris/edaf/genotype/integer/crossing/OnePointCrossover.java
+/app/genotype-integer/src/main/java/hr/fer/zemris/edaf/genotype/integer/crossing/TwoPointCrossover.java
+/app/genotype-integer/src/main/java/hr/fer/zemris/edaf/genotype/integer/mutation/SimpleIntegerMutation.java
