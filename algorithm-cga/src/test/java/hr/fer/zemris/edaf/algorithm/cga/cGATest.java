@@ -1,9 +1,13 @@
 package hr.fer.zemris.edaf.algorithm.cga;
 
-import hr.fer.zemris.edaf.core.Algorithm;
-import hr.fer.zemris.edaf.core.MaxGenerations;
-import hr.fer.zemris.edaf.core.Problem;
-import hr.fer.zemris.edaf.core.TerminationCondition;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 import hr.fer.zemris.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;

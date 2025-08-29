@@ -2,7 +2,8 @@ package hr.fer.zemris.edaf.examples;
 
 import hr.fer.zemris.edaf.configuration.ConfigurationLoader;
 import hr.fer.zemris.edaf.configuration.pojos.Configuration;
-import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.factory.ComponentFactory;
 import hr.fer.zemris.edaf.factory.DefaultComponentFactory;
 import net.logstash.logback.marker.Markers;

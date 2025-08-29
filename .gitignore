@@ -1,2 +1,11 @@
 /bin
 /target/
+**/target/
+*.log
+results.json
+.idea/
+*.iml
+*~
+*.swp
+*.bak
+.DS_Store

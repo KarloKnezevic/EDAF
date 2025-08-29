@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.genotype.integer.crossing;
 
-import hr.fer.zemris.edaf.core.Crossover;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.integer.IntegerIndividual;
 
 import java.util.Random;

@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.genotype.fp;
 
-import hr.fer.zemris.edaf.core.Individual;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 
 import java.util.Arrays;
 

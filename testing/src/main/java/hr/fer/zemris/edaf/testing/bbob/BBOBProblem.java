@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.testing.bbob;
 
-import hr.fer.zemris.edaf.core.Problem;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.fp.FpIndividual;
 
 /**

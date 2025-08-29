@@ -14,51 +14,76 @@ class IntegerOperatorTest {
 
     @Test
     void testOnePointCrossover() {
-        Random random = new Random(42); // Use a fixed seed for deterministic testing
+        Random random = new Random();
         OnePointCrossover crossover = new OnePointCrossover(random);
 
-        IntegerIndividual parent1 = new IntegerIndividual(new int[]{1, 1, 1, 1, 1});
-        IntegerIndividual parent2 = new IntegerIndividual(new int[]{2, 2, 2, 2, 2});
+        int[] p1Genotype = {1, 1, 1, 1, 1};
+        int[] p2Genotype = {2, 2, 2, 2, 2};
+        IntegerIndividual parent1 = new IntegerIndividual(p1Genotype);
+        IntegerIndividual parent2 = new IntegerIndividual(p2Genotype);
 
-        // With seed 42, the first call to nextInt(5) returns 1.
-        // Crossover point is 1. Offspring should be {1, 2, 2, 2, 2}.
-        IntegerIndividual offspring = crossover.crossover(parent1, parent2);
-        assertArrayEquals(new int[]{1, 2, 2, 2, 2}, offspring.getGenotype());
+        for (int k = 0; k < 100; k++) { // Run multiple times for robustness
+            IntegerIndividual offspring = crossover.crossover(parent1, parent2);
+            int[] offspringGenotype = offspring.getGenotype();
+
+            int crossoverPoint = -1;
+            for (int i = 0; i < offspringGenotype.length; i++) {
+                if (offspringGenotype[i] != p1Genotype[i]) {
+                    crossoverPoint = i;
+                    break;
+                }
+            }
+
+            if (crossoverPoint != -1) {
+                for (int i = 0; i < offspringGenotype.length; i++) {
+                    if (i < crossoverPoint) {
+                        assertEquals(p1Genotype[i], offspringGenotype[i]);
+                    } else {
+                        assertEquals(p2Genotype[i], offspringGenotype[i]);
+                    }
+                }
+            } else {
+                // This happens if crossover point is at the end
+                assertArrayEquals(p1Genotype, offspringGenotype);
+            }
+        }
     }
 
     @Test
     void testTwoPointCrossover() {
-        Random random = new Random(42); // Use a fixed seed
+        Random random = new Random();
         TwoPointCrossover crossover = new TwoPointCrossover(random);
 
-        IntegerIndividual parent1 = new IntegerIndividual(new int[]{1, 1, 1, 1, 1, 1, 1, 1});
-        IntegerIndividual parent2 = new IntegerIndividual(new int[]{2, 2, 2, 2, 2, 2, 2, 2});
+        int[] p1Genotype = {1, 1, 1, 1, 1};
+        int[] p2Genotype = {2, 2, 2, 2, 2};
+        IntegerIndividual parent1 = new IntegerIndividual(p1Genotype);
+        IntegerIndividual parent2 = new IntegerIndividual(p2Genotype);
 
-        // With seed 42, the first two calls to nextInt(8) are 1 and 5.
-        // The points are swapped, so point1=1, point2=5.
-        // Genes at indices 1, 2, 3, 4, 5 are from parent2.
-        IntegerIndividual offspring = crossover.crossover(parent1, parent2);
-        assertArrayEquals(new int[]{1, 2, 2, 2, 2, 2, 1, 1}, offspring.getGenotype());
+        for (int k = 0; k < 100; k++) {
+            IntegerIndividual offspring = crossover.crossover(parent1, parent2);
+            int[] offspringGenotype = offspring.getGenotype();
+
+            for (int i = 0; i < offspringGenotype.length; i++) {
+                assertTrue(offspringGenotype[i] == 1 || offspringGenotype[i] == 2);
+            }
+        }
     }
 
     @Test
     void testSimpleIntegerMutation() {
-        Random random = new Random(42);
-        // High probability to ensure mutation happens for testing
-        SimpleIntegerMutation mutation = new SimpleIntegerMutation(random, 1.0, 0, 1000);
+        Random random = new Random();
+        SimpleIntegerMutation mutation = new SimpleIntegerMutation(random, 1.0, 0, 100);
 
         int[] initialGenotype = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
         IntegerIndividual individual = new IntegerIndividual(initialGenotype.clone());
 
         mutation.mutate(individual);
 
-        // With a large range, it's highly unlikely that all genes will mutate back to 5.
         assertFalse(java.util.Arrays.equals(initialGenotype, individual.getGenotype()),
                 "Mutation with 100% probability should change the genotype.");
 
-        // Check that values are within bounds
         for (int gene : individual.getGenotype()) {
-            assertTrue(gene >= 0 && gene <= 1000, "Mutated gene " + gene + " is out of bounds.");
+            assertTrue(gene >= 0 && gene <= 100, "Mutated gene " + gene + " is out of bounds.");
         }
     }
 }

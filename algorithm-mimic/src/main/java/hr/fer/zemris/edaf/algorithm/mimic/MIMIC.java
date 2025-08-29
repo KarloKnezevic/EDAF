@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.algorithm.mimic;
 
-import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.ArrayList;
@@ -53,14 +54,16 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
             statistics.estimate(selected);
 
             // 2.3. Sample new individuals
-            Population<BinaryIndividual> newPopulation = statistics.sample(population.size());
+            Population<BinaryIndividual> newPopulation = statistics.sample(population.getSize());
 
             // 2.4. Evaluate new individuals
             evaluatePopulation(newPopulation);
 
             // 2.5. Replace old population
             population.clear();
-            population.addAll(newPopulation);
+            for (int i = 0; i < newPopulation.getSize(); i++) {
+                population.add(newPopulation.getIndividual(i));
+            }
             population.sort();
 
             // 2.6. Update best individual
@@ -79,7 +82,8 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
     private void evaluatePopulation(Population<BinaryIndividual> population) {
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Callable<Void>> tasks = new ArrayList<>();
-        for (BinaryIndividual individual : population) {
+        for (int i = 0; i < population.getSize(); i++) {
+            final BinaryIndividual individual = population.getIndividual(i);
             tasks.add(() -> {
                 problem.evaluate(individual);
                 return null;

@@ -1,12 +1,19 @@
 package hr.fer.zemris.edaf.algorithm.pbil;
 
-import hr.fer.zemris.edaf.core.Algorithm;
-import hr.fer.zemris.edaf.core.Individual;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.Problem;
-import hr.fer.zemris.edaf.core.ProgressListener;
-import hr.fer.zemris.edaf.core.Statistics;
-import hr.fer.zemris.edaf.core.TerminationCondition;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 
 /**
  * Population-Based Incremental Learning (PBIL).

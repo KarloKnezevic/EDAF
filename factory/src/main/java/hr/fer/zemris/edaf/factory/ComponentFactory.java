@@ -1,13 +1,20 @@
 package hr.fer.zemris.edaf.factory;
 
 import hr.fer.zemris.edaf.configuration.pojos.Configuration;
-import hr.fer.zemris.edaf.core.Algorithm;
-import hr.fer.zemris.edaf.core.Genotype;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.Problem;
-import hr.fer.zemris.edaf.core.Selection;
-import hr.fer.zemris.edaf.core.Statistics;
-import hr.fer.zemris.edaf.core.TerminationCondition;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 
 import java.util.Random;
 

@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.algorithm.ega;
 
-import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryGenotype;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 import hr.fer.zemris.edaf.genotype.binary.crossing.OnePointCrossover;

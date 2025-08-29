@@ -1,7 +1,23 @@
 package hr.fer.zemris.edaf.algorithm.ega;
 
-import hr.fer.zemris.edaf.core.ProgressListener;
-import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +68,7 @@ public class eGA<T extends Individual> implements Algorithm<T> {
             Population<T> parents = selection.select(population, 2);
 
             // 2.2. Crossover and mutation
-            T offspring = crossover.crossover(parents.get(0), parents.get(1));
+            T offspring = crossover.crossover(parents.getIndividual(0), parents.getIndividual(1));
             mutation.mutate(offspring);
             problem.evaluate(offspring);
 

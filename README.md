@@ -168,8 +168,10 @@ You can extend the framework by adding your own custom problems. Here are the st
     ```java
     package com.mycompany.myproject;
 
-    import hr.fer.zemris.edaf.core.Problem;
-    import hr.fer.zemris.edaf.core.Individual;
+    import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+    import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 
     public class MyProblem implements Problem {
         @Override

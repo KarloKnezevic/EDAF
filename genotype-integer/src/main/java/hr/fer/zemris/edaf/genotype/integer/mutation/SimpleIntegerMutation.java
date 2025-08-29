@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.genotype.integer.mutation;
 
-import hr.fer.zemris.edaf.core.Mutation;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.integer.IntegerIndividual;
 
 import java.util.Random;

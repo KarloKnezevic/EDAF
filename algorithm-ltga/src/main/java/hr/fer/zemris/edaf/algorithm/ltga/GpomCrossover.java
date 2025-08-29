@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.algorithm.ltga;
 
-import hr.fer.zemris.edaf.core.Crossover;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.List;
