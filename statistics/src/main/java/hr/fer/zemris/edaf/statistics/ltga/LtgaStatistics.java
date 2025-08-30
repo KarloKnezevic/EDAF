@@ -1,9 +1,9 @@
 package hr.fer.zemris.edaf.statistics.ltga;
 
-import hr.fer.zemris.edaf.core.Genotype;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.SimplePopulation;
-import hr.fer.zemris.edaf.core.Statistics;
+import hr.fer.zemris.edaf.core.api.Genotype;
+import hr.fer.zemris.edaf.core.api.Population;
+import hr.fer.zemris.edaf.core.api.Statistics;
+import hr.fer.zemris.edaf.core.impl.SimplePopulation;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.*;
@@ -33,7 +33,7 @@ public class LtgaStatistics implements Statistics<BinaryIndividual> {
             for (BinaryIndividual individual : population) {
                 count += individual.getGenotype()[i];
             }
-            px[i] = (double) count / population.size();
+            px[i] = (double) count / population.getSize();
         }
 
         // 2. Calculate pairwise joint probabilities
@@ -50,7 +50,7 @@ public class LtgaStatistics implements Statistics<BinaryIndividual> {
                     else counts[3]++;
                 }
                 for (int k = 0; k < 4; k++) {
-                    pxy[i][j][k] = (double) counts[k] / population.size();
+                    pxy[i][j][k] = (double) counts[k] / population.getSize();
                 }
             }
         }

@@ -5,12 +5,20 @@ import hr.fer.zemris.edaf.algorithm.gga.gGA;
 import hr.fer.zemris.edaf.algorithm.pbil.Pbil;
 import hr.fer.zemris.edaf.algorithm.umda.Umda;
 import hr.fer.zemris.edaf.configuration.pojos.Configuration;
-import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryGenotype;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 import hr.fer.zemris.edaf.genotype.binary.crossing.OnePointCrossover;
+import hr.fer.zemris.edaf.genotype.binary.crossing.UniformCrossover;
 import hr.fer.zemris.edaf.genotype.binary.mutation.SimpleMutation;
 import hr.fer.zemris.edaf.genotype.fp.FpGenotype;
+import hr.fer.zemris.edaf.genotype.fp.crossing.SimulatedBinaryCrossover;
+import hr.fer.zemris.edaf.genotype.fp.mutation.PolynomialMutation;
+import hr.fer.zemris.edaf.genotype.integer.IntegerGenotype;
+import hr.fer.zemris.edaf.genotype.integer.IntegerIndividual;
+import hr.fer.zemris.edaf.genotype.integer.crossing.TwoPointCrossover;
+import hr.fer.zemris.edaf.genotype.integer.mutation.SimpleIntegerMutation;
 import hr.fer.zemris.edaf.algorithm.mimic.MIMIC;
 import hr.fer.zemris.edaf.genotype.fp.FpIndividual;
 import hr.fer.zemris.edaf.statistics.mimic.MimicStatistics;
@@ -41,6 +49,10 @@ public class DefaultComponentFactory implements ComponentFactory {
             return new FpGenotype(config.getProblem().getGenotype().getLength(),
                     config.getProblem().getGenotype().getLowerBound(),
                     config.getProblem().getGenotype().getUpperBound(), random);
+        } else if ("integer".equals(type)) {
+            return new IntegerGenotype(config.getProblem().getGenotype().getLength(),
+                    config.getProblem().getGenotype().getMinBound(),
+                    config.getProblem().getGenotype().getMaxBound(), random);
         }
         return null;
     }
@@ -53,6 +65,8 @@ public class DefaultComponentFactory implements ComponentFactory {
                 population.add(new BinaryIndividual((byte[]) genotype.create()));
             } else if (genotype instanceof FpGenotype) {
                 population.add(new FpIndividual((double[]) genotype.create()));
+            } else if (genotype instanceof IntegerGenotype) {
+                population.add(new IntegerIndividual((int[]) genotype.create()));
             }
         }
         return population;
@@ -80,6 +94,8 @@ public class DefaultComponentFactory implements ComponentFactory {
         String selectionName = config.getAlgorithm().getSelection().getName();
         if ("tournament".equals(selectionName)) {
             return new TournamentSelection(random, config.getAlgorithm().getSelection().getSize());
+        } else if ("rouletteWheel".equals(selectionName)) {
+            return new RouletteWheelSelection(random);
         }
         return null;
     }
@@ -98,18 +114,24 @@ public class DefaultComponentFactory implements ComponentFactory {
                                      TerminationCondition terminationCondition, Random random) throws Exception {
         String algorithmName = config.getAlgorithm().getName();
         if ("umda".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("UMDA requires a population.");
             return new Umda(problem, population, selection, statistics, terminationCondition,
                     config.getAlgorithm().getSelection().getSize());
         } else if ("pbil".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("PBIL requires a population.");
             return new Pbil(problem, statistics, terminationCondition,
                     config.getAlgorithm().getPopulation().getSize(),
                     (Double) config.getAlgorithm().getParameters().get("learningRate"));
         } else if ("gga".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("gGA requires a population.");
+            if (selection == null) throw new IllegalArgumentException("gGA requires a selection method.");
             Crossover crossover = createCrossover(config, random);
             Mutation mutation = createMutation(config, random);
             return new gGA(problem, population, selection, crossover, mutation, terminationCondition,
                     config.getAlgorithm().getElitism());
         } else if ("ega".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("eGA requires a population.");
+            if (selection == null) throw new IllegalArgumentException("eGA requires a selection method.");
             Crossover crossover = createCrossover(config, random);
             Mutation mutation = createMutation(config, random);
             return new eGA(problem, population, selection, crossover, mutation, terminationCondition);
@@ -118,6 +140,7 @@ public class DefaultComponentFactory implements ComponentFactory {
                     (Integer) config.getAlgorithm().getParameters().get("n"),
                     config.getProblem().getGenotype().getLength(), random);
         } else if ("mimic".equals(algorithmName)) {
+            if (population == null) throw new IllegalArgumentException("MIMIC requires a population.");
             return new MIMIC(problem, population, selection, statistics, terminationCondition,
                     config.getAlgorithm().getSelection().getSize());
         }
@@ -126,16 +149,50 @@ public class DefaultComponentFactory implements ComponentFactory {
 
     private Crossover createCrossover(Configuration config, Random random) {
         String crossoverName = config.getProblem().getGenotype().getCrossing().getName();
-        if ("onePoint".equals(crossoverName)) {
-            return new OnePointCrossover(random);
+        String genotypeType = config.getProblem().getGenotype().getType();
+
+        if ("binary".equals(genotypeType)) {
+            if ("onePoint".equals(crossoverName)) {
+                return new OnePointCrossover(random);
+            } else if ("uniform".equals(crossoverName)) {
+                return new UniformCrossover(random);
+            }
+        } else if ("integer".equals(genotypeType)) {
+            if ("onePoint".equals(crossoverName)) {
+                return new hr.fer.zemris.edaf.genotype.integer.crossing.OnePointCrossover(random);
+            } else if ("twoPoint".equals(crossoverName)) {
+                return new TwoPointCrossover(random);
+            }
+        } else if ("fp".equals(genotypeType)) {
+            if ("sbx".equals(crossoverName)) {
+                return new SimulatedBinaryCrossover(random, config.getProblem().getGenotype().getCrossing().getDistributionIndex());
+            }
         }
         return null;
     }
 
     private Mutation createMutation(Configuration config, Random random) {
         String mutationName = config.getProblem().getGenotype().getMutation().getName();
-        if ("simple".equals(mutationName)) {
-            return new SimpleMutation(random, config.getProblem().getGenotype().getMutation().getProbability());
+        String genotypeType = config.getProblem().getGenotype().getType();
+        double mutationProbability = config.getProblem().getGenotype().getMutation().getProbability();
+
+        if ("binary".equals(genotypeType)) {
+            if ("simple".equals(mutationName)) {
+                return new SimpleMutation(random, mutationProbability);
+            }
+        } else if ("integer".equals(genotypeType)) {
+            if ("simple".equals(mutationName)) {
+                return new SimpleIntegerMutation(random, mutationProbability,
+                        config.getProblem().getGenotype().getMinBound(),
+                        config.getProblem().getGenotype().getMaxBound());
+            }
+        } else if ("fp".equals(genotypeType)) {
+            if ("polynomial".equals(mutationName)) {
+                return new PolynomialMutation(random, mutationProbability,
+                        config.getProblem().getGenotype().getMutation().getDistributionIndex(),
+                        config.getProblem().getGenotype().getLowerBound(),
+                        config.getProblem().getGenotype().getUpperBound());
+            }
         }
         return null;
     }

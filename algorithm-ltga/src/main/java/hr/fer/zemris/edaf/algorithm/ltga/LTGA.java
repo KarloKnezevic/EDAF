@@ -1,6 +1,9 @@
 package hr.fer.zemris.edaf.algorithm.ltga;
 
-import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.*;
@@ -21,6 +24,7 @@ public class LTGA implements Algorithm<BinaryIndividual> {
 
     private BinaryIndividual best;
     private int generation;
+    private ProgressListener listener;
 
     public LTGA(Problem<BinaryIndividual> problem, Population<BinaryIndividual> population,
                 Selection<BinaryIndividual> selection, Mutation<BinaryIndividual> mutation,
@@ -52,7 +56,7 @@ public class LTGA implements Algorithm<BinaryIndividual> {
             // 2.2. Generate offspring
             Population<BinaryIndividual> parents = selection.select(population, 2);
             Crossover<BinaryIndividual> gpom = new GpomCrossover(tree, random);
-            BinaryIndividual offspring = gpom.crossover(parents.get(0), parents.get(1));
+            BinaryIndividual offspring = gpom.crossover(parents.getIndividual(0), parents.getIndividual(1));
             mutation.mutate(offspring);
             problem.evaluate(offspring);
 
@@ -72,6 +76,9 @@ public class LTGA implements Algorithm<BinaryIndividual> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -83,7 +90,7 @@ public class LTGA implements Algorithm<BinaryIndividual> {
             for (BinaryIndividual individual : population) {
                 count += individual.getGenotype()[i];
             }
-            px[i] = (double) count / population.size();
+            px[i] = (double) count / population.getSize();
         }
 
         // 2. Calculate pairwise joint probabilities
@@ -100,7 +107,7 @@ public class LTGA implements Algorithm<BinaryIndividual> {
                     else counts[3]++;
                 }
                 for (int k = 0; k < 4; k++) {
-                    pxy[i][j][k] = (double) counts[k] / population.size();
+                    pxy[i][j][k] = (double) counts[k] / population.getSize();
                 }
             }
         }
@@ -171,5 +178,10 @@ public class LTGA implements Algorithm<BinaryIndividual> {
     @Override
     public Population<BinaryIndividual> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

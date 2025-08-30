@@ -1,9 +1,9 @@
 package hr.fer.zemris.edaf.statistics.umda;
 
-import hr.fer.zemris.edaf.core.Genotype;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.SimplePopulation;
-import hr.fer.zemris.edaf.core.Statistics;
+import hr.fer.zemris.edaf.core.api.Genotype;
+import hr.fer.zemris.edaf.core.api.Population;
+import hr.fer.zemris.edaf.core.api.Statistics;
+import hr.fer.zemris.edaf.core.impl.SimplePopulation;
 import hr.fer.zemris.edaf.genotype.fp.FpIndividual;
 
 import java.util.Random;
@@ -33,7 +33,7 @@ public class UmdaFpStatistics implements Statistics<FpIndividual> {
             for (FpIndividual individual : population) {
                 sum += individual.getGenotype()[i];
             }
-            mean[i] = sum / population.size();
+            mean[i] = sum / population.getSize();
         }
 
         // Calculate standard deviation
@@ -42,7 +42,7 @@ public class UmdaFpStatistics implements Statistics<FpIndividual> {
             for (FpIndividual individual : population) {
                 sum += Math.pow(individual.getGenotype()[i] - mean[i], 2);
             }
-            stdev[i] = Math.sqrt(sum / population.size());
+            stdev[i] = Math.sqrt(sum / population.getSize());
         }
     }
 

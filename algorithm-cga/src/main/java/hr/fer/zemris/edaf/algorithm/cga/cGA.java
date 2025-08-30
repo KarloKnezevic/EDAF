@@ -1,10 +1,6 @@
 package hr.fer.zemris.edaf.algorithm.cga;
 
-import hr.fer.zemris.edaf.core.Algorithm;
-import hr.fer.zemris.edaf.core.Individual;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.Problem;
-import hr.fer.zemris.edaf.core.TerminationCondition;
+import hr.fer.zemris.edaf.core.api.*;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.Random;
@@ -23,6 +19,7 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
     private BinaryIndividual best;
     private int generation;
+    private ProgressListener listener;
 
     public cGA(Problem<BinaryIndividual> problem, TerminationCondition<BinaryIndividual> terminationCondition,
                int n, int length, Random random) {
@@ -81,6 +78,9 @@ public class cGA implements Algorithm<BinaryIndividual> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, best, null);
+            }
         }
     }
 
@@ -98,5 +98,10 @@ public class cGA implements Algorithm<BinaryIndividual> {
     public Population<BinaryIndividual> getPopulation() {
         // cGA does not maintain a population
         return null;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

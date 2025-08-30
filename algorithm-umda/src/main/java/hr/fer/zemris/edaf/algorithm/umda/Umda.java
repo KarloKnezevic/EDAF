@@ -1,6 +1,7 @@
 package hr.fer.zemris.edaf.algorithm.umda;
 
-import hr.fer.zemris.edaf.core.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class Umda<T extends Individual> implements Algorithm<T> {
 
     private T best;
     private int generation;
+    private ProgressListener listener;
 
     public Umda(Problem<T> problem, Population<T> population, Selection<T> selection,
                 Statistics<T> statistics, TerminationCondition<T> terminationCondition,
@@ -53,14 +55,16 @@ public class Umda<T extends Individual> implements Algorithm<T> {
             statistics.estimate(selected);
 
             // 2.3. Sample new individuals
-            Population<T> newPopulation = statistics.sample(population.size());
+            Population<T> newPopulation = statistics.sample(population.getSize());
 
             // 2.4. Evaluate new individuals
             evaluatePopulation(newPopulation);
 
             // 2.5. Replace old population
             population.clear();
-            population.addAll(newPopulation);
+            for (T individual : newPopulation) {
+                population.add(individual);
+            }
             population.sort();
 
             // 2.6. Update best individual
@@ -70,6 +74,9 @@ public class Umda<T extends Individual> implements Algorithm<T> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -103,5 +110,10 @@ public class Umda<T extends Individual> implements Algorithm<T> {
     @Override
     public Population<T> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }

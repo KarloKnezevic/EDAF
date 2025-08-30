@@ -1,9 +1,9 @@
 package hr.fer.zemris.edaf.statistics.umda;
 
-import hr.fer.zemris.edaf.core.Genotype;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.SimplePopulation;
-import hr.fer.zemris.edaf.core.Statistics;
+import hr.fer.zemris.edaf.core.api.Genotype;
+import hr.fer.zemris.edaf.core.api.Population;
+import hr.fer.zemris.edaf.core.api.Statistics;
+import hr.fer.zemris.edaf.core.impl.SimplePopulation;
 import hr.fer.zemris.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.Random;
@@ -34,7 +34,7 @@ public class UmdaBinaryStatistics implements Statistics<BinaryIndividual> {
             for (BinaryIndividual individual : population) {
                 count += individual.getGenotype()[i];
             }
-            p[i] = (double) count / population.size();
+            p[i] = (double) count / population.getSize();
         }
     }
 

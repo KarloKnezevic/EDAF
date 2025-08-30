@@ -1,11 +1,21 @@
 package hr.fer.zemris.edaf.configuration.pojos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Map;
 
 public class Configuration {
 
+    @NotNull(message = "Problem configuration is missing.")
+    @Valid
     private ProblemConfig problem;
+
+    @NotNull(message = "Algorithm configuration is missing.")
+    @Valid
     private AlgorithmConfig algorithm;
 
     public ProblemConfig getProblem() {
@@ -26,7 +36,11 @@ public class Configuration {
 
     public static class ProblemConfig {
         @JsonProperty("class")
+        @NotEmpty(message = "Problem class name is missing.")
         private String className;
+
+        @NotNull(message = "Genotype configuration is missing.")
+        @Valid
         private GenotypeConfig genotype;
 
         public String getClassName() {
@@ -47,15 +61,23 @@ public class Configuration {
     }
 
     public static class GenotypeConfig {
+        @NotEmpty(message = "Genotype type is missing.")
         private String type;
         private String encoding;
         @JsonProperty("l-bound")
         private double lowerBound;
         @JsonProperty("u-bound")
         private double upperBound;
+        @JsonProperty("min-bound")
+        private int minBound;
+        @JsonProperty("max-bound")
+        private int maxBound;
+        @Min(value = 1, message = "Genotype length must be at least 1.")
         private int length;
         private int precision;
+        @Valid
         private CrossingConfig crossing;
+        @Valid
         private MutationConfig mutation;
 
         public String getType() { return type; }
@@ -66,6 +88,10 @@ public class Configuration {
         public void setLowerBound(double lowerBound) { this.lowerBound = lowerBound; }
         public double getUpperBound() { return upperBound; }
         public void setUpperBound(double upperBound) { this.upperBound = upperBound; }
+        public int getMinBound() { return minBound; }
+        public void setMinBound(int minBound) { this.minBound = minBound; }
+        public int getMaxBound() { return maxBound; }
+        public void setMaxBound(int maxBound) { this.maxBound = maxBound; }
         public int getLength() { return length; }
         public void setLength(int length) { this.length = length; }
         public int getPrecision() { return precision; }
@@ -77,29 +103,44 @@ public class Configuration {
     }
 
     public static class CrossingConfig {
+        @NotEmpty(message = "Crossing name is missing.")
         private String name;
         private double probability;
+        @JsonProperty("distribution-index")
+        private double distributionIndex;
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public double getProbability() { return probability; }
         public void setProbability(double probability) { this.probability = probability; }
+        public double getDistributionIndex() { return distributionIndex; }
+        public void setDistributionIndex(double distributionIndex) { this.distributionIndex = distributionIndex; }
     }
 
     public static class MutationConfig {
+        @NotEmpty(message = "Mutation name is missing.")
         private String name;
         private double probability;
+        @JsonProperty("distribution-index")
+        private double distributionIndex;
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
         public double getProbability() { return probability; }
         public void setProbability(double probability) { this.probability = probability; }
+        public double getDistributionIndex() { return distributionIndex; }
+        public void setDistributionIndex(double distributionIndex) { this.distributionIndex = distributionIndex; }
     }
 
     public static class AlgorithmConfig {
+        @NotEmpty(message = "Algorithm name is missing.")
         private String name;
+        @Valid
         private PopulationConfig population;
+        @Valid
         private SelectionConfig selection;
+        @NotNull(message = "Termination configuration is missing.")
+        @Valid
         private TerminationConfig termination;
         private int elitism;
         private double mortality;
@@ -133,6 +174,7 @@ public class Configuration {
     }
 
     public static class PopulationConfig {
+        @Min(value = 1, message = "Population size must be at least 1.")
         private int size;
 
         public int getSize() { return size; }
@@ -140,6 +182,7 @@ public class Configuration {
     }
 
     public static class SelectionConfig {
+        @NotEmpty(message = "Selection name is missing.")
         private String name;
         private int size;
         private double ratio;
@@ -154,6 +197,7 @@ public class Configuration {
 
     public static class TerminationConfig {
         @JsonProperty("max-generations")
+        @Min(value = 1, message = "Max generations must be at least 1.")
         private int maxGenerations;
 
         public int getMaxGenerations() { return maxGenerations; }

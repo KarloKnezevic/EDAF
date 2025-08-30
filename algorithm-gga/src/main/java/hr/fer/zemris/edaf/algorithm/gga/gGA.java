@@ -1,14 +1,25 @@
 package hr.fer.zemris.edaf.algorithm.gga;
 
-import hr.fer.zemris.edaf.core.Algorithm;
-import hr.fer.zemris.edaf.core.Crossover;
-import hr.fer.zemris.edaf.core.Individual;
-import hr.fer.zemris.edaf.core.Mutation;
-import hr.fer.zemris.edaf.core.Population;
-import hr.fer.zemris.edaf.core.Problem;
-import hr.fer.zemris.edaf.core.Selection;
-import hr.fer.zemris.edaf.core.SimplePopulation;
-import hr.fer.zemris.edaf.core.TerminationCondition;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
+import hr.fer.zemris.edaf.core.api.*;
+import hr.fer.zemris.edaf.core.impl.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +44,7 @@ public class gGA<T extends Individual> implements Algorithm<T> {
 
     private T best;
     private int generation;
+    private ProgressListener listener;
 
     public gGA(Problem<T> problem, Population<T> population, Selection<T> selection,
                Crossover<T> crossover, Mutation<T> mutation,
@@ -61,15 +73,15 @@ public class gGA<T extends Individual> implements Algorithm<T> {
 
             // 2.2. Elitism
             for (int i = 0; i < elitism; i++) {
-                newPopulation.add((T) population.get(i).copy());
+                newPopulation.add((T) population.getIndividual(i).copy());
             }
 
             // 2.3. Crossover and mutation
-            while (newPopulation.size() < population.size()) {
+            while (newPopulation.getSize() < population.getSize()) {
                 // Select parents
                 Population<T> parents = selection.select(population, 2);
                 // Crossover
-                T offspring = crossover.crossover(parents.get(0), parents.get(1));
+                T offspring = crossover.crossover(parents.getIndividual(0), parents.getIndividual(1));
                 // Mutation
                 mutation.mutate(offspring);
                 // Add to new population
@@ -81,7 +93,9 @@ public class gGA<T extends Individual> implements Algorithm<T> {
 
             // 2.5. Replace old population
             population.clear();
-            population.addAll(newPopulation);
+            for (T individual : newPopulation) {
+                population.add(individual);
+            }
             population.sort();
 
             // 2.6. Update best individual
@@ -91,6 +105,9 @@ public class gGA<T extends Individual> implements Algorithm<T> {
             }
 
             generation++;
+            if (listener != null) {
+                listener.onGenerationDone(generation, population.getBest(), population);
+            }
         }
     }
 
@@ -124,5 +141,10 @@ public class gGA<T extends Individual> implements Algorithm<T> {
     @Override
     public Population<T> getPopulation() {
         return population;
+    }
+
+    @Override
+    public void setProgressListener(ProgressListener listener) {
+        this.listener = listener;
     }
 }
