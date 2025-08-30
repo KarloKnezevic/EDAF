@@ -1,24 +1,6 @@
 package hr.fer.zemris.edaf.algorithm.ega;
 
 import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-import hr.fer.zemris.edaf.core.api.*;
-import hr.fer.zemris.edaf.core.impl.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;

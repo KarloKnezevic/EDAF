@@ -1,11 +1,11 @@
 problem:
-  class: hr.fer.zemris.edaf.testing.maxones.MaxOnes
+  class: hr.fer.zemris.edaf.testing.problems.MaxOnes
   genotype:
     type: binary
     length: 20
 
 algorithm:
-  name: UMDA
+  name: umda
   population:
     size: 100
   selection:
