@@ -6,12 +6,14 @@ import com.knezevic.edaf.core.api.*;
 
 import java.util.Random;
 
-public class UmdaFactory implements AlgorithmFactory {
+import com.knezevic.edaf.core.api.Individual;
+
+public class UmdaFactory<T extends Individual> implements AlgorithmFactory<T> {
     @Override
-    public Algorithm createAlgorithm(Configuration config, Problem problem, Population population,
-                                     Selection selection, Statistics statistics,
-                                     TerminationCondition terminationCondition, Random random) throws Exception {
-        return new Umda(problem, population, selection, statistics, terminationCondition,
+    public Algorithm<T> createAlgorithm(Configuration config, Problem<T> problem, Population<T> population,
+                                     Selection<T> selection, Statistics<T> statistics,
+                                     TerminationCondition<T> terminationCondition, Random random) throws Exception {
+        return new Umda<>(problem, population, selection, statistics, terminationCondition,
                 config.getAlgorithm().getSelection().getSize());
     }
 
