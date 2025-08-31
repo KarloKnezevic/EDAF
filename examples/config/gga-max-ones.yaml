@@ -1,5 +1,5 @@
 problem:
-  class: hr.fer.zemris.edaf.testing.maxones.MaxOnes
+  class: com.knezevic.edaf.testing.maxones.MaxOnes
   genotype:
     type: binary
     length: 20
