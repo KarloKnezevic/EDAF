@@ -1,5 +1,5 @@
 problem:
-  class: hr.fer.zemris.edaf.testing.problems.MaxOnes # Note: This is not an integer problem, just for demonstration
+  class: com.knezevic.edaf.testing.problems.MaxOnes # Note: This is not an integer problem, just for demonstration
   genotype:
     type: integer
     length: 20

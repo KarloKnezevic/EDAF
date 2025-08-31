@@ -1,5 +1,5 @@
 problem:
-  class: hr.fer.zemris.edaf.testing.bbob.noiseless.F1 # Sphere function
+  class: com.knezevic.edaf.testing.bbob.noiseless.F1 # Sphere function
   genotype:
     type: fp
     length: 10

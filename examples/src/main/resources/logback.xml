@@ -20,7 +20,7 @@
     <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
   </appender>
 
-  <logger name="hr.fer.zemris.edaf.results" level="INFO" additivity="false">
+  <logger name="com.knezevic.edaf.results" level="INFO" additivity="false">
     <appender-ref ref="JSON_FILE" />
   </logger>
 
