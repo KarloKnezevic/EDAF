@@ -33,7 +33,7 @@ public class FpIndividual implements Individual<double[]> {
     }
 
     @Override
-    public Individual<double[]> copy() {
+    public FpIndividual copy() {
         FpIndividual copy = new FpIndividual(Arrays.copyOf(genotype, genotype.length));
         copy.setFitness(fitness);
         return copy;

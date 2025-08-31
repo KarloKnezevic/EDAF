@@ -83,11 +83,6 @@
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
-            <artifactId>algorithm-bmda</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.knezevic.edaf</groupId>
             <artifactId>algorithm-boa</artifactId>
             <version>${project.version}</version>
         </dependency>

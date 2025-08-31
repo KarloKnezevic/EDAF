@@ -22,14 +22,14 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-fp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
             <artifactId>weka-dev</artifactId>
             <version>3.9.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.knezevic.edaf</groupId>
-            <artifactId>testing</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

@@ -5,10 +5,10 @@ import com.knezevic.edaf.core.api.*;
 
 import java.util.Random;
 
-public interface AlgorithmFactory {
-    Algorithm createAlgorithm(Configuration config, Problem problem, Population population,
-                              Selection selection, Statistics statistics,
-                              TerminationCondition terminationCondition, Random random) throws Exception;
+public interface AlgorithmFactory<T extends Individual> {
+    Algorithm<T> createAlgorithm(Configuration config, Problem<T> problem, Population<T> population,
+                                 Selection<T> selection, Statistics<T> statistics,
+                                 TerminationCondition<T> terminationCondition, Random random) throws Exception;
 
     Crossover createCrossover(Configuration config, Random random);
 
