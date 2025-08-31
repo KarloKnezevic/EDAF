@@ -40,6 +40,7 @@
         <module>algorithm-bmda</module>
         <module>algorithm-mimic</module>
         <module>algorithm-ltga</module>
+        <module>algorithm-boa</module>
         <module>configuration</module>
         <module>statistics</module>
         <module>testing</module>

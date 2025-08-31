@@ -1,0 +1,18 @@
+problem:
+  class: com.knezevic.edaf.testing.bbob.BBOBProblem
+  parameters:
+    benchmarkId: 1
+    instanceId: 1
+  genotype:
+    type: fp
+    length: 2
+
+algorithm:
+  name: boa
+  parameters:
+    n_init: 10
+    n_iter: 20
+  termination:
+    max-generations: 30 # n_init + n_iter
+  log-frequency: 1
+  log-directory: "logs/boa-bbob"
