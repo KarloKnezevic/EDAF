@@ -17,6 +17,8 @@ public class AlgorithmFactoryProvider {
             return new CgaFactory();
         } else if ("mimic".equals(algorithmName)) {
             return new MimicFactory();
+        } else if ("bmda".equals(algorithmName)) {
+            return new BmdaFactory();
         }
         return null;
     }

@@ -5,6 +5,7 @@ import com.knezevic.edaf.core.api.Genotype;
 import com.knezevic.edaf.core.api.Statistics;
 import com.knezevic.edaf.genotype.binary.BinaryGenotype;
 import com.knezevic.edaf.genotype.fp.FpGenotype;
+import com.knezevic.edaf.statistics.bmda.BmdaBinaryStatistics;
 import com.knezevic.edaf.statistics.mimic.MimicStatistics;
 import com.knezevic.edaf.statistics.umda.UmdaBinaryStatistics;
 import com.knezevic.edaf.statistics.umda.UmdaFpStatistics;
@@ -24,6 +25,10 @@ public class DefaultStatisticsFactory implements StatisticsFactory {
         } else if ("mimic".equals(algorithmName)) {
             if (genotype instanceof BinaryGenotype) {
                 return new MimicStatistics(genotype, random);
+            }
+        } else if ("bmda".equals(algorithmName)) {
+            if (genotype instanceof BinaryGenotype) {
+                return new BmdaBinaryStatistics(genotype, random);
             }
         }
         return null;
