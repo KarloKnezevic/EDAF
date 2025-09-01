@@ -17,6 +17,27 @@ import com.knezevic.edaf.core.impl.*;
 
 /**
  * Population-Based Incremental Learning (PBIL).
+ * <p>
+ * PBIL is an optimization algorithm that combines aspects of genetic algorithms and competitive learning.
+ * It evolves a probability vector, which is used to generate populations of candidate solutions.
+ * </p>
+ * <p>
+ * The algorithm works as follows:
+ * <ol>
+ *     <li>Initialize a probability vector. For binary problems, this is a vector of probabilities for each bit being 1.
+ *         For continuous problems, this can be a vector of means and standard deviations for a normal distribution.</li>
+ *     <li>Generate a population of individuals by sampling from the probability distribution defined by the probability vector.</li>
+ *     <li>Evaluate the fitness of each individual in the population.</li>
+ *     <li>Identify the best individual in the population.</li>
+ *     <li>Update the probability vector by shifting it towards the best individual. The amount of shift is controlled by a learning rate.</li>
+ *     <li>Repeat from step 2 until a termination condition is met.</li>
+ * </ol>
+ * </p>
+ * <p>
+ * This implementation is generic and can work with different types of individuals and statistics.
+ * For binary problems, use {@link com.knezevic.edaf.statistics.discrete.BitwiseDistribution}.
+ * For continuous problems, use {@link com.knezevic.edaf.statistics.continuous.NormalDistribution}.
+ * </p>
  *
  * @param <T> The type of individual in the population.
  */
