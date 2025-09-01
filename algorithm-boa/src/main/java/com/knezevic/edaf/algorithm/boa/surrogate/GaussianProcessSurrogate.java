@@ -1,7 +1,6 @@
 package com.knezevic.edaf.algorithm.boa.surrogate;
 
 import weka.classifiers.functions.GaussianProcesses;
-import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 

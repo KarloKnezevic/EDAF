@@ -2,12 +2,6 @@ package com.knezevic.edaf.algorithm.cga;
 
 import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;

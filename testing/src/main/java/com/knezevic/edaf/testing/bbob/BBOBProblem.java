@@ -1,7 +1,6 @@
 package com.knezevic.edaf.testing.bbob;
 
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
 import com.knezevic.edaf.genotype.fp.FpIndividual;
 
 /**
