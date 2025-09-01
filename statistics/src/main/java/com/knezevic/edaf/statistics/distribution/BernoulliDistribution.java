@@ -1,4 +1,4 @@
-package com.knezevic.edaf.statistics.umda;
+package com.knezevic.edaf.statistics.distribution;
 
 import com.knezevic.edaf.core.api.Genotype;
 import com.knezevic.edaf.core.api.Population;
@@ -9,15 +9,15 @@ import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 import java.util.Random;
 
 /**
- * UMDA statistics for binary genotypes.
+ * Bernoulli distribution for binary genotypes.
  */
-public class UmdaBinaryStatistics implements Statistics<BinaryIndividual> {
+public class BernoulliDistribution implements Statistics<BinaryIndividual> {
 
     private final Genotype<byte[]> genotype;
     private final Random random;
     private final double[] p;
 
-    public UmdaBinaryStatistics(Genotype<byte[]> genotype, Random random) {
+    public BernoulliDistribution(Genotype<byte[]> genotype, Random random) {
         this.genotype = genotype;
         this.random = random;
         this.p = new double[genotype.getLength()];
@@ -40,7 +40,7 @@ public class UmdaBinaryStatistics implements Statistics<BinaryIndividual> {
 
     @Override
     public void update(BinaryIndividual individual, double learningRate) {
-        // Not used by UMDA
+        // Not used
     }
 
     @Override

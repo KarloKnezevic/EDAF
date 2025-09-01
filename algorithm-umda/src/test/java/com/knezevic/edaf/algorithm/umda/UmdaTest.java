@@ -1,10 +1,12 @@
 package com.knezevic.edaf.algorithm.umda;
 
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
+import com.knezevic.edaf.core.impl.MaxGenerations;
+import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.genotype.binary.BinaryGenotype;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
-import com.knezevic.edaf.statistics.umda.UmdaBinaryStatistics;
+import com.knezevic.edaf.statistics.distribution.BernoulliDistribution;
+import com.knezevic.edaf.selection.TournamentSelection;
 import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;
 
@@ -31,8 +33,8 @@ class UmdaTest {
             population.add(new BinaryIndividual(genotype.create()));
         }
 
-        // 4. Create a UmdaBinaryStatistics object
-        Statistics<BinaryIndividual> statistics = new UmdaBinaryStatistics(genotype, random);
+        // 4. Create a BernoulliDistribution object
+        Statistics<BinaryIndividual> statistics = new BernoulliDistribution(genotype, random);
 
         // 5. Create a Selection operator
         Selection<BinaryIndividual> selection = new TournamentSelection<>(random, 5);

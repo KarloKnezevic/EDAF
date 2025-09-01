@@ -46,6 +46,8 @@
         <module>testing</module>
         <module>examples</module>
         <module>factory</module>
+        <module>selection</module>
+        <module>genotype-permutation</module>
     </modules>
 
     <dependencyManagement>
