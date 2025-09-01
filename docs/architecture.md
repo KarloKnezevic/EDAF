@@ -20,7 +20,8 @@ Here is a simplified class diagram showing the main interfaces and classes in th
 
 ```mermaid
 classDiagram
-    interface Algorithm {
+    class Algorithm {
+        <<interface>>
         +run()
         +getBest() : Individual
         +getGeneration() : int
@@ -28,18 +29,21 @@ classDiagram
         +setProgressListener(ProgressListener)
     }
 
-    interface Problem {
+    class Problem {
+        <<interface>>
         +evaluate(Individual)
     }
 
-    interface Individual {
+    class Individual {
+        <<interface>>
         +getGenotype() : Object
         +getFitness() : double
         +setFitness(double)
         +copy() : Individual
     }
 
-    interface Population {
+    class Population {
+        <<interface>>
         +add(Individual)
         +remove(Individual)
         +getIndividual(int) : Individual
@@ -49,19 +53,23 @@ classDiagram
         +sort()
     }
 
-    interface Selection {
+    class Selection {
+        <<interface>>
         +select(Population, int) : Population
     }
 
-    interface Crossover {
+    class Crossover {
+        <<interface>>
         +crossover(Individual, Individual) : Individual
     }
 
-    interface Mutation {
+    class Mutation {
+        <<interface>>
         +mutate(Individual)
     }
 
-    interface TerminationCondition {
+    class TerminationCondition {
+        <<interface>>
         +shouldTerminate(Algorithm) : boolean
     }
 
@@ -97,6 +105,7 @@ classDiagram
     Mutation <|.. Algorithm
     TerminationCondition <|.. Algorithm
     Individual <|.. Population
+
 ```
 
 ## Module Dependencies
