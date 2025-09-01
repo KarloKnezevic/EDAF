@@ -1,7 +1,6 @@
 package com.knezevic.edaf.genotype.binary.mutation;
 
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.Random;

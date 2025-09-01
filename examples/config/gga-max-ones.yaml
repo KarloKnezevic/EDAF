@@ -1,24 +1,24 @@
 problem:
-  class: com.knezevic.edaf.testing.maxones.MaxOnes
+  class: com.knezevic.edaf.testing.problems.MaxOnes
   genotype:
     type: binary
     length: 20
     crossing:
-      name: one-point
+      name: onePoint
       probability: 0.2
     mutation:
-      name: bit-flip
+      name: simple
       probability: 0.1
 
 algorithm:
-  name: gGA
+  name: gga
   population:
     size: 100
   selection:
     name: tournament
     size: 3
   termination:
-    max-generations: 100
+    max-generations: 1000
   elitism: 1
   log-frequency: 10
   log-directory: "logs/gga-max-ones"

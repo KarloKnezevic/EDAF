@@ -1,8 +1,6 @@
 package com.knezevic.edaf.algorithm.umda;
 
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;

@@ -32,7 +32,7 @@ public class DefaultProblemFactory implements ProblemFactory {
                     }
                     return (Problem) constructor.newInstance(args);
                 } catch (Exception e) {
-                    // Ignore and try the next constructor
+                    // Continue to the next constructor if this one fails
                 }
             }
         }

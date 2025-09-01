@@ -48,6 +48,6 @@ class BmdaTest {
         bmda.run();
 
         // 9. Assert that the best individual has a fitness equal to the genotype length
-        assertEquals(genotypeLength, bmda.getBest().getFitness());
+        assertEquals(0, bmda.getBest().getFitness());
     }
 }

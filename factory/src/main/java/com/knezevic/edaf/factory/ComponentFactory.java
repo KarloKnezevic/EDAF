@@ -2,20 +2,6 @@ package com.knezevic.edaf.factory;
 
 import com.knezevic.edaf.configuration.pojos.Configuration;
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-
 import java.util.Random;
 
 /**

@@ -1,5 +1,9 @@
 problem:
-  class: com.knezevic.edaf.testing.bbob.noiseless.F1 # Sphere function
+  class: com.knezevic.edaf.testing.bbob.BBOBProblem # Sphere function
+  parameters:
+    benchmarkId: 1
+    instanceId: 2
+    dimension: 10
   genotype:
     type: fp
     length: 10
@@ -14,14 +18,14 @@ problem:
       distribution-index: 20.0
 
 algorithm:
-  name: gGA
+  name: gga
   population:
     size: 100
   selection:
     name: tournament
     size: 3
   termination:
-    max-generations: 1000
+    max-generations: 10000
   elitism: 1
   log-frequency: 100
   log-directory: "logs/ga-fp-example"

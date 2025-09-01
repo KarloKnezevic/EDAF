@@ -1,14 +1,14 @@
 problem:
-  class: com.knezevic.edaf.testing.maxones.MaxOnes
+  class: com.knezevic.edaf.testing.problems.MaxOnes
   genotype:
     type: binary
     length: 20
 
 algorithm:
-  name: LTGA
+  name: ltga
   population:
     size: 100
   termination:
-    max-generations: 100
+    max-generations: 10000
   log-frequency: 10
   log-directory: "logs/ltga-max-ones"

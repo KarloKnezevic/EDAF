@@ -16,9 +16,9 @@ algorithm:
     size: 500
   selection:
     name: tournament
-    size: 2
+    size: 3
   termination:
-    max-generations: 100000
+    max-generations: 10000
   mortality: 0.5
   log-frequency: 10
   log-directory: "logs/ega-max-ones"

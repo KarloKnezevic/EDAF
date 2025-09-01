@@ -3,7 +3,6 @@ package com.knezevic.edaf.examples;
 import com.knezevic.edaf.configuration.ConfigurationLoader;
 import com.knezevic.edaf.configuration.pojos.Configuration;
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
 import com.knezevic.edaf.factory.ComponentFactory;
 import com.knezevic.edaf.factory.DefaultComponentFactory;
 import net.logstash.logback.marker.Markers;

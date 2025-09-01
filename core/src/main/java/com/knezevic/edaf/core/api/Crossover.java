@@ -1,8 +1,5 @@
 package com.knezevic.edaf.core.api;
 
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
-
 /**
  * Defines the crossover operator.
  *

@@ -12,7 +12,7 @@ problem:
       probability: 0.05
 
 algorithm:
-  name: gGA
+  name: gga
   population:
     size: 100
   selection:

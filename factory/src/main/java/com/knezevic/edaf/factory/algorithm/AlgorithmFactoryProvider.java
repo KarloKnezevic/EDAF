@@ -19,6 +19,10 @@ public class AlgorithmFactoryProvider {
             return new MimicFactory();
         } else if ("boa".equals(algorithmName)) {
             return new BoaFactory();
+        } else if ("ltga".equals(algorithmName)) {
+            return new LtgaFactory();
+        } else if ("bmda".equals(algorithmName)) {
+            return new BmdaFactory();
         }
         return null;
     }
