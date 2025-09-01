@@ -2,7 +2,7 @@ package com.knezevic.edaf.factory.selection;
 
 import com.knezevic.edaf.configuration.pojos.Configuration;
 import com.knezevic.edaf.core.api.Selection;
-import com.knezevic.edaf.core.impl.RouletteWheelSelection;
+import com.knezevic.edaf.selection.RouletteWheelSelection;
 
 import java.util.Random;
 

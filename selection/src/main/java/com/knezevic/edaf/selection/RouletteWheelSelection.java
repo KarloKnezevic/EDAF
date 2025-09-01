@@ -1,8 +1,9 @@
-package com.knezevic.edaf.core.impl;
+package com.knezevic.edaf.selection;
 
 import com.knezevic.edaf.core.api.Individual;
 import com.knezevic.edaf.core.api.Population;
 import com.knezevic.edaf.core.api.Selection;
+import com.knezevic.edaf.core.impl.SimplePopulation;
 
 import java.util.Random;
 

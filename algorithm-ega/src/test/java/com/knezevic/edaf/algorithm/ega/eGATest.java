@@ -1,11 +1,13 @@
 package com.knezevic.edaf.algorithm.ega;
 
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
+import com.knezevic.edaf.core.impl.MaxGenerations;
+import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.genotype.binary.BinaryGenotype;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 import com.knezevic.edaf.genotype.binary.crossing.OnePointCrossover;
 import com.knezevic.edaf.genotype.binary.mutation.SimpleMutation;
+import com.knezevic.edaf.selection.TournamentSelection;
 import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;
 

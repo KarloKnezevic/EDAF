@@ -1,4 +1,4 @@
-package com.knezevic.edaf.statistics.continuous;
+package com.knezevic.edaf.statistics.distribution;
 
 import com.knezevic.edaf.core.api.Individual;
 import com.knezevic.edaf.core.api.Population;

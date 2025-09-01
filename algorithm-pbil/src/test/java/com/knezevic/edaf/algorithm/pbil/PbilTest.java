@@ -6,7 +6,7 @@ import com.knezevic.edaf.core.api.Statistics;
 import com.knezevic.edaf.core.api.TerminationCondition;
 import com.knezevic.edaf.core.impl.MaxGenerations;
 import com.knezevic.edaf.genotype.fp.FpIndividual;
-import com.knezevic.edaf.statistics.continuous.NormalDistribution;
+import com.knezevic.edaf.statistics.distribution.NormalDistribution;
 import com.knezevic.edaf.testing.problems.Sphere;
 import org.junit.jupiter.api.Test;
 

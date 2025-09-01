@@ -1,7 +1,9 @@
-package com.knezevic.edaf.core.impl;
+package com.knezevic.edaf.selection;
 
 import com.knezevic.edaf.core.api.Individual;
 import com.knezevic.edaf.core.api.Population;
+import com.knezevic.edaf.core.impl.SimplePopulation;
+import com.knezevic.edaf.core.impl.TestIndividual;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,34 +56,5 @@ class RouletteWheelSelectionTest {
         assertEquals(expected1, actual1, 0.05);
         assertEquals(expected2, actual2, 0.05);
         assertEquals(expected3, actual3, 0.05);
-    }
-
-    // A simple Individual implementation for testing purposes
-    private static class TestIndividual implements Individual<Void> {
-        private double fitness;
-
-        public TestIndividual(double fitness) {
-            this.fitness = fitness;
-        }
-
-        @Override
-        public double getFitness() {
-            return fitness;
-        }
-
-        @Override
-        public void setFitness(double fitness) {
-            this.fitness = fitness;
-        }
-
-        @Override
-        public Void getGenotype() {
-            return null;
-        }
-
-        @Override
-        public Individual<Void> copy() {
-            return new TestIndividual(fitness);
-        }
     }
 }

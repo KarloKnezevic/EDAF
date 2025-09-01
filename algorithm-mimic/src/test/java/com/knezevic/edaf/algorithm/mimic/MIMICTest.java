@@ -1,9 +1,11 @@
 package com.knezevic.edaf.algorithm.mimic;
 
 import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
+import com.knezevic.edaf.core.impl.MaxGenerations;
+import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.genotype.binary.BinaryGenotype;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
+import com.knezevic.edaf.selection.TournamentSelection;
 import com.knezevic.edaf.statistics.mimic.MimicStatistics;
 import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;
