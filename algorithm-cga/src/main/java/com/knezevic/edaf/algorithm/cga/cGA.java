@@ -7,6 +7,27 @@ import java.util.Random;
 
 /**
  * The Compact Genetic Algorithm (cGA).
+ * <p>
+ * cGA is a type of Estimation of Distribution Algorithm (EDA) that simulates the behavior of a simple genetic algorithm
+ * with a large population, but without storing the population itself. Instead, it maintains a probability vector
+ * representing the distribution of genes in the population.
+ * </p>
+ * <p>
+ * The algorithm works as follows:
+ * <ol>
+ *     <li>Initialize a probability vector `p` of length `l` (where `l` is the genotype length) with all values set to 0.5.</li>
+ *     <li>In each generation, generate two individuals by sampling from the probability vector.</li>
+ *     <li>Evaluate the two individuals and identify the winner (the one with better fitness).</li>
+ *     <li>Update the probability vector based on the winner and loser. For each gene where the winner and loser differ,
+ *         the probability is shifted towards the winner's gene value by a small amount (1/n, where n is the virtual population size).</li>
+ *     <li>Repeat until a termination condition is met.</li>
+ * </ol>
+ * </p>
+ * <p>
+ * This implementation is designed to work with {@link BinaryIndividual} genotypes.
+ * </p>
+ *
+ * @see <a href="https://en.wikipedia.org/wiki/Compact_genetic_algorithm">Compact genetic algorithm on Wikipedia</a>
  */
 public class cGA implements Algorithm<BinaryIndividual> {
 
@@ -96,7 +117,7 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> getPopulation() {
-        // cGA does not maintain a population
+        // cGA does not maintain a population, so this method returns null.
         return null;
     }
 

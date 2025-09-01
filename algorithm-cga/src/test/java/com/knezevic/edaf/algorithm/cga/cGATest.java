@@ -39,5 +39,11 @@ class cGATest {
 
         // 6. Assert that the best individual has a fitness of 0
         assertEquals(0, cga.getBest().getFitness());
+
+        // 7. Assert that the genotype of the best individual is all ones
+        byte[] genotype = cga.getBest().getGenotype();
+        for (byte b : genotype) {
+            assertEquals(1, b);
+        }
     }
 }

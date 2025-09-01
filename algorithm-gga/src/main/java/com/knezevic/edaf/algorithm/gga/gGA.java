@@ -29,6 +29,29 @@ import java.util.concurrent.Executors;
 
 /**
  * A generational Genetic Algorithm (gGA).
+ * <p>
+ * gGA is a traditional genetic algorithm where the entire population is replaced in each generation.
+ * It follows the typical evolutionary cycle of selection, crossover, and mutation.
+ * </p>
+ * <p>
+ * The algorithm works as follows:
+ * <ol>
+ *     <li>Initialize a population of individuals.</li>
+ *     <li>Evaluate the fitness of each individual in the population.</li>
+ *     <li>While the termination condition is not met:
+ *         <ol>
+ *             <li>Create a new empty population.</li>
+ *             <li>Apply elitism: Copy a number of the best individuals from the current population to the new population.</li>
+ *             <li>Fill the rest of the new population by repeatedly selecting two parents, performing crossover to create an offspring, and mutating the offspring.</li>
+ *             <li>Replace the current population with the new population.</li>
+ *             <li>Evaluate the fitness of the individuals in the new population.</li>
+ *         </ol>
+ *     </li>
+ * </ol>
+ * </p>
+ * <p>
+ * This implementation is generic and can work with different types of individuals and genetic operators.
+ * </p>
  *
  * @param <T> The type of individual in the population.
  */
