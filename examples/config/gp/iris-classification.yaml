@@ -18,6 +18,7 @@ problem:
         length: 1
         maxDepth: 5
         primitives:
+            type: RealValued
             functionSet: ADD,SUB,MUL,DIV
             terminals:
                 - { name: sepal_length, type: variable }

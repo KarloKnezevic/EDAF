@@ -58,6 +58,11 @@ public class FunctionNode implements Node {
         return children;
     }
 
+    @Override
+    public Object getValue() {
+        return function;
+    }
+
     /**
      * Replaces a child at a specific index.
      * @param index The index of the child to replace.

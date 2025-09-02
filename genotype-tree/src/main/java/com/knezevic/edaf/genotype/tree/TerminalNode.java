@@ -45,4 +45,9 @@ public class TerminalNode implements Node {
     public List<Node> getChildren() {
         return Collections.emptyList();
     }
+
+    @Override
+    public Object getValue() {
+        return terminal;
+    }
 }

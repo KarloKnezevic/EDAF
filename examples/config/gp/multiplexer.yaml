@@ -18,8 +18,7 @@ problem:
         length: 1
         maxDepth: 4
         primitives:
-            # For this boolean problem, we use the binary function set.
-            # The framework will interpret 1.0 as true and 0.0 as false.
+            type: Binary
             functionSet: AND,OR,NOT,XOR
             terminals:
                 - { name: A0, type: variable }

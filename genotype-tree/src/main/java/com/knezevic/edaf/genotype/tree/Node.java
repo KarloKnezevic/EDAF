@@ -46,4 +46,10 @@ public interface Node {
      * @return a list of child nodes.
      */
     List<Node> getChildren();
+
+    /**
+     * Gets the underlying primitive (Function or Terminal) for this node.
+     * @return The primitive object.
+     */
+    Object getValue();
 }

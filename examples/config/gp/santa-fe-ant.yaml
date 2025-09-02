@@ -1,0 +1,32 @@
+# Configuration for the Santa Fe Ant Trail problem.
+
+algorithm:
+    name: gp
+    elitism: 1
+    population:
+        size: 500
+    selection:
+        name: tournament
+        size: 7
+    termination:
+        max-generations: 50
+
+problem:
+    class: com.knezevic.edaf.examples.gp.problems.SantaFeAntProblem
+    genotype:
+        type: tree
+        length: 1
+        maxDepth: 6
+        primitives:
+            type: Ant
+            functionSet: IF_FOOD_AHEAD,PROGN2,PROGN3
+            terminals:
+                - { name: MOVE, type: variable }
+                - { name: LEFT, type: variable }
+                - { name: RIGHT, type: variable }
+        crossing:
+            name: treeCrossover
+            probability: 0.9
+        mutation:
+            name: treeMutation
+            probability: 0.1

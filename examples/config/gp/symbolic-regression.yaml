@@ -30,8 +30,9 @@ problem:
         maxDepth: 7
         # The primitive set (functions and terminals) to build the trees with.
         primitives:
-            # A comma-separated list of function names from a predefined set.
-            # Currently supported sets: RealValued, Binary
+            # The type of primitive set to use. Supported: RealValued, Binary, Ant
+            type: RealValued
+            # A comma-separated list of function names from the specified set.
             functionSet: ADD,SUB,MUL,DIV
             # A list of terminals (variables and constants).
             terminals:

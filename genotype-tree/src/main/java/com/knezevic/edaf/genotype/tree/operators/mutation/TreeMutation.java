@@ -42,9 +42,6 @@ public class TreeMutation implements Mutation<TreeIndividual> {
         Node mutationPoint = TreeUtils.getRandomNode(root, random);
         Node newSubtree = subtreeGenerator.create();
 
-        // This implementation does not replace the root node itself,
-        // as it would require changing the individual's genotype reference,
-        // which is beyond the scope of this operator.
         if (root != mutationPoint) {
             TreeUtils.replaceNode(root, mutationPoint, newSubtree);
         }
