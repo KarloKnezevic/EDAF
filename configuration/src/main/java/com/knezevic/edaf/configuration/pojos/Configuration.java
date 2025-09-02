@@ -90,6 +90,8 @@ public class Configuration {
         private CrossingConfig crossing;
         @Valid
         private MutationConfig mutation;
+        private int maxDepth;
+        private Map<String, Object> primitives;
 
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
@@ -111,6 +113,10 @@ public class Configuration {
         public void setCrossing(CrossingConfig crossing) { this.crossing = crossing; }
         public MutationConfig getMutation() { return mutation; }
         public void setMutation(MutationConfig mutation) { this.mutation = mutation; }
+        public int getMaxDepth() { return maxDepth; }
+        public void setMaxDepth(int maxDepth) { this.maxDepth = maxDepth; }
+        public Map<String, Object> getPrimitives() { return primitives; }
+        public void setPrimitives(Map<String, Object> primitives) { this.primitives = primitives; }
     }
 
     public static class CrossingConfig {

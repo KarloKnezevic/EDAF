@@ -23,6 +23,8 @@ public class AlgorithmFactoryProvider {
             return new LtgaFactory();
         } else if ("bmda".equals(algorithmName)) {
             return new BmdaFactory();
+        } else if ("gp".equals(algorithmName)) {
+            return new GpFactory();
         }
         return null;
     }

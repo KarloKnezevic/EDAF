@@ -11,6 +11,8 @@ public class GenotypeFactoryProvider {
             return new FpGenotypeFactory();
         } else if ("integer".equals(type)) {
             return new IntegerGenotypeFactory();
+        } else if ("tree".equals(type)) {
+            return new TreeGenotypeFactory();
         }
         return null;
     }

@@ -1,0 +1,27 @@
+algorithm:
+    name: gp
+    elitism: 2
+    population:
+        size: 100
+    selection:
+        name: tournament
+        size: 5
+    termination:
+        max-generations: 50
+
+problem:
+    class: com.knezevic.edaf.examples.gp.SymbolicRegressionProblem
+    genotype:
+        type: tree
+        length: 1
+        maxDepth: 7
+        primitives:
+            functionSet: ADD,SUB,MUL,DIV
+            terminals:
+                - { name: x, type: variable }
+        crossing:
+            name: treeCrossover
+            probability: 0.8
+        mutation:
+            name: treeMutation
+            probability: 0.15
