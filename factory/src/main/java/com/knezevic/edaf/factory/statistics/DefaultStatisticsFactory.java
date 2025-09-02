@@ -11,6 +11,9 @@ import com.knezevic.edaf.statistics.mimic.MimicStatistics;
 
 import java.util.Random;
 
+/**
+ * A default implementation of the {@link StatisticsFactory} interface.
+ */
 public class DefaultStatisticsFactory implements StatisticsFactory {
     @Override
     public Statistics create(Configuration config, Genotype genotype, Random random) throws Exception {

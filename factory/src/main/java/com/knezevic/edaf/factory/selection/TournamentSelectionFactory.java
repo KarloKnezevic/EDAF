@@ -6,6 +6,9 @@ import com.knezevic.edaf.selection.TournamentSelection;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link TournamentSelection} objects.
+ */
 public class TournamentSelectionFactory implements SelectionFactory {
     @Override
     public Selection create(Configuration config, Random random) throws Exception {

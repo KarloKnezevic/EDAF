@@ -6,6 +6,9 @@ import com.knezevic.edaf.genotype.binary.BinaryGenotype;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link BinaryGenotype} objects.
+ */
 public class BinaryGenotypeFactory implements GenotypeFactory {
     @Override
     public Genotype create(Configuration config, Random random) throws Exception {

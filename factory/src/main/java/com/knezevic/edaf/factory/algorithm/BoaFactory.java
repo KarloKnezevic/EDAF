@@ -7,6 +7,9 @@ import com.knezevic.edaf.genotype.fp.FpIndividual;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link Boa} algorithm objects.
+ */
 public class BoaFactory implements AlgorithmFactory<FpIndividual> {
     @Override
     public Algorithm<FpIndividual> createAlgorithm(Configuration config, Problem<FpIndividual> problem, Population<FpIndividual> population,

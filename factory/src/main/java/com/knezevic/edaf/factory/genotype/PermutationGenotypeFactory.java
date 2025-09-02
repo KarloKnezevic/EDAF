@@ -6,6 +6,9 @@ import com.knezevic.edaf.genotype.permutation.PermutationGenotype;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link PermutationGenotype} objects.
+ */
 public class PermutationGenotypeFactory implements GenotypeFactory {
     @Override
     public Genotype create(Configuration config, Random random) throws Exception {

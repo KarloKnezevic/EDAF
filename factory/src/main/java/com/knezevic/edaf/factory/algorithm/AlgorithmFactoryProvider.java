@@ -2,29 +2,41 @@ package com.knezevic.edaf.factory.algorithm;
 
 import com.knezevic.edaf.configuration.pojos.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+/**
+ * Provides a factory for creating {@link com.knezevic.edaf.core.api.Algorithm} objects.
+ * The factory is chosen based on the algorithm name specified in the configuration.
+ */
 public class AlgorithmFactoryProvider {
+    private static final Map<String, Supplier<AlgorithmFactory>> factoryMap = new HashMap<>();
+
+    static {
+        factoryMap.put("umda", UmdaFactory::new);
+        factoryMap.put("pbil", PbilFactory::new);
+        factoryMap.put("gga", GgaFactory::new);
+        factoryMap.put("ega", EgaFactory::new);
+        factoryMap.put("cga", CgaFactory::new);
+        factoryMap.put("mimic", MimicFactory::new);
+        factoryMap.put("boa", BoaFactory::new);
+        factoryMap.put("ltga", LtgaFactory::new);
+        factoryMap.put("bmda", BmdaFactory::new);
+        factoryMap.put("gp", GpFactory::new);
+    }
+
+    /**
+     * Returns an {@link AlgorithmFactory} for the given configuration.
+     *
+     * @param config The configuration.
+     * @return An {@link AlgorithmFactory} instance, or {@code null} if no factory is found for the given configuration.
+     */
     public static AlgorithmFactory getFactory(Configuration config) {
         String algorithmName = config.getAlgorithm().getName();
-        if ("umda".equals(algorithmName)) {
-            return new UmdaFactory();
-        } else if ("pbil".equals(algorithmName)) {
-            return new PbilFactory();
-        } else if ("gga".equals(algorithmName)) {
-            return new GgaFactory();
-        } else if ("ega".equals(algorithmName)) {
-            return new EgaFactory();
-        } else if ("cga".equals(algorithmName)) {
-            return new CgaFactory();
-        } else if ("mimic".equals(algorithmName)) {
-            return new MimicFactory();
-        } else if ("boa".equals(algorithmName)) {
-            return new BoaFactory();
-        } else if ("ltga".equals(algorithmName)) {
-            return new LtgaFactory();
-        } else if ("bmda".equals(algorithmName)) {
-            return new BmdaFactory();
-        } else if ("gp".equals(algorithmName)) {
-            return new GpFactory();
+        Supplier<AlgorithmFactory> factorySupplier = factoryMap.get(algorithmName);
+        if (factorySupplier != null) {
+            return factorySupplier.get();
         }
         return null;
     }

@@ -10,6 +10,9 @@ import com.knezevic.edaf.genotype.tree.primitives.PrimitiveSet;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link TreeGenotype} objects.
+ */
 public class TreeGenotypeFactory implements GenotypeFactory {
 
     @Override
@@ -22,6 +25,12 @@ public class TreeGenotypeFactory implements GenotypeFactory {
         return new TreeGenotype(primitiveSet, maxDepth, random);
     }
 
+    /**
+     * Creates a {@link TreeIndividual} from the given genotype.
+     *
+     * @param genotype The genotype.
+     * @return A {@link TreeIndividual} instance.
+     */
     public Individual createIndividual(Object genotype) {
         if (!(genotype instanceof Node)) {
             throw new IllegalArgumentException("Genotype for TreeIndividual must be a Node.");

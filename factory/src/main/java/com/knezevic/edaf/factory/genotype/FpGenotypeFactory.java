@@ -6,6 +6,9 @@ import com.knezevic.edaf.genotype.fp.FpGenotype;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link FpGenotype} objects.
+ */
 public class FpGenotypeFactory implements GenotypeFactory {
     @Override
     public Genotype create(Configuration config, Random random) throws Exception {

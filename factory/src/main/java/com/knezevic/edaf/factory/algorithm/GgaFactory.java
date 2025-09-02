@@ -13,6 +13,9 @@ import com.knezevic.edaf.genotype.integer.mutation.SimpleIntegerMutation;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link gGA} algorithm objects.
+ */
 public class GgaFactory implements AlgorithmFactory {
     @Override
     public Algorithm createAlgorithm(Configuration config, Problem problem, Population population, Selection selection, Statistics statistics, TerminationCondition terminationCondition, Random random) throws Exception {
