@@ -125,6 +125,7 @@ public class Configuration {
         private double probability;
         @JsonProperty("distribution-index")
         private double distributionIndex;
+        private int n;
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
@@ -132,6 +133,8 @@ public class Configuration {
         public void setProbability(double probability) { this.probability = probability; }
         public double getDistributionIndex() { return distributionIndex; }
         public void setDistributionIndex(double distributionIndex) { this.distributionIndex = distributionIndex; }
+        public int getN() { return n; }
+        public void setN(int n) { this.n = n; }
     }
 
     public static class MutationConfig {
@@ -203,6 +206,10 @@ public class Configuration {
         private String name;
         private int size;
         private double ratio;
+        private int k;
+        private int mu;
+        private int lambda;
+
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
@@ -210,6 +217,12 @@ public class Configuration {
         public void setSize(int size) { this.size = size; }
         public double getRatio() { return ratio; }
         public void setRatio(double ratio) { this.ratio = ratio; }
+        public int getK() { return k; }
+        public void setK(int k) { this.k = k; }
+        public int getMu() { return mu; }
+        public void setMu(int mu) { this.mu = mu; }
+        public int getLambda() { return lambda; }
+        public void setLambda(int lambda) { this.lambda = lambda; }
     }
 
     public static class TerminationConfig {

@@ -12,6 +12,6 @@ import java.util.Random;
 public class SimpleTournamentSelectionFactory implements SelectionFactory {
     @Override
     public Selection create(Configuration config, Random random) throws Exception {
-        return new SimpleTournamentSelection(random, config.getAlgorithm().getSelection().getSize());
+        return new SimpleTournamentSelection(random);
     }
 }
