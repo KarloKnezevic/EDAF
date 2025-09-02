@@ -12,6 +12,6 @@ import java.util.Random;
 public class MuCommaLambdaSelectionFactory implements SelectionFactory {
     @Override
     public Selection create(Configuration config, Random random) throws Exception {
-        return new MuCommaLambdaSelection(random);
+        return new MuCommaLambdaSelection(config.getAlgorithm().getSelection().getMu());
     }
 }

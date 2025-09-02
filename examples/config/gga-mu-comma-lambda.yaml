@@ -15,11 +15,11 @@ algorithm:
   population:
     size: 100
   selection:
-    name: tournament
-    size: 3
-    k: 3
+    name: mu-comma-lambda
+    mu: 10
+    lambda: 50
   termination:
     max-generations: 1000
   elitism: 1
   log-frequency: 10
-  log-directory: "logs/gga-max-ones"
+  log-directory: "logs/gga-mu-comma-lambda"

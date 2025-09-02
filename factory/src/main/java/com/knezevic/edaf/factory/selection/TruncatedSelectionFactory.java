@@ -12,6 +12,6 @@ import java.util.Random;
 public class TruncatedSelectionFactory implements SelectionFactory {
     @Override
     public Selection create(Configuration config, Random random) throws Exception {
-        return new TruncatedSelection(random);
+        return new TruncatedSelection();
     }
 }

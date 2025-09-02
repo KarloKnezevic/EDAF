@@ -12,6 +12,7 @@ import java.util.Random;
 public class KTournamentSelectionFactory implements SelectionFactory {
     @Override
     public Selection create(Configuration config, Random random) throws Exception {
-        return new KTournamentSelection(random, config.getAlgorithm().getSelection().getSize());
+        int k = config.getAlgorithm().getSelection().getK();
+        return new KTournamentSelection(random, k);
     }
 }
