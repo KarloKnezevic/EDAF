@@ -1,0 +1,36 @@
+# Configuration for a Genetic Programming experiment on the 6-bit Multiplexer problem.
+
+algorithm:
+    name: gp
+    elitism: 1
+    population:
+        size: 200
+    selection:
+        name: tournament
+        size: 7
+    termination:
+        max-generations: 50
+
+problem:
+    class: com.knezevic.edaf.examples.gp.problems.MultiplexerProblem
+    genotype:
+        type: tree
+        length: 1
+        maxDepth: 4
+        primitives:
+            # For this boolean problem, we use the binary function set.
+            # The framework will interpret 1.0 as true and 0.0 as false.
+            functionSet: AND,OR,NOT,XOR
+            terminals:
+                - { name: A0, type: variable }
+                - { name: A1, type: variable }
+                - { name: D0, type: variable }
+                - { name: D1, type: variable }
+                - { name: D2, type: variable }
+                - { name: D3, type: variable }
+        crossing:
+            name: treeCrossover
+            probability: 0.9
+        mutation:
+            name: treeMutation
+            probability: 0.1

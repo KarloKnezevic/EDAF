@@ -1,4 +1,4 @@
-package com.knezevic.edaf.examples.gp;
+package com.knezevic.edaf.examples.gp.problems;
 
 import com.knezevic.edaf.core.api.Problem;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;

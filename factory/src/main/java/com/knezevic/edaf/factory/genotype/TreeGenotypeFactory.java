@@ -29,7 +29,7 @@ public class TreeGenotypeFactory implements GenotypeFactory {
         }
 
         List<Function> functions = parseFunctionSet((String) primitivesConf.get("functionSet"));
-        List<Terminal> terminals = parseTerminals((List<Map<String, Object>>) primitivesConf.get("terminals"), random);
+        List<Terminal> terminals = parseTerminals((List<Map<String, Object>>) primitivesConf.get("terminals"));
         Map<String, Double> terminalValues = new HashMap<>();
 
         PrimitiveSet primitiveSet = new PrimitiveSet(functions, terminals, terminalValues);
@@ -49,14 +49,21 @@ public class TreeGenotypeFactory implements GenotypeFactory {
             throw new IllegalArgumentException("Function set names string is missing or empty.");
         }
 
-        Map<String, Function> allRealFunctions = RealValuedPrimitives.getFunctionMap();
-        // In a more complete implementation, we would also check BinaryPrimitives, etc.
+        List<String> requestedFunctions = Arrays.stream(functionSetNames.split(","))
+                .map(String::trim).map(String::toUpperCase).toList();
 
-        return Arrays.stream(functionSetNames.split(","))
-                .map(String::trim)
-                .map(String::toUpperCase)
+        // A bit of a heuristic to decide which map to use.
+        // A more robust solution might have an explicit config for this.
+        Map<String, Function> functionMap;
+        if (requestedFunctions.contains("ADD") || requestedFunctions.contains("SUB")) {
+            functionMap = RealValuedPrimitives.getFunctionMap();
+        } else {
+            functionMap = BinaryPrimitives.getFunctionMap();
+        }
+
+        return requestedFunctions.stream()
                 .map(name -> {
-                    Function func = allRealFunctions.get(name);
+                    Function func = functionMap.get(name);
                     if (func == null) {
                         throw new IllegalArgumentException("Unknown function name in functionSet: " + name);
                     }
@@ -66,7 +73,7 @@ public class TreeGenotypeFactory implements GenotypeFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Terminal> parseTerminals(List<Map<String, Object>> terminalConfs, Random random) {
+    private List<Terminal> parseTerminals(List<Map<String, Object>> terminalConfs) {
         List<Terminal> terminals = new ArrayList<>();
         if (terminalConfs == null) {
             return terminals;
@@ -80,8 +87,7 @@ public class TreeGenotypeFactory implements GenotypeFactory {
                 terminals.add(new Terminal(name));
             } else if ("ephemeral".equalsIgnoreCase(type)) {
                 List<Double> range = (List<Double>) conf.get("range");
-                double value = random.nextDouble() * (range.get(1) - range.get(0)) + range.get(0);
-                terminals.add(new Terminal(String.format("%.3f", value), value));
+                terminals.add(new Terminal(name, range.get(0), range.get(1)));
             }
         }
         return terminals;
