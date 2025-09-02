@@ -32,6 +32,7 @@
         <module>genotype-binary</module>
         <module>genotype-fp</module>
         <module>genotype-integer</module>
+        <module>genotype-tree</module>
         <module>algorithm-umda</module>
         <module>algorithm-pbil</module>
         <module>algorithm-gga</module>
@@ -41,6 +42,7 @@
         <module>algorithm-mimic</module>
         <module>algorithm-ltga</module>
         <module>algorithm-boa</module>
+        <module>algorithm-gp</module>
         <module>configuration</module>
         <module>statistics</module>
         <module>testing</module>
