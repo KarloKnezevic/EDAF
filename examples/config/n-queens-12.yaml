@@ -2,7 +2,7 @@
 # This version uses a larger population and more generations to handle the increased difficulty.
 
 algorithm:
-    name: eGA
+    name: ega
     elitism: 5
     population:
         size: 500
@@ -18,8 +18,8 @@ problem:
         type: permutation
         length: 12 # Solving for 12 queens
         crossing:
-            name: orderCrossover
+            name: ox
             probability: 0.8
         mutation:
-            name: insertMutation
+            name: insert
             probability: 0.3 # Increased mutation rate

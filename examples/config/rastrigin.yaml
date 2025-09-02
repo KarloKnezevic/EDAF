@@ -3,7 +3,7 @@
 # The global minimum is 0.0, at x_i = 0 for all i.
 
 algorithm:
-    name: eGA # Elitist Genetic Algorithm
+    name: ega # Elitist Genetic Algorithm
     elitism: 1
     population:
         size: 200
@@ -11,7 +11,7 @@ algorithm:
         name: tournament
         size: 5
     termination:
-        max-generations: 1000
+        max-generations: 100000
 
 problem:
     class: com.knezevic.edaf.examples.misc.RastriginProblem

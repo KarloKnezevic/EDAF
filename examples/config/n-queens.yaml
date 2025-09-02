@@ -21,9 +21,9 @@ problem:
         length: 8
         crossing:
             # Order crossover (OX1) is a standard crossover for permutations.
-            name: orderCrossover
+            name: ox
             probability: 0.8
         mutation:
             # Insert mutation is a simple and effective mutation for permutations.
-            name: insertMutation
+            name: insert
             probability: 0.2
