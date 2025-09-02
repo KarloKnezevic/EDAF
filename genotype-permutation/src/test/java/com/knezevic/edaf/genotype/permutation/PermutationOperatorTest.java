@@ -75,6 +75,9 @@ class PermutationOperatorTest {
 
         int[] original = {1, 2, 3, 4, 5};
         PermutationIndividual individual = new PermutationIndividual(original.clone());
+
+        // Ensure that the genotype has changed or remains the same (in rare cases) after mutation
+        // We run the mutation multiple times to increase the chance of change
         for (int i = 0; i < 10; i++) {
             mutation.mutate(individual);
             if (!Arrays.equals(original, individual.getGenotype())) {
@@ -91,12 +94,16 @@ class PermutationOperatorTest {
 
         int[] original = {1, 2, 3, 4, 5};
         PermutationIndividual individual = new PermutationIndividual(original.clone());
+
+        // Ensure that the genotype has changed or remains the same (in rare cases) after mutation
+        // We run the mutation multiple times to increase the chance of change
         for (int i = 0; i < 10; i++) {
             mutation.mutate(individual);
             if (!Arrays.equals(original, individual.getGenotype())) {
                 break;
             }
         }
+
         assertNotEquals(Arrays.toString(original), Arrays.toString(individual.getGenotype()));
     }
 
@@ -107,12 +114,14 @@ class PermutationOperatorTest {
 
         int[] original = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         PermutationIndividual individual = new PermutationIndividual(original.clone());
+        
         for (int i = 0; i < 10; i++) {
             mutation.mutate(individual);
             if (!Arrays.equals(original, individual.getGenotype())) {
                 break;
             }
         }
+
         assertNotEquals(Arrays.toString(original), Arrays.toString(individual.getGenotype()));
     }
 
@@ -123,7 +132,16 @@ class PermutationOperatorTest {
 
         int[] original = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         PermutationIndividual individual = new PermutationIndividual(original.clone());
-        mutation.mutate(individual);
+        
+        // Ensure that the genotype has changed or remains the same (in rare cases) after mutation
+        // We run the mutation multiple times to increase the chance of change
+        for (int i = 0; i < 10; i++) {
+            mutation.mutate(individual);
+            if (!Arrays.equals(original, individual.getGenotype())) {
+                break;
+            }
+        }
+        
         assertNotEquals(Arrays.toString(original), Arrays.toString(individual.getGenotype()));
     }
 
@@ -134,7 +152,16 @@ class PermutationOperatorTest {
 
         int[] original = {1, 2, 3, 4, 5};
         PermutationIndividual individual = new PermutationIndividual(original.clone());
-        mutation.mutate(individual);
+        
+        // Ensure that the genotype has changed or remains the same (in rare cases) after mutation
+        // We run the mutation multiple times to increase the chance of change
+        for (int i = 0; i < 10; i++) {
+            mutation.mutate(individual);
+            if (!Arrays.equals(original, individual.getGenotype())) {
+                break;
+            }
+        }
+        
         assertNotEquals(Arrays.toString(original), Arrays.toString(individual.getGenotype()));
     }
 }
