@@ -1,0 +1,25 @@
+# Configuration for the N-Queens problem with N=12.
+# This version uses a larger population and more generations to handle the increased difficulty.
+
+algorithm:
+    name: eGA
+    elitism: 5
+    population:
+        size: 500
+    selection:
+        name: tournament
+        size: 10
+    termination:
+        max-generations: 1000
+
+problem:
+    class: com.knezevic.edaf.examples.misc.NQueensProblem
+    genotype:
+        type: permutation
+        length: 12 # Solving for 12 queens
+        crossing:
+            name: orderCrossover
+            probability: 0.8
+        mutation:
+            name: insertMutation
+            probability: 0.3 # Increased mutation rate

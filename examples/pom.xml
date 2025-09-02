@@ -83,6 +83,11 @@
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-permutation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
             <artifactId>genotype-tree</artifactId>
             <version>${project.version}</version>
         </dependency>
