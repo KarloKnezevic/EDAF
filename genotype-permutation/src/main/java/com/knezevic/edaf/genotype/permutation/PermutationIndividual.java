@@ -1,5 +1,7 @@
 package com.knezevic.edaf.genotype.permutation;
 
+import java.util.Arrays;
+
 import com.knezevic.edaf.core.api.Individual;
 
 public class PermutationIndividual implements Individual<int[]> {
@@ -28,5 +30,13 @@ public class PermutationIndividual implements Individual<int[]> {
     @Override
     public Individual<int[]> copy() {
         return new PermutationIndividual(genotype.clone());
+    }
+
+     @Override
+    public String toString() {
+        return "PermutationIndividual{" +
+                "genotype=" + Arrays.toString(genotype) +
+                ", fitness=" + fitness +
+                '}';
     }
 }

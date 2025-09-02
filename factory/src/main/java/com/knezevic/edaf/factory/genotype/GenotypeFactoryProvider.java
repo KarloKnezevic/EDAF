@@ -13,6 +13,8 @@ public class GenotypeFactoryProvider {
             return new IntegerGenotypeFactory();
         } else if ("tree".equals(type)) {
             return new TreeGenotypeFactory();
+        } else if ("permutation".equals(type)) {
+            return new PermutationGenotypeFactory();
         }
         return null;
     }

@@ -14,6 +14,7 @@ import com.knezevic.edaf.genotype.permutation.PermutationGenotype;
 import com.knezevic.edaf.genotype.permutation.PermutationIndividual;
 import com.knezevic.edaf.genotype.tree.TreeGenotype;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
+import com.knezevic.edaf.genotype.tree.Node;
 
 public class DefaultPopulationFactory implements PopulationFactory {
     @Override
@@ -28,8 +29,8 @@ public class DefaultPopulationFactory implements PopulationFactory {
                 population.add(new IntegerIndividual((int[]) genotype.create()));
             } else if (genotype instanceof PermutationGenotype) {
                 population.add(new PermutationIndividual((int[]) genotype.create()));
-            } else if (genotype instanceof com.knezevic.edaf.genotype.tree.TreeGenotype) {
-                population.add(new com.knezevic.edaf.genotype.tree.TreeIndividual((com.knezevic.edaf.genotype.tree.Node) genotype.create()));
+            } else if (genotype instanceof TreeGenotype) {
+                population.add(new TreeIndividual((Node) genotype.create()));
             }
         }
         return population;
