@@ -1,0 +1,29 @@
+# Configuration for the N-Queens problem (N=8).
+# The goal is to place 8 queens on a chessboard so that none can attack each other.
+
+algorithm:
+    name: ega # A standard elitist Genetic Algorithm is a good choice.
+    elitism: 2
+    population:
+        size: 100
+    selection:
+        name: tournament
+        size: 5
+    termination:
+        max-generations: 200
+
+problem:
+    class: com.knezevic.edaf.examples.misc.NQueensProblem
+    genotype:
+        # The 'permutation' genotype is perfect for this problem.
+        # The length of the permutation corresponds to the number of queens (N).
+        type: permutation
+        length: 8
+        crossing:
+            # Order crossover (OX1) is a standard crossover for permutations.
+            name: orderCrossover
+            probability: 0.8
+        mutation:
+            # Insert mutation is a simple and effective mutation for permutations.
+            name: insertMutation
+            probability: 0.2

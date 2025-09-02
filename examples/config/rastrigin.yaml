@@ -1,0 +1,33 @@
+# Configuration for optimizing the Rastrigin function.
+# This is a classic, difficult benchmark problem for floating-point optimization.
+# The global minimum is 0.0, at x_i = 0 for all i.
+
+algorithm:
+    name: eGA # Elitist Genetic Algorithm
+    elitism: 1
+    population:
+        size: 200
+    selection:
+        name: tournament
+        size: 5
+    termination:
+        max-generations: 1000
+
+problem:
+    class: com.knezevic.edaf.examples.misc.RastriginProblem
+    genotype:
+        type: fp
+        length: 10 # Number of dimensions for the function
+        # The typical search domain for the Rastrigin function
+        l-bound: -5.12
+        u-bound: 5.12
+        crossing:
+            # Simulated Binary Crossover (SBX) is effective for real-valued problems.
+            name: sbx
+            probability: 0.9
+            distribution-index: 20.0
+        mutation:
+            # Polynomial mutation is the counterpart to SBX.
+            name: polynomial
+            probability: 0.1
+            distribution-index: 20.0

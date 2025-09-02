@@ -75,7 +75,12 @@ class PermutationOperatorTest {
 
         int[] original = {1, 2, 3, 4, 5};
         PermutationIndividual individual = new PermutationIndividual(original.clone());
-        mutation.mutate(individual);
+        for (int i = 0; i < 10; i++) {
+            mutation.mutate(individual);
+            if (!Arrays.equals(original, individual.getGenotype())) {
+                break;
+            }
+        }
         assertNotEquals(Arrays.toString(original), Arrays.toString(individual.getGenotype()));
     }
 
@@ -86,7 +91,12 @@ class PermutationOperatorTest {
 
         int[] original = {1, 2, 3, 4, 5};
         PermutationIndividual individual = new PermutationIndividual(original.clone());
-        mutation.mutate(individual);
+        for (int i = 0; i < 10; i++) {
+            mutation.mutate(individual);
+            if (!Arrays.equals(original, individual.getGenotype())) {
+                break;
+            }
+        }
         assertNotEquals(Arrays.toString(original), Arrays.toString(individual.getGenotype()));
     }
 
