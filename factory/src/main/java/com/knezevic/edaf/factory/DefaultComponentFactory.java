@@ -19,6 +19,9 @@ import com.knezevic.edaf.factory.termination.TerminationConditionFactory;
 
 import java.util.Random;
 
+/**
+ * A default implementation of the {@link ComponentFactory} interface.
+ */
 public class DefaultComponentFactory implements ComponentFactory {
 
     private final ProblemFactory problemFactory;
@@ -26,6 +29,9 @@ public class DefaultComponentFactory implements ComponentFactory {
     private final StatisticsFactory statisticsFactory;
     private final TerminationConditionFactory terminationConditionFactory;
 
+    /**
+     * Creates a new instance of the {@link DefaultComponentFactory}.
+     */
     public DefaultComponentFactory() {
         this.problemFactory = new DefaultProblemFactory();
         this.populationFactory = new DefaultPopulationFactory();

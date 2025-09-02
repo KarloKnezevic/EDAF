@@ -6,13 +6,23 @@ import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.genotype.binary.crossing.OnePointCrossover;
 import com.knezevic.edaf.genotype.binary.crossing.UniformCrossover;
 import com.knezevic.edaf.genotype.binary.mutation.SimpleMutation;
+import com.knezevic.edaf.genotype.fp.crossing.DiscreteRecombination;
+import com.knezevic.edaf.genotype.fp.crossing.SimpleArithmeticRecombination;
 import com.knezevic.edaf.genotype.fp.crossing.SimulatedBinaryCrossover;
+import com.knezevic.edaf.genotype.fp.crossing.WholeArithmeticRecombination;
 import com.knezevic.edaf.genotype.fp.mutation.PolynomialMutation;
 import com.knezevic.edaf.genotype.integer.crossing.TwoPointCrossover;
 import com.knezevic.edaf.genotype.integer.mutation.SimpleIntegerMutation;
+import com.knezevic.edaf.genotype.permutation.crossing.CycleCrossover;
+import com.knezevic.edaf.genotype.permutation.crossing.OrderCrossover;
+import com.knezevic.edaf.genotype.permutation.crossing.PartiallyMappedCrossover;
+import com.knezevic.edaf.genotype.permutation.mutation.*;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link eGA} algorithm objects.
+ */
 public class EgaFactory implements AlgorithmFactory {
     @Override
     public Algorithm createAlgorithm(Configuration config, Problem problem, Population population, Selection selection, Statistics statistics, TerminationCondition terminationCondition, Random random) throws Exception {
@@ -43,6 +53,20 @@ public class EgaFactory implements AlgorithmFactory {
         } else if ("fp".equals(genotypeType)) {
             if ("sbx".equals(crossoverName)) {
                 return new SimulatedBinaryCrossover(random, config.getProblem().getGenotype().getCrossing().getDistributionIndex());
+            } else if ("discrete".equals(crossoverName)) {
+                return new DiscreteRecombination(random);
+            } else if ("simpleArithmetic".equals(crossoverName)) {
+                return new SimpleArithmeticRecombination(random);
+            } else if ("wholeArithmetic".equals(crossoverName)) {
+                return new WholeArithmeticRecombination(random);
+            }
+        } else if ("permutation".equals(genotypeType)) {
+            if ("pmx".equals(crossoverName)) {
+                return new PartiallyMappedCrossover(random);
+            } else if ("ox".equals(crossoverName)) {
+                return new OrderCrossover(random);
+            } else if ("cx".equals(crossoverName)) {
+                return new CycleCrossover(random);
             }
         }
         return null;
@@ -70,6 +94,18 @@ public class EgaFactory implements AlgorithmFactory {
                         config.getProblem().getGenotype().getMutation().getDistributionIndex(),
                         config.getProblem().getGenotype().getLowerBound(),
                         config.getProblem().getGenotype().getUpperBound());
+            }
+        } else if ("permutation".equals(genotypeType)) {
+            if ("swap".equals(mutationName)) {
+                return new SwapMutation(random, mutationProbability);
+            } else if ("insert".equals(mutationName)) {
+                return new InsertMutation(random, mutationProbability);
+            } else if ("inversion".equals(mutationName)) {
+                return new InversionMutation(random, mutationProbability);
+            } else if ("scramble".equals(mutationName)) {
+                return new ScrambleMutation(random, mutationProbability);
+            } else if ("shift".equals(mutationName)) {
+                return new ShiftMutation(random, mutationProbability);
             }
         }
         return null;

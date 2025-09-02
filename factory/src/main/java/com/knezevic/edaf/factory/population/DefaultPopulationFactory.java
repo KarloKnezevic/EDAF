@@ -16,6 +16,9 @@ import com.knezevic.edaf.genotype.tree.TreeGenotype;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
 import com.knezevic.edaf.genotype.tree.Node;
 
+/**
+ * A default implementation of the {@link PopulationFactory} interface.
+ */
 public class DefaultPopulationFactory implements PopulationFactory {
     @Override
     public Population create(Configuration config, Genotype genotype) throws Exception {

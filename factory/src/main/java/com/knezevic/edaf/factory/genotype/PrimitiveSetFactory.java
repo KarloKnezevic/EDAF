@@ -12,12 +12,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * A factory for creating PrimitiveSet objects from configuration.
+ * A factory for creating {@link PrimitiveSet} objects from configuration.
  */
 public final class PrimitiveSetFactory {
 
     private PrimitiveSetFactory() {}
 
+    /**
+     * Creates a {@link PrimitiveSet} from the given configuration.
+     *
+     * @param config The configuration.
+     * @return A {@link PrimitiveSet} instance.
+     */
     @SuppressWarnings("unchecked")
     public static PrimitiveSet create(Configuration config) {
         Map<String, Object> primitivesConf = config.getProblem().getGenotype().getPrimitives();
@@ -35,6 +41,13 @@ public final class PrimitiveSetFactory {
         return new PrimitiveSet(functions, terminals, new HashMap<>());
     }
 
+    /**
+     * Parses the function set from the configuration.
+     *
+     * @param type The type of the primitive set.
+     * @param functionSetNames The names of the functions in the set.
+     * @return A list of {@link Function} objects.
+     */
     private static List<Function> parseFunctionSet(String type, String functionSetNames) {
         if (functionSetNames == null || functionSetNames.isBlank()) {
             return Collections.emptyList();
@@ -54,6 +67,13 @@ public final class PrimitiveSetFactory {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Parses the terminals from the configuration.
+     *
+     * @param type The type of the primitive set.
+     * @param terminalConfs The terminal configurations.
+     * @return A list of {@link Terminal} objects.
+     */
     private static List<Terminal> parseTerminals(String type, List<Map<String, Object>> terminalConfs) {
         if (terminalConfs == null) {
             return Collections.emptyList();
@@ -75,6 +95,12 @@ public final class PrimitiveSetFactory {
         return terminals;
     }
 
+    /**
+     * Returns a map of functions for the given primitive set type.
+     *
+     * @param type The type of the primitive set.
+     * @return A map of functions.
+     */
     private static Map<String, Function> getFunctionMapForType(String type) {
         if ("RealValued".equalsIgnoreCase(type)) {
             return RealValuedPrimitives.getFunctionMap();

@@ -6,6 +6,9 @@ import com.knezevic.edaf.selection.RouletteWheelSelection;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link RouletteWheelSelection} objects.
+ */
 public class RouletteWheelSelectionFactory implements SelectionFactory {
     @Override
     public Selection create(Configuration config, Random random) throws Exception {

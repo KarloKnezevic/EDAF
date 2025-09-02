@@ -6,6 +6,9 @@ import com.knezevic.edaf.core.api.Problem;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
+/**
+ * A default implementation of the {@link ProblemFactory} interface.
+ */
 public class DefaultProblemFactory implements ProblemFactory {
     @Override
     public Problem create(Configuration config) throws Exception {
@@ -40,6 +43,13 @@ public class DefaultProblemFactory implements ProblemFactory {
         throw new NoSuchMethodException("No suitable constructor found for problem class " + problemClass.getName() + " with parameters " + parameters);
     }
 
+    /**
+     * Converts an object to the target type.
+     *
+     * @param value The object to convert.
+     * @param targetType The target type.
+     * @return The converted object.
+     */
     private Object convert(Object value, Class<?> targetType) {
         if (targetType.isInstance(value)) {
             return value;

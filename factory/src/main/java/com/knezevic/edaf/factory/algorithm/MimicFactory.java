@@ -6,6 +6,9 @@ import com.knezevic.edaf.core.api.*;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link MIMIC} algorithm objects.
+ */
 public class MimicFactory implements AlgorithmFactory {
     @Override
     public Algorithm createAlgorithm(Configuration config, Problem problem, Population population,

@@ -8,6 +8,11 @@ import java.util.Random;
 
 import com.knezevic.edaf.core.api.Individual;
 
+/**
+ * A factory for creating {@link Umda} algorithm objects.
+ *
+ * @param <T> The type of individual.
+ */
 public class UmdaFactory<T extends Individual> implements AlgorithmFactory<T> {
     @Override
     public Algorithm<T> createAlgorithm(Configuration config, Problem<T> problem, Population<T> population,

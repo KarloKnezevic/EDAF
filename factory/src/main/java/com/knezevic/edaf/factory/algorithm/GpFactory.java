@@ -11,6 +11,9 @@ import com.knezevic.edaf.genotype.tree.primitives.PrimitiveSet;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link GeneticProgrammingAlgorithm} objects.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class GpFactory implements AlgorithmFactory<TreeIndividual> {
 

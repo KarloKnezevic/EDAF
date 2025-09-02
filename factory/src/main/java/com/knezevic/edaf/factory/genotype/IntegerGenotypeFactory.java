@@ -6,6 +6,9 @@ import com.knezevic.edaf.genotype.integer.IntegerGenotype;
 
 import java.util.Random;
 
+/**
+ * A factory for creating {@link IntegerGenotype} objects.
+ */
 public class IntegerGenotypeFactory implements GenotypeFactory {
     @Override
     public Genotype create(Configuration config, Random random) throws Exception {
