@@ -16,6 +16,13 @@ public class SelectionFactoryProvider {
     static {
         factoryMap.put("tournament", TournamentSelectionFactory::new);
         factoryMap.put("rouletteWheel", RouletteWheelSelectionFactory::new);
+        factoryMap.put("kTournament", KTournamentSelectionFactory::new);
+        factoryMap.put("muCommaLambda", MuCommaLambdaSelectionFactory::new);
+        factoryMap.put("muPlusLambda", MuPlusLambdaSelectionFactory::new);
+        factoryMap.put("proportional", ProportionalSelectionFactory::new);
+        factoryMap.put("simpleTournament", SimpleTournamentSelectionFactory::new);
+        factoryMap.put("stochasticUniversalSampling", StochasticUniversalSamplingSelectionFactory::new);
+        factoryMap.put("truncated", TruncatedSelectionFactory::new);
     }
 
     /**
