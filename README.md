@@ -1,6 +1,7 @@
 # Estimation of Distribution Algorithms Framework (EDAF)
 
-[![Build Status](https://travis-ci.org/knezevic/edaf.svg?branch=master)](https://travis-ci.org/knezevic/edaf)
+![Build](https://github.com/KarloKnezevic/EDAF/actions/workflows/build.yml/badge.svg)
+![Test](https://github.com/KarloKnezevic/EDAF/actions/workflows/test.yml/badge.svg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 **EDAF** is a powerful and flexible Java framework for Estimation of Distribution Algorithms (EDAs) and other Evolutionary Algorithms (EAs). It provides a modular and extensible architecture that allows you to easily implement and experiment with different algorithms, genotypes, and operators.
