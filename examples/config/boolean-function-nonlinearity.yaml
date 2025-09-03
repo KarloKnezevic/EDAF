@@ -1,0 +1,30 @@
+# Configuration for optimizing the nonlinearity of a boolean function.
+# The goal is to find a boolean function with the highest possible nonlinearity.
+
+algorithm:
+    name: ega
+    elitism: 1
+    population:
+        size: 100
+    selection:
+        name: tournament
+        size: 3
+    termination:
+        max-generations: 500
+
+problem:
+    class: com.knezevic.edaf.examples.crypto.BooleanFunctionProblem
+    # Parameters for the BooleanFunctionProblem
+    params:
+        n: 8 # Number of variables in the boolean function
+        criteria:
+            - nonlinearity
+    genotype:
+        type: binary
+        length: 256 # 2^n
+        crossing:
+            name: one-point
+            probability: 0.8
+        mutation:
+            name: simple
+            probability: 0.01

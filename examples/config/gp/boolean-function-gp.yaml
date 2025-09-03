@@ -1,0 +1,37 @@
+# Configuration for optimizing a boolean function using Genetic Programming.
+# The goal is to evolve a boolean function of 3 variables with high nonlinearity.
+
+algorithm:
+    name: gp
+    elitism: 1
+    population:
+        size: 500
+    selection:
+        name: tournament
+        size: 7
+    termination:
+        max-generations: 100
+
+problem:
+    class: com.knezevic.edaf.examples.crypto.BooleanFunctionGPProblem
+    params:
+        n: 3
+        criteria:
+            - nonlinearity
+    genotype:
+        type: tree
+        length: 1
+        maxDepth: 5
+        primitives:
+            type: Binary
+            functionSet: AND,OR,NOT,XOR
+            terminals:
+                - { name: x0, type: variable }
+                - { name: x1, type: variable }
+                - { name: x2, type: variable }
+        crossing:
+            name: treeCrossover
+            probability: 0.9
+        mutation:
+            name: treeMutation
+            probability: 0.1
