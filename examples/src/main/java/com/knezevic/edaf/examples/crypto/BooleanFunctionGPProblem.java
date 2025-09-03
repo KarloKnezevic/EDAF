@@ -1,6 +1,5 @@
 package com.knezevic.edaf.examples.crypto;
 
-import com.knezevic.edaf.core.api.Problem;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
 
 import java.util.ArrayList;
@@ -11,40 +10,12 @@ import java.util.Map;
 /**
  * A problem that defines the optimization of boolean functions using Genetic Programming.
  */
-public class BooleanFunctionGPProblem implements Problem<TreeIndividual> {
+public class BooleanFunctionGPProblem extends AbstractBooleanFunctionProblem<TreeIndividual> {
 
-    private final List<FitnessCriterion> criteria;
-    private final int n;
     private final List<String> terminalNames;
 
     public BooleanFunctionGPProblem(Map<String, Object> params) {
-        if (params == null || !params.containsKey("n")) {
-            throw new IllegalArgumentException("Parameter 'n' (number of variables) must be provided.");
-        }
-        this.n = (int) params.get("n");
-
-        if (!params.containsKey("criteria")) {
-            throw new IllegalArgumentException("Parameter 'criteria' must be provided.");
-        }
-
-        List<String> criteriaNames = (List<String>) params.get("criteria");
-        this.criteria = new ArrayList<>();
-        for (String name : criteriaNames) {
-            switch (name.toLowerCase()) {
-                case "balancedness":
-                    this.criteria.add(new Balancedness(n));
-                    break;
-                case "nonlinearity":
-                    this.criteria.add(new Nonlinearity(n));
-                    break;
-                case "algebraicdegree":
-                    this.criteria.add(new AlgebraicDegree(n));
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown criterion: " + name);
-            }
-        }
-
+        super(params);
         this.terminalNames = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             terminalNames.add("x" + i);
@@ -62,11 +33,7 @@ public class BooleanFunctionGPProblem implements Problem<TreeIndividual> {
             truthTable[i] = individual.getGenotype().evaluate(terminals) >= 0.5 ? 1 : 0;
         }
 
-        double totalFitness = 0;
-        for (FitnessCriterion criterion : criteria) {
-            totalFitness += criterion.compute(truthTable);
-        }
-
+        double totalFitness = calculateFitness(truthTable);
         individual.setFitness(totalFitness);
     }
 }
