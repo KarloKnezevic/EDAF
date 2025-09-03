@@ -7,6 +7,9 @@
 
 This document provides a comprehensive overview of the framework, including its architecture, available components, and instructions on how to use it.
 
+- **Author(s)** 2013. *Evolucijski algoritmi temeljeni na vjerojatnosnim razdiobama* (Croatian language). *Master thesis, Nr. 540*, Faculty of Electrical Engineering and Computing, University of Zagreb. [Google Scholar](https://scholar.google.hr/citations?view_op=view_citation&hl=en&user=vrxkfe0AAAAJ&citation_for_view=vrxkfe0AAAAJ:UeHWp8X0CEIC)
+
+
 ## Table of Contents
 
 - [Architecture](#architecture)
