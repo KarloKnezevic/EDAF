@@ -1,7 +1,7 @@
 # Estimation of Distribution Algorithms Framework (EDAF)
 
 [![Build Status](https://travis-ci.org/knezevic/edaf.svg?branch=master)](https://travis-ci.org/knezevic/edaf)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 **EDAF** is a powerful and flexible Java framework for Estimation of Distribution Algorithms (EDAs) and other Evolutionary Algorithms (EAs). It provides a modular and extensible architecture that allows you to easily implement and experiment with different algorithms, genotypes, and operators.
 
@@ -177,4 +177,8 @@ mvn clean install
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+EDAF (Estimation of Distribution Framework)  
+Copyright (C) 2025 Dr. Karlo Knežević
+
+This project is licensed under the terms of the GNU General Public License v3.0.  
+See the [LICENSE](LICENSE) file for details.
