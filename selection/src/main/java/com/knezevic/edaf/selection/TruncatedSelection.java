@@ -17,11 +17,11 @@ public class TruncatedSelection<T extends Individual> implements Selection<T> {
     @Override
     public Population<T> select(Population<T> population, int n) {
         if (population.getSize() == 0) {
-            return new SimplePopulation<>();
+            return new SimplePopulation<>(population.getOptimizationType());
         }
 
         population.sort();
-        Population<T> newPopulation = new SimplePopulation<>();
+        Population<T> newPopulation = new SimplePopulation<>(population.getOptimizationType());
         for (int i = 0; i < n; i++) {
             newPopulation.add(population.getIndividual(i));
         }

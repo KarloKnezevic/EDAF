@@ -1,6 +1,7 @@
 package com.knezevic.edaf.examples.gp.problems;
 
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
 
 import java.util.Map;
@@ -13,7 +14,11 @@ import java.util.Map;
  * Inputs: sepal_length, sepal_width, petal_length, petal_width
  * Output: 0 (setosa), 1 (versicolor), 2 (virginica)
  */
-public class IrisClassificationProblem implements Problem<TreeIndividual> {
+public class IrisClassificationProblem extends AbstractProblem<TreeIndividual> {
+
+    public IrisClassificationProblem(Map<String, Object> params) {
+        super(params);
+    }
 
     // A small, hardcoded subset of the Iris dataset.
     // {sepal_length, sepal_width, petal_length, petal_width, species}

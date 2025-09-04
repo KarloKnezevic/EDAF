@@ -1,6 +1,6 @@
 package com.knezevic.edaf.statistics.distribution;
 
-import com.knezevic.edaf.core.api.Individual;
+import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.api.Population;
 import com.knezevic.edaf.core.api.Statistics;
 import com.knezevic.edaf.core.impl.SimplePopulation;
@@ -33,7 +33,7 @@ public class NormalDistribution implements Statistics<FpIndividual> {
 
     @Override
     public Population<FpIndividual> sample(int size) {
-        Population<FpIndividual> newPopulation = new SimplePopulation<>();
+        Population<FpIndividual> newPopulation = new SimplePopulation<>(OptimizationType.MINIMIZE);
         for (int i = 0; i < size; i++) {
             double[] genotype = new double[length];
             for (int j = 0; j < length; j++) {

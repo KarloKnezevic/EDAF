@@ -75,7 +75,7 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
             // 3. Update probability vector
             BinaryIndividual winner, loser;
-            if (individual1.getFitness() < individual2.getFitness()) {
+            if (isFirstBetter(individual1, individual2)) {
                 winner = individual1;
                 loser = individual2;
             } else {
@@ -94,7 +94,7 @@ public class cGA implements Algorithm<BinaryIndividual> {
             }
 
             // 4. Update best
-            if (best == null || winner.getFitness() < best.getFitness()) {
+            if (best == null || isFirstBetter(winner, best)) {
                 best = (BinaryIndividual) winner.copy();
             }
 
@@ -124,5 +124,13 @@ public class cGA implements Algorithm<BinaryIndividual> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    private boolean isFirstBetter(Individual first, Individual second) {
+        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

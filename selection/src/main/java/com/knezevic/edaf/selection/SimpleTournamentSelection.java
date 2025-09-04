@@ -22,11 +22,19 @@ public class SimpleTournamentSelection<T extends Individual> implements Selectio
 
     @Override
     public Population<T> select(Population<T> population, int n) {
-        Population<T> selected = new SimplePopulation<>();
+        Population<T> selected = new SimplePopulation<>(population.getOptimizationType());
         for (int i = 0; i < n; i++) {
             T individual1 = population.getIndividual(random.nextInt(population.getSize()));
             T individual2 = population.getIndividual(random.nextInt(population.getSize()));
-            if (individual1.getFitness() > individual2.getFitness()) {
+
+            boolean individual1IsBetter;
+            if (population.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.MAXIMIZE) {
+                individual1IsBetter = individual1.getFitness() > individual2.getFitness();
+            } else {
+                individual1IsBetter = individual1.getFitness() < individual2.getFitness();
+            }
+
+            if (individual1IsBetter) {
                 selected.add(individual1);
             } else {
                 selected.add(individual2);

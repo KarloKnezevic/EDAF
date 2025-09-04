@@ -1,6 +1,6 @@
 package com.knezevic.edaf.selection;
 
-import com.knezevic.edaf.core.api.Individual;
+import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.api.Population;
 import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.core.impl.TestIndividual;
@@ -18,7 +18,7 @@ class RouletteWheelSelectionTest {
 
     @BeforeEach
     void setUp() {
-        population = new SimplePopulation<>();
+        population = new SimplePopulation<>(OptimizationType.MAXIMIZE);
         population.add(new TestIndividual(10)); // fitness 10
         population.add(new TestIndividual(30)); // fitness 30
         population.add(new TestIndividual(60)); // fitness 60

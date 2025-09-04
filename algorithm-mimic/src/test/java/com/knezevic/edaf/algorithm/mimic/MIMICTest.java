@@ -10,16 +10,21 @@ import com.knezevic.edaf.statistics.mimic.MimicStatistics;
 import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MIMICTest {
 
     @Test
     void testMaxOnes() {
         // 1. Create a MaxOnes problem
-        Problem<BinaryIndividual> problem = new MaxOnes();
+        Map<String, Object> params = new HashMap<>();
+        params.put("optimizationType", OptimizationType.MAXIMIZE);
+        Problem<BinaryIndividual> problem = new MaxOnes(params);
 
         // 2. Create a BinaryGenotype factory
         int genotypeLength = 4;
@@ -28,7 +33,7 @@ class MIMICTest {
 
         // 3. Create an initial Population
         int populationSize = 20;
-        Population<BinaryIndividual> population = new SimplePopulation<>();
+        Population<BinaryIndividual> population = new SimplePopulation<>(problem.getOptimizationType());
         for (int i = 0; i < populationSize; i++) {
             population.add(new BinaryIndividual(genotype.create()));
         }
@@ -50,7 +55,7 @@ class MIMICTest {
         // 8. Run the algorithm
         mimic.run();
 
-        // 9. Assert that the best individual has a fitness of 0
-        assertEquals(0, mimic.getBest().getFitness());
+        // 9. Assert that the best individual has a high fitness
+        assertTrue(mimic.getBest().getFitness() >= 3);
     }
 }

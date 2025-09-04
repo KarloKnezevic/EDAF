@@ -24,8 +24,11 @@ public class ProportionalSelection<T extends Individual> implements Selection<T>
 
     @Override
     public Population<T> select(Population<T> population, int size) {
+        if (population.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.MINIMIZE) {
+            throw new UnsupportedOperationException("ProportionalSelection is only suitable for maximization problems.");
+        }
         if (population.getSize() == 0) {
-            return new SimplePopulation<>();
+            return new SimplePopulation<>(population.getOptimizationType());
         }
 
         double totalFitness = 0;
@@ -33,7 +36,7 @@ public class ProportionalSelection<T extends Individual> implements Selection<T>
             totalFitness += individual.getFitness();
         }
 
-        Population<T> newPopulation = new SimplePopulation<>();
+        Population<T> newPopulation = new SimplePopulation<>(population.getOptimizationType());
         for (int i = 0; i < size; i++) {
             newPopulation.add(selectOne(population, totalFitness));
         }

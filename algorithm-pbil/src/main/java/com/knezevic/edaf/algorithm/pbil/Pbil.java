@@ -1,6 +1,7 @@
 package com.knezevic.edaf.algorithm.pbil;
 
 import com.knezevic.edaf.core.api.*;
+import com.knezevic.edaf.core.impl.SimplePopulation;
 
 /**
  * Population-Based Incremental Learning (PBIL).
@@ -59,7 +60,11 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
         // 2. Run generations
         while (!terminationCondition.shouldTerminate(this)) {
             // 2.1. Sample a population
-            population = statistics.sample(populationSize);
+            Population<T> sampledPopulation = statistics.sample(populationSize);
+            population = new SimplePopulation<>(problem.getOptimizationType());
+            for (T individual : sampledPopulation) {
+                population.add(individual);
+            }
 
             // 2.2. Evaluate the population
             for (T individual : population) {
@@ -74,7 +79,7 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
             statistics.update(currentBest, learningRate);
 
             // 2.5. Update the best-so-far individual
-            if (best == null || currentBest.getFitness() < best.getFitness()) {
+            if (isFirstBetter(currentBest, best)) {
                 best = (T) currentBest.copy();
             }
 
@@ -103,5 +108,16 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    private boolean isFirstBetter(Individual first, Individual second) {
+        if (second == null) {
+            return true;
+        }
+        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

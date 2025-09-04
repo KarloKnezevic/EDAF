@@ -73,7 +73,7 @@ public class gGA<T extends Individual> implements Algorithm<T> {
         // 2. Run generations
         while (!terminationCondition.shouldTerminate(this)) {
             // 2.1. Create new population
-            Population<T> newPopulation = new SimplePopulation<>();
+            Population<T> newPopulation = new SimplePopulation<>(population.getOptimizationType());
 
             // 2.2. Elitism
             for (int i = 0; i < elitism; i++) {
@@ -104,7 +104,7 @@ public class gGA<T extends Individual> implements Algorithm<T> {
 
             // 2.6. Update best individual
             T currentBest = population.getBest();
-            if (currentBest.getFitness() < best.getFitness()) {
+            if (isFirstBetter(currentBest, best)) {
                 best = (T) currentBest.copy();
             }
 
@@ -150,5 +150,13 @@ public class gGA<T extends Individual> implements Algorithm<T> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    private boolean isFirstBetter(Individual first, Individual second) {
+        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

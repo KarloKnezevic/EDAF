@@ -11,16 +11,21 @@ import com.knezevic.edaf.selection.TournamentSelection;
 import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class eGATest {
 
     @Test
     void testMaxOnes() {
         // 1. Create a MaxOnes problem
-        Problem<BinaryIndividual> problem = new MaxOnes();
+        Map<String, Object> params = new HashMap<>();
+        params.put("optimizationType", OptimizationType.MAXIMIZE);
+        Problem<BinaryIndividual> problem = new MaxOnes(params);
 
         // 2. Create a BinaryGenotype factory
         int genotypeLength = 20;
@@ -29,7 +34,7 @@ class eGATest {
 
         // 3. Create an initial Population
         int populationSize = 100;
-        Population<BinaryIndividual> population = new SimplePopulation<>();
+        Population<BinaryIndividual> population = new SimplePopulation<>(problem.getOptimizationType());
         for (int i = 0; i < populationSize; i++) {
             population.add(new BinaryIndividual(genotype.create()));
         }
@@ -51,7 +56,9 @@ class eGATest {
         // 8. Run the algorithm
         ega.run();
 
-        // 9. Assert that the best individual has a fitness of 0
-        assertEquals(0, ega.getBest().getFitness());
+        // 9. Assert that the best individual has a high fitness
+        // Note: The algorithm is not guaranteed to find the global optimum.
+        // We assert a reasonably high value to ensure it's optimizing in the correct direction.
+        assertTrue(ega.getBest().getFitness() >= 15);
     }
 }

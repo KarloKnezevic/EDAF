@@ -1,8 +1,6 @@
 package com.knezevic.edaf.statistics.distribution;
 
-import com.knezevic.edaf.core.api.Genotype;
-import com.knezevic.edaf.core.api.Population;
-import com.knezevic.edaf.core.api.Statistics;
+import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
@@ -45,7 +43,7 @@ public class BernoulliDistribution implements Statistics<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> sample(int size) {
-        Population<BinaryIndividual> newPopulation = new SimplePopulation<>();
+        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.MINIMIZE);
         for (int i = 0; i < size; i++) {
             byte[] newGenotype = new byte[genotype.getLength()];
             for (int j = 0; j < newGenotype.length; j++) {

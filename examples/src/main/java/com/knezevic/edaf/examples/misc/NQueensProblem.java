@@ -1,8 +1,10 @@
 package com.knezevic.edaf.examples.misc;
 
-import com.knezevic.edaf.core.api.Individual;
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.permutation.PermutationIndividual;
+
+import java.util.Map;
 
 /**
  * Implements the N-Queens problem.
@@ -13,7 +15,11 @@ import com.knezevic.edaf.genotype.permutation.PermutationIndividual;
  * The fitness function therefore only needs to count the number of diagonal conflicts.
  * A fitness of 0 represents a perfect solution.
  */
-public class NQueensProblem implements Problem<PermutationIndividual> {
+public class NQueensProblem extends AbstractProblem<PermutationIndividual> {
+
+    public NQueensProblem(Map<String, Object> params) {
+        super(params);
+    }
 
     @Override
     public void evaluate(PermutationIndividual individual) {

@@ -1,6 +1,7 @@
 package com.knezevic.edaf.core.impl;
 
 import com.knezevic.edaf.core.api.Individual;
+import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.api.Population;
 
 import java.util.ArrayList;
@@ -17,9 +18,21 @@ import java.util.List;
 public class SimplePopulation<T extends Individual> implements Population<T> {
 
     private final List<T> individuals;
+    private final OptimizationType optimizationType;
 
-    public SimplePopulation() {
+    /**
+     * Creates a new, empty population with a specified optimization type.
+     *
+     * @param optimizationType The optimization type for this population.
+     */
+    public SimplePopulation(OptimizationType optimizationType) {
         this.individuals = new ArrayList<>();
+        this.optimizationType = optimizationType;
+    }
+
+    @Override
+    public OptimizationType getOptimizationType() {
+        return optimizationType;
     }
 
     @Override
@@ -59,17 +72,24 @@ public class SimplePopulation<T extends Individual> implements Population<T> {
 
     @Override
     public T getBest() {
-        return individuals.stream().min(Comparator.comparingDouble(Individual::getFitness)).orElse(null);
+        Comparator<Individual> comparator = Comparator.comparingDouble(Individual::getFitness);
+        return individuals.stream()
+                .min(optimizationType == OptimizationType.MINIMIZE ? comparator : comparator.reversed())
+                .orElse(null);
     }
 
     @Override
     public T getWorst() {
-        return individuals.stream().max(Comparator.comparingDouble(Individual::getFitness)).orElse(null);
+        Comparator<Individual> comparator = Comparator.comparingDouble(Individual::getFitness);
+        return individuals.stream()
+                .max(optimizationType == OptimizationType.MINIMIZE ? comparator : comparator.reversed())
+                .orElse(null);
     }
 
     @Override
     public void sort() {
-        individuals.sort(Comparator.comparingDouble(Individual::getFitness));
+        Comparator<Individual> comparator = Comparator.comparingDouble(Individual::getFitness);
+        individuals.sort(optimizationType == OptimizationType.MINIMIZE ? comparator : comparator.reversed());
     }
 
     @Override

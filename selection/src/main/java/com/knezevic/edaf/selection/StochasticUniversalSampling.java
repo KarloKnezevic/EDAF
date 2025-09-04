@@ -24,8 +24,11 @@ public class StochasticUniversalSampling<T extends Individual> implements Select
 
     @Override
     public Population<T> select(Population<T> population, int size) {
+        if (population.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.MINIMIZE) {
+            throw new UnsupportedOperationException("StochasticUniversalSampling is only suitable for maximization problems.");
+        }
         if (population.getSize() == 0) {
-            return new SimplePopulation<>();
+            return new SimplePopulation<>(population.getOptimizationType());
         }
 
         double totalFitness = 0;
@@ -33,7 +36,7 @@ public class StochasticUniversalSampling<T extends Individual> implements Select
             totalFitness += individual.getFitness();
         }
 
-        Population<T> newPopulation = new SimplePopulation<>();
+        Population<T> newPopulation = new SimplePopulation<>(population.getOptimizationType());
         double step = totalFitness / size;
         double start = random.nextDouble() * step;
         double currentSum = 0;

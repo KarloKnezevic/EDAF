@@ -1,14 +1,18 @@
 package com.knezevic.edaf.testing.problems;
 
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.integer.IntegerIndividual;
 
-public class IntTarget implements Problem<IntegerIndividual> {
+import java.util.Map;
+
+public class IntTarget extends AbstractProblem<IntegerIndividual> {
 
     private final int target;
 
-    public IntTarget(int target) {
-        this.target = target;
+    public IntTarget(Map<String, Object> params) {
+        super(params);
+        this.target = (int) params.get("target");
     }
 
     @Override

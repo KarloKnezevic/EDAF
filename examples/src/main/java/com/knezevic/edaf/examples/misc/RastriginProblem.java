@@ -1,8 +1,10 @@
 package com.knezevic.edaf.examples.misc;
 
-import com.knezevic.edaf.core.api.Individual;
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.fp.FpIndividual;
+
+import java.util.Map;
 
 /**
  * Implements the Rastrigin function, a common benchmark for optimization algorithms.
@@ -10,7 +12,11 @@ import com.knezevic.edaf.genotype.fp.FpIndividual;
  * The global minimum is f(x) = 0, located at x_i = 0 for all dimensions.
  * The function is typically evaluated on the hypercube x_i in [-5.12, 5.12].
  */
-public class RastriginProblem implements Problem<FpIndividual> {
+public class RastriginProblem extends AbstractProblem<FpIndividual> {
+
+    public RastriginProblem(Map<String, Object> params) {
+        super(params);
+    }
 
     @Override
     public void evaluate(FpIndividual individual) {
