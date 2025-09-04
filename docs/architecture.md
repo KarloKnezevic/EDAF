@@ -32,6 +32,7 @@ classDiagram
     class Problem {
         <<interface>>
         +evaluate(Individual)
+        +getOptimizationType() : OptimizationType
     }
 
     class Individual {
@@ -51,6 +52,7 @@ classDiagram
         +getWorst() : Individual
         +getSize() : int
         +sort()
+        +getOptimizationType() : OptimizationType
     }
 
     class Selection {

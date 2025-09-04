@@ -50,7 +50,7 @@ graph TD
     E --> F;
 ```
 
-The `ComponentFactory` is responsible for creating all the necessary components based on the configuration file. This allows you to easily configure your experiment without changing the source code.
+The `ComponentFactory` is responsible for creating all the necessary components based on the configuration file. The `Problem` component defines the optimization problem, including the fitness function and whether the goal is to `MINIMIZE` or `MAXIMIZE` the fitness. This allows you to easily configure your experiment without changing the source code.
 
 ## Getting Started
 
@@ -79,6 +79,7 @@ The `problem` section defines the problem to be solved.
 | Parameter | Description |
 | --- | --- |
 | `class` | The fully qualified name of the problem class. |
+| `optimization` | The optimization goal (`MINIMIZE` or `MAXIMIZE`). Defaults to `MINIMIZE`. |
 | `genotype` | The genotype configuration. |
 | `parameters` | A map of parameters for the problem. |
 

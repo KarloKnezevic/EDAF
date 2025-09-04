@@ -12,36 +12,35 @@ The `problem` section of the configuration file defines the problem to be solved
 ```yaml
 problem:
   class: com.mycompany.myproject.MyProblem
+  optimization: MAXIMIZE
   # ... other problem parameters
 ```
 
-### Problem Class
-
+### `class`
 The `class` property specifies the fully qualified name of the Java class that implements the `com.knezevic.edaf.core.api.Problem` interface.
 
-### Variable Parameters
+### `optimization`
+The `optimization` property defines the goal of the optimization. It can be set to `MINIMIZE` or `MAXIMIZE`. If omitted, it defaults to `MINIMIZE` for backward compatibility.
 
-You can pass a variable number of parameters to your problem's constructor. The framework will automatically detect the parameters from the configuration file and find a suitable constructor.
+### Variable Parameters
+All other parameters in the `problem` section are collected into a `Map<String, Object>` and passed to the constructor of your problem class. Your problem class must have a public constructor that accepts a single `Map<String, Object>` argument.
 
 For example, if your problem class has a constructor like this:
-
 ```java
-public MyProblem(int size, double ratio) {
-    // ...
+public MyProblem(Map<String, Object> params) {
+    this.size = (int) params.get("size");
+    this.ratio = (double) params.get("ratio");
 }
 ```
 
 You can specify the parameters in the configuration file like this:
-
 ```yaml
 problem:
   class: com.mycompany.myproject.MyProblem
+  optimization: MINIMIZE
   size: 100
   ratio: 0.5
-  # ... other problem parameters
 ```
-
-The framework will automatically match the `size` and `ratio` parameters to the constructor arguments. The supported parameter types are `String`, `Integer`, `Double`, `Float`, `Long`, and `Boolean`.
 
 ## Available Components
 
