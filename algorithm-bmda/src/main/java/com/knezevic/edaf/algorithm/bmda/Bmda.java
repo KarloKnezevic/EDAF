@@ -5,9 +5,11 @@ import com.knezevic.edaf.core.api.Individual;
 import com.knezevic.edaf.core.api.Population;
 import com.knezevic.edaf.core.api.Problem;
 import com.knezevic.edaf.core.api.ProgressListener;
+import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.api.Selection;
 import com.knezevic.edaf.core.api.Statistics;
 import com.knezevic.edaf.core.api.TerminationCondition;
+import com.knezevic.edaf.core.impl.SimplePopulation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -66,15 +68,19 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
             evaluatePopulation(newPopulation);
 
             // 2.5. Replace old population
-            population.clear();
+            Population<T> correctlyTypedPopulation = new SimplePopulation<>(problem.getOptimizationType());
             for (T individual : newPopulation) {
+                correctlyTypedPopulation.add(individual);
+            }
+            population.clear();
+            for (T individual : correctlyTypedPopulation) {
                 population.add(individual);
             }
             population.sort();
 
             // 2.6. Update best individual
             T currentBest = population.getBest();
-            if (currentBest.getFitness() < best.getFitness()) {
+            if (isFirstBetter(currentBest, best)) {
                 best = (T) currentBest.copy();
             }
 
@@ -120,5 +126,14 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    private boolean isFirstBetter(Individual first, Individual second) {
+        if (best == null) return true;
+        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

@@ -70,4 +70,11 @@ public interface Population<T extends Individual> extends Iterable<T> {
      * Sorts the population by fitness in ascending order (best first).
      */
     void sort();
+
+    /**
+     * Gets the optimization type associated with this population.
+     *
+     * @return The optimization type.
+     */
+    OptimizationType getOptimizationType();
 }

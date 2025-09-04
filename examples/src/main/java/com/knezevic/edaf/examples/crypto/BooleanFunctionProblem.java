@@ -1,5 +1,6 @@
 package com.knezevic.edaf.examples.crypto;
 
+import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.Map;

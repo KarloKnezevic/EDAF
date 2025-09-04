@@ -1,6 +1,7 @@
 package com.knezevic.edaf.examples.gp.problems;
 
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
 
 import java.util.HashMap;
@@ -20,7 +21,11 @@ import java.util.Map;
  * 1  0 | d2
  * 1  1 | d3
  */
-public class MultiplexerProblem implements Problem<TreeIndividual> {
+public class MultiplexerProblem extends AbstractProblem<TreeIndividual> {
+
+    public MultiplexerProblem(Map<String, Object> params) {
+        super(params);
+    }
 
     @Override
     public void evaluate(TreeIndividual individual) {

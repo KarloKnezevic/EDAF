@@ -1,9 +1,16 @@
 package com.knezevic.edaf.testing.problems;
 
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.fp.FpIndividual;
 
-public class Sphere implements Problem<FpIndividual> {
+import java.util.Map;
+
+public class Sphere extends AbstractProblem<FpIndividual> {
+
+    public Sphere(Map<String, Object> params) {
+        super(params);
+    }
 
     @Override
     public void evaluate(FpIndividual individual) {

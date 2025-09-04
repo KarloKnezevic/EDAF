@@ -1,6 +1,7 @@
 package com.knezevic.edaf.configuration.pojos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.knezevic.edaf.core.api.OptimizationType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -43,7 +44,18 @@ public class Configuration {
         @Valid
         private GenotypeConfig genotype;
 
+        @JsonProperty("optimization")
+        private OptimizationType optimizationType = OptimizationType.MINIMIZE;
+
         private Map<String, Object> parameters = new java.util.HashMap<>();
+
+        public OptimizationType getOptimizationType() {
+            return optimizationType;
+        }
+
+        public void setOptimizationType(OptimizationType optimizationType) {
+            this.optimizationType = optimizationType;
+        }
 
         public String getClassName() {
             return className;

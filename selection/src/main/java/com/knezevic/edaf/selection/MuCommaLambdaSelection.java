@@ -23,11 +23,11 @@ public class MuCommaLambdaSelection<T extends Individual> implements Selection<T
     @Override
     public Population<T> select(Population<T> population, int lambda) {
         if (population.getSize() == 0) {
-            return new SimplePopulation<>();
+            return new SimplePopulation<>(population.getOptimizationType());
         }
 
         population.sort();
-        Population<T> newPopulation = new SimplePopulation<>();
+        Population<T> newPopulation = new SimplePopulation<>(population.getOptimizationType());
         for (int i = 0; i < mu; i++) {
             newPopulation.add(population.getIndividual(i));
         }

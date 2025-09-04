@@ -1,14 +1,20 @@
 package com.knezevic.edaf.testing.problems;
 
-import com.knezevic.edaf.core.api.*;
-import com.knezevic.edaf.core.impl.*;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
+
+import java.util.Map;
 
 /**
  * The MaxOnes problem. The goal is to find a binary string with all ones.
- * The fitness is the number of ones in the string.
+ * The fitness is the number of ones in the string. This is a maximization problem.
  */
-public class MaxOnes implements Problem<BinaryIndividual> {
+public class MaxOnes extends AbstractProblem<BinaryIndividual> {
+
+    public MaxOnes(Map<String, Object> params) {
+        super(params);
+    }
 
     @Override
     public void evaluate(BinaryIndividual individual) {
@@ -18,8 +24,6 @@ public class MaxOnes implements Problem<BinaryIndividual> {
                 ones++;
             }
         }
-        // We want to maximize the number of ones, but the framework is designed
-        // to minimize the fitness. So, the fitness is the number of zeros.
-        individual.setFitness(individual.getGenotype().length - ones);
+        individual.setFitness(ones);
     }
 }

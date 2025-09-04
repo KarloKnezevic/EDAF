@@ -1,7 +1,8 @@
 package com.knezevic.edaf.examples.crypto;
 
 import com.knezevic.edaf.core.api.Individual;
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +14,13 @@ import java.util.Map;
  *
  * @param <T> The type of individual to be evaluated.
  */
-public abstract class AbstractBooleanFunctionProblem<T extends Individual> implements Problem<T> {
+public abstract class AbstractBooleanFunctionProblem<T extends Individual> extends AbstractProblem<T> {
 
     protected final List<FitnessCriterion> criteria;
     protected final int n;
 
     public AbstractBooleanFunctionProblem(Map<String, Object> params) {
+        super(params);
         if (params == null || !params.containsKey("n")) {
             throw new IllegalArgumentException("Parameter 'n' (number of variables) must be provided.");
         }

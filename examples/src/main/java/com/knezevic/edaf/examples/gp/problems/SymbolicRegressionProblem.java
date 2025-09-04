@@ -1,6 +1,7 @@
 package com.knezevic.edaf.examples.gp.problems;
 
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
 
 import java.util.Map;
@@ -11,11 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * The goal is to find a function that best fits a given target function.
  * Target function: y = x^4 + x^3 + x^2 + x
  */
-public class SymbolicRegressionProblem implements Problem<TreeIndividual> {
+public class SymbolicRegressionProblem extends AbstractProblem<TreeIndividual> {
 
     private final Map<Double, Double> trainingData;
 
-    public SymbolicRegressionProblem() {
+    public SymbolicRegressionProblem(Map<String, Object> params) {
+        super(params);
         this.trainingData = new ConcurrentHashMap<>();
         // Generate 20 data points from -10 to 10
         for (double i = -10.0; i <= 10.0; i += 1.0) {

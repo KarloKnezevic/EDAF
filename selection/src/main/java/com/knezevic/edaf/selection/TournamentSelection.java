@@ -24,9 +24,9 @@ public class TournamentSelection<T extends Individual> implements Selection<T> {
 
     @Override
     public Population<T> select(Population<T> population, int n) {
-        Population<T> selected = new SimplePopulation<>();
+        Population<T> selected = new SimplePopulation<>(population.getOptimizationType());
         for (int i = 0; i < n; i++) {
-            Population<T> tournament = new SimplePopulation<>();
+            Population<T> tournament = new SimplePopulation<>(population.getOptimizationType());
             for (int j = 0; j < size; j++) {
                 tournament.add(population.getIndividual(random.nextInt(population.getSize())));
             }

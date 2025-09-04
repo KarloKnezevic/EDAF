@@ -1,8 +1,10 @@
 package com.knezevic.edaf.examples.misc;
 
-import com.knezevic.edaf.core.api.Individual;
-import com.knezevic.edaf.core.api.Problem;
+import com.knezevic.edaf.core.api.OptimizationType;
+import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
+
+import java.util.Map;
 
 /**
  * Implements a Deceptive Trap Function problem.
@@ -11,18 +13,16 @@ import com.knezevic.edaf.genotype.binary.BinaryIndividual;
  * otherwise it is (k - 1 - u), where u is the number of 1s in the block.
  * This creates a "deceptive" local optimum at all 0s.
  * The total fitness is the sum of the fitness of all blocks.
- *
- * We seek to maximize this value, so we return its negative as the fitness
- * for the framework's minimizer.
+ * This is a maximization problem.
  */
-public class DeceptiveTrapProblem implements Problem<BinaryIndividual> {
+public class DeceptiveTrapProblem extends AbstractProblem<BinaryIndividual> {
 
     private final int k; // The size of each trap block
 
-    public DeceptiveTrapProblem() {
-        // Default to a 4-bit trap function.
+    public DeceptiveTrapProblem(Map<String, Object> params) {
+        super(params);
         // This can be overridden by a constructor if configured from YAML.
-        this.k = 4;
+        this.k = (int) params.getOrDefault("k", 4);
     }
 
     @Override
@@ -50,7 +50,6 @@ public class DeceptiveTrapProblem implements Problem<BinaryIndividual> {
             }
         }
 
-        // Framework minimizes, so we negate the value we want to maximize.
-        individual.setFitness(-totalFitness);
+        individual.setFitness(totalFitness);
     }
 }

@@ -1,11 +1,14 @@
 package com.knezevic.edaf.algorithm.cga;
 
 import com.knezevic.edaf.core.api.*;
+import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.impl.*;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +18,9 @@ class cGATest {
     @Test
     void testMaxOnes() {
         // 1. Create a MaxOnes problem
-        Problem<BinaryIndividual> problem = new MaxOnes();
+        Map<String, Object> params = new HashMap<>();
+        params.put("optimizationType", OptimizationType.MAXIMIZE);
+        Problem<BinaryIndividual> problem = new MaxOnes(params);
 
         // 2. Create parameters
         int genotypeLength = 20;
@@ -31,8 +36,8 @@ class cGATest {
         // 5. Run the algorithm
         cga.run();
 
-        // 6. Assert that the best individual has a fitness of 0
-        assertEquals(0, cga.getBest().getFitness());
+        // 6. Assert that the best individual has a fitness of genotypeLength
+        assertEquals(genotypeLength, cga.getBest().getFitness());
 
         // 7. Assert that the genotype of the best individual is all ones
         byte[] genotype = cga.getBest().getGenotype();

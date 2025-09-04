@@ -95,7 +95,7 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual> {
 
             population.sort();
             TreeIndividual currentBest = (TreeIndividual) population.getBest();
-            if (currentBest.getFitness() < best.getFitness()) {
+            if (isFirstBetter(currentBest, best)) {
                 best = (TreeIndividual) currentBest.copy();
             }
 
@@ -123,5 +123,16 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    private boolean isFirstBetter(Individual first, Individual second) {
+        if (second == null) {
+            return true;
+        }
+        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

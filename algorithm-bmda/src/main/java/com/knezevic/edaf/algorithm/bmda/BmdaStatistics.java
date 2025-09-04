@@ -1,8 +1,6 @@
 package com.knezevic.edaf.algorithm.bmda;
 
-import com.knezevic.edaf.core.api.Individual;
-import com.knezevic.edaf.core.api.Population;
-import com.knezevic.edaf.core.api.Statistics;
+import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
@@ -67,7 +65,7 @@ public class BmdaStatistics<T extends Individual<byte[]>> implements Statistics<
         // A more sophisticated approach would be to build a dependency graph
         // (e.g., a Chow-Liu tree) and sample from it.
 
-        Population<T> newPopulation = new SimplePopulation<>();
+        Population<T> newPopulation = new SimplePopulation<>(OptimizationType.MINIMIZE);
         for (int i = 0; i < size; i++) {
             byte[] chromosome = new byte[chromosomeLength];
             // Generate the first bit based on its marginal probability.

@@ -10,6 +10,8 @@ import com.knezevic.edaf.testing.problems.MaxOnes;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +21,9 @@ class BmdaTest {
     @Test
     void testMaxOnes() {
         // 1. Create a MaxOnes problem
-        Problem<BinaryIndividual> problem = new MaxOnes();
+        Map<String, Object> params = new HashMap<>();
+        params.put("optimizationType", OptimizationType.MAXIMIZE);
+        Problem<BinaryIndividual> problem = new MaxOnes(params);
 
         // 2. Create a BinaryGenotype factory
         int genotypeLength = 20;
@@ -28,7 +32,7 @@ class BmdaTest {
 
         // 3. Create an initial Population
         int populationSize = 100;
-        Population<BinaryIndividual> population = new SimplePopulation<>();
+        Population<BinaryIndividual> population = new SimplePopulation<>(problem.getOptimizationType());
         for (int i = 0; i < populationSize; i++) {
             population.add(new BinaryIndividual(genotype.create()));
         }
@@ -51,6 +55,6 @@ class BmdaTest {
         bmda.run();
 
         // 9. Assert that the best individual has a fitness equal to the genotype length
-        assertEquals(0, bmda.getBest().getFitness());
+        assertEquals(genotypeLength, bmda.getBest().getFitness());
     }
 }

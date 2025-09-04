@@ -22,7 +22,7 @@ import com.knezevic.edaf.genotype.tree.Node;
 public class DefaultPopulationFactory implements PopulationFactory {
     @Override
     public Population create(Configuration config, Genotype genotype) throws Exception {
-        Population population = new SimplePopulation();
+        Population population = new SimplePopulation(config.getProblem().getOptimizationType());
         for (int i = 0; i < config.getAlgorithm().getPopulation().getSize(); i++) {
             if (genotype instanceof BinaryGenotype) {
                 population.add(new BinaryIndividual((byte[]) genotype.create()));
