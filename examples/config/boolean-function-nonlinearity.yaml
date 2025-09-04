@@ -5,17 +5,18 @@ algorithm:
     name: ega
     elitism: 1
     population:
-        size: 100
+        size: 500
     selection:
         name: tournament
         size: 3
     termination:
-        max-generations: 500
+        max-generations: 1000000
 
 problem:
     class: com.knezevic.edaf.examples.crypto.BooleanFunctionProblem
+    optimization: MAXIMIZE
     # Parameters for the BooleanFunctionProblem
-    params:
+    parameters:
         n: 8 # Number of variables in the boolean function
         criteria:
             - nonlinearity

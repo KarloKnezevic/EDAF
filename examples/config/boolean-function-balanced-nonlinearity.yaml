@@ -7,13 +7,14 @@ algorithm:
         size: 200
     selection:
         name: tournament
-        size: 5
+        size: 3
     termination:
-        max-generations: 1000
+        max-generations: 100000
 
 problem:
     class: com.knezevic.edaf.examples.crypto.BooleanFunctionProblem
-    params:
+    optimization: MAXIMIZE
+    parameters:
         n: 8
         criteria:
             - balancedness
@@ -26,4 +27,4 @@ problem:
             probability: 0.8
         mutation:
             name: simple
-            probability: 0.01
+            probability: 0.05
