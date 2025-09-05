@@ -43,6 +43,7 @@
         <module>algorithm-ltga</module>
         <module>algorithm-boa</module>
         <module>algorithm-gp</module>
+        <module>algorithm-cgp</module>
         <module>configuration</module>
         <module>statistics</module>
         <module>testing</module>
