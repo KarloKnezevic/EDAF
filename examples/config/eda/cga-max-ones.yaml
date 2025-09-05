@@ -1,19 +1,15 @@
 problem:
   class: com.knezevic.edaf.testing.problems.MaxOnes
+  optimization: MAXIMIZE
   genotype:
     type: binary
     length: 20
 
 algorithm:
-  name: umda
-  population:
-    size: 100
-  selection:
-    name: tournament
-    size: 2
+  name: cga
   termination:
-    max-generations: 100
+    max-generations: 10000
   log-frequency: 10
-  log-directory: "logs/umda-max-ones"
+  log-directory: "logs/eda/cga-max-ones"
   parameters:
-    ratio: 0.5
+    n: 10

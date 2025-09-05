@@ -12,6 +12,7 @@ algorithm:
         size: 5
     termination:
         max-generations: 100000
+    log-directory: "logs/eda-rastrigin"
 
 problem:
     class: com.knezevic.edaf.examples.misc.RastriginProblem

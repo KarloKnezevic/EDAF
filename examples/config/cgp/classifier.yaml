@@ -1,0 +1,20 @@
+problem:
+  class: com.knezevic.edaf.algorithm.cgp.CgpIrisClassificationProblem
+
+algorithm:
+  name: cgp
+  parameters:
+    populationSize: 100
+    generations: 500
+    mutationRate: 0.1
+    functionSet: ["ADD", "SUB", "MUL", "DIV"]
+    rows: 1
+    cols: 40
+    levelsBack: 20
+    replacementStrategy: GENERATIONAL
+    selection:
+      name: tournament
+      size: 5
+  termination:
+    max-generations: 500
+  log-directory: "logs/cgp/classifier"

@@ -11,6 +11,7 @@ algorithm:
         size: 5
     termination:
         max-generations: 500
+    log-directory: "logs/ga/boolean-function-permutation"
 
 problem:
     class: com.knezevic.edaf.examples.crypto.BooleanFunctionPermutationProblem

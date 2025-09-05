@@ -28,4 +28,4 @@ algorithm:
     max-generations: 10000
   elitism: 1
   log-frequency: 100
-  log-directory: "logs/ga-fp-example"
+  log-directory: "logs/ga-fp-sphere"

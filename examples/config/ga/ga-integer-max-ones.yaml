@@ -22,4 +22,4 @@ algorithm:
     max-generations: 100
   elitism: 1
   log-frequency: 10
-  log-directory: "logs/ga-integer-example"
+  log-directory: "logs/ga/ga-integer-max-ones"

@@ -11,6 +11,7 @@ algorithm:
         n: 100
     termination:
         max-generations: 300
+    log-directory: "logs/eda/deceptive-trap"
 
 problem:
     class: com.knezevic.edaf.examples.misc.DeceptiveTrapProblem

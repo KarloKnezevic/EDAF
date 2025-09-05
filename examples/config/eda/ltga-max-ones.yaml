@@ -1,15 +1,14 @@
 problem:
   class: com.knezevic.edaf.testing.problems.MaxOnes
-  optimization: MAXIMIZE
   genotype:
     type: binary
     length: 20
 
 algorithm:
-  name: cga
+  name: ltga
+  population:
+    size: 100
   termination:
     max-generations: 10000
   log-frequency: 10
-  log-directory: "logs/cga-max-ones"
-  parameters:
-    n: 10
+  log-directory: "logs/eda/ltga-max-ones"

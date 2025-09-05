@@ -23,6 +23,11 @@
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-cgp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -135,6 +140,8 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <finalName>edaf</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>

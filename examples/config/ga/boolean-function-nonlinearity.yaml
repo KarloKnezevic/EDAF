@@ -1,23 +1,25 @@
-# Configuration for optimizing a boolean function for both balancedness and nonlinearity.
+# Configuration for optimizing the nonlinearity of a boolean function.
+# The goal is to find a boolean function with the highest possible nonlinearity.
 
 algorithm:
     name: ega
     elitism: 1
     population:
-        size: 200
+        size: 500
     selection:
         name: tournament
         size: 3
     termination:
-        max-generations: 100000
+        max-generations: 1000000
+    log-directory: "logs/ga/boolean-function-nonlinearity"
 
 problem:
     class: com.knezevic.edaf.examples.crypto.BooleanFunctionProblem
     optimization: MAXIMIZE
+    # Parameters for the BooleanFunctionProblem
     parameters:
-        n: 8
+        n: 8 # Number of variables in the boolean function
         criteria:
-            - balancedness
             - nonlinearity
     genotype:
         type: binary
@@ -27,4 +29,4 @@ problem:
             probability: 0.8
         mutation:
             name: simple
-            probability: 0.05
+            probability: 0.01

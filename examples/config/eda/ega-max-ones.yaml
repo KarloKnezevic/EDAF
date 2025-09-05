@@ -3,20 +3,22 @@ problem:
   genotype:
     type: binary
     length: 20
+    crossing:
+      name: onePoint
+      probability: 0.8
+    mutation:
+      name: simple
+      probability: 0.2
 
 algorithm:
-  name: pbil
+  name: ega
   population:
-    size: 100
+    size: 500
   selection:
     name: tournament
     size: 3
   termination:
     max-generations: 10000
+  mortality: 0.5
   log-frequency: 10
-  log-directory: "logs/pbil-max-ones"
-  parameters:
-    learning-rate: 0.1
-    negative-learning-rate: 0.075
-    mutation-prob: 0.02
-    mutation-shift: 0.05
+  log-directory: "logs/eda/ega-max-ones"

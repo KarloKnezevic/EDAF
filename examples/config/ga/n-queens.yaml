@@ -11,6 +11,7 @@ algorithm:
         size: 5
     termination:
         max-generations: 200
+    log-directory: "logs/ga/n-queens"
 
 problem:
     class: com.knezevic.edaf.examples.misc.NQueensProblem
