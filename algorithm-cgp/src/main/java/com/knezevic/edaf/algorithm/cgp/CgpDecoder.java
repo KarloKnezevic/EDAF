@@ -27,7 +27,7 @@ public class CgpDecoder {
         this.numOutputs = numOutputs;
         this.functionArity = functionSet.isEmpty() ? 2 : functionSet.stream().mapToInt(Function::getArity).max().orElse(2);
         this.genesPerNode = this.functionArity + 1;
-        this.numNodes = (config.getGenotypeLength() - numOutputs) / this.genesPerNode;
+        this.numNodes = config.getRows() * config.getCols();
     }
 
     /**
