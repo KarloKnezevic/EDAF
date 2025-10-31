@@ -1,6 +1,6 @@
 problem:
   class: com.knezevic.edaf.testing.problems.MaxOnes
-  optimization: MAXIMIZE
+  optimization: max
   genotype:
     type: binary
     length: 20

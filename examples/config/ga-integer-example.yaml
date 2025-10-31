@@ -6,7 +6,7 @@ problem:
     min-bound: 0
     max-bound: 100
     crossing:
-      name: onePoint
+      name: one-point
     mutation:
       name: simple
       probability: 0.05

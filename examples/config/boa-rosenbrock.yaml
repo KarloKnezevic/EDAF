@@ -1,0 +1,16 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.Rosenbrock
+  optimization: min
+  genotype:
+    type: fp
+    length: 10
+    lowerBound: -5.0
+    upperBound: 5.0
+
+algorithm:
+  name: boa
+  population:
+    size: 50
+  termination:
+    max-generations: 200
+

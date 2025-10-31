@@ -1,0 +1,16 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.Ackley
+  optimization: min
+  genotype:
+    type: fp
+    length: 10
+    lowerBound: -32.768
+    upperBound: 32.768
+
+algorithm:
+  name: boa
+  population:
+    size: 50
+  termination:
+    max-generations: 200
+

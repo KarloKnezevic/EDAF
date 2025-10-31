@@ -12,7 +12,7 @@ algorithm:
         max-generations: 50
 
 problem:
-    class: com.knezevic.edaf.examples.gp.problems.MultiplexerProblem
+    class: com.knezevic.edaf.testing.problems.gp.MultiplexerProblem
     genotype:
         type: tree
         length: 1

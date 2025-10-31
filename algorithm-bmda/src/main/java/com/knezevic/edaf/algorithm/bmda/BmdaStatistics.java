@@ -4,6 +4,8 @@ import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
+import java.util.Random;
+
 /**
  * Implements the statistics component for the Bivariate Marginal Distribution Algorithm (BMDA).
  *
@@ -13,6 +15,15 @@ public class BmdaStatistics<T extends Individual<byte[]>> implements Statistics<
 
     private BivariateDistribution[][] distributions;
     private int chromosomeLength;
+    private final Random random;
+
+    public BmdaStatistics() {
+        this.random = new Random();
+    }
+
+    public BmdaStatistics(Random random) {
+        this.random = random;
+    }
 
     @Override
     public void estimate(Population<T> population) {
@@ -65,7 +76,7 @@ public class BmdaStatistics<T extends Individual<byte[]>> implements Statistics<
         // A more sophisticated approach would be to build a dependency graph
         // (e.g., a Chow-Liu tree) and sample from it.
 
-        Population<T> newPopulation = new SimplePopulation<>(OptimizationType.MINIMIZE);
+        Population<T> newPopulation = new SimplePopulation<>(OptimizationType.min);
         for (int i = 0; i < size; i++) {
             byte[] chromosome = new byte[chromosomeLength];
             // Generate the first bit based on its marginal probability.
@@ -74,14 +85,14 @@ public class BmdaStatistics<T extends Individual<byte[]>> implements Statistics<
                 p1 += distributions[0][j].getProbability(1, 0) + distributions[0][j].getProbability(1, 1);
             }
             p1 /= (chromosomeLength - 1);
-            chromosome[0] = (byte) (Math.random() < p1 ? 1 : 0);
+            chromosome[0] = (byte) (random.nextDouble() < p1 ? 1 : 0);
 
             // Generate subsequent bits based on conditional probabilities.
             for (int j = 1; j < chromosomeLength; j++) {
                 int prevBit = chromosome[j - 1];
                 double p_cond = distributions[j - 1][j].getProbability(prevBit, 1)
                         / (distributions[j - 1][j].getProbability(prevBit, 0) + distributions[j - 1][j].getProbability(prevBit, 1));
-                chromosome[j] = (byte) (Math.random() < p_cond ? 1 : 0);
+                chromosome[j] = (byte) (random.nextDouble() < p_cond ? 1 : 0);
             }
 
             T newIndividual = (T) new BinaryIndividual(chromosome);

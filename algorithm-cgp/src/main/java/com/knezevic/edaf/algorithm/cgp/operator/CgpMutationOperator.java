@@ -3,10 +3,11 @@ package com.knezevic.edaf.algorithm.cgp.operator;
 import com.knezevic.edaf.algorithm.cgp.CgpConfig;
 import com.knezevic.edaf.algorithm.cgp.CgpIndividual;
 import com.knezevic.edaf.core.api.Mutation;
+import com.knezevic.edaf.core.runtime.RandomSource;
 import com.knezevic.edaf.genotype.tree.primitives.Function;
 
 import java.util.List;
-import java.util.Random;
+import java.util.random.RandomGenerator;
 
 /**
  * Performs mutation on a CGP individual.
@@ -17,19 +18,17 @@ public class CgpMutationOperator implements Mutation<CgpIndividual> {
     private final List<Function> functionSet;
     private final int numInputs;
     private final int numOutputs;
-    private final Random random;
+    private final RandomGenerator random;
     private final int functionArity;
     private final int numNodes;
-    private final int genesPerNode;
 
-    public CgpMutationOperator(CgpConfig config, List<Function> functionSet, int numInputs, int numOutputs, Random random) {
+    public CgpMutationOperator(CgpConfig config, List<Function> functionSet, int numInputs, int numOutputs, RandomSource randomSource) {
         this.config = config;
         this.functionSet = functionSet;
         this.numInputs = numInputs;
         this.numOutputs = numOutputs;
-        this.random = random;
+        this.random = randomSource.generator();
         this.functionArity = functionSet.isEmpty() ? 2 : functionSet.stream().mapToInt(Function::getArity).max().orElse(2);
-        this.genesPerNode = this.functionArity + 1;
         this.numNodes = config.getRows() * config.getCols();
     }
 

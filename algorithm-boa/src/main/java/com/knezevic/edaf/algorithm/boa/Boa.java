@@ -11,8 +11,10 @@ import weka.core.Instances;
 
 import java.util.ArrayList;
 import java.util.Random;
+import com.knezevic.edaf.core.runtime.ExecutionContext;
+import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
-public class Boa implements Algorithm<FpIndividual> {
+public class Boa implements Algorithm<FpIndividual>, SupportsExecutionContext {
 
     private final Problem<FpIndividual> problem;
     private final int nInit;
@@ -20,12 +22,13 @@ public class Boa implements Algorithm<FpIndividual> {
     private FpIndividual best;
     private int iteration;
     private ProgressListener listener;
-    private final Random random = new Random();
+    private Random random;
     private final GaussianProcessSurrogate surrogate = new GaussianProcessSurrogate();
     private Instances data;
     private final int genotypeLength;
     private final double min;
     private final double max;
+    private ExecutionContext context;
 
     public Boa(Problem<FpIndividual> problem, int nInit, int nIter, int genotypeLength, double min, double max) {
         this.problem = problem;
@@ -46,7 +49,12 @@ public class Boa implements Algorithm<FpIndividual> {
                 Instance nextPoint = ei.find_max(data);
 
                 FpIndividual newIndividual = new FpIndividual(instanceToDoubleArray(nextPoint));
+                long e0 = System.nanoTime();
                 problem.evaluate(newIndividual);
+                long e1 = System.nanoTime();
+                if (context != null && context.getEvents() != null) {
+                    context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("boa", iteration, 1, e1 - e0));
+                }
 
                 updateSurrogate(newIndividual);
 
@@ -72,6 +80,7 @@ public class Boa implements Algorithm<FpIndividual> {
         data = new Instances("data", attributes, nInit);
         data.setClassIndex(genotypeLength);
 
+        long t0 = System.nanoTime();
         for (int i = 0; i < nInit; i++) {
             double[] genotype = new double[genotypeLength];
             for (int j = 0; j < genotypeLength; j++) {
@@ -84,6 +93,11 @@ public class Boa implements Algorithm<FpIndividual> {
                 best = individual.copy();
             }
         }
+        long t1 = System.nanoTime();
+        if (context != null && context.getEvents() != null) {
+            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("boa", 0, nInit, t1 - t0));
+        }
+        // metrics for init batch are published in run() via context in callers
     }
 
     private void updateSurrogate(FpIndividual individual) {
@@ -125,5 +139,21 @@ public class Boa implements Algorithm<FpIndividual> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void setExecutionContext(ExecutionContext context) {
+        this.context = context;
+        // Use RandomSource from context if available, otherwise fallback to new Random()
+        if (context != null && context.getRandomSource() != null) {
+            // RandomSource.generator() returns RandomGenerator, extract a seed from it
+            // For compatibility with ExpectedImprovement which uses java.util.Random
+            java.util.random.RandomGenerator gen = context.getRandomSource().generator();
+            // Create a Random with a seed extracted from the generator for reproducibility
+            long seed = gen.nextLong();
+            this.random = new Random(seed);
+        } else if (this.random == null) {
+            this.random = new Random();
+        }
     }
 }

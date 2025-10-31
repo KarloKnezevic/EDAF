@@ -1,0 +1,17 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.MaxOnes
+  optimization: max
+  genotype:
+    type: binary
+    length: 100
+
+algorithm:
+  name: fda
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 50
+  termination:
+    max-generations: 100
+

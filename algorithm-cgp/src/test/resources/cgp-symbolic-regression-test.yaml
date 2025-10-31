@@ -1,6 +1,6 @@
 problem:
   class: com.knezevic.edaf.algorithm.cgp.SymbolicRegressionProblem
-  optimization: MINIMIZE
+  optimization: min
 
 algorithm:
   name: cgp

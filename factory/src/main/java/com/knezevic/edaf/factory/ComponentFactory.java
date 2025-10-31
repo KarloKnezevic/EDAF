@@ -16,7 +16,7 @@ public interface ComponentFactory {
      * @return A {@link Problem} instance.
      * @throws Exception If an error occurs while creating the problem.
      */
-    Problem createProblem(Configuration config) throws Exception;
+    Problem<?> createProblem(Configuration config) throws Exception;
 
     /**
      * Creates a {@link Genotype} instance.
@@ -26,7 +26,7 @@ public interface ComponentFactory {
      * @return A {@link Genotype} instance.
      * @throws Exception If an error occurs while creating the genotype.
      */
-    Genotype createGenotype(Configuration config, Random random) throws Exception;
+    Genotype<?> createGenotype(Configuration config, Random random) throws Exception;
 
     /**
      * Creates a {@link Population} instance.
@@ -36,7 +36,7 @@ public interface ComponentFactory {
      * @return A {@link Population} instance.
      * @throws Exception If an error occurs while creating the population.
      */
-    Population createPopulation(Configuration config, Genotype genotype) throws Exception;
+    Population<?> createPopulation(Configuration config, Genotype<?> genotype) throws Exception;
 
     /**
      * Creates a {@link Statistics} instance.
@@ -47,7 +47,7 @@ public interface ComponentFactory {
      * @return A {@link Statistics} instance.
      * @throws Exception If an error occurs while creating the statistics.
      */
-    Statistics createStatistics(Configuration config, Genotype genotype, Random random) throws Exception;
+    Statistics<?> createStatistics(Configuration config, Genotype<?> genotype, Random random) throws Exception;
 
     /**
      * Creates a {@link Selection} instance.
@@ -57,7 +57,7 @@ public interface ComponentFactory {
      * @return A {@link Selection} instance.
      * @throws Exception If an error occurs while creating the selection operator.
      */
-    Selection createSelection(Configuration config, Random random) throws Exception;
+    Selection<?> createSelection(Configuration config, Random random) throws Exception;
 
     /**
      * Creates a {@link TerminationCondition} instance.
@@ -66,7 +66,7 @@ public interface ComponentFactory {
      * @return A {@link TerminationCondition} instance.
      * @throws Exception If an error occurs while creating the termination condition.
      */
-    TerminationCondition createTerminationCondition(Configuration config) throws Exception;
+    TerminationCondition<?> createTerminationCondition(Configuration config) throws Exception;
 
     /**
      * Creates an {@link Algorithm} instance.
@@ -81,7 +81,7 @@ public interface ComponentFactory {
      * @return An {@link Algorithm} instance.
      * @throws Exception If an error occurs while creating the algorithm.
      */
-    Algorithm createAlgorithm(Configuration config, Problem problem, Population population,
-                              Selection selection, Statistics statistics,
-                              TerminationCondition terminationCondition, Random random) throws Exception;
+    Algorithm<?> createAlgorithm(Configuration config, Problem<?> problem, Population<?> population,
+                              Selection<?> selection, Statistics<?> statistics,
+                              TerminationCondition<?> terminationCondition, Random random) throws Exception;
 }

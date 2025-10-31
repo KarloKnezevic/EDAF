@@ -10,13 +10,14 @@ import java.util.Random;
  *
  * @param <T> The type of individual.
  */
-public class BmdaFactory<T extends Individual> implements AlgorithmFactory<T> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class BmdaFactory<T extends Individual> implements AlgorithmFactory {
     @Override
-    public Algorithm<T> createAlgorithm(Configuration config, Problem<T> problem, Population<T> population,
-                                     Selection<T> selection, Statistics<T> statistics,
-                                     TerminationCondition<T> terminationCondition, Random random) throws Exception {
+    public Algorithm<?> createAlgorithm(Configuration config, Problem<?> problem, Population<?> population,
+                                     Selection<?> selection, Statistics<?> statistics,
+                                     TerminationCondition<?> terminationCondition, Random random) throws Exception {
         int selectionSize = config.getAlgorithm().getSelection().getSize();
-        return new Bmda<>(problem, population, selection, statistics, terminationCondition, selectionSize);
+        return new Bmda<>((Problem) problem, (Population) population, (Selection) selection, (Statistics) statistics, (TerminationCondition) terminationCondition, selectionSize);
     }
 
     @Override

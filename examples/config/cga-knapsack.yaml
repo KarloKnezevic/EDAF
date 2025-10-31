@@ -1,0 +1,18 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.Knapsack01
+  optimization: max
+  parameters:
+    items: 50
+    capacity: 120
+    seed: 42
+  genotype:
+    type: binary
+    length: 50
+
+algorithm:
+  name: cga
+  parameters:
+    n: 100
+  termination:
+    max-generations: 500
+

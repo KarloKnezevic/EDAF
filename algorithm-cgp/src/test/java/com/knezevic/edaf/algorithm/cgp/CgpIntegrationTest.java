@@ -2,11 +2,11 @@ package com.knezevic.edaf.algorithm.cgp;
 
 import com.knezevic.edaf.algorithm.cgp.operator.CgpCrossoverOperator;
 import com.knezevic.edaf.algorithm.cgp.operator.CgpMutationOperator;
-import com.knezevic.edaf.core.api.Algorithm;
-import com.knezevic.edaf.core.api.Population;
 import com.knezevic.edaf.core.api.Selection;
 import com.knezevic.edaf.core.api.TerminationCondition;
 import com.knezevic.edaf.core.impl.MaxGenerations;
+import com.knezevic.edaf.core.runtime.RandomSource;
+import com.knezevic.edaf.core.runtime.SplittableRandomSource;
 import com.knezevic.edaf.genotype.tree.primitives.Function;
 import com.knezevic.edaf.selection.TournamentSelection;
 import org.junit.jupiter.api.Test;
@@ -32,23 +32,20 @@ public class CgpIntegrationTest {
         config.setUseCrossover(false);
 
         Random random = new Random(42);
-        SymbolicRegressionProblem problem = new SymbolicRegressionProblem();
+        RandomSource randomSource = new SplittableRandomSource(42);
+        com.knezevic.edaf.algorithm.cgp.problems.CgpSymbolicRegressionProblem problem = 
+            new com.knezevic.edaf.algorithm.cgp.problems.CgpSymbolicRegressionProblem(java.util.Map.of());
 
-        List<Function> functionSet = List.of(
-            new Function("ADD", 2, args -> args[0] + args[1]),
-            new Function("SUB", 2, args -> args[0] - args[1]),
-            new Function("MUL", 2, args -> args[0] * args[1]),
-            new Function("DIV", 2, args -> {
-                if (Math.abs(args[1]) < 1e-6) return 1.0; // Protected division
-                return args[0] / args[1];
-            })
-        );
+        // Use function set from problem (now provided via getFunctionSet())
+        List<Function> functionSet = problem.getFunctionSet();
 
         CgpDecoder decoder = new CgpDecoder(config, functionSet, problem.getNumInputs(), problem.getNumOutputs());
-        CgpGenotypeFactory genotypeFactory = new CgpGenotypeFactory(config, functionSet, problem.getNumInputs(), problem.getNumOutputs(), random);
+        CgpGenotypeFactory genotypeFactory = new CgpGenotypeFactory(config, functionSet, 
+                problem.getNumInputs(), problem.getNumOutputs(), randomSource);
 
-        CgpMutationOperator mutation = new CgpMutationOperator(config, functionSet, problem.getNumInputs(), problem.getNumOutputs(), random);
-        CgpCrossoverOperator crossover = new CgpCrossoverOperator(random);
+        CgpMutationOperator mutation = new CgpMutationOperator(config, functionSet, 
+                problem.getNumInputs(), problem.getNumOutputs(), randomSource);
+        CgpCrossoverOperator crossover = new CgpCrossoverOperator(randomSource);
         Selection<CgpIndividual> selection = new TournamentSelection<>(random, 5);
         TerminationCondition<CgpIndividual> terminationCondition = new MaxGenerations<>(config.getGenerations());
 

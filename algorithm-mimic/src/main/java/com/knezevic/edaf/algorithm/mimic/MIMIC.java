@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.knezevic.edaf.core.runtime.ExecutionContext;
+import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
 /**
  * The MIMIC algorithm.
  */
-public class MIMIC implements Algorithm<BinaryIndividual> {
+public class MIMIC implements Algorithm<BinaryIndividual>, SupportsExecutionContext {
 
     private final Problem<BinaryIndividual> problem;
     private final Population<BinaryIndividual> population;
@@ -24,6 +26,7 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
     private BinaryIndividual best;
     private int generation;
     private ProgressListener listener;
+    private ExecutionContext context;
 
     public MIMIC(Problem<BinaryIndividual> problem, Population<BinaryIndividual> population,
                  Selection<BinaryIndividual> selection, Statistics<BinaryIndividual> statistics,
@@ -39,7 +42,12 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
     @Override
     public void run() {
         // 1. Initialize population
+        long t0 = System.nanoTime();
         evaluatePopulation(population);
+        long t1 = System.nanoTime();
+        if (context != null && context.getEvents() != null) {
+            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("mimic", 0, population.getSize(), t1 - t0));
+        }
         population.sort();
         best = (BinaryIndividual) population.getBest().copy();
         generation = 0;
@@ -56,7 +64,12 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
             Population<BinaryIndividual> newPopulation = statistics.sample(population.getSize());
 
             // 2.4. Evaluate new individuals
+            long e0 = System.nanoTime();
             evaluatePopulation(newPopulation);
+            long e1 = System.nanoTime();
+            if (context != null && context.getEvents() != null) {
+                context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("mimic", generation, newPopulation.getSize(), e1 - e0));
+            }
 
             // 2.5. Replace old population
             population.clear();
@@ -79,7 +92,9 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
     }
 
     private void evaluatePopulation(Population<BinaryIndividual> population) {
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService executor = context != null && context.getExecutor() != null
+                ? context.getExecutor()
+                : Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Callable<Void>> tasks = new ArrayList<>();
         for (int i = 0; i < population.getSize(); i++) {
             final BinaryIndividual individual = population.getIndividual(i);
@@ -93,7 +108,9 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        executor.shutdown();
+        if (context == null) {
+            executor.shutdown();
+        }
     }
 
     @Override
@@ -114,5 +131,10 @@ public class MIMIC implements Algorithm<BinaryIndividual> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void setExecutionContext(ExecutionContext context) {
+        this.context = context;
     }
 }

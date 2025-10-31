@@ -7,12 +7,14 @@ import com.knezevic.edaf.genotype.tree.operators.mutation.TreeMutation;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.knezevic.edaf.core.runtime.ExecutionContext;
+import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
 /**
  * A standard Genetic Programming algorithm implementation.
  * It evolves a population of program trees to solve a given problem.
  */
-public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual> {
+public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual>, SupportsExecutionContext {
 
     private final Problem<TreeIndividual> problem;
     private final Population<TreeIndividual> population;
@@ -27,6 +29,7 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual> {
     private TreeIndividual best;
     private int generation;
     private ProgressListener listener;
+    private ExecutionContext context;
 
     public GeneticProgrammingAlgorithm(Problem<TreeIndividual> problem, Population<TreeIndividual> population,
                                        Selection<TreeIndividual> selection, Crossover<TreeIndividual> crossover,
@@ -46,8 +49,13 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual> {
     @Override
     public void run() {
         // Initial evaluation
+        long t0 = System.nanoTime();
         for (int i = 0; i < population.getSize(); i++) {
             problem.evaluate(population.getIndividual(i));
+        }
+        long t1 = System.nanoTime();
+        if (context != null && context.getEvents() != null) {
+            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("gp", 0, population.getSize(), t1 - t0));
         }
         population.sort();
         best = (TreeIndividual) population.getBest().copy();
@@ -85,8 +93,13 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual> {
             }
 
             // Evaluate and replace
+            long e0 = System.nanoTime();
             for (TreeIndividual individual : newPopulation) {
                 problem.evaluate(individual);
+            }
+            long e1 = System.nanoTime();
+            if (context != null && context.getEvents() != null) {
+                context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("gp", generation, newPopulation.size(), e1 - e0));
             }
 
             for(int i = 0; i < newPopulation.size(); i++) {
@@ -125,11 +138,16 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual> {
         this.listener = listener;
     }
 
+    @Override
+    public void setExecutionContext(ExecutionContext context) {
+        this.context = context;
+    }
+
     private boolean isFirstBetter(Individual first, Individual second) {
         if (second == null) {
             return true;
         }
-        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+        if (problem.getOptimizationType() == OptimizationType.min) {
             return first.getFitness() < second.getFitness();
         } else {
             return first.getFitness() > second.getFitness();

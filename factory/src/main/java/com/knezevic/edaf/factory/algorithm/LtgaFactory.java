@@ -13,25 +13,26 @@ import java.util.Random;
  *
  * @param <T> The type of individual.
  */
-public class LtgaFactory<T extends Individual> implements AlgorithmFactory<T> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class LtgaFactory implements AlgorithmFactory {
     @Override
-    public Algorithm<T> createAlgorithm(Configuration config, Problem<T> problem, Population<T> population,
-                                     Selection<T> selection, Statistics<T> statistics,
-                                     TerminationCondition<T> terminationCondition, Random random) throws Exception {
+    public Algorithm<?> createAlgorithm(Configuration config, Problem<?> problem, Population<?> population,
+                                     Selection<?> selection, Statistics<?> statistics,
+                                     TerminationCondition<?> terminationCondition, Random random) throws Exception {
         int length = config.getProblem().getGenotype().getLength();
-        Mutation mutation = createMutation(config, random);
-        return (Algorithm<T>) new LTGA((Problem<BinaryIndividual>) problem, (Population<BinaryIndividual>) population,
+        Mutation<?> mutation = createMutation(config, random);
+        return new LTGA((Problem<BinaryIndividual>) problem, (Population<BinaryIndividual>) population,
                 (Selection<BinaryIndividual>) selection, (Mutation<BinaryIndividual>) mutation,
                 (TerminationCondition<BinaryIndividual>) terminationCondition, length, random);
     }
 
     @Override
-    public Crossover createCrossover(Configuration config, Random random) {
+    public Crossover<?> createCrossover(Configuration config, Random random) {
         return null;
     }
 
     @Override
-    public Mutation createMutation(Configuration config, Random random) {
+    public Mutation<?> createMutation(Configuration config, Random random) {
         double mutationProbability = config.getProblem().getGenotype().getMutation().getProbability();
         return new SimpleMutation(random, mutationProbability);
     }

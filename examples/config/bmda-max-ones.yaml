@@ -1,0 +1,18 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.MaxOnes
+  genotype:
+    type: binary
+    length: 64
+
+algorithm:
+  name: bmda
+  population:
+    size: 200
+  selection:
+    name: tournament
+    size: 3
+  termination:
+    max-generations: 2000
+  log-frequency: 50
+  log-directory: "logs/bmda-max-ones"
+

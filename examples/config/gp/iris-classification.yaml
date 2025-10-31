@@ -12,7 +12,7 @@ algorithm:
         max-generations: 75
 
 problem:
-    class: com.knezevic.edaf.examples.gp.problems.IrisClassificationProblem
+    class: com.knezevic.edaf.testing.problems.gp.IrisClassificationProblem
     genotype:
         type: tree
         length: 1

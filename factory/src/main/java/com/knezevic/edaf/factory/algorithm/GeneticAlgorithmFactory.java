@@ -23,7 +23,7 @@ import java.util.Random;
 
 public abstract class GeneticAlgorithmFactory implements AlgorithmFactory {
     @Override
-    public Crossover createCrossover(Configuration config, Random random) {
+    public Crossover<?> createCrossover(Configuration config, Random random) {
         final var genotypeConfig = config.getProblem().getGenotype();
         var crossoverConfig = genotypeConfig.getCrossing();
         String crossoverName = crossoverConfig.getName();
@@ -31,13 +31,13 @@ public abstract class GeneticAlgorithmFactory implements AlgorithmFactory {
 
         return switch (genotypeType) {
             case "binary" -> switch (crossoverName) {
-                case "one-point" -> new OnePointCrossover(random);
+                case "one-point", "onePoint" -> new OnePointCrossover(random);
                 case "n-point" -> new NPointCrossover(random, crossoverConfig.getN());
                 case "uniform" -> new UniformCrossover(random);
                 default -> throw new IllegalArgumentException("Unknown binary crossover: " + crossoverName);
             };
             case "integer" -> switch (crossoverName) {
-                case "one-point" -> new com.knezevic.edaf.genotype.integer.crossing.OnePointCrossover(random);
+                case "one-point", "onePoint" -> new com.knezevic.edaf.genotype.integer.crossing.OnePointCrossover(random);
                 case "two-point" -> new TwoPointCrossover(random);
                 default -> throw new IllegalArgumentException("Unknown integer crossover: " + crossoverName);
             };
@@ -59,7 +59,7 @@ public abstract class GeneticAlgorithmFactory implements AlgorithmFactory {
     }
 
     @Override
-    public Mutation createMutation(Configuration config, Random random) {
+    public Mutation<?> createMutation(Configuration config, Random random) {
         final var genotypeConfig = config.getProblem().getGenotype();
         var mutationConfig = genotypeConfig.getMutation();
         String mutationName = mutationConfig.getName();

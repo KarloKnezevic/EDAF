@@ -15,13 +15,15 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.knezevic.edaf.core.runtime.ExecutionContext;
+import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
 /**
  * The Bivariate Marginal Distribution Algorithm (BMDA).
  *
  * @param <T> The type of individual in the population.
  */
-public class Bmda<T extends Individual> implements Algorithm<T> {
+public class Bmda<T extends Individual> implements Algorithm<T>, SupportsExecutionContext {
 
     private final Problem<T> problem;
     private final Population<T> population;
@@ -33,6 +35,7 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
     private T best;
     private int generation;
     private ProgressListener listener;
+    private ExecutionContext context;
 
     public Bmda(Problem<T> problem, Population<T> population, Selection<T> selection,
                 Statistics<T> statistics, TerminationCondition<T> terminationCondition,
@@ -48,7 +51,12 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
     @Override
     public void run() {
         // 1. Initialize population
+        long t0 = System.nanoTime();
         evaluatePopulation(population);
+        long t1 = System.nanoTime();
+        if (context != null && context.getEvents() != null) {
+            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("bmda", 0, population.getSize(), t1 - t0));
+        }
         population.sort();
         best = (T) population.getBest().copy();
         generation = 0;
@@ -65,7 +73,12 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
             Population<T> newPopulation = statistics.sample(population.getSize());
 
             // 2.4. Evaluate new individuals
+            long e0 = System.nanoTime();
             evaluatePopulation(newPopulation);
+            long e1 = System.nanoTime();
+            if (context != null && context.getEvents() != null) {
+                context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("bmda", generation, newPopulation.getSize(), e1 - e0));
+            }
 
             // 2.5. Replace old population
             Population<T> correctlyTypedPopulation = new SimplePopulation<>(problem.getOptimizationType());
@@ -92,7 +105,9 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
     }
 
     private void evaluatePopulation(Population<T> population) {
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService executor = context != null && context.getExecutor() != null
+                ? context.getExecutor()
+                : Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Callable<Void>> tasks = new ArrayList<>();
         for (T individual : population) {
             tasks.add(() -> {
@@ -105,7 +120,9 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        executor.shutdown();
+        if (context == null) {
+            executor.shutdown();
+        }
     }
 
     @Override
@@ -128,9 +145,14 @@ public class Bmda<T extends Individual> implements Algorithm<T> {
         this.listener = listener;
     }
 
+    @Override
+    public void setExecutionContext(ExecutionContext context) {
+        this.context = context;
+    }
+
     private boolean isFirstBetter(Individual first, Individual second) {
         if (best == null) return true;
-        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+        if (problem.getOptimizationType() == OptimizationType.min) {
             return first.getFitness() < second.getFitness();
         } else {
             return first.getFitness() > second.getFitness();

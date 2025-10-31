@@ -23,7 +23,7 @@ class MIMICTest {
     void testMaxOnes() {
         // 1. Create a MaxOnes problem
         Map<String, Object> params = new HashMap<>();
-        params.put("optimizationType", OptimizationType.MAXIMIZE);
+        params.put("optimizationType", OptimizationType.max);
         Problem<BinaryIndividual> problem = new MaxOnes(params);
 
         // 2. Create a BinaryGenotype factory

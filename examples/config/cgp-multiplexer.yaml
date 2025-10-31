@@ -1,0 +1,25 @@
+problem:
+  class: com.knezevic.edaf.algorithm.cgp.problems.CgpMultiplexerProblem
+  optimization: min
+  genotype:
+    type: integer
+    length: 100
+
+algorithm:
+  name: cgp
+  population:
+    size: 200
+  selection:
+    name: tournament
+    size: 7
+  termination:
+    max-generations: 500
+  parameters:
+    populationSize: 200
+    mutationRate: 0.05
+    rows: 1
+    cols: 30
+    levelsBack: 15
+    useCrossover: false
+    replacementStrategy: GENERATIONAL
+

@@ -13,7 +13,7 @@ algorithm:
         max-generations: 1000
 
 problem:
-    class: com.knezevic.edaf.examples.misc.NQueensProblem
+  class: com.knezevic.edaf.testing.problems.misc.NQueensProblem
     genotype:
         type: permutation
         length: 12 # Solving for 12 queens

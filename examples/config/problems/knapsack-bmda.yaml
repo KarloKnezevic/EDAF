@@ -1,0 +1,20 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.Knapsack01
+  parameters:
+    items: 50
+    capacity: 120
+    seed: 42
+  genotype:
+    type: binary
+    length: 50
+
+algorithm:
+  name: bmda
+  population:
+    size: 300
+  selection:
+    name: tournament
+    size: 3
+  termination:
+    max-generations: 1500
+

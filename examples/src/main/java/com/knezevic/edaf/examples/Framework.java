@@ -4,7 +4,7 @@ import com.knezevic.edaf.configuration.ConfigurationLoader;
 import com.knezevic.edaf.configuration.pojos.Configuration;
 import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.factory.ComponentFactory;
-import com.knezevic.edaf.factory.DefaultComponentFactory;
+import com.knezevic.edaf.factory.SpiBackedComponentFactory;
 import net.logstash.logback.marker.Markers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -24,12 +25,18 @@ import java.util.concurrent.Callable;
 public class Framework implements Callable<Integer>, ProgressListener {
 
     private static final Logger log = LoggerFactory.getLogger(Framework.class);
-    private static final Logger resultLog = LoggerFactory.getLogger("com.knezevic.edaf.results");
+    private static final Logger resultLog = LoggerFactory.getLogger("edaf.results");
 
     @Parameters(index = "0", description = "The configuration file to run.", arity = "0..1")
     private String configFile;
 
     private ProgressBar progressBar;
+
+    @Option(names = {"--metrics"}, description = "Enable Micrometer metrics (SimpleMeterRegistry).", defaultValue = "false")
+    private boolean metrics;
+
+    @Option(names = {"--prometheus-port"}, description = "Expose Prometheus scrape endpoint on given port (implies --metrics).")
+    private Integer prometheusPort;
 
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Framework()).execute(args);
@@ -52,6 +59,13 @@ public class Framework implements Callable<Integer>, ProgressListener {
         Configuration config = loader.load(configFile);
         log.info("Configuration loaded successfully.");
 
+        if (metrics || prometheusPort != null) {
+            System.setProperty("edaf.metrics.enabled", "true");
+            if (prometheusPort != null) {
+                System.setProperty("edaf.metrics.prometheus.port", String.valueOf(prometheusPort));
+            }
+        }
+
         run(config);
         return 0;
     }
@@ -60,23 +74,23 @@ public class Framework implements Callable<Integer>, ProgressListener {
     public void run(Configuration config) throws Exception {
         // 1. Create component factory
         log.info("PHASE 2: Initializing framework components...");
-        ComponentFactory factory = new DefaultComponentFactory();
+        ComponentFactory factory = new SpiBackedComponentFactory();
         Random random = new Random();
 
         // 2. Create components
-        Problem problem = factory.createProblem(config);
-        Genotype genotype = factory.createGenotype(config, random);
-        Population population = null;
+        Problem<?> problem = factory.createProblem(config);
+        Genotype<?> genotype = factory.createGenotype(config, random);
+        Population<?> population = null;
         if (config.getAlgorithm().getPopulation() != null) {
             population = factory.createPopulation(config, genotype);
         }
-        Statistics statistics = factory.createStatistics(config, genotype, random);
-        Selection selection = null;
+        Statistics<?> statistics = factory.createStatistics(config, genotype, random);
+        Selection<?> selection = null;
         if (config.getAlgorithm().getSelection() != null) {
             selection = factory.createSelection(config, random);
         }
-        TerminationCondition terminationCondition = factory.createTerminationCondition(config);
-        Algorithm algorithm = factory.createAlgorithm(config, problem, population, selection, statistics, terminationCondition, random);
+        TerminationCondition<?> terminationCondition = factory.createTerminationCondition(config);
+        Algorithm<?> algorithm = factory.createAlgorithm(config, problem, population, selection, statistics, terminationCondition, random);
         algorithm.setProgressListener(this);
         log.info("Framework components initialized successfully.");
 
@@ -97,7 +111,7 @@ public class Framework implements Callable<Integer>, ProgressListener {
             log.info("Algorithm execution finished.");
 
             log.info("-------------------- RESULTS --------------------");
-            Individual best = algorithm.getBest();
+        Individual<?> best = algorithm.getBest();
             log.info("Best individual: {}", best);
             log.info("Fitness: {}", best.getFitness());
             log.info("-----------------------------------------------");

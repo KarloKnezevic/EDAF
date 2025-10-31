@@ -6,13 +6,18 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.knezevic.edaf.core.runtime.ExecutionContext;
+import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
+import com.knezevic.edaf.core.runtime.GenerationCompleted;
+import com.knezevic.edaf.core.runtime.AlgorithmStarted;
+import com.knezevic.edaf.core.runtime.AlgorithmTerminated;
 
 /**
  * An eliminative Genetic Algorithm (eGA).
  *
  * @param <T> The type of individual in the population.
  */
-public class eGA<T extends Individual> implements Algorithm<T> {
+public class eGA<T extends Individual> implements Algorithm<T>, SupportsExecutionContext {
 
     private final Problem<T> problem;
     private final Population<T> population;
@@ -24,6 +29,7 @@ public class eGA<T extends Individual> implements Algorithm<T> {
     private T best;
     private int generation;
     private ProgressListener listener;
+    private ExecutionContext context;
 
     public eGA(Problem<T> problem, Population<T> population, Selection<T> selection,
                Crossover<T> crossover, Mutation<T> mutation,
@@ -38,8 +44,16 @@ public class eGA<T extends Individual> implements Algorithm<T> {
 
     @Override
     public void run() {
+        if (context != null && context.getEvents() != null) {
+            context.getEvents().publish(new AlgorithmStarted("ega"));
+        }
         // 1. Initialize population
+        long t0 = System.nanoTime();
         evaluatePopulation(population);
+        long t1 = System.nanoTime();
+        if (context != null && context.getEvents() != null) {
+            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("ega", 0, population.getSize(), t1 - t0));
+        }
         population.sort();
         best = (T) population.getBest().copy();
         generation = 0;
@@ -73,11 +87,19 @@ public class eGA<T extends Individual> implements Algorithm<T> {
             if (listener != null) {
                 listener.onGenerationDone(generation, population.getBest(), population);
             }
+            if (context != null && context.getEvents() != null) {
+                context.getEvents().publish(new GenerationCompleted("ega", generation, population.getBest()));
+            }
+        }
+        if (context != null && context.getEvents() != null) {
+            context.getEvents().publish(new AlgorithmTerminated("ega", generation));
         }
     }
 
     private void evaluatePopulation(Population<T> population) {
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService executor = context != null && context.getExecutor() != null
+                ? context.getExecutor()
+                : Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<Callable<Void>> tasks = new ArrayList<>();
         for (T individual : population) {
             tasks.add(() -> {
@@ -90,7 +112,9 @@ public class eGA<T extends Individual> implements Algorithm<T> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        executor.shutdown();
+        if (context == null) {
+            executor.shutdown();
+        }
     }
 
     @Override
@@ -111,5 +135,10 @@ public class eGA<T extends Individual> implements Algorithm<T> {
     @Override
     public void setProgressListener(ProgressListener listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void setExecutionContext(ExecutionContext context) {
+        this.context = context;
     }
 }

@@ -13,22 +13,23 @@ import com.knezevic.edaf.core.api.Individual;
  *
  * @param <T> The type of individual.
  */
-public class UmdaFactory<T extends Individual> implements AlgorithmFactory<T> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class UmdaFactory implements AlgorithmFactory {
     @Override
-    public Algorithm<T> createAlgorithm(Configuration config, Problem<T> problem, Population<T> population,
-                                     Selection<T> selection, Statistics<T> statistics,
-                                     TerminationCondition<T> terminationCondition, Random random) throws Exception {
-        return new Umda<>(problem, population, selection, statistics, terminationCondition,
+    public Algorithm<?> createAlgorithm(Configuration config, Problem<?> problem, Population<?> population,
+                                     Selection<?> selection, Statistics<?> statistics,
+                                     TerminationCondition<?> terminationCondition, Random random) throws Exception {
+        return new Umda((Problem) problem, (Population) population, (Selection) selection, (Statistics) statistics, (TerminationCondition) terminationCondition,
                 config.getAlgorithm().getSelection().getSize());
     }
 
     @Override
-    public Crossover createCrossover(Configuration config, Random random) {
+    public Crossover<?> createCrossover(Configuration config, Random random) {
         return null;
     }
 
     @Override
-    public Mutation createMutation(Configuration config, Random random) {
+    public Mutation<?> createMutation(Configuration config, Random random) {
         return null;
     }
 }

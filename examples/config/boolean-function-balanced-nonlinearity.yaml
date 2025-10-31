@@ -12,8 +12,8 @@ algorithm:
         max-generations: 100000
 
 problem:
-    class: com.knezevic.edaf.examples.crypto.BooleanFunctionProblem
-    optimization: MAXIMIZE
+    class: com.knezevic.edaf.testing.problems.crypto.BooleanFunctionProblem
+    optimization: max
     parameters:
         n: 8
         criteria:

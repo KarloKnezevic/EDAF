@@ -8,6 +8,9 @@ import com.knezevic.edaf.genotype.fp.FpGenotype;
 import com.knezevic.edaf.statistics.distribution.BernoulliDistribution;
 import com.knezevic.edaf.statistics.distribution.NormalDistribution;
 import com.knezevic.edaf.statistics.mimic.MimicStatistics;
+import com.knezevic.edaf.algorithm.fda.FdaStatistics;
+import com.knezevic.edaf.algorithm.cem.CemStatistics;
+import com.knezevic.edaf.algorithm.bmda.BmdaStatistics;
 
 import java.util.Random;
 
@@ -27,6 +30,17 @@ public class DefaultStatisticsFactory implements StatisticsFactory {
         } else if ("mimic".equals(algorithmName)) {
             if (genotype instanceof BinaryGenotype) {
                 return new MimicStatistics(genotype, random);
+            }
+        } else if ("fda".equals(algorithmName)) {
+            if (genotype instanceof BinaryGenotype) {
+                return new FdaStatistics(genotype.getLength(), random);
+            }
+        } else if ("cem".equals(algorithmName)) {
+            boolean isBinary = genotype instanceof BinaryGenotype;
+            return new CemStatistics(genotype.getLength(), random, isBinary);
+        } else if ("bmda".equals(algorithmName)) {
+            if (genotype instanceof BinaryGenotype) {
+                return new BmdaStatistics<>(random);
             }
         }
         return null;

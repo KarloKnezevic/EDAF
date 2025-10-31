@@ -53,21 +53,6 @@
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
-            <artifactId>algorithm-umda</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.knezevic.edaf</groupId>
-            <artifactId>algorithm-pbil</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.knezevic.edaf</groupId>
-            <artifactId>algorithm-gga</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.knezevic.edaf</groupId>
             <artifactId>statistics</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -76,14 +61,15 @@
             <artifactId>selection</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Algorithm modules needed by legacy factory implementations -->
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
-            <artifactId>algorithm-ega</artifactId>
+            <artifactId>algorithm-umda</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
-            <artifactId>algorithm-cga</artifactId>
+            <artifactId>algorithm-pbil</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -103,12 +89,37 @@
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-bmda</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-cga</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-gga</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-ega</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
             <artifactId>algorithm-gp</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
-            <artifactId>algorithm-bmda</artifactId>
+            <artifactId>algorithm-fda</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-cem</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

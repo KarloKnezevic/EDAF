@@ -50,22 +50,40 @@ graph TD
     E --> F;
 ```
 
-The `ComponentFactory` is responsible for creating all the necessary components based on the configuration file. The `Problem` component defines the optimization problem, including the fitness function and whether the goal is to `MINIMIZE` or `MAXIMIZE` the fitness. This allows you to easily configure your experiment without changing the source code.
+The `ComponentFactory` is responsible for creating all the necessary components based on the configuration file. The `Problem` component defines the optimization problem, including the fitness function and whether the goal is to `min` or `max` the fitness. This allows you to easily configure your experiment without changing the source code.
 
 ## Getting Started
 
 To get started with EDAF, you need to provide a YAML configuration file that defines the experiment you want to run. You can use the `generate-config` command to generate a template configuration file:
 
 ```bash
-java -jar examples.jar generate-config --algorithm gga > config.yaml
+java -jar examples/target/edaf.jar generate-config --algorithm gga > config.yaml
 ```
 
 This will create a `config.yaml` file with a default configuration for the Generational Genetic Algorithm (gGA). You can then modify this file to suit your needs.
 
-To run the experiment, use the `run` command:
+To run the experiment, simply provide the configuration file path:
 
 ```bash
-java -jar examples.jar run --config config.yaml
+java -jar examples/target/edaf.jar examples/config/umda-max-ones.yaml
+```
+
+For reproducible runs, use the `--seed` option:
+
+```bash
+java -jar examples/target/edaf.jar --seed 12345 examples/config/umda-max-ones.yaml
+```
+
+To enable metrics collection:
+
+```bash
+java -jar examples/target/edaf.jar --metrics examples/config/umda-max-ones.yaml
+```
+
+For Prometheus metrics endpoint:
+
+```bash
+java -jar examples/target/edaf.jar --prometheus-port 9464 examples/config/umda-max-ones.yaml
 ```
 
 ## Configuration
@@ -79,7 +97,7 @@ The `problem` section defines the problem to be solved.
 | Parameter | Description |
 | --- | --- |
 | `class` | The fully qualified name of the problem class. |
-| `optimization` | The optimization goal (`MINIMIZE` or `MAXIMIZE`). Defaults to `MINIMIZE`. |
+| `optimization` | The optimization goal (`min` or `max`). Defaults to `min`. |
 | `genotype` | The genotype configuration. |
 | `parameters` | A map of parameters for the problem. |
 
@@ -114,18 +132,28 @@ The `algorithm` section defines the algorithm to be used.
 
 ## Algorithms
 
-The framework includes implementations of several popular evolutionary algorithms:
+The framework includes implementations of 14 popular evolutionary algorithms:
 
-- **gGA (Generational Genetic Algorithm):** A traditional GA where the entire population is replaced in each generation.
-- **eGA (Eliminative Genetic Algorithm):** A steady-state GA where one individual is replaced in each generation.
-- **cGA (Compact Genetic Algorithm):** An EDA that simulates the behavior of a simple GA with a large population.
-- **UMDA (Univariate Marginal Distribution Algorithm):** An EDA that assumes the variables are independent.
-- **PBIL (Population-Based Incremental Learning):** An EDA that uses a probability vector to generate new individuals.
-- **MIMIC:** An EDA that uses a chain-like probabilistic model.
-- **LTGA (Linkage Tree Genetic Algorithm):** A GA that uses a linkage tree to guide crossover.
-- **BOA (Bayesian Optimization Algorithm):** An EDA that uses a Bayesian network to model the distribution of promising solutions.
-- **BMDA (Bivariate Marginal Distribution Algorithm):** An EDA that considers pairwise dependencies between variables.
-- **GP (Genetic Programming):** An evolutionary algorithm that evolves computer programs.
+**Estimation of Distribution Algorithms (EDAs):**
+- **UMDA:** Univariate Marginal Distribution Algorithm - assumes variable independence
+- **PBIL:** Population-Based Incremental Learning - maintains single probability vector
+- **MIMIC:** Mutual-Information-Maximizing Input Clustering - chain-based dependencies
+- **BMDA:** Bivariate Marginal Distribution Algorithm - pairwise dependencies
+- **FDA:** Factorized Distribution Algorithm - Bayesian network with learned structure
+- **CEM:** Cross-Entropy Method - black-box optimization with adaptive distribution
+- **BOA:** Bayesian Optimization Algorithm - uses Gaussian Process surrogate
+- **CGA:** Compact Genetic Algorithm - memory-efficient probability vector
+
+**Genetic Algorithms (GAs):**
+- **GGA:** Generational Genetic Algorithm - traditional GA with full replacement
+- **EGA:** Eliminative Genetic Algorithm - steady-state with single replacement
+- **LTGA:** Linkage Tree Genetic Algorithm - learns variable dependencies
+
+**Genetic Programming:**
+- **GP:** Standard Genetic Programming - evolves program trees
+- **CGP:** Cartesian Genetic Programming - graph-based program representation
+
+For detailed information about each algorithm, including parameters, complexity analysis, and when to use them, see the [Algorithms Reference](./docs/algorithms.md).
 
 ## Genotypes
 
@@ -137,24 +165,59 @@ The framework supports the following genotype representations:
 - **Permutation:** A genotype represented by a permutation of integers.
 - **Tree:** A genotype represented by a tree structure, used in Genetic Programming.
 
+## Quick Start Guide
+
+### 1. Build the Framework
+
+```bash
+mvn clean install
+```
+
+This creates the executable JAR at `examples/target/edaf.jar`.
+
+### 2. Run an Example
+
+```bash
+java -jar examples/target/edaf.jar examples/config/umda-max-ones.yaml
+```
+
+### 3. View Results
+
+Results are displayed in three ways:
+- **Console:** Progress bar and final results
+- **Log file:** `edaf.log` (detailed execution logs)
+- **Results file:** `results.json` (structured JSON output)
+
+### 4. Enable Metrics (Optional)
+
+```bash
+java -jar examples/target/edaf.jar --metrics examples/config/fda-max-ones.yaml
+```
+
+For Prometheus metrics:
+
+```bash
+java -jar examples/target/edaf.jar --prometheus-port 9464 examples/config/cem-sphere.yaml
+```
+
 ## Operators
 
 The framework provides a variety of operators for selection, crossover, and mutation.
 
 ### Selection
 
-- **Tournament Selection:** Selects individuals by running a tournament among a random subset of the population.
-- **Roulette Wheel Selection:** Selects individuals with a probability proportional to their fitness.
+- **Tournament Selection:** Selects individuals by running a tournament among a random subset of the population
+- **Roulette Wheel Selection:** Selects individuals with a probability proportional to their fitness
 
 ### Crossover
 
 | Genotype | Crossover Operators |
 | --- | --- |
-| Binary | `onePoint`, `uniform` |
-| Integer | `onePoint`, `twoPoint` |
-| Floating-point | `sbx` (Simulated Binary Crossover) |
-| Permutation | `pmx` (Partially Mapped Crossover), `ox` (Order Crossover) |
-| Tree | `tree` |
+| Binary | `one-point`, `uniform` |
+| Integer | `one-point`, `two-point` |
+| Floating-point | `sbx` (Simulated Binary Crossover), `discrete`, `simple-arithmetic`, `whole-arithmetic` |
+| Permutation | `pmx` (Partially Mapped), `ox` (Order), `cx` (Cycle) |
+| Tree | `treeCrossover` |
 
 ### Mutation
 
@@ -163,8 +226,8 @@ The framework provides a variety of operators for selection, crossover, and muta
 | Binary | `simple` |
 | Integer | `simple` |
 | Floating-point | `polynomial` |
-| Permutation | `swap`, `inversion` |
-| Tree | `tree` |
+| Permutation | `swap`, `insert`, `inversion`, `scramble`, `shift` |
+| Tree | `treeMutation` |
 
 ## Extending the Framework
 

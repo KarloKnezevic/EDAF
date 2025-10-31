@@ -24,7 +24,7 @@ public class ProportionalSelection<T extends Individual> implements Selection<T>
 
     @Override
     public Population<T> select(Population<T> population, int size) {
-        if (population.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.MINIMIZE) {
+        if (population.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.min) {
             throw new UnsupportedOperationException("ProportionalSelection is only suitable for maximization problems.");
         }
         if (population.getSize() == 0) {

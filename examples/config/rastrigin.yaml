@@ -14,7 +14,7 @@ algorithm:
         max-generations: 100000
 
 problem:
-    class: com.knezevic.edaf.examples.misc.RastriginProblem
+  class: com.knezevic.edaf.testing.problems.misc.RastriginProblem
     genotype:
         type: fp
         length: 10 # Number of dimensions for the function

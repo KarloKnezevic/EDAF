@@ -15,12 +15,12 @@ import java.util.Random;
  * A factory for creating {@link GeneticProgrammingAlgorithm} objects.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class GpFactory implements AlgorithmFactory<TreeIndividual> {
+public class GpFactory implements AlgorithmFactory {
 
     @Override
-    public Algorithm<TreeIndividual> createAlgorithm(Configuration config, Problem<TreeIndividual> problem, Population<TreeIndividual> population,
-                                                     Selection<TreeIndividual> selection, Statistics<TreeIndividual> statistics,
-                                                     TerminationCondition<TreeIndividual> terminationCondition, Random random) {
+    public Algorithm<?> createAlgorithm(Configuration config, Problem<?> problem, Population<?> population,
+                                        Selection<?> selection, Statistics<?> statistics,
+                                        TerminationCondition<?> terminationCondition, Random random) throws Exception {
 
         Crossover crossover = createCrossover(config, random);
         Mutation mutation = createMutation(config, random);
@@ -29,8 +29,14 @@ public class GpFactory implements AlgorithmFactory<TreeIndividual> {
         double mutationRate = config.getProblem().getGenotype().getMutation().getProbability();
         int elitismSize = config.getAlgorithm().getElitism();
 
-        return new GeneticProgrammingAlgorithm(problem, population, selection, crossover, mutation,
-                terminationCondition, crossoverRate, mutationRate, elitismSize);
+        return new GeneticProgrammingAlgorithm(
+                (Problem<TreeIndividual>) problem,
+                (Population<TreeIndividual>) population,
+                (Selection<TreeIndividual>) selection,
+                (Crossover<TreeIndividual>) crossover,
+                (Mutation<TreeIndividual>) mutation,
+                (TerminationCondition<TreeIndividual>) terminationCondition,
+                crossoverRate, mutationRate, elitismSize);
     }
 
     @Override

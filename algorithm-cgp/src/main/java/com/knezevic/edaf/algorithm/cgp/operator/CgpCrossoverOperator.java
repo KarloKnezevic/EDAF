@@ -2,18 +2,19 @@ package com.knezevic.edaf.algorithm.cgp.operator;
 
 import com.knezevic.edaf.algorithm.cgp.CgpIndividual;
 import com.knezevic.edaf.core.api.Crossover;
+import com.knezevic.edaf.core.runtime.RandomSource;
 
-import java.util.Random;
+import java.util.random.RandomGenerator;
 
 /**
  * Performs one-point crossover on two CGP individuals.
  */
 public class CgpCrossoverOperator implements Crossover<CgpIndividual> {
 
-    private final Random random;
+    private final RandomGenerator random;
 
-    public CgpCrossoverOperator(Random random) {
-        this.random = random;
+    public CgpCrossoverOperator(RandomSource randomSource) {
+        this.random = randomSource.generator();
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.knezevic.edaf.algorithm.pbil;
 
 import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.impl.SimplePopulation;
+import com.knezevic.edaf.core.runtime.ExecutionContext;
+import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
 /**
  * Population-Based Incremental Learning (PBIL).
@@ -29,7 +31,7 @@ import com.knezevic.edaf.core.impl.SimplePopulation;
  *
  * @param <T> The type of individual in the population.
  */
-public class Pbil<T extends Individual> implements Algorithm<T> {
+public class Pbil<T extends Individual> implements Algorithm<T>, SupportsExecutionContext {
 
     private final Problem<T> problem;
     private final Statistics<T> statistics;
@@ -41,6 +43,7 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
     private int generation;
     private Population<T> population;
     private ProgressListener listener;
+    private ExecutionContext context;
 
     public Pbil(Problem<T> problem, Statistics<T> statistics,
                 TerminationCondition<T> terminationCondition, int populationSize,
@@ -67,8 +70,13 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
             }
 
             // 2.2. Evaluate the population
+            long e0 = System.nanoTime();
             for (T individual : population) {
                 problem.evaluate(individual);
+            }
+            long e1 = System.nanoTime();
+            if (context != null && context.getEvents() != null) {
+                context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("pbil", generation, population.getSize(), e1 - e0));
             }
             population.sort();
 
@@ -110,11 +118,16 @@ public class Pbil<T extends Individual> implements Algorithm<T> {
         this.listener = listener;
     }
 
+    @Override
+    public void setExecutionContext(ExecutionContext context) {
+        this.context = context;
+    }
+
     private boolean isFirstBetter(Individual first, Individual second) {
         if (second == null) {
             return true;
         }
-        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+        if (problem.getOptimizationType() == OptimizationType.min) {
             return first.getFitness() < second.getFitness();
         } else {
             return first.getFitness() > second.getFitness();

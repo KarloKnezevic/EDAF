@@ -28,7 +28,7 @@ public class SimpleTournamentSelection<T extends Individual> implements Selectio
             T individual2 = population.getIndividual(random.nextInt(population.getSize()));
 
             boolean individual1IsBetter;
-            if (population.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.MAXIMIZE) {
+            if (population.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.max) {
                 individual1IsBetter = individual1.getFitness() > individual2.getFitness();
             } else {
                 individual1IsBetter = individual1.getFitness() < individual2.getFitness();

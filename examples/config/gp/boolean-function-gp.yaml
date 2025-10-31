@@ -13,7 +13,7 @@ algorithm:
         max-generations: 100
 
 problem:
-    class: com.knezevic.edaf.examples.crypto.BooleanFunctionGPProblem
+    class: com.knezevic.edaf.testing.problems.crypto.BooleanFunctionGPProblem
     params:
         n: 3
         criteria:
