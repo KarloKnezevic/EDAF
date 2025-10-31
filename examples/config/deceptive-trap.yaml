@@ -13,7 +13,7 @@ algorithm:
         max-generations: 300
 
 problem:
-    class: com.knezevic.edaf.examples.misc.DeceptiveTrapProblem
+  class: com.knezevic.edaf.testing.problems.misc.DeceptiveTrapProblem
     genotype:
         # This is a binary problem.
         type: binary

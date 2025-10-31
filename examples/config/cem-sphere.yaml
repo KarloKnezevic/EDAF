@@ -1,0 +1,23 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.Sphere
+  optimization: min
+  genotype:
+    type: fp
+    length: 10
+    l-bound: -5.0
+    u-bound: 5.0
+
+algorithm:
+  name: cem
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 10
+  termination:
+    max-generations: 100
+  parameters:
+    batchSize: 100
+    eliteFraction: 0.1
+    learningRate: 0.7
+

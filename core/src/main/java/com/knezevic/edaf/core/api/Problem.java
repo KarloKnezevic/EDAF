@@ -15,7 +15,7 @@ public interface Problem<T extends Individual> {
     void evaluate(T individual);
 
     /**
-     * Gets the optimization type (e.g., MINIMIZE or MAXIMIZE).
+     * Gets the optimization type (e.g., min or max).
      *
      * @return The optimization type.
      */

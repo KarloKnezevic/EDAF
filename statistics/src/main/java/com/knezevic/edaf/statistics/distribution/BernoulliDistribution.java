@@ -43,7 +43,7 @@ public class BernoulliDistribution implements Statistics<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> sample(int size) {
-        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.MINIMIZE);
+        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.min);
         for (int i = 0; i < size; i++) {
             byte[] newGenotype = new byte[genotype.getLength()];
             for (int j = 0; j < newGenotype.length; j++) {

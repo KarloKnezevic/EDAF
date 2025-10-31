@@ -33,7 +33,7 @@ public class NormalDistribution implements Statistics<FpIndividual> {
 
     @Override
     public Population<FpIndividual> sample(int size) {
-        Population<FpIndividual> newPopulation = new SimplePopulation<>(OptimizationType.MINIMIZE);
+        Population<FpIndividual> newPopulation = new SimplePopulation<>(OptimizationType.min);
         for (int i = 0; i < size; i++) {
             double[] genotype = new double[length];
             for (int j = 0; j < length; j++) {

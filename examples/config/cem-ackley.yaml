@@ -1,0 +1,23 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.Ackley
+  optimization: min
+  genotype:
+    type: fp
+    length: 10
+    lowerBound: -32.768
+    upperBound: 32.768
+
+algorithm:
+  name: cem
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 10
+  termination:
+    max-generations: 200
+  parameters:
+    batchSize: 100
+    eliteFraction: 0.1
+    learningRate: 0.7
+

@@ -1,0 +1,25 @@
+problem:
+  class: com.knezevic.edaf.algorithm.cgp.problems.CgpMaxOnesProblem
+  optimization: max
+  genotype:
+    type: integer
+    length: 100
+
+algorithm:
+  name: cgp
+  population:
+    size: 100
+  selection:
+    name: tournament
+    size: 5
+  termination:
+    max-generations: 300
+  parameters:
+    populationSize: 100
+    mutationRate: 0.02
+    rows: 1
+    cols: 15
+    levelsBack: 8
+    useCrossover: false
+    replacementStrategy: GENERATIONAL
+

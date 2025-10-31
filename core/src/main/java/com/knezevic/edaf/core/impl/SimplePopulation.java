@@ -74,7 +74,7 @@ public class SimplePopulation<T extends Individual> implements Population<T> {
     public T getBest() {
         Comparator<Individual> comparator = Comparator.comparingDouble(Individual::getFitness);
         return individuals.stream()
-                .min(optimizationType == OptimizationType.MINIMIZE ? comparator : comparator.reversed())
+                .min(optimizationType == OptimizationType.min ? comparator : comparator.reversed())
                 .orElse(null);
     }
 
@@ -82,14 +82,14 @@ public class SimplePopulation<T extends Individual> implements Population<T> {
     public T getWorst() {
         Comparator<Individual> comparator = Comparator.comparingDouble(Individual::getFitness);
         return individuals.stream()
-                .max(optimizationType == OptimizationType.MINIMIZE ? comparator : comparator.reversed())
+                .max(optimizationType == OptimizationType.min ? comparator : comparator.reversed())
                 .orElse(null);
     }
 
     @Override
     public void sort() {
         Comparator<Individual> comparator = Comparator.comparingDouble(Individual::getFitness);
-        individuals.sort(optimizationType == OptimizationType.MINIMIZE ? comparator : comparator.reversed());
+        individuals.sort(optimizationType == OptimizationType.min ? comparator : comparator.reversed());
     }
 
     @Override

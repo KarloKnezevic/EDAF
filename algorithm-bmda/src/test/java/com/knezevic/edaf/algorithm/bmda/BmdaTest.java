@@ -7,7 +7,6 @@ import com.knezevic.edaf.genotype.binary.BinaryGenotype;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 import com.knezevic.edaf.selection.TournamentSelection;
 import com.knezevic.edaf.testing.problems.MaxOnes;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -22,7 +21,7 @@ class BmdaTest {
     void testMaxOnes() {
         // 1. Create a MaxOnes problem
         Map<String, Object> params = new HashMap<>();
-        params.put("optimizationType", OptimizationType.MAXIMIZE);
+        params.put("optimizationType", OptimizationType.max);
         Problem<BinaryIndividual> problem = new MaxOnes(params);
 
         // 2. Create a BinaryGenotype factory

@@ -1,6 +1,6 @@
 # Architecture
 
-The framework is designed with a modular and extensible architecture. It is built with Java 17+ and Maven.
+The framework is designed with a modular and extensible architecture. It is built with Java 21 (LTS) and Maven.
 The main components are defined by interfaces in the `core` module, and the implementations are provided in separate modules.
 
 ## Framework Overview
@@ -167,3 +167,83 @@ The `factory` module is the heart of the framework's component creation. It uses
 *   **`GenotypeFactory` and `SelectionFactory` (Strategy):** The `GenotypeFactory` and `SelectionFactory` use the Strategy pattern. Each specific genotype (binary, floating-point, integer) and selection method (tournament, roulette wheel) has its own factory class that implements a common interface. A provider class (`GenotypeFactoryProvider`, `SelectionFactoryProvider`) is used to select the appropriate strategy at runtime based on the configuration.
 
 This design makes it easy to add new algorithms, genotypes, and selection methods without modifying the core framework.
+
+## Plugin model (SPI)
+
+The framework supports runtime discovery of components using Java Service Provider Interface (SPI). This allows algorithms, genotypes and selections to be published by their own modules and discovered without compile-time dependencies in the `factory`.
+
+- `com.knezevic.edaf.core.spi.AlgorithmProvider` – identifies and constructs algorithms
+- `com.knezevic.edaf.core.spi.GenotypeProvider` – declares supported genotype families
+- `com.knezevic.edaf.core.spi.SelectionProvider` – provides selection strategies
+
+Providers are registered via service descriptors placed under `META-INF/services/<fqcn>`. Example for an algorithm provider:
+
+```
+META-INF/services/com.knezevic.edaf.core.spi.AlgorithmProvider
+```
+
+Each line in the file contains the fully qualified class name of a provider implementation.
+
+At runtime, the `factory` loads providers using `ServiceLoader` and composes the algorithm according to the YAML configuration.
+
+## Runtime Context, Events and Metrics
+
+### ExecutionContext
+
+The `ExecutionContext` provides:
+- **RandomSource**: Seeded, reproducible random number generator
+- **ExecutorService**: Virtual threads by default (Java 21 feature) for parallel evaluations
+- **EventPublisher**: Publishes structured events throughout algorithm execution
+
+Algorithms implement `SupportsExecutionContext` to receive the context and leverage these capabilities.
+
+### Event System
+
+The framework publishes structured events during execution:
+
+1. **`AlgorithmStarted(algorithmId)`** - Emitted when `algorithm.run()` is called
+2. **`GenerationCompleted(algorithmId, generation, best)`** - Emitted after each generation completes
+3. **`EvaluationCompleted(algorithmId, evaluatedCount, durationNanos)`** - Emitted after evaluating a batch
+4. **`AlgorithmTerminated(algorithmId, generation)`** - Emitted when algorithm finishes
+
+### Metrics Collection
+
+EDAF supports multiple metrics backends:
+
+1. **ConsoleEventPublisher** (default)
+   - Human-readable console output
+   - Progress visualization
+
+2. **MicrometerEventPublisher** (`--metrics`)
+   - Records metrics in `SimpleMeterRegistry`
+   - Programmatic access to counters and timers
+   - In-memory storage
+
+3. **PrometheusEventPublisher** (`--prometheus-port`)
+   - HTTP endpoint at `/metrics`
+   - Prometheus text format
+   - Integration with monitoring stacks
+
+### Available Metrics
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `edaf.algorithm.started` | Counter | Algorithm runs started |
+| `edaf.algorithm.terminated` | Counter | Algorithm runs completed |
+| `edaf.algorithm.duration` | Timer | Total execution time |
+| `edaf.generation.completed` | Counter | Generations completed |
+| `edaf.generation.duration` | Timer | Time per generation |
+| `edaf.evaluations.count` | Counter | Individuals evaluated |
+| `edaf.evaluation.duration` | Timer | Evaluation batch duration |
+
+All metrics include an `algorithm` tag for filtering.
+
+### Results Storage
+
+Results are stored in multiple formats:
+
+1. **Console** - Real-time progress and final summary
+2. **`edaf.log`** - Detailed execution logs (Logback)
+3. **`results.json`** - Structured JSON with best individual and fitness
+
+For detailed information on accessing and interpreting metrics and results, see the [Metrics and Results Guide](./metrics-and-results.md).

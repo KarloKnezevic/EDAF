@@ -45,7 +45,7 @@ public class Configuration {
         private GenotypeConfig genotype;
 
         @JsonProperty("optimization")
-        private OptimizationType optimizationType = OptimizationType.MINIMIZE;
+        private OptimizationType optimizationType = OptimizationType.min;
 
         private Map<String, Object> parameters = new java.util.HashMap<>();
 

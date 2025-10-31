@@ -127,7 +127,7 @@ public class cGA implements Algorithm<BinaryIndividual> {
     }
 
     private boolean isFirstBetter(Individual first, Individual second) {
-        if (problem.getOptimizationType() == OptimizationType.MINIMIZE) {
+        if (problem.getOptimizationType() == OptimizationType.min) {
             return first.getFitness() < second.getFitness();
         } else {
             return first.getFitness() > second.getFitness();

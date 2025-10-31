@@ -4,8 +4,6 @@ import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -13,7 +11,6 @@ import java.util.Random;
  */
 public class MimicStatistics implements Statistics<BinaryIndividual> {
 
-    private final Genotype<byte[]> genotype;
     private final Random random;
     private final int length;
     private int[] chain;
@@ -21,7 +18,6 @@ public class MimicStatistics implements Statistics<BinaryIndividual> {
     private double[][] CPT;
 
     public MimicStatistics(Genotype<byte[]> genotype, Random random) {
-        this.genotype = genotype;
         this.random = random;
         this.length = genotype.getLength();
         this.p = new double[length];
@@ -78,15 +74,12 @@ public class MimicStatistics implements Statistics<BinaryIndividual> {
                 mi[i][j] = mi[j][i] = mutualInformation;
             }
         }
-        System.out.println("MI: " + java.util.Arrays.deepToString(mi));
 
         // 4. Build a fixed chain
         chain = new int[length];
         for (int i = 0; i < length; i++) {
             chain[i] = i;
         }
-
-        System.out.println("Chain: " + java.util.Arrays.toString(chain));
 
         // 5. Learn CPTs for the chain with Laplace smoothing
         p[chain[0]] = px[chain[0]];
@@ -107,8 +100,6 @@ public class MimicStatistics implements Statistics<BinaryIndividual> {
             CPT[current][0] = (double) (countCurrent1Prev0 + 1) / (countPrev0 + 2);
             CPT[current][1] = (double) (countBoth1 + 1) / (countPrev1 + 2);
         }
-        System.out.println("p: " + java.util.Arrays.toString(p));
-        System.out.println("CPT: " + java.util.Arrays.deepToString(CPT));
     }
 
     @Override
@@ -118,7 +109,7 @@ public class MimicStatistics implements Statistics<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> sample(int size) {
-        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.MINIMIZE);
+        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.min);
         for (int i = 0; i < size; i++) {
             byte[] newGenotype = new byte[length];
             // Sample first variable

@@ -1,6 +1,5 @@
 package com.knezevic.edaf.algorithm.cgp.model;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**

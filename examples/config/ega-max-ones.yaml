@@ -4,7 +4,7 @@ problem:
     type: binary
     length: 20
     crossing:
-      name: onePoint
+      name: one-point
       probability: 0.8
     mutation:
       name: simple

@@ -22,7 +22,7 @@ class PbilTest {
     void testSphere() {
         // 1. Create a Sphere problem
         Map<String, Object> params = new HashMap<>();
-        params.put("optimizationType", OptimizationType.MINIMIZE);
+        params.put("optimizationType", OptimizationType.min);
         Problem<FpIndividual> problem = new Sphere(params);
 
         // 2. Create parameters

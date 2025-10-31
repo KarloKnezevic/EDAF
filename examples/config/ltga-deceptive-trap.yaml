@@ -1,0 +1,16 @@
+problem:
+  class: com.knezevic.edaf.testing.problems.misc.DeceptiveTrapProblem
+  optimization: max
+  parameters:
+    k: 5
+  genotype:
+    type: binary
+    length: 40
+
+algorithm:
+  name: ltga
+  population:
+    size: 200
+  termination:
+    max-generations: 500
+

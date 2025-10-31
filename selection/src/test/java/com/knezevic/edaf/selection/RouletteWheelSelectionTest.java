@@ -18,7 +18,7 @@ class RouletteWheelSelectionTest {
 
     @BeforeEach
     void setUp() {
-        population = new SimplePopulation<>(OptimizationType.MAXIMIZE);
+        population = new SimplePopulation<>(OptimizationType.max);
         population.add(new TestIndividual(10)); // fitness 10
         population.add(new TestIndividual(30)); // fitness 30
         population.add(new TestIndividual(60)); // fitness 60

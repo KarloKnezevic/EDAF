@@ -22,6 +22,7 @@ import java.util.Random;
 /**
  * A default implementation of the {@link ComponentFactory} interface.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class DefaultComponentFactory implements ComponentFactory {
 
     private final ProblemFactory problemFactory;
@@ -40,12 +41,12 @@ public class DefaultComponentFactory implements ComponentFactory {
     }
 
     @Override
-    public Problem createProblem(Configuration config) throws Exception {
+    public Problem<?> createProblem(Configuration config) throws Exception {
         return problemFactory.create(config);
     }
 
     @Override
-    public Genotype createGenotype(Configuration config, Random random) throws Exception {
+    public Genotype<?> createGenotype(Configuration config, Random random) throws Exception {
         GenotypeFactory genotypeFactory = GenotypeFactoryProvider.getFactory(config);
         if (genotypeFactory != null) {
             return genotypeFactory.create(config, random);
@@ -54,17 +55,17 @@ public class DefaultComponentFactory implements ComponentFactory {
     }
 
     @Override
-    public Population createPopulation(Configuration config, Genotype genotype) throws Exception {
+    public Population<?> createPopulation(Configuration config, Genotype<?> genotype) throws Exception {
         return populationFactory.create(config, genotype);
     }
 
     @Override
-    public Statistics createStatistics(Configuration config, Genotype genotype, Random random) throws Exception {
+    public Statistics<?> createStatistics(Configuration config, Genotype<?> genotype, Random random) throws Exception {
         return statisticsFactory.create(config, genotype, random);
     }
 
     @Override
-    public Selection createSelection(Configuration config, Random random) throws Exception {
+    public Selection<?> createSelection(Configuration config, Random random) throws Exception {
         SelectionFactory selectionFactory = SelectionFactoryProvider.getFactory(config);
         if (selectionFactory != null) {
             return selectionFactory.create(config, random);
@@ -73,14 +74,14 @@ public class DefaultComponentFactory implements ComponentFactory {
     }
 
     @Override
-    public TerminationCondition createTerminationCondition(Configuration config) throws Exception {
+    public TerminationCondition<?> createTerminationCondition(Configuration config) throws Exception {
         return terminationConditionFactory.create(config);
     }
 
     @Override
-    public Algorithm createAlgorithm(Configuration config, Problem problem, Population population,
-                                     Selection selection, Statistics statistics,
-                                     TerminationCondition terminationCondition, Random random) throws Exception {
+    public Algorithm<?> createAlgorithm(Configuration config, Problem<?> problem, Population<?> population,
+                                     Selection<?> selection, Statistics<?> statistics,
+                                     TerminationCondition<?> terminationCondition, Random random) throws Exception {
         AlgorithmFactory algorithmFactory = AlgorithmFactoryProvider.getFactory(config);
         if (algorithmFactory != null) {
             return algorithmFactory.createAlgorithm(config, problem, population, selection, statistics, terminationCondition, random);

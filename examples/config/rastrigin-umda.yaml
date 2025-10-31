@@ -13,7 +13,7 @@ algorithm:
         max-generations: 1000
 
 problem:
-    class: com.knezevic.edaf.examples.misc.RastriginProblem
+  class: com.knezevic.edaf.testing.problems.misc.RastriginProblem
     genotype:
         # UMDA in this framework works with binary genotypes, so we need to encode the floats.
         type: binary
