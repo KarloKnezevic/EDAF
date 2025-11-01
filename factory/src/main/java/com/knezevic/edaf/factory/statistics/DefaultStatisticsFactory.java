@@ -31,6 +31,13 @@ public class DefaultStatisticsFactory implements StatisticsFactory {
             if (genotype instanceof BinaryGenotype) {
                 return new MimicStatistics(genotype, random);
             }
+        } else if ("pbil".equals(algorithmName)) {
+            // PBIL uses univariate distributions; mirror UMDA defaults
+            if (genotype instanceof BinaryGenotype) {
+                return new BernoulliDistribution(genotype, random);
+            } else if (genotype instanceof FpGenotype) {
+                return new NormalDistribution(genotype.getLength(), random);
+            }
         } else if ("fda".equals(algorithmName)) {
             if (genotype instanceof BinaryGenotype) {
                 return new FdaStatistics(genotype.getLength(), random);

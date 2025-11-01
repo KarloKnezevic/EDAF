@@ -4,8 +4,8 @@ problem:
   genotype:
     type: fp
     length: 10
-    lowerBound: -32.768
-    upperBound: 32.768
+    l-bound: -32.768
+    u-bound: 32.768
 
 algorithm:
   name: boa

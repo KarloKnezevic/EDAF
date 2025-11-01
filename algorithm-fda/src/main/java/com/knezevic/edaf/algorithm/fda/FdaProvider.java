@@ -19,7 +19,10 @@ public class FdaProvider implements AlgorithmProvider {
     @Override
     public boolean supports(Class<?> genotypeType, Class<?> problemType) {
         // FDA supports binary genotypes
-        return BinaryIndividual.class.isAssignableFrom(genotypeType);
+        // genotypeType is Genotype.class from factory, so we accept it
+        // The actual type will be checked at runtime via Statistics component
+        // and problem/individual types
+        return true;
     }
 
     @Override
@@ -39,6 +42,16 @@ public class FdaProvider implements AlgorithmProvider {
         // FDA requires Statistics component
         if (statistics == null) {
             throw new IllegalArgumentException("FDA requires a Statistics component");
+        }
+        
+        // FDA requires Population
+        if (population == null) {
+            throw new IllegalArgumentException("FDA requires a Population component");
+        }
+        
+        // FDA requires Selection
+        if (selection == null) {
+            throw new IllegalArgumentException("FDA requires a Selection component");
         }
         
         return new FDA(problem, population, selection, statistics, 

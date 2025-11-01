@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import com.knezevic.edaf.core.runtime.ExecutionContext;
 import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 import com.knezevic.edaf.core.runtime.GenerationCompleted;
+import com.knezevic.edaf.core.runtime.PopulationStatistics;
 import com.knezevic.edaf.core.runtime.AlgorithmStarted;
 import com.knezevic.edaf.core.runtime.AlgorithmTerminated;
 
@@ -132,7 +133,9 @@ public class gGA<T extends Individual> implements Algorithm<T>, SupportsExecutio
                 listener.onGenerationDone(generation, population.getBest(), population);
             }
             if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new GenerationCompleted("gga", generation, population.getBest()));
+                PopulationStatistics.Statistics stats = PopulationStatistics.calculate(population);
+                context.getEvents().publish(new GenerationCompleted("gga", generation, population.getBest(),
+                    stats.best(), stats.worst(), stats.avg(), stats.std()));
             }
         }
         if (context != null && context.getEvents() != null) {
@@ -154,7 +157,7 @@ public class gGA<T extends Individual> implements Algorithm<T>, SupportsExecutio
         try {
             executor.invokeAll(tasks);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         if (context == null) {
             executor.shutdown();

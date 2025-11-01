@@ -9,16 +9,17 @@ algorithm:
         selection-ratio: 0.5
     population:
         size: 300
+    selection:
+        name: tournament
+        size: 3
     termination:
-        max-generations: 1000
+        max-generations: 100000000
 
 problem:
   class: com.knezevic.edaf.testing.problems.misc.RastriginProblem
-    genotype:
-        # UMDA in this framework works with binary genotypes, so we need to encode the floats.
-        type: binary
-        length: 200 # 20 dimensions * 10 bits per dimension
-        encoding: "gray" # Gray encoding is often better for numerical problems
-        precision: 10
-        l-bound: -5.12
-        u-bound: 5.12
+  genotype:
+    # RastriginProblem expects floating-point genotype (FpIndividual)
+    type: fp
+    length: 20 # 20-dimensional Rastrigin
+    l-bound: -5.12
+    u-bound: 5.12

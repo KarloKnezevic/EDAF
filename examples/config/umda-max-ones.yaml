@@ -10,9 +10,9 @@ algorithm:
     size: 100
   selection:
     name: tournament
-    size: 2
+    size: 3
   termination:
-    max-generations: 100
+    max-generations: 10000000
   log-frequency: 10
   log-directory: "logs/umda-max-ones"
   parameters:

@@ -6,6 +6,7 @@ import com.knezevic.edaf.core.runtime.AlgorithmStarted;
 import com.knezevic.edaf.core.runtime.AlgorithmTerminated;
 import com.knezevic.edaf.core.runtime.EvaluationCompleted;
 import com.knezevic.edaf.core.runtime.GenerationCompleted;
+import com.knezevic.edaf.core.runtime.PopulationStatistics;
 import com.knezevic.edaf.core.runtime.ExecutionContext;
 import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
@@ -71,14 +72,19 @@ public class CEM<T extends Individual> implements Algorithm<T>, SupportsExecutio
 
         // Main CEM loop
         while (!terminationCondition.shouldTerminate(this)) {
-            // 1. Sample candidate solutions
+            // 1. Elitism: preserve the best individual from previous population (if exists)
+            T bestFromPrevious = (population != null && population.getSize() > 0) 
+                ? (T) population.getBest().copy() 
+                : null;
+            
+            // 2. Sample candidate solutions
             Population<T> candidates = statistics.sample(batchSize);
             population = new SimplePopulation<>(problem.getOptimizationType());
             for (T individual : candidates) {
                 population.add(individual);
             }
 
-            // 2. Evaluate all candidates
+            // 3. Evaluate all candidates
             long e0 = System.nanoTime();
             evaluatePopulation(population);
             long e1 = System.nanoTime();
@@ -88,15 +94,27 @@ public class CEM<T extends Individual> implements Algorithm<T>, SupportsExecutio
             
             population.sort();
 
-            // 3. Select elite solutions
+            // 4. Ensure best individual is preserved (elitism)
+            // Replace worst if best from previous generation is better than current best
+            if (bestFromPrevious != null) {
+                T currentBest = population.getBest();
+                if (isFirstBetter(bestFromPrevious, currentBest)) {
+                    // Best from previous generation is better, replace worst with it
+                    population.remove(population.getWorst());
+                    population.add((T) bestFromPrevious.copy());
+                    population.sort();
+                }
+            }
+
+            // 5. Select elite solutions
             int eliteSize = Math.max(1, (int) (batchSize * eliteFraction));
             Population<T> elite = selectElite(population, eliteSize);
 
-            // 4. Update distribution parameters based on elite solutions
+            // 6. Update distribution parameters based on elite solutions
             // This minimizes cross-entropy between empirical elite distribution and parametric distribution
             statistics.estimate(elite);
 
-            // 5. Update best individual
+            // 7. Update best individual
             T currentBest = population.getBest();
             if (isFirstBetter(currentBest, best)) {
                 best = (T) currentBest.copy();
@@ -107,7 +125,9 @@ public class CEM<T extends Individual> implements Algorithm<T>, SupportsExecutio
                 listener.onGenerationDone(generation, population.getBest(), population);
             }
             if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new GenerationCompleted("cem", generation, population.getBest()));
+                PopulationStatistics.Statistics stats = PopulationStatistics.calculate(population);
+                context.getEvents().publish(new GenerationCompleted("cem", generation, population.getBest(),
+                    stats.best(), stats.worst(), stats.avg(), stats.std()));
             }
         }
         

@@ -70,18 +70,26 @@ public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionConte
                 context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("ltga", generation, 1, e1 - e0));
             }
 
-            // 2.3. Update population
+            // 2.3. Update population (elitism: never replace the best individual)
             population.sort();
+            BinaryIndividual currentBest = population.getBest();
             BinaryIndividual worst = population.getWorst();
-            if (offspring.getFitness() < worst.getFitness()) {
+            
+            // Only replace worst if offspring is better AND worst is not the current best
+            if (isFirstBetter(offspring, worst) && worst != currentBest) {
+                population.remove(worst);
+                population.add(offspring);
+            } else if (isFirstBetter(offspring, currentBest)) {
+                // Offspring is better than current best, replace worst with offspring
                 population.remove(worst);
                 population.add(offspring);
             }
+            
+            population.sort();
 
             // 2.4. Update best individual
-            population.sort();
-            BinaryIndividual currentBest = population.getBest();
-            if (currentBest.getFitness() < best.getFitness()) {
+            currentBest = population.getBest();
+            if (isFirstBetter(currentBest, best)) {
                 best = (BinaryIndividual) currentBest.copy();
             }
 
@@ -198,5 +206,16 @@ public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionConte
     @Override
     public void setExecutionContext(ExecutionContext context) {
         this.context = context;
+    }
+    
+    private boolean isFirstBetter(BinaryIndividual first, BinaryIndividual second) {
+        if (second == null) {
+            return true;
+        }
+        if (problem.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.min) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

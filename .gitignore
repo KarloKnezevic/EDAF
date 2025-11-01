@@ -3,6 +3,7 @@
 **/target/
 *.log
 results.json
+/data/
 .idea/
 *.iml
 *~

@@ -3,11 +3,17 @@ problem:
   genotype:
     type: binary
     length: 20
+    mutation:
+      name: simple
+      probability: 0.01
 
 algorithm:
   name: ltga
   population:
     size: 100
+  selection:
+    name: tournament
+    size: 3
   termination:
     max-generations: 10000
   log-frequency: 10

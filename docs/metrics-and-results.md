@@ -33,35 +33,61 @@ All metrics include an `algorithm` tag identifying the algorithm instance (e.g.,
 
 ### 1. Console Output (Default)
 
-By default, EDAF uses `ConsoleEventPublisher` which prints events to the console:
+By default, EDAF provides real-time console output with a progress bar and detailed statistics:
 
 ```bash
 java -jar examples/target/edaf.jar examples/config/gga-max-ones.yaml
 ```
 
 **Output includes:**
-- Algorithm startup messages
-- Generation progress with best fitness
-- Final results (best individual, fitness)
-- Progress bar visualization
+- Progress bar with generation count and estimated time
+- Compact statistics per generation (best, average, std dev)
+- Detailed statistics table every 10 generations (and on generation 1)
+- Final results (best fitness)
 
 **Example console output:**
+
+**Progress Bar:**
 ```
-=================================================
-   Estimation of Distribution Algorithms Framework (EDAF)   
-=================================================
-PHASE 1: Loading configuration from 'examples/config/gga-max-ones.yaml'
-Configuration loaded successfully.
-PHASE 2: Initializing framework components...
-Framework components initialized successfully.
-PHASE 3: Starting algorithm 'gga'...
-Generations |████████████████████| 100/100 Best fitness: 100.0
-Algorithm execution finished.
--------------------- RESULTS --------------------
-Best individual: BinaryIndividual{genotype=[1, 1, 1, ...], fitness=100.0}
-Fitness: 100.0
------------------------------------------------
+Generations   45% [████████████          ]      45/100 gen (0:00:23 / 0:00:51)
+Gen 45 | Best: 87.5000 | Avg: 82.3400 | Std: 3.2100
 ```
+
+**Detailed Statistics Table (displayed every 10 generations):**
+```
+╔══════════════════════════════════════════════════════════════════╗
+║  Generation Statistics                                           ║
+╠══════════════════════════════════════════════════════════════════╣
+║  Generation:                1                                   ║
+╠══════════════════════════════════════════════════════════════════╣
+║  Best Fitness              87.500000                             ║
+║  Worst Fitness             45.000000                             ║
+║  Average (μ)                72.340000                             ║
+║  Std Dev (σ)                8.210000                              ║
+║  Median                     73.000000                             ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+**Final Results:**
+```
+Best fitness: 100.0000
+```
+
+**Statistics Table Features:**
+- **Color-coded**: Uses ANSI color codes for better readability (automatically disabled if terminal doesn't support colors)
+- **Professional formatting**: ASCII box-drawing characters for clean, structured output
+- **Comprehensive metrics**: Best, worst, average, standard deviation, and median fitness values
+- **Frequency**: Displayed every 10 generations (and on generation 1) to avoid console clutter
+- **Independent of Prometheus**: Statistics table is always displayed, regardless of Prometheus configuration
+
+**Table Interpretation:**
+- **Best Fitness**: The highest (for max) or lowest (for min) fitness value in the current population
+- **Worst Fitness**: The opposite extreme (lowest for max, highest for min)
+- **Average (μ)**: Mean fitness across all individuals in the population
+- **Std Dev (σ)**: Standard deviation indicating diversity/spread of fitness values
+- **Median**: Middle value when fitness values are sorted
+
+**Note**: The statistics table is calculated and displayed independently of Prometheus metrics, ensuring you always have detailed population statistics in the console.
 
 ### 2. Micrometer Metrics (SimpleMeterRegistry)
 

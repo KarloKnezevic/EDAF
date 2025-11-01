@@ -4,8 +4,8 @@ problem:
   genotype:
     type: fp
     length: 10
-    lowerBound: -5.0
-    upperBound: 5.0
+    l-bound: -5.0
+    u-bound: 5.0
 
 algorithm:
   name: pbil
@@ -13,7 +13,7 @@ algorithm:
     size: 200
   selection:
     name: tournament
-    size: 50
+    size: 3
   termination:
     max-generations: 500
   parameters:

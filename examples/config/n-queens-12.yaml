@@ -8,13 +8,13 @@ algorithm:
         size: 500
     selection:
         name: tournament
-        size: 10
+        size: 3
     termination:
         max-generations: 1000
 
 problem:
   class: com.knezevic.edaf.testing.problems.misc.NQueensProblem
-    genotype:
+  genotype:
         type: permutation
         length: 12 # Solving for 12 queens
         crossing:

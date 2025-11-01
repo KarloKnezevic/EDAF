@@ -11,7 +11,7 @@ algorithm:
     size: 200
   selection:
     name: tournament
-    size: 7
+    size: 3
   termination:
     max-generations: 500
   parameters:

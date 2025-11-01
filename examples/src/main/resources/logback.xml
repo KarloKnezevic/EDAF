@@ -24,7 +24,7 @@
     <appender-ref ref="JSON_FILE" />
   </logger>
 
-  <root level="info">
+  <root level="warn">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
   </root>
