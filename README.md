@@ -183,22 +183,39 @@ java -jar examples/target/edaf.jar examples/config/umda-max-ones.yaml
 
 ### 3. View Results
 
-Results are displayed in three ways:
-- **Console:** Progress bar and final results
-- **Log file:** `edaf.log` (detailed execution logs)
-- **Results file:** `results.json` (structured JSON output)
+Results are displayed in multiple ways:
 
-### 4. Enable Metrics (Optional)
+#### Console Output
 
+**Progress Bar:**
+- Real-time generation progress with estimated time
+- Compact statistics per generation (best, average, std dev)
+- Example: `Generations   45% [████████████          ]      45/100 gen (0:00:23 / 0:00:51)`
+
+**Statistics Table:**
+- Detailed statistics displayed every 10 generations (and on generation 1)
+- Includes: Best, Worst, Average (μ), Std Dev (σ), Median fitness values
+- Color-coded with ASCII box-drawing characters for professional formatting
+- Independent of Prometheus (always displayed)
+
+**Final Results:**
+- Best fitness value displayed at end of execution
+
+#### Log Files
+
+- **`edaf.log`**: Detailed execution logs with timestamps
+- **`results.json`**: Structured JSON output with best individual and fitness
+
+#### Prometheus Metrics (Optional)
+
+Enable with `--prometheus-port`:
 ```bash
-java -jar examples/target/edaf.jar --metrics examples/config/fda-max-ones.yaml
+java -jar examples/target/edaf.jar --prometheus-port 8888 examples/config/umda-max-ones.yaml
 ```
 
-For Prometheus metrics:
+Then configure Prometheus to scrape metrics from `http://localhost:8888/metrics`.
 
-```bash
-java -jar examples/target/edaf.jar --prometheus-port 9464 examples/config/cem-sphere.yaml
-```
+See [USAGE.md](USAGE.md) for detailed Prometheus setup instructions.
 
 ## Operators
 

@@ -62,14 +62,19 @@ public class Pbil<T extends Individual> implements Algorithm<T>, SupportsExecuti
 
         // 2. Run generations
         while (!terminationCondition.shouldTerminate(this)) {
-            // 2.1. Sample a population
+            // 2.1. Elitism: preserve the best individual from previous population (if exists)
+            T bestFromPrevious = (population != null && population.getSize() > 0) 
+                ? (T) population.getBest().copy() 
+                : null;
+            
+            // 2.2. Sample a population
             Population<T> sampledPopulation = statistics.sample(populationSize);
             population = new SimplePopulation<>(problem.getOptimizationType());
             for (T individual : sampledPopulation) {
                 population.add(individual);
             }
 
-            // 2.2. Evaluate the population
+            // 2.3. Evaluate the population
             long e0 = System.nanoTime();
             for (T individual : population) {
                 problem.evaluate(individual);
@@ -80,13 +85,25 @@ public class Pbil<T extends Individual> implements Algorithm<T>, SupportsExecuti
             }
             population.sort();
 
-            // 2.3. Get the best individual
+            // 2.4. Ensure best individual is preserved (elitism)
+            // Replace worst if best from previous generation is better than current best
+            if (bestFromPrevious != null) {
+                T currentBest = population.getBest();
+                if (isFirstBetter(bestFromPrevious, currentBest)) {
+                    // Best from previous generation is better, replace worst with it
+                    population.remove(population.getWorst());
+                    population.add((T) bestFromPrevious.copy());
+                    population.sort();
+                }
+            }
+
+            // 2.5. Get the best individual
             T currentBest = population.getBest();
 
-            // 2.4. Update the probability vector
+            // 2.6. Update the probability vector
             statistics.update(currentBest, learningRate);
 
-            // 2.5. Update the best-so-far individual
+            // 2.7. Update the best-so-far individual
             if (isFirstBetter(currentBest, best)) {
                 best = (T) currentBest.copy();
             }

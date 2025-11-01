@@ -42,11 +42,32 @@ java -jar examples/target/edaf.jar examples/config/umda-max-ones.yaml
 ```
 
 You should see:
-- A progress bar showing generation count
-- Best fitness updates
-- Final results with the best individual
+- A progress bar showing generation progress with estimated time
+- Compact statistics per generation (best, average, std dev)
+- A detailed statistics table every 10 generations (and on generation 1)
+- Final results with the best fitness value
 
-If you see output, the framework is working correctly!
+**Example output:**
+```
+Generations   45% [████████████          ]      45/100 gen (0:00:23 / 0:00:51)
+Gen 45 | Best: 87.5000 | Avg: 82.3400 | Std: 3.2100
+
+╔══════════════════════════════════════════════════════════════════╗
+║  Generation Statistics                                           ║
+╠══════════════════════════════════════════════════════════════════╣
+║  Generation:                1                                   ║
+╠══════════════════════════════════════════════════════════════════╣
+║  Best Fitness              87.500000                             ║
+║  Worst Fitness             45.000000                             ║
+║  Average (μ)                72.340000                             ║
+║  Std Dev (σ)                8.210000                              ║
+║  Median                     73.000000                             ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Best fitness: 100.0000
+```
+
+If you see output like this, the framework is working correctly!
 
 ## How to Run
 

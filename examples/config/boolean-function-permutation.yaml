@@ -8,16 +8,15 @@ algorithm:
         size: 200
     selection:
         name: tournament
-        size: 5
+        size: 3
     termination:
         max-generations: 500
 
 problem:
     class: com.knezevic.edaf.testing.problems.crypto.BooleanFunctionPermutationProblem
-    params:
-        n: 4
-        criteria:
-            - nonlinearity
+    n: 4
+    criteria:
+        - nonlinearity
     genotype:
         type: permutation
         length: 16 # 2^n

@@ -13,6 +13,7 @@ import com.knezevic.edaf.core.runtime.AlgorithmStarted;
 import com.knezevic.edaf.core.runtime.AlgorithmTerminated;
 import com.knezevic.edaf.core.runtime.EvaluationCompleted;
 import com.knezevic.edaf.core.runtime.GenerationCompleted;
+import com.knezevic.edaf.core.runtime.PopulationStatistics;
 import com.knezevic.edaf.core.runtime.ExecutionContext;
 import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 import org.slf4j.Logger;
@@ -85,7 +86,9 @@ public class CgpAlgorithm implements Algorithm<CgpIndividual>, SupportsExecution
                 listener.onGenerationDone(generation, bestIndividual, population);
             }
             if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new GenerationCompleted("cgp", generation, bestIndividual));
+                PopulationStatistics.Statistics stats = PopulationStatistics.calculate(population);
+                context.getEvents().publish(new GenerationCompleted("cgp", generation, bestIndividual,
+                    stats.best(), stats.worst(), stats.avg(), stats.std()));
             }
         }
         
@@ -95,6 +98,10 @@ public class CgpAlgorithm implements Algorithm<CgpIndividual>, SupportsExecution
     }
 
     private void runGenerationalEpoch() {
+        // Elitism: preserve the best individual from current population
+        population.sort();
+        CgpIndividual bestFromCurrent = (CgpIndividual) population.getBest().copy();
+        
         List<CgpIndividual> offspring = new ArrayList<>();
         for (int i = 0; i < config.getPopulationSize(); i++) {
             offspring.add(createOffspring());
@@ -108,8 +115,19 @@ public class CgpAlgorithm implements Algorithm<CgpIndividual>, SupportsExecution
             context.getEvents().publish(new EvaluationCompleted("cgp", generation, offspring.size(), e1 - e0));
         }
         
+        // Replace population with offspring
         for(int i=0; i<offspring.size(); i++){
             population.setIndividual(i, offspring.get(i));
+        }
+        population.sort();
+        
+        // Ensure best individual is preserved (elitism)
+        CgpIndividual currentBest = population.getBest();
+        if (isFirstBetter(bestFromCurrent, currentBest)) {
+            // Best from previous generation is better, replace worst with it
+            population.remove(population.getWorst());
+            population.add(bestFromCurrent);
+            population.sort();
         }
     }
 
@@ -118,8 +136,18 @@ public class CgpAlgorithm implements Algorithm<CgpIndividual>, SupportsExecution
         // Evaluation is done in createOffspring()
         
         population.sort();
-        // After sorting, the worst individual is always at the last position.
-        population.setIndividual(population.getSize() - 1, offspring);
+        // Elitism: never replace the best individual
+        CgpIndividual currentBest = population.getBest();
+        CgpIndividual worst = population.getWorst();
+        
+        // Only replace worst if offspring is better AND worst is not the current best
+        if (isFirstBetter(offspring, worst) && worst != currentBest) {
+            population.setIndividual(population.getSize() - 1, offspring);
+        } else if (isFirstBetter(offspring, currentBest)) {
+            // Offspring is better than current best, replace worst with offspring
+            population.setIndividual(population.getSize() - 1, offspring);
+        }
+        population.sort();
     }
 
     private CgpIndividual createOffspring() {
@@ -235,5 +263,16 @@ public class CgpAlgorithm implements Algorithm<CgpIndividual>, SupportsExecution
         // already use RandomSource, which was provided during construction.
         // If a new RandomSource is needed from context, it would require recreating components,
         // which is typically not necessary as the initial RandomSource is sufficient.
+    }
+    
+    private boolean isFirstBetter(CgpIndividual first, CgpIndividual second) {
+        if (second == null) {
+            return true;
+        }
+        if (problem.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.min) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

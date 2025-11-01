@@ -12,7 +12,7 @@ algorithm:
         # The selection method. 'tournament' is a good general-purpose choice.
         name: tournament
         # The number of individuals participating in each tournament.
-        size: 5
+        size: 3
     termination:
         # The maximum number of generations to run the evolution for.
         max-generations: 50

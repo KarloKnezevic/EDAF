@@ -5,6 +5,7 @@ import com.knezevic.edaf.core.impl.SimplePopulation;
 import com.knezevic.edaf.core.runtime.GenerationCompleted;
 import com.knezevic.edaf.core.runtime.AlgorithmStarted;
 import com.knezevic.edaf.core.runtime.AlgorithmTerminated;
+import com.knezevic.edaf.core.runtime.PopulationStatistics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -78,7 +79,10 @@ public class Umda<T extends Individual> implements Algorithm<T>, SupportsExecuti
                 context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("umda", generation, newPopulation.getSize(), e1 - e0));
             }
 
-            // 2.5. Replace old population
+            // 2.5. Elitism: preserve the best individual from current population
+            T bestFromCurrent = population.getBest();
+            
+            // 2.6. Replace old population
             Population<T> correctlyTypedPopulation = new SimplePopulation<>(problem.getOptimizationType());
             for (T individual : newPopulation) {
                 correctlyTypedPopulation.add(individual);
@@ -89,8 +93,18 @@ public class Umda<T extends Individual> implements Algorithm<T>, SupportsExecuti
             }
             population.sort();
 
-            // 2.6. Update best individual
+            // 2.7. Ensure best individual is preserved (elitism)
+            // Replace worst if best from previous generation is better than current best
             T currentBest = population.getBest();
+            if (isFirstBetter(bestFromCurrent, currentBest)) {
+                // Best from previous generation is better, replace worst with it
+                population.remove(population.getWorst());
+                population.add((T) bestFromCurrent.copy());
+                population.sort();
+                currentBest = population.getBest();
+            }
+
+            // 2.8. Update best individual
             if (isFirstBetter(currentBest, best)) {
                 best = (T) currentBest.copy();
             }
@@ -100,7 +114,9 @@ public class Umda<T extends Individual> implements Algorithm<T>, SupportsExecuti
                 listener.onGenerationDone(generation, population.getBest(), population);
             }
             if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new GenerationCompleted("umda", generation, population.getBest()));
+                PopulationStatistics.Statistics stats = PopulationStatistics.calculate(population);
+                context.getEvents().publish(new GenerationCompleted("umda", generation, population.getBest(),
+                    stats.best(), stats.worst(), stats.avg(), stats.std()));
             }
         }
         if (context != null && context.getEvents() != null) {
@@ -122,7 +138,7 @@ public class Umda<T extends Individual> implements Algorithm<T>, SupportsExecuti
         try {
             executor.invokeAll(tasks);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         if (context == null) {
             executor.shutdown();

@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import com.knezevic.edaf.core.runtime.ExecutionContext;
 import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 import com.knezevic.edaf.core.runtime.GenerationCompleted;
+import com.knezevic.edaf.core.runtime.PopulationStatistics;
 import com.knezevic.edaf.core.runtime.AlgorithmStarted;
 import com.knezevic.edaf.core.runtime.AlgorithmTerminated;
 
@@ -68,18 +69,26 @@ public class eGA<T extends Individual> implements Algorithm<T>, SupportsExecutio
             mutation.mutate(offspring);
             problem.evaluate(offspring);
 
-            // 2.3. Replace worst individual
+            // 2.3. Update population (elitism: never replace the best individual)
             population.sort();
+            T currentBest = population.getBest();
             T worst = population.getWorst();
-            if (offspring.getFitness() < worst.getFitness()) {
+            
+            // Only replace worst if offspring is better AND worst is not the current best
+            if (isFirstBetter(offspring, worst) && worst != currentBest) {
+                population.remove(worst);
+                population.add(offspring);
+            } else if (isFirstBetter(offspring, currentBest)) {
+                // Offspring is better than current best, replace worst with offspring
                 population.remove(worst);
                 population.add(offspring);
             }
+            
+            population.sort();
 
             // 2.4. Update best individual
-            population.sort();
-            T currentBest = population.getBest();
-            if (currentBest.getFitness() < best.getFitness()) {
+            currentBest = population.getBest();
+            if (isFirstBetter(currentBest, best)) {
                 best = (T) currentBest.copy();
             }
 
@@ -88,7 +97,9 @@ public class eGA<T extends Individual> implements Algorithm<T>, SupportsExecutio
                 listener.onGenerationDone(generation, population.getBest(), population);
             }
             if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new GenerationCompleted("ega", generation, population.getBest()));
+                PopulationStatistics.Statistics stats = PopulationStatistics.calculate(population);
+                context.getEvents().publish(new GenerationCompleted("ega", generation, population.getBest(),
+                    stats.best(), stats.worst(), stats.avg(), stats.std()));
             }
         }
         if (context != null && context.getEvents() != null) {
@@ -110,7 +121,7 @@ public class eGA<T extends Individual> implements Algorithm<T>, SupportsExecutio
         try {
             executor.invokeAll(tasks);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         if (context == null) {
             executor.shutdown();
@@ -140,5 +151,16 @@ public class eGA<T extends Individual> implements Algorithm<T>, SupportsExecutio
     @Override
     public void setExecutionContext(ExecutionContext context) {
         this.context = context;
+    }
+    
+    private boolean isFirstBetter(Individual first, Individual second) {
+        if (second == null) {
+            return true;
+        }
+        if (problem.getOptimizationType() == OptimizationType.min) {
+            return first.getFitness() < second.getFitness();
+        } else {
+            return first.getFitness() > second.getFitness();
+        }
     }
 }

@@ -57,32 +57,9 @@ public class SpiBackedComponentFactory implements ComponentFactory {
                 .map(SelectionProvider::create)
                 .orElse(null);
         if (fromProvider != null) {
-            // Provide a default execution context if algorithm supports it
-            long seed =  System.currentTimeMillis();
-            try {
-                Object seedParam = config.getAlgorithm().getParameters() != null ? config.getAlgorithm().getParameters().get("seed") : null;
-                if (seedParam instanceof Number n) {
-                    seed = n.longValue();
-                }
-            } catch (Exception ignored) {}
-            RandomSource rs = new SplittableRandomSource(seed);
-            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
-            EventPublisher events = new ConsoleEventPublisher();
-            if ("true".equalsIgnoreCase(System.getProperty("edaf.metrics.enabled"))) {
-                try {
-                    if (System.getProperty("edaf.metrics.prometheus.port") != null) {
-                        Class<?> cls = Class.forName("com.knezevic.edaf.metrics.PrometheusEventPublisher");
-                        events = (EventPublisher) cls.getConstructor().newInstance();
-                    } else {
-                        Class<?> cls = Class.forName("com.knezevic.edaf.metrics.MicrometerEventPublisher");
-                        events = (EventPublisher) cls.getConstructor().newInstance();
-                    }
-                } catch (Throwable ignored) { }
-            }
-            ExecutionContext ctx = new ExecutionContext(rs, executor, events);
-            if (fromProvider instanceof SupportsExecutionContext s) {
-                s.setExecutionContext(ctx);
-            }
+            // Note: ExecutionContext with metrics is created in Framework.run(), not here
+            // to avoid creating PrometheusEventPublisher multiple times (causes BindException)
+            // Selection providers should not create ExecutionContext - that's done at Framework level
             return fromProvider;
         }
         try {
@@ -107,9 +84,15 @@ public class SpiBackedComponentFactory implements ComponentFactory {
         final String genotypeId = Objects.requireNonNull(config.getProblem().getGenotype().getType(),
                 "Genotype type must be provided").trim();
 
-        int selectionSize = config.getAlgorithm() != null && config.getAlgorithm().getSelection() != null
-                ? config.getAlgorithm().getSelection().getSize()
-                : Math.max(1, population.getSize() / 2);
+        int selectionSize;
+        if (config.getAlgorithm() != null && config.getAlgorithm().getSelection() != null) {
+            selectionSize = config.getAlgorithm().getSelection().getSize();
+        } else if (population != null) {
+            selectionSize = Math.max(1, population.getSize() / 2);
+        } else {
+            // Algorithms that don't use an explicit Population (e.g., BOA) can derive their own batch size
+            selectionSize = 0;
+        }
         int genotypeLength = config.getProblem().getGenotype().getLength();
 
         ServiceLoader<AlgorithmProvider> loader = ServiceLoader.load(AlgorithmProvider.class);
@@ -125,14 +108,37 @@ public class SpiBackedComponentFactory implements ComponentFactory {
             crossover = (Crossover<?>) gpf.createCrossover(config, random);
             mutation = (Mutation<?>) gpf.createMutation(config, random);
         }
+        // If not provided by legacy factories, derive GA operators from genotype settings when available
+        if (mutation == null) {
+            try {
+                GeneticAlgorithmFactory helper = new GeneticAlgorithmFactory() {
+                    @Override
+                    public Algorithm<?> createAlgorithm(Configuration cfg, Problem<?> pr, Population<?> po, Selection<?> se, Statistics<?> st, TerminationCondition<?> tc, Random rnd) {
+                        return null; // Not used; we only need operator constructors
+                    }
+                };
+                // Only create if genotype config provides the required sections
+                if (config.getProblem() != null && config.getProblem().getGenotype() != null && config.getProblem().getGenotype().getMutation() != null) {
+                    mutation = (Mutation<?>) helper.createMutation(config, random);
+                }
+                if (crossover == null && config.getProblem() != null && config.getProblem().getGenotype() != null && config.getProblem().getGenotype().getCrossing() != null) {
+                    crossover = (Crossover<?>) helper.createCrossover(config, random);
+                }
+            } catch (Throwable ignored) { }
+        }
         final Crossover<?> cFinal = crossover;
         final Mutation<?> mFinal = mutation;
+
+        final int maxGenerations = config.getAlgorithm() != null && config.getAlgorithm().getTermination() != null
+                ? config.getAlgorithm().getTermination().getMaxGenerations()
+                : Integer.MAX_VALUE;
 
         Algorithm<?> fromProvider = StreamSupport.stream(loader.spliterator(), false)
                 .filter(p -> p.id().equalsIgnoreCase(algorithmId))
                 .filter(p -> p.supports(genotypeOf(genotypeId), problem.getClass()))
                 .findFirst()
-                .map(p -> p.create(problem, population, selection, cFinal, mFinal, statistics, terminationCondition, random, selectionSize, genotypeLength))
+                .map(p -> p.createWithConfig(problem, population, selection, cFinal, mFinal, statistics,
+                        terminationCondition, random, selectionSize, genotypeLength, maxGenerations))
                 .orElse(null);
         if (fromProvider != null) {
             return fromProvider;

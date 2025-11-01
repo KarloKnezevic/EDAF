@@ -71,15 +71,28 @@ public class MIMIC implements Algorithm<BinaryIndividual>, SupportsExecutionCont
                 context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("mimic", generation, newPopulation.getSize(), e1 - e0));
             }
 
-            // 2.5. Replace old population
+            // 2.5. Elitism: preserve the best individual from current population
+            BinaryIndividual bestFromCurrent = population.getBest();
+            
+            // 2.6. Replace old population
             population.clear();
             for (int i = 0; i < newPopulation.getSize(); i++) {
                 population.add(newPopulation.getIndividual(i));
             }
             population.sort();
 
-            // 2.6. Update best individual
+            // 2.7. Ensure best individual is preserved (elitism)
+            // Replace worst if best from previous generation is better than current best
             BinaryIndividual currentBest = population.getBest();
+            if (bestFromCurrent.getFitness() < currentBest.getFitness()) {
+                // Best from previous generation is better, replace worst with it
+                population.remove(population.getWorst());
+                population.add((BinaryIndividual) bestFromCurrent.copy());
+                population.sort();
+                currentBest = population.getBest();
+            }
+
+            // 2.8. Update best individual
             if (currentBest.getFitness() < best.getFitness()) {
                 best = (BinaryIndividual) currentBest.copy();
             }
@@ -106,7 +119,7 @@ public class MIMIC implements Algorithm<BinaryIndividual>, SupportsExecutionCont
         try {
             executor.invokeAll(tasks);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         if (context == null) {
             executor.shutdown();

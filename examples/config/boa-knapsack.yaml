@@ -10,9 +10,12 @@ problem:
     length: 30
 
 algorithm:
-  name: boa
+  name: bmda
   population:
     size: 50
+  selection:
+    name: tournament
+    size: 3
   termination:
     max-generations: 200
 

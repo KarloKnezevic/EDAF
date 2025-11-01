@@ -7,7 +7,7 @@ algorithm:
         size: 500
     selection:
         name: tournament
-        size: 7
+        size: 3
     termination:
         max-generations: 50
 

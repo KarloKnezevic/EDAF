@@ -1,18 +1,23 @@
 problem:
   class: com.knezevic.edaf.testing.problems.crypto.BooleanFunctionProblem
   optimization: max
-  parameters:
-    n: 6
-    criteria:
-      - nonlinearity
+  n: 6
+  criteria:
+    - nonlinearity
   genotype:
     type: binary
     length: 64
+    mutation:
+      name: simple
+      probability: 0.01
 
 algorithm:
   name: ltga
   population:
     size: 300
+  selection:
+    name: tournament
+    size: 3
   termination:
     max-generations: 1000
 

@@ -62,7 +62,7 @@ public class Boa implements Algorithm<FpIndividual>, SupportsExecutionContext {
                     best = newIndividual.copy();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                // Ignore exceptions during evaluation
             }
 
             if (listener != null) {
@@ -72,6 +72,9 @@ public class Boa implements Algorithm<FpIndividual>, SupportsExecutionContext {
     }
 
     private void initialize() {
+        if (random == null) {
+            random = new Random();
+        }
         ArrayList<Attribute> attributes = new ArrayList<>();
         for (int i = 0; i < genotypeLength; i++) {
             attributes.add(new Attribute("x" + i));
@@ -109,7 +112,7 @@ public class Boa implements Algorithm<FpIndividual>, SupportsExecutionContext {
         try {
             surrogate.fit(data);
         } catch (Exception e) {
-            e.printStackTrace();
+            // Ignore exceptions during surrogate model fitting
         }
     }
 

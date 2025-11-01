@@ -6,6 +6,11 @@ problem:
   genotype:
     type: permutation
     length: 30
+    crossing:
+      name: pmx
+    mutation:
+      name: swap
+      probability: 0.1
 
 algorithm:
   name: gga

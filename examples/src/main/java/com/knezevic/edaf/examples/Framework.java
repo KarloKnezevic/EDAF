@@ -18,6 +18,8 @@ import picocli.CommandLine.Option;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
+import com.knezevic.edaf.examples.StatisticsTableFormatter;
+import com.knezevic.edaf.core.runtime.PopulationStatistics;
 
 @Command(name = "edaf", mixinStandardHelpOptions = true, version = "EDAF 2.0",
         description = "Estimation of Distribution Algorithms Framework.",
@@ -50,14 +52,8 @@ public class Framework implements Callable<Integer>, ProgressListener {
             return 0;
         }
 
-        log.info("=================================================");
-        log.info("   Estimation of Distribution Algorithms Framework (EDAF)   ");
-        log.info("=================================================");
-
-        log.info("PHASE 1: Loading configuration from '{}'", configFile);
         ConfigurationLoader loader = new ConfigurationLoader();
         Configuration config = loader.load(configFile);
-        log.info("Configuration loaded successfully.");
 
         if (metrics || prometheusPort != null) {
             System.setProperty("edaf.metrics.enabled", "true");
@@ -73,7 +69,6 @@ public class Framework implements Callable<Integer>, ProgressListener {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void run(Configuration config) throws Exception {
         // 1. Create component factory
-        log.info("PHASE 2: Initializing framework components...");
         ComponentFactory factory = new SpiBackedComponentFactory();
         Random random = new Random();
 
@@ -91,11 +86,56 @@ public class Framework implements Callable<Integer>, ProgressListener {
         }
         TerminationCondition<?> terminationCondition = factory.createTerminationCondition(config);
         Algorithm<?> algorithm = factory.createAlgorithm(config, problem, population, selection, statistics, terminationCondition, random);
+        if (algorithm == null) {
+            log.error("Algorithm could not be created. Check configuration and algorithm provider registration.");
+            return;
+        }
         algorithm.setProgressListener(this);
-        log.info("Framework components initialized successfully.");
-
+        
+        // Create ExecutionContext with metrics if enabled
+        if (metrics || prometheusPort != null) {
+            com.knezevic.edaf.core.runtime.RandomSource rs = 
+                new com.knezevic.edaf.core.runtime.SplittableRandomSource(System.currentTimeMillis());
+            java.util.concurrent.ExecutorService executor = 
+                java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
+            com.knezevic.edaf.core.runtime.EventPublisher events = 
+                new com.knezevic.edaf.core.runtime.ConsoleEventPublisher();
+            
+            if (prometheusPort != null) {
+                try {
+                    Class<?> cls = Class.forName("com.knezevic.edaf.metrics.PrometheusEventPublisher");
+                    events = (com.knezevic.edaf.core.runtime.EventPublisher) cls.getConstructor().newInstance();
+                } catch (Exception e) {
+                    Throwable cause = e.getCause();
+                    while (cause != null && !(cause instanceof java.net.BindException)) {
+                        cause = cause.getCause();
+                    }
+                    if (cause instanceof java.net.BindException) {
+                        log.error("Port {} is already in use. Stop existing EDAF process or use different port.", prometheusPort);
+                        log.warn("Continuing with ConsoleEventPublisher - metrics not available");
+                    } else {
+                        log.warn("Failed to create PrometheusEventPublisher: {}", e.getMessage());
+                        log.warn("Continuing with ConsoleEventPublisher - metrics not available");
+                    }
+                }
+            } else {
+                try {
+                    Class<?> cls = Class.forName("com.knezevic.edaf.metrics.MicrometerEventPublisher");
+                    events = (com.knezevic.edaf.core.runtime.EventPublisher) cls.getConstructor().newInstance();
+                } catch (Exception e) {
+                    log.warn("Failed to create MicrometerEventPublisher: {}", e.getMessage());
+                }
+            }
+            
+            com.knezevic.edaf.core.runtime.ExecutionContext ctx = 
+                new com.knezevic.edaf.core.runtime.ExecutionContext(rs, executor, events);
+            
+            if (algorithm instanceof com.knezevic.edaf.core.runtime.SupportsExecutionContext s) {
+                s.setExecutionContext(ctx);
+            }
+        }
+        
         // 3. Run algorithm
-        log.info("PHASE 3: Starting algorithm '{}'...", config.getAlgorithm().getName());
         if (algorithm != null) {
             ProgressBarBuilder pbb = new ProgressBarBuilder()
                     .setTaskName("Generations")
@@ -108,30 +148,39 @@ public class Framework implements Callable<Integer>, ProgressListener {
                 this.progressBar = pb;
                 algorithm.run();
             }
-            log.info("Algorithm execution finished.");
 
-            log.info("-------------------- RESULTS --------------------");
-        Individual<?> best = algorithm.getBest();
-            log.info("Best individual: {}", best);
-            log.info("Fitness: {}", best.getFitness());
-            log.info("-----------------------------------------------");
-
+            Individual<?> best = algorithm.getBest();
+            System.out.println("\nBest fitness: " + best.getFitness());
             resultLog.info(Markers.append("best_individual", best), "Final result");
         } else {
             log.error("Algorithm could not be created. Exiting.");
         }
-
-        log.info("=================================================");
-        log.info("   Framework execution finished.                 ");
-        log.info("=================================================");
     }
 
     @Override
     public void onGenerationDone(int generation, Individual bestInGeneration, Population population) {
         if (progressBar != null) {
             progressBar.step();
-            if (bestInGeneration != null) {
-                progressBar.setExtraMessage(String.format("Best fitness: %.4f", bestInGeneration.getFitness()));
+            
+            // Calculate detailed statistics
+            if (population != null && population.getSize() > 0) {
+                PopulationStatistics.Statistics stats = 
+                    PopulationStatistics.calculate(population);
+                
+                // Update progress bar with compact info
+                if (bestInGeneration != null) {
+                    progressBar.setExtraMessage(String.format("Gen %d | Best: %.4f | Avg: %.4f | Std: %.4f", 
+                        generation, stats.best(), stats.avg(), stats.std()));
+                }
+                
+                // Print detailed statistics table every N generations or at important milestones
+                int logFrequency = 10; // Log every 10 generations
+                if (generation % logFrequency == 0 || generation == 1) {
+                    String table = StatisticsTableFormatter.format(generation, stats);
+                    System.out.print(table);
+                }
+            } else if (bestInGeneration != null) {
+                progressBar.setExtraMessage(String.format("Gen %d | Best: %.4f", generation, bestInGeneration.getFitness()));
             }
         }
     }

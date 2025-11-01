@@ -8,16 +8,15 @@ algorithm:
         size: 500
     selection:
         name: tournament
-        size: 7
+        size: 3
     termination:
         max-generations: 100
 
 problem:
     class: com.knezevic.edaf.testing.problems.crypto.BooleanFunctionGPProblem
-    params:
-        n: 3
-        criteria:
-            - nonlinearity
+    n: 3
+    criteria:
+        - nonlinearity
     genotype:
         type: tree
         length: 1
