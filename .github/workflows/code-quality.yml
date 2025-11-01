@@ -19,12 +19,13 @@ jobs:
           cache: maven
       - name: Run Spotless check
         run: mvn -B spotless:check --file pom.xml
-      - name: Check code coverage
+      - name: Generate code coverage report
         run: mvn -B clean test jacoco:report --file pom.xml -Dseed=12345 -Duser.seed=12345
-      - name: Upload coverage to Codecov
+      - name: Upload coverage artifact
         if: always()
-        uses: codecov/codecov-action@v4
+        uses: actions/upload-artifact@v4
         with:
-          file: ./**/target/site/jacoco/jacoco.xml
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+          name: coverage-report
+          path: |
+            **/target/site/jacoco/
+          retention-days: 7
