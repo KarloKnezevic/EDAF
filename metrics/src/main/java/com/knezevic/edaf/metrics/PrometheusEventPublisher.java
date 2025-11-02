@@ -8,7 +8,6 @@ import com.knezevic.edaf.core.runtime.EvaluationCompleted;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;

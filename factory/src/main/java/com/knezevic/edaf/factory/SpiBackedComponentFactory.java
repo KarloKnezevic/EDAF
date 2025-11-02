@@ -7,7 +7,6 @@ import com.knezevic.edaf.core.spi.SelectionProvider;
 import com.knezevic.edaf.factory.algorithm.AlgorithmFactory;
 import com.knezevic.edaf.factory.algorithm.AlgorithmFactoryProvider;
 import com.knezevic.edaf.factory.algorithm.GeneticAlgorithmFactory;
-import com.knezevic.edaf.factory.algorithm.GpFactory;
 import com.knezevic.edaf.core.runtime.*;
 
 import java.util.Objects;

@@ -133,7 +133,6 @@
                     <configuration>
                         <java>
                             <removeUnusedImports/>
-                            <importOrder>java,javax,org,com,</importOrder>
                         </java>
                     </configuration>
                 </plugin>

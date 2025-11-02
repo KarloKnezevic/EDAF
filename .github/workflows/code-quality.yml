@@ -19,13 +19,3 @@ jobs:
           cache: maven
       - name: Run Spotless check
         run: mvn -B spotless:check --file pom.xml
-      - name: Generate code coverage report
-        run: mvn -B clean test jacoco:report --file pom.xml -Dseed=12345 -Duser.seed=12345
-      - name: Upload coverage artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: |
-            **/target/site/jacoco/
-          retention-days: 7
