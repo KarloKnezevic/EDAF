@@ -1,7 +1,6 @@
 package com.knezevic.edaf.testing.problems.crypto;
 
 import com.knezevic.edaf.core.api.Individual;
-import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.impl.AbstractProblem;
 
 import java.util.ArrayList;

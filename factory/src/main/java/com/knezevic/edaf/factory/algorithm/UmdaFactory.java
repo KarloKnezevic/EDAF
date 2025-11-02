@@ -6,7 +6,6 @@ import com.knezevic.edaf.core.api.*;
 
 import java.util.Random;
 
-import com.knezevic.edaf.core.api.Individual;
 
 /**
  * A factory for creating {@link Umda} algorithm objects.

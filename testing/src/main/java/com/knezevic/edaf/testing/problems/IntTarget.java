@@ -1,6 +1,5 @@
 package com.knezevic.edaf.testing.problems;
 
-import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.integer.IntegerIndividual;
 

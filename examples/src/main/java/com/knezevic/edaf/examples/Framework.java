@@ -18,7 +18,6 @@ import picocli.CommandLine.Option;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
-import com.knezevic.edaf.examples.StatisticsTableFormatter;
 import com.knezevic.edaf.core.runtime.PopulationStatistics;
 
 @Command(name = "edaf", mixinStandardHelpOptions = true, version = "EDAF 2.0",

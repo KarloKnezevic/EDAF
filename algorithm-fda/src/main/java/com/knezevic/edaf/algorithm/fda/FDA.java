@@ -9,7 +9,6 @@ import com.knezevic.edaf.core.runtime.GenerationCompleted;
 import com.knezevic.edaf.core.runtime.PopulationStatistics;
 import com.knezevic.edaf.core.runtime.ExecutionContext;
 import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
-import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.ArrayList;
 import java.util.List;

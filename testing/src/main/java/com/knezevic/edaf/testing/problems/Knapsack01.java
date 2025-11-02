@@ -2,7 +2,6 @@ package com.knezevic.edaf.testing.problems;
 
 import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.api.Problem;
-import com.knezevic.edaf.core.api.Individual;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.Map;

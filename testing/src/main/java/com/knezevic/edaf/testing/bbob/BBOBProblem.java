@@ -1,6 +1,5 @@
 package com.knezevic.edaf.testing.bbob;
 
-import com.knezevic.edaf.core.api.OptimizationType;
 import com.knezevic.edaf.core.impl.AbstractProblem;
 import com.knezevic.edaf.genotype.fp.FpIndividual;
 

@@ -40,7 +40,7 @@ class BmdaTest {
         Statistics<BinaryIndividual> statistics = new BmdaStatistics<>();
 
         // 5. Create a Selection operator
-        Selection<BinaryIndividual> selection = new TournamentSelection<>(random, 5);
+        Selection<BinaryIndividual> selection = new TournamentSelection<>(random, 3);
 
         // 6. Create a TerminationCondition
         TerminationCondition<BinaryIndividual> terminationCondition = new MaxGenerations<>(100);

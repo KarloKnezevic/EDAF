@@ -2,8 +2,6 @@ package com.knezevic.edaf.algorithm.gp;
 
 import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
-import com.knezevic.edaf.genotype.tree.operators.crossover.TreeCrossover;
-import com.knezevic.edaf.genotype.tree.operators.mutation.TreeMutation;
 
 import java.util.ArrayList;
 import java.util.List;

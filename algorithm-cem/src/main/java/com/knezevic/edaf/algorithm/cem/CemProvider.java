@@ -2,8 +2,6 @@ package com.knezevic.edaf.algorithm.cem;
 
 import com.knezevic.edaf.core.api.*;
 import com.knezevic.edaf.core.spi.AlgorithmProvider;
-import com.knezevic.edaf.genotype.binary.BinaryIndividual;
-import com.knezevic.edaf.genotype.fp.FpIndividual;
 
 import java.util.Random;
 
