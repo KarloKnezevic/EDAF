@@ -1,0 +1,77 @@
+schema: "3.0"
+
+run:
+  id: ehm-tsp-v3
+  name: EHM EDA on Small TSP (v3)
+  masterSeed: 54321
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: permutation-vector
+  size: 8
+
+problem:
+  type: small-tsp
+
+algorithm:
+  type: ehm-eda
+  populationSize: 300
+  elitism: 2
+  selectionRatio: 0.5
+
+model:
+  type: ehm
+  epsilon: 1.0e-6
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 200
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl]
+  outputDirectory: ./results
+  database:
+    enabled: false
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl]
+  verbosity: normal
+  jsonlFile: ./results/ehm-tsp-v3-events.jsonl
+  logFile: ./edaf-v3.log

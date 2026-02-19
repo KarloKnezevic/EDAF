@@ -1,0 +1,79 @@
+schema: "3.0"
+
+run:
+  id: mixed-toy-v3
+  name: Mixed Toy with Copula Baseline (v3)
+  masterSeed: 11111
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: mixed-real-discrete-vector
+  realDimensions: 6
+  cardinalities: [3, 5, 7]
+  lower: -3.0
+  upper: 3.0
+
+problem:
+  type: mixed-toy
+
+algorithm:
+  type: copula-eda
+  populationSize: 120
+  elitism: 1
+  selectionRatio: 0.4
+
+model:
+  type: copula-baseline
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 80
+
+constraints:
+  type: repair
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 5
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl]
+  outputDirectory: ./results
+  database:
+    enabled: false
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl]
+  verbosity: normal
+  jsonlFile: ./results/mixed-toy-v3-events.jsonl
+  logFile: ./edaf-v3.log

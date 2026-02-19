@@ -1,248 +1,308 @@
 # Architecture
 
-The framework is designed with a modular and extensible architecture. It is built with Java 21 (LTS) and Maven.
-The main components are defined by interfaces in the `core` module, and the implementations are provided in separate modules.
+EDAF v3 is a modular, plugin-driven framework where configuration resolves runtime components and execution is routed through a typed event bus.
 
-## Framework Overview
-
-The EDAF framework is designed to provide a flexible and extensible platform for implementing and experimenting with Estimation of Distribution Algorithms (EDAs) and other evolutionary algorithms. The core idea is to separate the different components of an evolutionary algorithm into a set of well-defined interfaces, allowing for easy substitution and extension.
-
-The main workflow of a typical experiment using the framework is as follows:
-
-1.  **Configuration:** The experiment is defined in a YAML configuration file. This file specifies the algorithm to be used, the problem to be solved, the genotype representation, and the parameters for each component.
-2.  **Component Creation:** The `ComponentFactory` reads the configuration file and creates the necessary components (algorithm, problem, population, etc.) using the appropriate factories.
-3.  **Algorithm Execution:** The `run()` method of the `Algorithm` instance is called. The algorithm then iteratively evolves a population of individuals to find a solution to the problem.
-4.  **Results:** The results of the experiment can be collected through a `ProgressListener` or by inspecting the state of the algorithm after it has finished running.
-
-## Class Diagram
-
-Here is a simplified class diagram showing the main interfaces and classes in the `core` module:
+## 1) Module Dependency View
 
 ```mermaid
-classDiagram
-    class Algorithm {
-        <<interface>>
-        +run()
-        +getBest() : Individual
-        +getGeneration() : int
-        +getPopulation() : Population
-        +setProgressListener(ProgressListener)
-    }
+graph TD
+    CORE["edaf-core"]
+    REPR["edaf-representations"]
+    MD["edaf-models-discrete"]
+    MC["edaf-models-continuous"]
+    MP["edaf-models-permutation"]
+    PROB["edaf-problems"]
+    ALG["edaf-algorithms"]
+    PERSIST["edaf-persistence"]
+    REPORT["edaf-reporting"]
+    EXP["edaf-experiments"]
+    CLI["edaf-cli"]
+    WEB["edaf-web"]
 
-    class Problem {
-        <<interface>>
-        +evaluate(Individual)
-        +getOptimizationType() : OptimizationType
-    }
+    CORE --> REPR
+    CORE --> MD
+    CORE --> MC
+    CORE --> MP
+    CORE --> PROB
+    CORE --> ALG
+    CORE --> PERSIST
 
-    class Individual {
-        <<interface>>
-        +getGenotype() : Object
-        +getFitness() : double
-        +setFitness(double)
-        +copy() : Individual
-    }
+    REPR --> PROB
+    REPR --> MD
+    REPR --> MC
+    REPR --> MP
 
-    class Population {
-        <<interface>>
-        +add(Individual)
-        +remove(Individual)
-        +getIndividual(int) : Individual
-        +getBest() : Individual
-        +getWorst() : Individual
-        +getSize() : int
-        +sort()
-        +getOptimizationType() : OptimizationType
-    }
+    MD --> ALG
+    MC --> ALG
+    MP --> ALG
 
-    class Selection {
-        <<interface>>
-        +select(Population, int) : Population
-    }
+    PROB --> EXP
+    ALG --> EXP
+    PERSIST --> EXP
+    REPORT --> EXP
 
-    class Crossover {
-        <<interface>>
-        +crossover(Individual, Individual) : Individual
-    }
-
-    class Mutation {
-        <<interface>>
-        +mutate(Individual)
-    }
-
-    class TerminationCondition {
-        <<interface>>
-        +shouldTerminate(Algorithm) : boolean
-    }
-
-    class AbstractIndividual {
-        #fitness: double
-    }
-
-    class SimplePopulation {
-        -individuals: List<Individual>
-    }
-
-    Algorithm <|-- gGA
-    Algorithm <|-- eGA
-    Algorithm <|-- cGA
-    Algorithm <|-- UMDA
-    Algorithm <|-- PBIL
-    Algorithm <|-- MIMIC
-    Algorithm <|-- LTGA
-    Algorithm <|-- BOA
-    Algorithm <|-- BMDA
-
-    Individual <|-- AbstractIndividual
-    AbstractIndividual <|-- BinaryIndividual
-    AbstractIndividual <|-- FpIndividual
-    AbstractIndividual <|-- IntIndividual
-
-    Population <|-- SimplePopulation
-
-    Problem <|.. Algorithm
-    Population <|.. Algorithm
-    Selection <|.. Algorithm
-    Crossover <|.. Algorithm
-    Mutation <|.. Algorithm
-    TerminationCondition <|.. Algorithm
-    Individual <|.. Population
-
+    EXP --> CLI
+    PERSIST --> WEB
 ```
 
-## Module Dependencies
-
-Here is a diagram of the module dependencies:
+## 2) Runtime Pipeline
 
 ```mermaid
-graph TD;
-    core;
-    genotype-binary --> core;
-    genotype-fp --> core;
-    statistics --> core;
-    statistics --> genotype-binary;
-    statistics --> genotype-fp;
-    testing --> core;
-    testing --> genotype-binary;
-    testing --> genotype-fp;
-    algorithm-umda --> core;
-    algorithm-umda --> statistics;
-    algorithm-pbil --> core;
-    algorithm-pbil --> statistics;
-    algorithm-gga --> core;
-    algorithm-ega --> core;
-    algorithm-cga --> core;
-    algorithm-mimic --> core;
-    algorithm-mimic --> statistics;
-    algorithm-ltga --> core;
-    configuration --> core;
-    factory --> core;
-    factory --> configuration;
-    factory --> genotype-binary;
-    factory --> genotype-fp;
-    factory --> statistics;
-    factory --> algorithm-umda;
-    factory --> algorithm-pbil;
-    factory --> algorithm-gga;
-    factory --> algorithm-ega;
-    factory --> algorithm-cga;
-    factory --> algorithm-mimic;
-    factory --> algorithm-ltga;
-    examples --> core;
-    examples --> factory;
+sequenceDiagram
+    participant User
+    participant CLI as edaf-cli
+    participant Loader as ConfigLoader
+    participant Runner as ExperimentRunner
+    participant Registry as PluginRegistry
+    participant Alg as Algorithm<G>
+    participant Bus as EventBus
+    participant Sinks as Event Sinks
+    participant DB as JDBC DB
+    participant Web as edaf-web
+
+    User->>CLI: edaf run -c config.yml
+    CLI->>Loader: load + validate YAML
+    Loader-->>CLI: ExperimentConfig
+    CLI->>Runner: run(config)
+    Runner->>Registry: resolve plugins by type
+    Registry-->>Runner: Representation/Problem/Model/Algorithm
+    Runner->>Alg: initialize(context)
+    Alg->>Bus: RunStartedEvent
+    loop each iteration
+        Alg->>Alg: selection -> fit -> sample -> replace
+        Alg->>Bus: IterationCompletedEvent
+    end
+    Alg->>Bus: RunCompletedEvent (or RunFailedEvent)
+    Bus->>Sinks: fan-out events
+    Sinks->>DB: persist rows (if db enabled)
+    Web->>DB: query runs/iterations/events/params
 ```
 
-## Design Patterns
+## 3) Core Contracts
 
-The framework makes use of several design patterns to achieve its modularity and extensibility.
+`edaf-core` defines the fundamental contracts:
 
-### Factory Pattern
+- `Representation<G>`
+- `Problem<G>`
+- `Model<G>`
+- `Algorithm<G>`
+- `Individual<G>`, `Population<G>`
+- `Fitness` (`ScalarFitness`, `VectorFitness`)
+- runtime policies:
+  - `SelectionPolicy<G>`
+  - `ReplacementPolicy<G>`
+  - `StoppingCondition<G>`
+  - `ConstraintHandling<G>`
+  - `LocalSearch<G>`
+  - `RestartPolicy<G>`
+  - `NichingPolicy<G>`
 
-The `factory` module is the heart of the framework's component creation. It uses a combination of the **Abstract Factory**, **Strategy**, and **Facade** patterns.
+The algorithm execution context is immutable (`AlgorithmContext<G>`) and aggregates all runtime dependencies.
 
-*   **`ComponentFactory` (Facade):** The `ComponentFactory` interface and its `DefaultComponentFactory` implementation act as a Facade. It provides a simple interface for creating all the necessary components of an experiment, hiding the complexity of the underlying factory implementations.
+## 4) Template Method in Algorithm Base
 
-*   **`AlgorithmFactory` (Abstract Factory):** The `AlgorithmFactory` is an Abstract Factory that defines the interface for creating a family of related objects: an `Algorithm`, a `Crossover` operator, and a `Mutation` operator. Each concrete algorithm (e.g., `gGA`, `eGA`, `UMDA`) has its own concrete factory that implements this interface.
+`AbstractEdaAlgorithm<G>` provides the main lifecycle and defers strategy-specific selection size and optional iteration hooks.
 
-*   **`GenotypeFactory` and `SelectionFactory` (Strategy):** The `GenotypeFactory` and `SelectionFactory` use the Strategy pattern. Each specific genotype (binary, floating-point, integer) and selection method (tournament, roulette wheel) has its own factory class that implements a common interface. A provider class (`GenotypeFactoryProvider`, `SelectionFactoryProvider`) is used to select the appropriate strategy at runtime based on the configuration.
+High-level loop:
 
-This design makes it easy to add new algorithms, genotypes, and selection methods without modifying the core framework.
+1. initialize random feasible population
+2. select subset
+3. fit model
+4. sample offspring
+5. enforce constraints + evaluate + optional local search
+6. replace population
+7. apply niching and restart policy
+8. collect metrics and emit iteration event
 
-## Plugin model (SPI)
+This removes copy/paste across algorithm drivers while preserving extension points.
 
-The framework supports runtime discovery of components using Java Service Provider Interface (SPI). This allows algorithms, genotypes and selections to be published by their own modules and discovered without compile-time dependencies in the `factory`.
+## 5) Plugin Architecture
 
-- `com.knezevic.edaf.core.spi.AlgorithmProvider` – identifies and constructs algorithms
-- `com.knezevic.edaf.core.spi.GenotypeProvider` – declares supported genotype families
-- `com.knezevic.edaf.core.spi.SelectionProvider` – provides selection strategies
+Plugins are discovered using Java `ServiceLoader`.
 
-Providers are registered via service descriptors placed under `META-INF/services/<fqcn>`. Example for an algorithm provider:
+Interfaces:
 
-```
-META-INF/services/com.knezevic.edaf.core.spi.AlgorithmProvider
-```
+- `RepresentationPlugin<G>`
+- `ProblemPlugin<G>`
+- `ModelPlugin<G>`
+- `AlgorithmPlugin<G>`
 
-Each line in the file contains the fully qualified class name of a provider implementation.
+Registry behavior (`PluginRegistry`):
 
-At runtime, the `factory` loads providers using `ServiceLoader` and composes the algorithm according to the YAML configuration.
+- case-insensitive type normalization
+- map-backed lookup by `type()`
+- explicit resolution errors for unknown types
 
-## Runtime Context, Events and Metrics
+Service registration files are located at:
 
-### ExecutionContext
+- `edaf-representations/src/main/resources/META-INF/services/com.knezevic.edaf.v3.core.plugins.RepresentationPlugin`
+- `edaf-problems/src/main/resources/META-INF/services/com.knezevic.edaf.v3.core.plugins.ProblemPlugin`
+- `edaf-models-*/src/main/resources/META-INF/services/com.knezevic.edaf.v3.core.plugins.ModelPlugin`
+- `edaf-algorithms/src/main/resources/META-INF/services/com.knezevic.edaf.v3.core.plugins.AlgorithmPlugin`
 
-The `ExecutionContext` provides:
-- **RandomSource**: Seeded, reproducible random number generator
-- **ExecutorService**: Virtual threads by default (Java 21 feature) for parallel evaluations
-- **EventPublisher**: Publishes structured events throughout algorithm execution
+## 6) Deterministic RNG Topology
 
-Algorithms implement `SupportsExecutionContext` to receive the context and leverage these capabilities.
+`RngManager` derives deterministic named streams from one master seed.
 
-### Event System
+Examples of stream keys currently used by execution pipeline:
 
-The framework publishes structured events during execution:
+- `init`
+- `selection`
+- `model-fit`
+- `model-sample`
+- `constraint`
+- `local-search`
+- `niching`
+- `restart`
 
-1. **`AlgorithmStarted(algorithmId)`** - Emitted when `algorithm.run()` is called
-2. **`GenerationCompleted(algorithmId, generation, best)`** - Emitted after each generation completes
-3. **`EvaluationCompleted(algorithmId, evaluatedCount, durationNanos)`** - Emitted after evaluating a batch
-4. **`AlgorithmTerminated(algorithmId, generation)`** - Emitted when algorithm finishes
+`RngSnapshot` captures full stream state for checkpoint/resume.
 
-### Metrics Collection
+## 7) Eventing and Observability
 
-EDAF supports multiple metrics backends:
+Event bus contracts are in `edaf-core/src/main/java/com/knezevic/edaf/v3/core/events`.
 
-1. **NoOpEventPublisher** (default)
-   - Silent no-op publisher when no metrics are configured
+Event types:
 
-2. **MicrometerEventPublisher** (`--metrics`)
-   - Records metrics in `SimpleMeterRegistry`
-   - Programmatic access to counters and timers
-   - In-memory storage
+- `run_started`
+- `iteration_completed`
+- `checkpoint_saved`
+- `run_resumed`
+- `run_completed`
+- `run_failed`
 
-3. **PrometheusEventPublisher** (`--prometheus-port`)
-   - HTTP endpoint at `/metrics`
-   - Prometheus text format
-   - Integration with monitoring stacks
+Sinks:
 
-### Available Metrics
+- `ConsoleUiSink` (rich terminal UX)
+- `CsvMetricsSink`
+- `JsonLinesEventSink`
+- `RotatingFileEventSink`
+- `JdbcEventSink`
 
-| Metric | Type | Description |
-|--------|------|-------------|
-| `edaf.algorithm.started` | Counter | Algorithm runs started |
-| `edaf.algorithm.terminated` | Counter | Algorithm runs completed |
-| `edaf.algorithm.duration` | Timer | Total execution time |
-| `edaf.generation.completed` | Counter | Generations completed |
-| `edaf.generation.duration` | Timer | Time per generation |
-| `edaf.evaluations.count` | Counter | Individuals evaluated |
-| `edaf.evaluation.duration` | Timer | Evaluation batch duration |
+## 8) Persistence Read/Write Segregation
 
-All metrics include an `algorithm` tag for filtering.
+Write side:
 
-### Results Storage
+- `JdbcEventSink` stores event stream + normalized run metadata + flattened config params.
 
-Results are stored in multiple formats:
+Read side:
 
-1. **Console** - Real-time progress and final summary
-2. **`edaf.log`** - Detailed execution logs (Logback)
-3. **`results.json`** - Structured JSON with best individual and fitness
+- `RunRepository` / `JdbcRunRepository` serve filterable query projections for web and reporting.
 
-For detailed information on accessing and interpreting metrics and results, see the [Metrics and Results Guide](./metrics-and-results.md).
+This split keeps write path append/update-oriented and read path query-focused.
+
+## 9) Web Layer
+
+`edaf-web` is a Spring Boot + Thymeleaf app that reads persistence data:
+
+- MVC pages for run list/detail
+- REST API for polling/filters/pagination
+- no frontend build toolchain
+
+## 10) Reporting Layer
+
+`edaf-reporting` generates standalone reports from persisted run data:
+
+- HTML report with embedded Chart.js visualizations
+- LaTeX report source for paper pipelines
+
+## 11) Architectural Boundaries Summary
+
+- Algorithms do not know about DB/web/reporting.
+- Persistence sinks consume events; they do not drive optimization.
+- CLI/web/reporting are adapters over the same core contracts and persistence model.
+- Plugin addition does not require changes in runner orchestration code.
+
+## 12) Current Architecture Snapshot (Consolidated)
+
+Date of this snapshot: 2026-02-19.
+
+### Active Maven Reactor Modules
+
+- `edaf-core`
+- `edaf-representations`
+- `edaf-models-discrete`
+- `edaf-models-continuous`
+- `edaf-models-permutation`
+- `edaf-problems`
+- `edaf-algorithms`
+- `edaf-experiments`
+- `edaf-persistence`
+- `edaf-reporting`
+- `edaf-web`
+- `edaf-cli`
+
+### What Is Production-Ready Today
+
+- discrete vertical slice: UMDA + OneMax
+- continuous vertical slice: Gaussian diagonal EDA + Sphere
+- permutation vertical slice: EHM EDA + small TSP
+- deterministic replay via master seed + named streams + checkpoint snapshots
+- DB-backed query model with search/filter/sort/pagination used by web/API/reporting
+
+### What Is Scaffold-Oriented Today
+
+- full dependency learning for BMDA/MIMIC/BOA/EBNA
+- advanced continuous estimators (GMM/KDE/copula)
+- full NES/CMA adaptation logic
+- exact Mallows estimation/sampling
+- fully operational multi-objective EDA pipeline
+
+Scaffold status is explicit in plugin descriptions and model/algorithm source comments.
+
+## 13) Target Evolution Path (Without Breaking Core Contracts)
+
+The architectural target keeps the current module boundaries and contract surfaces stable while increasing statistical sophistication.
+
+### Contract Stability Rules
+
+The following contracts are treated as stable extension points:
+
+- `Representation<G>`
+- `Problem<G>`
+- `Model<G>`
+- `Algorithm<G>`
+- runtime policy interfaces
+- plugin interfaces and ServiceLoader registration model
+
+### Layer-Wise Evolution Priorities
+
+- Core:
+  - richer stopping conditions (target fitness, stagnation windows, convergence thresholds)
+  - standardized diagnostics naming and metric bundles
+- Models:
+  - discrete dependency structure learning promotion from scaffold to full implementations
+  - true GMM/KDE/copula estimators in continuous family
+  - complete natural-gradient / covariance adaptation pipelines for NES/CMA
+  - stronger Mallows inference in permutation family
+- Algorithms:
+  - promote scaffolded ratio-based drivers to family-specific drivers when required
+  - complete MO-EDA with Pareto archive + dominance ranking + MO replacement
+- Experiments:
+  - advanced sweep orchestration and grouped benchmark execution
+- Persistence and Web:
+  - preserve schema/query compatibility while adding richer analytical projections
+- Reporting:
+  - add multi-run aggregate and comparative statistical outputs
+
+## 14) Extension Safety Rules
+
+- Introduce new families through plugins, not runner branching.
+- Any stochastic logic must use `RngStream` from `RngManager`.
+- Persist enough diagnostics to enable post-hoc model analysis.
+- Extend semantic config validation when introducing new compatibility constraints.
+- Error messages must include config path plus corrective hint.
+
+## 15) Promotion Checklist (Scaffold -> Stable)
+
+Before marking any algorithm/model family as stable:
+
+1. deterministic replay check with fixed seed
+2. domain-valid sampling/property checks
+3. benchmark integration regression
+4. persistence + web + reporting compatibility validation
+5. documentation sync (`README.md`, algorithms/configuration/metrics/web docs)
+
+## Related Docs
+
+- [Configuration Reference](./configuration.md)
+- [Extending the Framework](./extending-the-framework.md)

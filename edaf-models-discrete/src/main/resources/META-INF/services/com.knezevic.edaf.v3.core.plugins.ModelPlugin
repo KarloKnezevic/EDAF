@@ -1,0 +1,6 @@
+com.knezevic.edaf.v3.models.discrete.plugins.UmdaBernoulliModelPlugin
+com.knezevic.edaf.v3.models.discrete.plugins.PbilFrequencyModelPlugin
+com.knezevic.edaf.v3.models.discrete.plugins.CgaFrequencyModelPlugin
+com.knezevic.edaf.v3.models.discrete.plugins.BmdaModelPlugin
+com.knezevic.edaf.v3.models.discrete.plugins.MimicModelPlugin
+com.knezevic.edaf.v3.models.discrete.plugins.BoaEbnaModelPlugin

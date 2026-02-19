@@ -1,0 +1,4 @@
+experiments:
+  - umda-onemax-v3.yml
+  - gaussian-sphere-v3.yml
+  - ehm-tsp-v3.yml

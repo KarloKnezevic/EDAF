@@ -1,0 +1,79 @@
+schema: "3.0"
+
+run:
+  id: gaussian-sphere-v3
+  name: Gaussian Diag EDA on Sphere (v3)
+  masterSeed: 98765
+  deterministicStreams: true
+  checkpointEveryIterations: 10
+
+representation:
+  type: real-vector
+  length: 20
+  lower: -5.0
+  upper: 5.0
+
+problem:
+  type: sphere
+
+algorithm:
+  type: gaussian-eda
+  populationSize: 160
+  elitism: 1
+  selectionRatio: 0.35
+
+model:
+  type: gaussian-diag
+  minSigma: 1.0e-8
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 150
+
+constraints:
+  type: repair
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl]
+  outputDirectory: ./results
+  database:
+    enabled: false
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html, latex]
+  outputDirectory: ./reports
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file]
+  verbosity: verbose
+  jsonlFile: ./results/gaussian-sphere-v3-events.jsonl
+  logFile: ./edaf-v3.log

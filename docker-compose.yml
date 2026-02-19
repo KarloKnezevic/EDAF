@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: edaf-v3-db
+    environment:
+      POSTGRES_DB: edaf
+      POSTGRES_USER: edaf
+      POSTGRES_PASSWORD: edaf
+    ports:
+      - "5432:5432"
+    volumes:
+      - edaf-db-data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: edaf-v3-web
+    depends_on:
+      - db
+    environment:
+      EDAF_DB_URL: jdbc:postgresql://db:5432/edaf
+      SPRING_DATASOURCE_USERNAME: edaf
+      SPRING_DATASOURCE_PASSWORD: edaf
+    ports:
+      - "7070:7070"
+
+  runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.runner
+    container_name: edaf-v3-runner
+    depends_on:
+      - db
+    command:
+      - run
+      - -c
+      - /app/configs/docker/umda-onemax-postgres-v3.yml
+    volumes:
+      - ./results:/app/results
+      - ./reports:/app/reports
+
+volumes:
+  edaf-db-data:

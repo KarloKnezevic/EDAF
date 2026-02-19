@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDAF v3 Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f8f6;
+            --card: #ffffff;
+            --ink: #17212b;
+            --muted: #5b6776;
+            --line: #d7dfe6;
+            --accent: #0f766e;
+            --accent-2: #c2410c;
+            --ok: #166534;
+            --warn: #b45309;
+            --bad: #b91c1c;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            background:
+                    radial-gradient(circle at 8% 8%, rgba(15, 118, 110, 0.17), transparent 35%),
+                    radial-gradient(circle at 90% 5%, rgba(194, 65, 12, 0.13), transparent 30%),
+                    var(--bg);
+        }
+        .wrap { max-width: 1400px; margin: 0 auto; padding: 28px 20px 50px; }
+        .hero {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        h1 { margin: 0; font-size: clamp(1.45rem, 2.6vw, 2.1rem); letter-spacing: .01em; }
+        .sub { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, .06);
+            padding: 16px;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .f { display: flex; flex-direction: column; gap: 5px; }
+        .f label {
+            color: var(--muted);
+            font-size: .8rem;
+            font-family: "IBM Plex Mono", monospace;
+        }
+        input, select, button {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            padding: 9px 10px;
+            font-family: inherit;
+            font-size: .9rem;
+        }
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+        }
+        button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15, 118, 110, .15); }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-ghost { background: #fff; color: var(--ink); }
+        .actions { display: flex; align-items: end; gap: 8px; }
+        .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; min-width: 980px; }
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: .88rem;
+        }
+        th {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-weight: 600;
+            background: #f8fafc;
+        }
+        tr:hover td { background: #f8fffd; }
+        a.run-link { color: var(--accent); font-weight: 700; text-decoration: none; }
+        .status {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 3px 9px;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+        }
+        .status-running { background: #dcfce7; color: var(--ok); }
+        .status-completed { background: #e0f2fe; color: #075985; }
+        .status-failed { background: #fee2e2; color: var(--bad); }
+        .status-other { background: #fef3c7; color: var(--warn); }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+        .pager {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .pager-left, .pager-right { display: flex; gap: 8px; align-items: center; }
+        .muted { color: var(--muted); font-size: .85rem; }
+        @media (max-width: 1200px) {
+            .filters { grid-template-columns: repeat(4, minmax(140px, 1fr)); }
+        }
+        @media (max-width: 760px) {
+            .wrap { padding: 18px 12px 35px; }
+            .hero { align-items: start; flex-direction: column; }
+            .filters { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+            .actions { grid-column: span 2; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div>
+            <h1>EDAF Run Explorer</h1>
+            <p class="sub">Search, filter, and inspect persisted optimization runs.</p>
+        </div>
+        <span class="mono muted">/api/runs (paged)</span>
+    </section>
+
+    <section class="card">
+        <form id="filterForm" class="filters">
+            <div class="f" style="grid-column: span 2;">
+                <label for="q">Search</label>
+                <input id="q" placeholder="run id, config hash, param path/value..." />
+            </div>
+            <div class="f">
+                <label for="algorithm">Algorithm</label>
+                <select id="algorithm"><option value="">All</option></select>
+            </div>
+            <div class="f">
+                <label for="model">Model</label>
+                <select id="model"><option value="">All</option></select>
+            </div>
+            <div class="f">
+                <label for="problem">Problem</label>
+                <select id="problem"><option value="">All</option></select>
+            </div>
+            <div class="f">
+                <label for="status">Status</label>
+                <select id="status"><option value="">All</option></select>
+            </div>
+
+            <div class="f">
+                <label for="from">From</label>
+                <input id="from" type="datetime-local" />
+            </div>
+            <div class="f">
+                <label for="to">To</label>
+                <input id="to" type="datetime-local" />
+            </div>
+            <div class="f">
+                <label for="minBest">Min best</label>
+                <input id="minBest" type="number" step="any" />
+            </div>
+            <div class="f">
+                <label for="maxBest">Max best</label>
+                <input id="maxBest" type="number" step="any" />
+            </div>
+            <div class="f">
+                <label for="sortBy">Sort by</label>
+                <select id="sortBy">
+                    <option value="start_time">start_time</option>
+                    <option value="best_fitness">best_fitness</option>
+                    <option value="runtime_millis">runtime_millis</option>
+                    <option value="status">status</option>
+                </select>
+            </div>
+            <div class="f">
+                <label for="sortDir">Sort dir</label>
+                <select id="sortDir">
+                    <option value="desc">desc</option>
+                    <option value="asc">asc</option>
+                </select>
+            </div>
+
+            <div class="f">
+                <label for="size">Page size</label>
+                <select id="size">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn-primary">Apply</button>
+                <button type="button" id="resetBtn" class="btn-ghost">Reset</button>
+            </div>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Run ID</th>
+                    <th>Algorithm</th>
+                    <th>Model</th>
+                    <th>Problem</th>
+                    <th>Status</th>
+                    <th>Best</th>
+                    <th>Runtime (ms)</th>
+                    <th>Iterations</th>
+                    <th>Evaluations</th>
+                    <th>Start Time</th>
+                </tr>
+                </thead>
+                <tbody id="rows">
+                <tr th:each="run : ${initialPage.items}">
+                    <td><a class="run-link" th:href="@{'/runs/' + ${run.runId}}" th:text="${run.runId}"></a></td>
+                    <td th:text="${run.algorithmType}"></td>
+                    <td th:text="${run.modelType}"></td>
+                    <td th:text="${run.problemType}"></td>
+                    <td th:text="${run.status}"></td>
+                    <td th:text="${run.bestFitness}"></td>
+                    <td th:text="${run.runtimeMillis}"></td>
+                    <td th:text="${run.iterations}"></td>
+                    <td th:text="${run.evaluations}"></td>
+                    <td class="mono" th:text="${run.startTime}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pager">
+            <div class="pager-left">
+                <button id="prevPage" type="button" class="btn-ghost">Previous</button>
+                <button id="nextPage" type="button" class="btn-ghost">Next</button>
+                <span id="pageInfo" class="muted">Page 1</span>
+            </div>
+            <div class="pager-right">
+                <span id="totalInfo" class="muted"></span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script th:inline="javascript">
+    const initialFacets = /*[[${facets}]]*/ { algorithms: [], models: [], problems: [], statuses: [] };
+    const initialPage = /*[[${initialPage}]]*/ { items: [], page: 0, size: 25, total: 0, totalPages: 0 };
+
+    const state = {
+        page: initialPage.page || 0,
+        size: initialPage.size || 25,
+        sortBy: "start_time",
+        sortDir: "desc"
+    };
+
+    const els = {
+        form: document.getElementById("filterForm"),
+        q: document.getElementById("q"),
+        algorithm: document.getElementById("algorithm"),
+        model: document.getElementById("model"),
+        problem: document.getElementById("problem"),
+        status: document.getElementById("status"),
+        from: document.getElementById("from"),
+        to: document.getElementById("to"),
+        minBest: document.getElementById("minBest"),
+        maxBest: document.getElementById("maxBest"),
+        sortBy: document.getElementById("sortBy"),
+        sortDir: document.getElementById("sortDir"),
+        size: document.getElementById("size"),
+        rows: document.getElementById("rows"),
+        pageInfo: document.getElementById("pageInfo"),
+        totalInfo: document.getElementById("totalInfo"),
+        prevPage: document.getElementById("prevPage"),
+        nextPage: document.getElementById("nextPage"),
+        resetBtn: document.getElementById("resetBtn")
+    };
+
+    function statusClass(status) {
+        const value = (status || "").toUpperCase();
+        if (value === "RUNNING") return "status status-running";
+        if (value === "COMPLETED") return "status status-completed";
+        if (value === "FAILED") return "status status-failed";
+        return "status status-other";
+    }
+
+    function fillSelect(select, values) {
+        const current = select.value;
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        values.forEach(value => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+        if (current) {
+            select.value = current;
+        }
+    }
+
+    function readUrlState() {
+        const params = new URLSearchParams(window.location.search);
+        const keys = ["q", "algorithm", "model", "problem", "status", "from", "to", "minBest", "maxBest", "sortBy", "sortDir", "page", "size"];
+        keys.forEach(key => {
+            if (params.has(key)) {
+                state[key] = params.get(key);
+            }
+        });
+        state.page = Math.max(0, Number(state.page || 0));
+        state.size = Number(state.size || 25);
+    }
+
+    function stateFromForm() {
+        state.q = els.q.value.trim();
+        state.algorithm = els.algorithm.value;
+        state.model = els.model.value;
+        state.problem = els.problem.value;
+        state.status = els.status.value;
+        state.from = els.from.value;
+        state.to = els.to.value;
+        state.minBest = els.minBest.value;
+        state.maxBest = els.maxBest.value;
+        state.sortBy = els.sortBy.value;
+        state.sortDir = els.sortDir.value;
+        state.size = Number(els.size.value || 25);
+    }
+
+    function stateToForm() {
+        els.q.value = state.q || "";
+        els.algorithm.value = state.algorithm || "";
+        els.model.value = state.model || "";
+        els.problem.value = state.problem || "";
+        els.status.value = state.status || "";
+        els.from.value = state.from || "";
+        els.to.value = state.to || "";
+        els.minBest.value = state.minBest || "";
+        els.maxBest.value = state.maxBest || "";
+        els.sortBy.value = state.sortBy || "start_time";
+        els.sortDir.value = state.sortDir || "desc";
+        els.size.value = String(state.size || 25);
+    }
+
+    function syncUrl() {
+        const params = new URLSearchParams();
+        Object.entries(state).forEach(([k, v]) => {
+            if (v === null || v === undefined) return;
+            const text = String(v).trim();
+            if (!text) return;
+            params.set(k, text);
+        });
+        const next = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, "", next);
+    }
+
+    function buildApiQuery() {
+        const params = new URLSearchParams();
+        [
+            "q", "algorithm", "model", "problem", "status",
+            "from", "to", "minBest", "maxBest", "page", "size", "sortBy", "sortDir"
+        ].forEach(key => {
+            const value = state[key];
+            if (value !== null && value !== undefined && String(value).trim() !== "") {
+                params.set(key, String(value));
+            }
+        });
+        return params.toString();
+    }
+
+    function renderRows(items) {
+        if (!items || items.length === 0) {
+            els.rows.innerHTML = `<tr><td colspan="10" class="muted">No runs match current filters.</td></tr>`;
+            return;
+        }
+        els.rows.innerHTML = items.map(row => `
+            <tr>
+                <td><a class="run-link mono" href="/runs/${encodeURIComponent(row.runId)}">${row.runId}</a></td>
+                <td>${row.algorithmType || ""}</td>
+                <td>${row.modelType || ""}</td>
+                <td>${row.problemType || ""}</td>
+                <td><span class="${statusClass(row.status)}">${row.status || "UNKNOWN"}</span></td>
+                <td>${row.bestFitness == null ? "n/a" : Number(row.bestFitness).toFixed(6)}</td>
+                <td>${row.runtimeMillis == null ? "n/a" : row.runtimeMillis}</td>
+                <td>${row.iterations == null ? "n/a" : row.iterations}</td>
+                <td>${row.evaluations == null ? "n/a" : row.evaluations}</td>
+                <td class="mono">${row.startTime || ""}</td>
+            </tr>
+        `).join("");
+    }
+
+    function renderPaging(pageData) {
+        const page = pageData.page || 0;
+        const totalPages = pageData.totalPages || 0;
+        const total = pageData.total || 0;
+        els.pageInfo.textContent = totalPages === 0
+            ? "Page 0 / 0"
+            : `Page ${page + 1} / ${totalPages}`;
+        els.totalInfo.textContent = `Total runs: ${total}`;
+        els.prevPage.disabled = page <= 0;
+        els.nextPage.disabled = totalPages === 0 || page >= (totalPages - 1);
+    }
+
+    async function loadFacets() {
+        try {
+            const response = await fetch("/api/facets");
+            if (!response.ok) return;
+            const facets = await response.json();
+            fillSelect(els.algorithm, facets.algorithms || []);
+            fillSelect(els.model, facets.models || []);
+            fillSelect(els.problem, facets.problems || []);
+            fillSelect(els.status, facets.statuses || []);
+            stateToForm();
+        } catch (_) {
+            // ignore transient refresh errors
+        }
+    }
+
+    async function loadRuns() {
+        syncUrl();
+        const query = buildApiQuery();
+        const response = await fetch(`/api/runs?${query}`);
+        if (!response.ok) {
+            els.rows.innerHTML = `<tr><td colspan="10">Failed to load runs (${response.status}).</td></tr>`;
+            return;
+        }
+        const pageData = await response.json();
+        renderRows(pageData.items || []);
+        renderPaging(pageData);
+    }
+
+    els.form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        stateFromForm();
+        state.page = 0;
+        await loadRuns();
+    });
+
+    els.prevPage.addEventListener("click", async () => {
+        state.page = Math.max(0, Number(state.page || 0) - 1);
+        await loadRuns();
+    });
+
+    els.nextPage.addEventListener("click", async () => {
+        state.page = Number(state.page || 0) + 1;
+        await loadRuns();
+    });
+
+    els.resetBtn.addEventListener("click", async () => {
+        Object.assign(state, { q: "", algorithm: "", model: "", problem: "", status: "", from: "", to: "", minBest: "", maxBest: "", page: 0, size: 25, sortBy: "start_time", sortDir: "desc" });
+        stateToForm();
+        await loadRuns();
+    });
+
+    readUrlState();
+    fillSelect(els.algorithm, initialFacets.algorithms || []);
+    fillSelect(els.model, initialFacets.models || []);
+    fillSelect(els.problem, initialFacets.problems || []);
+    fillSelect(els.status, initialFacets.statuses || []);
+    stateToForm();
+    renderRows(initialPage.items || []);
+    renderPaging(initialPage);
+    loadFacets();
+    loadRuns();
+</script>
+</body>
+</html>

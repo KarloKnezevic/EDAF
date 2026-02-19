@@ -1,0 +1,3 @@
+com.knezevic.edaf.v3.models.permutation.plugins.EdgeHistogramModelPlugin
+com.knezevic.edaf.v3.models.permutation.plugins.PlackettLuceModelPlugin
+com.knezevic.edaf.v3.models.permutation.plugins.MallowsModelPlugin

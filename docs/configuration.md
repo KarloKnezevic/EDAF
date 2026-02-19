@@ -1,115 +1,270 @@
-# Configuration
+# Configuration Reference
 
-The framework uses YAML files for configuration.
-
-## Validation
-The framework automatically validates the configuration file upon loading. If any required parameters are missing or have invalid values, it will print a clear error message and exit. This prevents runtime errors due to misconfiguration.
-
-## Problem Configuration
-
-The `problem` section of the configuration file defines the problem to be solved.
+EDAF v3 uses strict YAML configuration with schema marker:
 
 ```yaml
-problem:
-  class: com.mycompany.myproject.MyProblem
-  optimization: max
-  # ... other problem parameters
+schema: "3.0"
 ```
 
-### `class`
-The `class` property specifies the fully qualified name of the Java class that implements the `com.knezevic.edaf.core.api.Problem` interface.
+Unknown keys are rejected. Structural and semantic validation is performed before execution.
 
-### `optimization`
-The `optimization` property defines the goal of the optimization. It can be set to `min` or `max`. If omitted, it defaults to `min` for backward compatibility.
+## Validate Configuration
 
-### Variable Parameters
-All other parameters in the `problem` section are collected into a `Map<String, Object>` and passed to the constructor of your problem class. Your problem class must have a public constructor that accepts a single `Map<String, Object>` argument.
-
-For example, if your problem class has a constructor like this:
-```java
-public MyProblem(Map<String, Object> params) {
-    this.size = (int) params.get("size");
-    this.ratio = (double) params.get("ratio");
-}
+```bash
+./edaf config validate configs/umda-onemax-v3.yml
+./edaf config validate configs/batch-v3.yml
 ```
 
-You can specify the parameters in the configuration file like this:
+## 1) Top-Level Schema
+
+Required top-level sections for experiment configs:
+
+- `schema`
+- `run`
+- `representation`
+- `problem`
+- `algorithm`
+- `model`
+- `selection`
+- `replacement`
+- `stopping`
+- `constraints`
+- `localSearch`
+- `restart`
+- `niching`
+- `observability`
+- `persistence`
+- `reporting`
+- `web`
+- `logging`
+
+Batch configs have a different shape:
+
 ```yaml
-problem:
-  class: com.mycompany.myproject.MyProblem
-  optimization: min
-  size: 100
-  ratio: 0.5
+experiments:
+  - umda-onemax-v3.yml
+  - gaussian-sphere-v3.yml
 ```
 
-## Available Components
-**Algorithms (`algorithm.name`)**
-| Name   | Description                                      |
-|--------|--------------------------------------------------|
-| `umda` | Univariate Marginal Distribution Algorithm       |
-| `pbil` | Population-Based Incremental Learning            |
-| `gga`  | Generational Genetic Algorithm                   |
-| `ega`  | Eliminative GA (steady-state)                    |
-| `ltga` | Linkage Tree Genetic Algorithm                   |
-| `bmda` | Bivariate Marginal Distribution Algorithm        |
-| `mimic`| Mutual-Information-Maximizing Input Clustering   |
-| `fda`  | Factorized Distribution Algorithm (Bayesian network)|
-| `cem`  | Cross-Entropy Method (black-box optimization)        |
-| `boa`  | Bayesian Optimization Algorithm (surrogate-based)|
-| `gp`   | Genetic Programming                              |
-| `cgp`  | Cartesian Genetic Programming (graph-based)      |
-| `cga`  | Compact Genetic Algorithm                        |
-| `ega`  | Eliminative GA (steady-state)                    |
+## 2) `run` Section
 
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `id` | string | generated UUID-based id | run identifier |
+| `name` | string | `EDAF v3 run` | human-readable label |
+| `masterSeed` | long | `12345` | root reproducibility seed |
+| `deterministicStreams` | boolean | `true` | config-level declaration of deterministic stream intent |
+| `checkpointEveryIterations` | int >= 0 | `0` | checkpoint cadence; `0` disables |
 
-Here is a list of the currently available components that can be specified in the configuration file.
+## 3) Typed Plugin Sections
 
-**Genotypes (`genotype.type`)**
-| Name      | Description                               |
-|-----------|-------------------------------------------|
-| `binary`  | A genotype represented by a binary string.  |
-| `fp`      | A genotype represented by floating-point numbers. |
-| `integer` | A genotype represented by integers.       |
-| `permutation` | A genotype represented by a permutation of integers. |
-| `tree`    | A genotype represented by a tree structure (for GP). |
+The following sections are typed plugin sections:
 
-**Selection (`selection.name`)**
-| Name                 | Description                               |
-|----------------------|-------------------------------------------|
-| `simple-tournament`  | Simple tournament (k=2).                   |
-| `tournament`         | Tournament selection (default k=2).        |
-| `rouletteWheel`      | Roulette wheel selection.                  |
+- `representation`
+- `problem`
+- `algorithm`
+- `model`
+- `selection`
+- `replacement`
+- `constraints`
+- `localSearch`
+- `restart`
+- `niching`
 
-**Crossover (`crossing.name`)**
-| Genotype  | Name               | Description                   | Parameters |
-|-----------|--------------------|-------------------------------|------------|
-| `binary`  | `one-point`        | One-point crossover.          | - |
-| `binary`  | `uniform`          | Uniform crossover.            | - |
-| `integer` | `one-point`        | One-point crossover.          | - |
-| `integer` | `two-point`        | Two-point crossover.          | - |
-| `fp`      | `sbx`              | Simulated Binary Crossover.   | `distribution-index` |
-| `fp`      | `discrete`         | Discrete recombination.       | - |
-| `fp`      | `simple-arithmetic`| Simple arithmetic recombination. | `probability` |
-| `fp`      | `whole-arithmetic` | Whole arithmetic recombination.  | `probability` |
-| `permutation` | `pmx`           | Partially Mapped Crossover.   | - |
-| `permutation` | `ox`            | Order Crossover.              | - |
-| `permutation` | `cx`            | Cycle Crossover.              | - |
+Each uses:
 
-**Mutation (`mutation.name`)**
-| Genotype  | Name           | Description                  | Parameters |
-|-----------|----------------|------------------------------|------------|
-| `binary`  | `simple`       | Simple bit-flip mutation.    | `probability` |
-| `integer` | `simple`       | Simple integer mutation.     | `probability` |
-| `fp`      | `polynomial`   | Polynomial mutation.         | `probability`, `distribution-index` |
-| `permutation` | `swap`      | Swap two positions.          | `probability` |
-| `permutation` | `insert`    | Insert element at position.  | `probability` |
-| `permutation` | `inversion` | Invert a segment.            | `probability` |
-| `permutation` | `scramble`  | Scramble a segment.          | `probability` |
-| `permutation` | `shift`     | Shift a segment.             | `probability` |
+```yaml
+<section>:
+  type: <plugin-type>
+  # additional keys become params map
+```
 
-### Operator name aliases (backward compatibility)
+Example:
 
-- `onePoint` -> `one-point`
-- `twoPoint` -> `two-point`
+```yaml
+representation:
+  type: real-vector
+  length: 20
+  lower: -5.0
+  upper: 5.0
+```
 
-Selection names supported: `tournament`, `simple-tournament`, `mu-comma-lambda`, `mu-plus-lambda`, `rouletteWheel`.
+`type` is consumed by plugin resolution. Remaining fields become a typed section parameter map.
+
+## 4) `stopping` Section
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `type` | string | `max-iterations` | currently supported stopping strategy |
+| `maxIterations` | int >= 1 | `100` | hard iteration cap |
+| `targetFitness` | double (optional) | `null` | accepted but currently not used by default stopping policy |
+
+Current policy factory supports `max-iterations` runtime behavior.
+
+## 5) `observability` Section
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `metricsEveryIterations` | int >= 1 | `1` | console summary cadence |
+| `emitModelDiagnostics` | boolean | `true` | include model diagnostics in iteration events |
+
+## 6) `persistence` Section
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `enabled` | boolean | `true` | global persistence toggle |
+| `sinks` | string[] | `[console, csv, jsonl]` | sink selection |
+| `outputDirectory` | string | `./results` | output root for file sinks/checkpoints |
+| `database.enabled` | boolean | `false` | JDBC sink toggle |
+| `database.url` | string | `jdbc:sqlite:edaf-v3.db` | JDBC URL |
+| `database.user` | string | `""` | DB user |
+| `database.password` | string | `""` | DB password |
+
+Supported sink values:
+
+- `console`
+- `csv`
+- `jsonl`
+- `file`
+- `db`
+
+Validation rule: if `db` sink is requested, `database.enabled` must be `true`.
+
+## 7) `reporting` Section
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `enabled` | boolean | `true` | report generation toggle |
+| `formats` | string[] | `[html]` | requested formats |
+| `outputDirectory` | string | `./reports` | report output directory |
+
+Current CLI report formats:
+
+- `html`
+- `latex`
+
+## 8) `web` Section
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `enabled` | boolean | `false` | declarative toggle (web runtime is launched separately) |
+| `port` | int | `7070` | preferred UI port |
+| `pollSeconds` | int >= 1 | `3` | dashboard polling interval |
+
+## 9) `logging` Section
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `modes` | string[] | `[console]` | logging output modes |
+| `verbosity` | enum | `normal` | `quiet`, `normal`, `verbose`, `debug` |
+| `jsonlFile` | string | `./results/run-events.jsonl` | JSONL log path |
+| `logFile` | string | `./edaf-v3.log` | rotating file log path |
+
+## 10) Family Compatibility Rules
+
+Semantic validator groups components by representation family.
+
+### Representation Families
+
+- Discrete: `bitstring`, `int-vector`, `categorical-vector`, `mixed-discrete-vector`, `variable-length-vector`
+- Continuous: `real-vector`, `mixed-real-discrete-vector`
+- Permutation: `permutation-vector`
+
+### Allowed Model Types by Family
+
+| Family | Model types |
+| --- | --- |
+| Discrete | `umda-bernoulli`, `pbil-frequency`, `cga-frequency`, `bmda`, `mimic-chow-liu`, `boa-ebna` |
+| Continuous | `gaussian-diag`, `gaussian-full`, `gmm`, `kde`, `copula-baseline`, `snes`, `xnes`, `cma-es` |
+| Permutation | `ehm`, `plackett-luce`, `mallows` |
+
+### Allowed Algorithm Types by Family
+
+| Family | Algorithm types |
+| --- | --- |
+| Discrete | `umda`, `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`, `mo-eda-skeleton` |
+| Continuous | `gaussian-eda`, `gmm-eda`, `kde-eda`, `copula-eda`, `snes`, `xnes`, `cma-es`, `mo-eda-skeleton` |
+| Permutation | `ehm-eda`, `plackett-luce-eda`, `mallows-eda`, `mo-eda-skeleton` |
+
+## 11) Policy Types Currently Handled by `PolicyFactory`
+
+### Selection
+
+- `truncation`
+- `tournament` (parameter: `k`, default `3`)
+
+### Replacement
+
+- `elitist`
+- `generational` (mapped to elitist replacement implementation)
+
+### Constraints
+
+- `identity`
+- `repair` (mapped to identity handling)
+- `rejection` (parameter: `maxRetries`, default `10`)
+- `penalty`
+
+### Restart
+
+- `none`
+- `stagnation` (parameter: `patience`, default `1000`)
+
+### Niching
+
+- `none`
+- `fitness-sharing`
+
+### Local Search
+
+- currently mapped to no-op implementation
+
+## 12) Full Example Configs
+
+### Discrete (UMDA + OneMax)
+
+- `configs/umda-onemax-v3.yml`
+
+### Continuous (Gaussian EDA + Sphere)
+
+- `configs/gaussian-sphere-v3.yml`
+
+### Permutation (EHM + small TSP)
+
+- `configs/ehm-tsp-v3.yml`
+
+### Mixed Representation (Copula baseline pipeline)
+
+- `configs/mixed-toy-v3.yml`
+
+### Docker/PostgreSQL-ready Example
+
+- `configs/docker/umda-onemax-postgres-v3.yml`
+
+## 13) Converted Sample Set
+
+`configs/converted-v3/` contains curated v3 conversions of selected archived experiment scenarios. These are fully runnable as native v3 configs and useful for parameter sweeps and regressions.
+
+## 14) Configuration Error Model
+
+Validation errors provide:
+
+- precise path (`model.type`, `logging.modes`, etc.)
+- concrete message
+- actionable hint when available
+
+Examples of enforced errors:
+
+- unknown YAML fields
+- unsupported schema
+- incompatible representation/model combination
+- invalid sink names
+- requesting `db` sink with database disabled
+
+## 15) Best Practices
+
+- Always set `run.id` explicitly for reproducible artifact naming.
+- Keep `masterSeed` fixed when benchmarking algorithm changes.
+- For long runs, enable checkpoints and DB sink.
+- Use `metricsEveryIterations` to balance console readability and verbosity.
+- Keep `logging.modes` and `persistence.sinks` aligned with analysis needs.

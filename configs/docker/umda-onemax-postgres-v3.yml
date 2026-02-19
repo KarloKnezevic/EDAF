@@ -1,0 +1,77 @@
+schema: "3.0"
+
+run:
+  id: docker-umda-onemax-v3
+  name: "UMDA on OneMax (Docker/PostgreSQL)"
+  masterSeed: 12345
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 64
+
+problem:
+  type: onemax
+
+algorithm:
+  type: umda
+  populationSize: 200
+  elitism: 1
+  selectionRatio: 0.4
+
+model:
+  type: umda-bernoulli
+  smoothing: 0.01
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 120
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: /app/results
+  database:
+    enabled: true
+    url: jdbc:postgresql://db:5432/edaf
+    user: edaf
+    password: edaf
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: /app/reports
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: /app/results/docker-umda-onemax-v3-events.jsonl
+  logFile: /app/edaf-v3.log

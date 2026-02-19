@@ -1,0 +1,9 @@
+server:
+  port: 7070
+
+spring:
+  datasource:
+    url: ${EDAF_DB_URL:jdbc:sqlite:edaf-v3.db}
+    driver-class-name: org.sqlite.JDBC
+  thymeleaf:
+    cache: false

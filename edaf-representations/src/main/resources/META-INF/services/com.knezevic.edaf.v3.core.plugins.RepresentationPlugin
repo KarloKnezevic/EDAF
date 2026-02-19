@@ -1,0 +1,8 @@
+com.knezevic.edaf.v3.repr.plugins.BitStringRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.IntVectorRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.CategoricalVectorRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.MixedDiscreteVectorRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.RealVectorRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.MixedRealDiscreteVectorRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.PermutationVectorRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.VariableLengthVectorRepresentationPlugin

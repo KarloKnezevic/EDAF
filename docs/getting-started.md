@@ -1,206 +1,190 @@
 # Getting Started
 
-This guide will walk you through the process of building and running the EDAF framework.
+This guide walks through local execution, artifact inspection, reporting, and dashboard usage with the current EDAF v3 stack.
 
-## Requirements
+## 1) Prerequisites
 
-- **Java 21 (LTS)** or higher
-- **Maven 3.9+** or higher
+- Java 21+
+- Maven 3.9+
+- Optional: Docker + Docker Compose (for containerized stack)
 
-## Installation
-
-### Step 1: Build the Framework
-
-The project is built with Maven. Run the following command from the root directory:
+Verify:
 
 ```bash
-mvn clean install
+java -version
+mvn -version
+docker --version
+docker compose version
 ```
 
-This will:
-- Compile all modules
-- Run unit tests (unless `-DskipTests` is specified)
-- Create JAR files in each module's `target` directory
-- Create the executable shaded JAR at `examples/target/edaf.jar`
+## 2) Build Everything
 
-### Step 2: Verify Installation
-
-Check that the executable JAR was created:
+From repository root:
 
 ```bash
-ls -lh examples/target/edaf.jar
+mvn -q clean test
 ```
 
-You should see a file named `edaf.jar` (typically 50-100 MB depending on dependencies).
-
-### Step 3: Run Your First Experiment
-
-Try running a simple example:
+If you only need CLI packaging quickly:
 
 ```bash
-java -jar examples/target/edaf.jar examples/config/umda-max-ones.yaml
+mvn -q -pl edaf-cli -am package
 ```
 
-You should see:
-- A progress bar showing generation progress with estimated time
-- Compact statistics per generation (best, average, std dev)
-- A detailed statistics table every 10 generations (and on generation 1)
-- Final results with the best fitness value
+## 3) Understand the Wrapper
 
-**Example output:**
-```
-Generations   45% [████████████          ]      45/100 gen (0:00:23 / 0:00:51)
-Gen 45 | Best: 87.5000 | Avg: 82.3400 | Std: 3.2100
+`./edaf` is the primary entrypoint.
 
-╔══════════════════════════════════════════════════════════════════╗
-║  Generation Statistics                                           ║
-╠══════════════════════════════════════════════════════════════════╣
-║  Generation:                1                                   ║
-╠══════════════════════════════════════════════════════════════════╣
-║  Best Fitness              87.500000                             ║
-║  Worst Fitness             45.000000                             ║
-║  Average (μ)                72.340000                             ║
-║  Std Dev (σ)                8.210000                              ║
-║  Median                     73.000000                             ║
-╚══════════════════════════════════════════════════════════════════╝
+- It checks if `edaf-cli/target/edaf-cli.jar` exists.
+- If missing, it builds `edaf-cli` and dependencies.
+- It then launches the CLI jar.
 
-Best fitness: 100.0000
-```
-
-If you see output like this, the framework is working correctly!
-
-## How to Run
-
-The framework is run from the command line using the executable shaded JAR produced by the `examples` module.
-After building the project with `mvn clean install`, you can find this JAR at `examples/target/edaf.jar`.
-
-The framework now provides a command-line interface (CLI) with several options. You can get help by running:
-```
-java -jar examples/target/edaf.jar --help
-```
-
-### Metrics and Events
-
-EDAF provides comprehensive metrics and event tracking. See the [Metrics and Results Guide](./metrics-and-results.md) for detailed information.
-
-**Quick Start:**
-
-1. **Console output (default):** Progress and results printed to console
-2. **Micrometer metrics:** Enable with `--metrics` flag
-3. **Prometheus endpoint:** Enable with `--prometheus-port <port>`
-
-**Example - Enable Micrometer metrics:**
-```bash
-java -jar examples/target/edaf.jar --metrics examples/config/gga-max-ones.yaml
-```
-
-**Example - Expose Prometheus metrics:**
-```bash
-java -jar examples/target/edaf.jar --prometheus-port 9464 examples/config/gga-max-ones.yaml
-```
-
-**Available Metrics:**
-- `edaf.algorithm.started` - Counter: Number of algorithm runs
-- `edaf.algorithm.terminated` - Counter: Completed algorithm runs
-- `edaf.algorithm.duration` - Timer: Total execution time
-- `edaf.generation.completed` - Counter: Total generations
-- `edaf.generation.duration` - Timer: Time per generation
-- `edaf.evaluations.count` - Counter: Total individuals evaluated
-- `edaf.evaluation.duration` - Timer: Evaluation batch duration
-
-**Accessing Metrics:**
-
-1. **Prometheus endpoint:** `http://localhost:9464/metrics`
-2. **Programmatically:** Access `SimpleMeterRegistry` when using `--metrics`
-3. **Results file:** See `results.json` for final results in JSON format
-4. **Log file:** See `edaf.log` for detailed execution logs
-
-For detailed information on accessing and interpreting metrics, see the [Metrics and Results Guide](./metrics-and-results.md).
-
-### Running an Experiment
-
-To run an experiment, simply provide the path to a valid configuration file:
+Usage:
 
 ```bash
-java -jar examples/target/edaf.jar examples/config/cga-max-ones.yaml
+./edaf --help
 ```
 
-The framework will print its progress to the console, write detailed logs to `edaf.log`, and save final results to `results.json`.
+## 4) Run Your First Experiment
 
-### Example Configurations (by Problem)
-
-- **Binary (MaxOnes):** `examples/config/gga-max-ones.yaml`, `examples/config/bmda-max-ones.yaml`, `examples/config/mimic-max-ones.yaml`, `examples/config/umda-max-ones.yaml`, `examples/config/fda-max-ones.yaml`, `examples/config/cem-max-ones.yaml`
-- **Knapsack 0/1:** `examples/config/pbil-knapsack.yaml`, `examples/config/fda-knapsack.yaml`, `examples/config/cem-knapsack.yaml`
-- **Permutation (TSP):** `examples/config/problems/tsp-gga.yaml`
-- **Floating-point (Sphere):** `examples/config/boa-sphere.yaml`, `examples/config/cem-sphere.yaml`, `examples/config/mimic-sphere.yaml`, `examples/config/fda-sphere.yaml`
-- **Floating-point (Ackley):** `examples/config/problems/ackley-umda.yaml`, `examples/config/boa-ackley.yaml`, `examples/config/cem-ackley.yaml`
-- **Floating-point (Rosenbrock):** `examples/config/pbil-rosenbrock.yaml`, `examples/config/boa-rosenbrock.yaml`, `examples/config/cem-rosenbrock.yaml`
-- **Boolean Functions:** `examples/config/pbil-boolean-function.yaml`, `examples/config/mimic-boolean-function.yaml`, `examples/config/fda-boolean-function.yaml`
-- **Deceptive Trap:** `examples/config/pbil-deceptive-trap.yaml`, `examples/config/mimic-deceptive-trap.yaml`, `examples/config/fda-deceptive-trap.yaml`
-- **Genetic Programming:** `examples/config/gp/symbolic-regression.yaml`, `examples/config/gp/iris-classification.yaml`, `examples/config/gp/multiplexer.yaml`
-- **CGP (Cartesian GP):** `examples/config/cgp-symbolic-regression.yaml`, `examples/config/cgp-multiplexer.yaml`, `examples/config/cgp-parity.yaml`
-
-See [Examples Catalog](../examples/config/README.md) for a complete list.
-
-### Generating a Configuration Template
-
-To make it easier to create new configuration files, you can use the `generate-config` command.
-This will generate a template for a given algorithm and print it to the console.
+Start with OneMax + UMDA:
 
 ```bash
-java -jar examples/target/edaf.jar generate-config --algorithm umda
+./edaf run -c configs/umda-onemax-v3.yml
 ```
 
-You can redirect the output to a file:
+Expected console behavior:
+
+- banner with run id, algorithm, model, problem, seed
+- progress bar by iteration
+- periodic summary rows controlled by `observability.metricsEveryIterations`
+- final summary (best fitness, best genotype summary, artifacts)
+
+## 5) Inspect Artifacts
+
+Typical outputs:
+
+- `results/<run-id>.csv` (iteration metrics)
+- `results/<run-id>.jsonl` (event stream)
+- `edaf-v3.log` (rotating structured file log)
+- `results/checkpoints/...` (if checkpointing enabled)
+- DB rows (if `db` sink enabled)
+
+Example quick checks:
 
 ```bash
-java -jar examples/target/edaf.jar generate-config -a gga > my-gga-config.yaml
+ls -la results
+head -n 5 results/umda-onemax-v3.csv
+head -n 5 results/umda-onemax-v3.jsonl
 ```
 
-**Supported Algorithm Names:**
+## 6) Generate Reports
 
-- `umda`, `pbil`, `mimic`, `ltga`, `bmda`, `boa`, `cga`, `gga`, `ega`, `gp`, `fda`, `cem`, `cgp`
+From persisted DB state:
 
-## Logging and Results
-
-The framework uses a comprehensive logging and results system.
-
-### Output Locations
-
-1. **Console Output** (`stdout`)
-   - Progress bar with generation count
-   - Best fitness per generation
-   - Final results summary
-   - Human-readable format
-
-2. **Log File** (`edaf.log`)
-   - Detailed execution logs
-   - Debug information
-   - Error messages
-   - Timestamped entries
-
-3. **Results File** (`results.json`)
-   - Structured JSON format
-   - Best individual (serialized)
-   - Final fitness value
-   - Timestamp
-   - Easy to parse programmatically
-
-### Accessing Results
-
-**View console output:**
 ```bash
-java -jar examples/target/edaf.jar examples/config/my-config.yaml
+./edaf report --run-id umda-onemax-v3 --out reports --db-url jdbc:sqlite:edaf-v3.db
 ```
 
-**Parse results.json:**
+Formats:
+
 ```bash
-cat results.json | jq '.best_individual.fitness'
+./edaf report --run-id umda-onemax-v3 --out reports --formats html,latex
 ```
 
-**View detailed logs:**
+## 7) Validate Config Before Running
+
 ```bash
-tail -f edaf.log
+./edaf config validate configs/umda-onemax-v3.yml
+./edaf config validate configs/batch-v3.yml
 ```
 
-For comprehensive information on metrics, events, and results, see the [Metrics and Results Guide](./metrics-and-results.md).
+Validation includes:
+
+- strict YAML field validation (unknown fields rejected)
+- bean constraints (required fields, min values)
+- semantic compatibility checks (representation/model/algorithm families)
+
+## 8) Run Multiple Experiments via Batch
+
+```bash
+./edaf batch -c configs/batch-v3.yml
+```
+
+Batch file format:
+
+```yaml
+experiments:
+  - umda-onemax-v3.yml
+  - gaussian-sphere-v3.yml
+  - ehm-tsp-v3.yml
+```
+
+Paths are resolved relative to the batch file location.
+
+## 9) Resume from Checkpoint
+
+Enable checkpoints in config:
+
+```yaml
+run:
+  checkpointEveryIterations: 10
+```
+
+Then resume:
+
+```bash
+./edaf resume --checkpoint results/checkpoints/gaussian-sphere-v3-iter-50.ckpt.yaml
+```
+
+Checkpoint payload stores:
+
+- config snapshot
+- run/iteration/evaluation metadata
+- population
+- model state (for supported models)
+- RNG snapshot (deterministic replay)
+
+## 10) Start Web Dashboard Locally
+
+By default web uses SQLite DB at `jdbc:sqlite:edaf-v3.db`.
+
+```bash
+EDAF_DB_URL=jdbc:sqlite:edaf-v3.db mvn -q -pl edaf-web -am spring-boot:run
+```
+
+Open:
+
+- [http://localhost:7070](http://localhost:7070)
+
+## 11) Run Full Docker Stack
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+- PostgreSQL (`db`)
+- dashboard (`web`)
+- one runner process (`runner`) using `configs/docker/umda-onemax-postgres-v3.yml`
+
+Stop:
+
+```bash
+docker compose down
+```
+
+Stop and remove volumes:
+
+```bash
+docker compose down -v
+```
+
+## Next Recommended Reads
+
+- [Architecture](./architecture.md)
+- [Configuration Reference](./configuration.md)
+- [CLI Reference](./cli-reference.md)
+- [Database Schema](./database-schema.md)
+- [Web Dashboard and API](./web-dashboard.md)

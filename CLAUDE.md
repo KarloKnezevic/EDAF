@@ -45,8 +45,8 @@ java -jar examples/target/edaf.jar --dashboard-port 8080 <config.yaml>
 # Run with HTML report generation
 java -jar examples/target/edaf.jar --report-format html --report-dir ./reports <config.yaml>
 
-# Run with Prometheus metrics
-java -jar examples/target/edaf.jar --prometheus-port 8888 <config.yaml>
+# Run with in-process metrics
+java -jar examples/target/edaf.jar --metrics <config.yaml>
 ```
 
 ## Requirements
@@ -80,7 +80,7 @@ The project is organized into 35 Maven modules under a parent POM:
 - `selection` — Tournament and roulette wheel selection (registers `SelectionProvider` via SPI)
 - `statistics` — Statistical distribution calculations
 - `testing` — Test problems (MaxOnes, Sphere, Rosenbrock, Ackley, Knapsack, TSP, N-Queens, etc.)
-- `metrics` — Prometheus and Micrometer event publishers
+- `metrics` — Micrometer event publishers
 - `examples` — CLI entry point (`Framework` class using PicoCLI), example YAML configs in `examples/config/`, and real-world examples: `AlgorithmComparisonExample` (multi-algorithm comparison), `TSPExample` (TSP with permutation genotype), `FeatureSelectionExample` (ML feature selection with binary genotype), `HyperparameterTuningExample` (hyperparameter tuning with categorical genotype)
 
 ## Event System

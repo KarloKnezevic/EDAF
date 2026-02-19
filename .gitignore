@@ -1,12 +1,38 @@
 /bin
 /target/
 **/target/
-*.log
-results.json
-/data/
+
+# IDE/editor
 .idea/
+.vscode/
 *.iml
 *~
 *.swp
 *.bak
 .DS_Store
+
+# Runtime outputs
+*.log
+results.json
+/results/
+/reports/
+/data/
+*.db
+
+# Maven wrapper / local tooling scratch
+.mvn/timing.properties
+
+# Agent/assistant metadata and local instruction files
+.codex/
+**/.codex/
+.claude/
+**/.claude/
+.cursor/
+**/.cursor/
+.aider*
+**/.aider*
+AGENTS.md
+**/AGENTS.md
+CLAUDE.md
+**/CLAUDE.md
+.github/copilot-instructions.md

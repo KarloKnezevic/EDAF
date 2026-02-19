@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLI_JAR="$ROOT_DIR/edaf-cli/target/edaf-cli.jar"
+
+if [[ ! -f "$CLI_JAR" ]]; then
+  mvn -q -pl edaf-cli -am package -DskipTests
+fi
+
+exec java --enable-native-access=ALL-UNNAMED -jar "$CLI_JAR" "$@"

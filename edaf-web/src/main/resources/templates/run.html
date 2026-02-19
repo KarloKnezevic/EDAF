@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDAF Run Detail</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f8fb;
+            --card: #ffffff;
+            --ink: #1b2734;
+            --muted: #607080;
+            --line: #d6dfeb;
+            --accent: #0f766e;
+            --accent-2: #0b4a6f;
+            --good: #166534;
+            --warn: #92400e;
+            --bad: #991b1b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            background:
+                    radial-gradient(circle at 12% 12%, rgba(15, 118, 110, 0.16), transparent 34%),
+                    radial-gradient(circle at 92% 8%, rgba(11, 74, 111, 0.14), transparent 33%),
+                    var(--bg);
+        }
+        .wrap { max-width: 1400px; margin: 0 auto; padding: 20px 16px 42px; }
+        .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+        .top a { color: var(--accent); text-decoration: none; font-weight: 700; }
+        h1 { margin: 0; font-size: clamp(1.25rem, 2.2vw, 1.9rem); }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 9px 25px rgba(0,0,0,.05);
+            margin-bottom: 12px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(160px, 1fr));
+            gap: 10px;
+        }
+        .kpi { border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+        .kpi .k { color: var(--muted); font-size: .8rem; font-family: "IBM Plex Mono", monospace; }
+        .kpi .v { margin-top: 5px; font-weight: 700; word-break: break-word; }
+        .status {
+            display: inline-flex;
+            border-radius: 999px;
+            font-size: .75rem;
+            letter-spacing: .04em;
+            font-weight: 700;
+            padding: 4px 10px;
+        }
+        .status-running { background: #dcfce7; color: var(--good); }
+        .status-completed { background: #e0f2fe; color: #075985; }
+        .status-failed { background: #fee2e2; color: var(--bad); }
+        .status-other { background: #fef3c7; color: var(--warn); }
+        .row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+        input, select, button, textarea {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-family: inherit;
+            font-size: .88rem;
+            background: #fff;
+            color: var(--ink);
+        }
+        button { cursor: pointer; font-weight: 600; }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-ghost { background: #fff; }
+        .canvas-wrap { height: 300px; }
+        .table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: .84rem; vertical-align: top; }
+        th { background: #f8fafc; color: var(--muted); font-family: "IBM Plex Mono", monospace; }
+        pre {
+            margin: 0;
+            max-height: 320px;
+            overflow: auto;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fafcff;
+            font-size: .78rem;
+            line-height: 1.45;
+            font-family: "IBM Plex Mono", monospace;
+            white-space: pre;
+        }
+        .hidden { display: none; }
+        .muted { color: var(--muted); font-size: .84rem; }
+        .events-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .events-pager { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        @media (max-width: 1200px) {
+            .summary-grid { grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+            .row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 760px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+            .wrap { padding: 14px 10px 28px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <a href="/">← Runs</a>
+        <button id="refreshAll" class="btn-primary">Refresh</button>
+    </div>
+    <h1 id="runTitle" th:text="${run.runId}">run-id</h1>
+
+    <section class="card">
+        <div class="summary-grid" id="summaryGrid">
+            <div class="kpi"><div class="k">Status</div><div class="v"><span id="statusBadge" class="status">UNKNOWN</span></div></div>
+            <div class="kpi"><div class="k">Algorithm</div><div class="v mono" id="algorithmValue" th:text="${run.algorithmType}">-</div></div>
+            <div class="kpi"><div class="k">Model</div><div class="v mono" id="modelValue" th:text="${run.modelType}">-</div></div>
+            <div class="kpi"><div class="k">Problem</div><div class="v mono" id="problemValue" th:text="${run.problemType}">-</div></div>
+            <div class="kpi"><div class="k">Best Fitness</div><div class="v" id="bestValue">-</div></div>
+            <div class="kpi"><div class="k">Runtime (ms)</div><div class="v" id="runtimeValue">-</div></div>
+            <div class="kpi"><div class="k">Iterations</div><div class="v" id="iterationsValue">-</div></div>
+            <div class="kpi"><div class="k">Evaluations</div><div class="v" id="evaluationsValue">-</div></div>
+            <div class="kpi"><div class="k">Seed</div><div class="v mono" id="seedValue">-</div></div>
+            <div class="kpi"><div class="k">Start</div><div class="v mono" id="startValue">-</div></div>
+            <div class="kpi"><div class="k">End</div><div class="v mono" id="endValue">-</div></div>
+            <div class="kpi"><div class="k">Config Hash</div><div class="v mono" id="hashValue">-</div></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>Iteration Metrics</strong>
+            <span class="muted">best / mean / std</span>
+        </div>
+        <div class="canvas-wrap"><canvas id="fitnessChart"></canvas></div>
+    </section>
+
+    <section class="row">
+        <div class="card">
+            <div class="toolbar">
+                <strong>Iterations</strong>
+                <span id="iterationsInfo" class="muted"></span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Iteration</th>
+                        <th>Evaluations</th>
+                        <th>Best</th>
+                        <th>Mean</th>
+                        <th>Std</th>
+                        <th>Created</th>
+                    </tr>
+                    </thead>
+                    <tbody id="iterationsRows">
+                    <tr th:each="row : ${iterations}">
+                        <td th:text="${row.iteration}"></td>
+                        <td th:text="${row.evaluations}"></td>
+                        <td th:text="${row.bestFitness}"></td>
+                        <td th:text="${row.meanFitness}"></td>
+                        <td th:text="${row.stdFitness}"></td>
+                        <td class="mono" th:text="${row.createdAt}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="toolbar">
+                <strong>Checkpoints</strong>
+                <span id="checkpointInfo" class="muted"></span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Iteration</th>
+                        <th>Path</th>
+                        <th>Created</th>
+                    </tr>
+                    </thead>
+                    <tbody id="checkpointRows">
+                    <tr th:each="cp : ${checkpoints}">
+                        <td th:text="${cp.iteration}"></td>
+                        <td class="mono" th:text="${cp.checkpointPath}"></td>
+                        <td class="mono" th:text="${cp.createdAt}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="row">
+        <div class="card">
+            <div class="toolbar">
+                <strong>Events</strong>
+                <span class="muted">Filter by type/payload</span>
+            </div>
+            <div class="events-controls">
+                <select id="eventType">
+                    <option value="">All event types</option>
+                </select>
+                <input id="eventQuery" placeholder="Search payload..." />
+                <button id="eventApply" class="btn-ghost">Apply</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Payload</th>
+                    </tr>
+                    </thead>
+                    <tbody id="eventRows">
+                    <tr th:each="ev : ${eventsPage.items}">
+                        <td class="mono" th:text="${ev.createdAt}"></td>
+                        <td th:text="${ev.eventType}"></td>
+                        <td><pre th:text="${ev.payloadJson}"></pre></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="events-pager">
+                <div>
+                    <button id="eventPrev" class="btn-ghost">Previous</button>
+                    <button id="eventNext" class="btn-ghost">Next</button>
+                </div>
+                <span id="eventPageInfo" class="muted"></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="toolbar">
+                <strong>Configuration</strong>
+                <div>
+                    <button id="showYaml" class="btn-ghost">YAML</button>
+                    <button id="showJson" class="btn-ghost">JSON</button>
+                </div>
+            </div>
+            <pre id="yamlView"></pre>
+            <pre id="jsonView" class="hidden"></pre>
+
+            <div class="toolbar" style="margin-top: 12px;">
+                <strong>Flattened Params</strong>
+                <input id="paramSearch" placeholder="Search path or value..." />
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Section</th>
+                        <th>Path</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody id="paramRows">
+                    <tr th:each="p : ${params}">
+                        <td th:text="${p.section}"></td>
+                        <td class="mono" th:text="${p.paramPath}"></td>
+                        <td th:text="${p.valueType}"></td>
+                        <td class="mono" th:text="${p.valueText}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script th:inline="javascript">
+    const runId = /*[[${runId}]]*/ "run-id";
+    const initialRun = /*[[${run}]]*/ null;
+    const initialIterations = /*[[${iterations}]]*/ [];
+    const initialCheckpoints = /*[[${checkpoints}]]*/ [];
+    const initialParams = /*[[${params}]]*/ [];
+    const initialEventsPage = /*[[${eventsPage}]]*/ { items: [], page: 0, size: 25, total: 0, totalPages: 0 };
+
+    const state = {
+        eventPage: 0,
+        eventSize: 25,
+        eventType: "",
+        eventQuery: "",
+        params: initialParams || [],
+        eventsTotalPages: initialEventsPage.totalPages || 0
+    };
+
+    const els = {
+        runTitle: document.getElementById("runTitle"),
+        statusBadge: document.getElementById("statusBadge"),
+        algorithmValue: document.getElementById("algorithmValue"),
+        modelValue: document.getElementById("modelValue"),
+        problemValue: document.getElementById("problemValue"),
+        bestValue: document.getElementById("bestValue"),
+        runtimeValue: document.getElementById("runtimeValue"),
+        iterationsValue: document.getElementById("iterationsValue"),
+        evaluationsValue: document.getElementById("evaluationsValue"),
+        seedValue: document.getElementById("seedValue"),
+        startValue: document.getElementById("startValue"),
+        endValue: document.getElementById("endValue"),
+        hashValue: document.getElementById("hashValue"),
+        iterationsRows: document.getElementById("iterationsRows"),
+        checkpointRows: document.getElementById("checkpointRows"),
+        iterationsInfo: document.getElementById("iterationsInfo"),
+        checkpointInfo: document.getElementById("checkpointInfo"),
+        eventRows: document.getElementById("eventRows"),
+        eventType: document.getElementById("eventType"),
+        eventQuery: document.getElementById("eventQuery"),
+        eventApply: document.getElementById("eventApply"),
+        eventPrev: document.getElementById("eventPrev"),
+        eventNext: document.getElementById("eventNext"),
+        eventPageInfo: document.getElementById("eventPageInfo"),
+        yamlView: document.getElementById("yamlView"),
+        jsonView: document.getElementById("jsonView"),
+        showYaml: document.getElementById("showYaml"),
+        showJson: document.getElementById("showJson"),
+        paramRows: document.getElementById("paramRows"),
+        paramSearch: document.getElementById("paramSearch"),
+        refreshAll: document.getElementById("refreshAll")
+    };
+
+    const chart = new Chart(document.getElementById("fitnessChart"), {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [
+                { label: "Best", data: [], borderColor: "#0f766e", backgroundColor: "rgba(15,118,110,0.09)", tension: 0.2 },
+                { label: "Mean", data: [], borderColor: "#0b4a6f", backgroundColor: "rgba(11,74,111,0.08)", tension: 0.2 },
+                { label: "Std", data: [], borderColor: "#b45309", backgroundColor: "rgba(180,83,9,0.08)", tension: 0.2 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            scales: { y: { beginAtZero: false } }
+        }
+    });
+
+    function statusClass(status) {
+        const value = (status || "").toUpperCase();
+        if (value === "RUNNING") return "status status-running";
+        if (value === "COMPLETED") return "status status-completed";
+        if (value === "FAILED") return "status status-failed";
+        return "status status-other";
+    }
+
+    function safe(value, fallback = "n/a") {
+        return value === null || value === undefined || value === "" ? fallback : value;
+    }
+
+    function renderRun(detail) {
+        if (!detail) return;
+        els.runTitle.textContent = detail.runId;
+        els.statusBadge.className = statusClass(detail.status);
+        els.statusBadge.textContent = safe(detail.status, "UNKNOWN");
+        els.algorithmValue.textContent = safe(detail.algorithmType);
+        els.modelValue.textContent = safe(detail.modelType);
+        els.problemValue.textContent = safe(detail.problemType);
+        els.bestValue.textContent = detail.bestFitness == null ? "n/a" : Number(detail.bestFitness).toFixed(6);
+        els.runtimeValue.textContent = safe(detail.runtimeMillis);
+        els.iterationsValue.textContent = safe(detail.iterations);
+        els.evaluationsValue.textContent = safe(detail.evaluations);
+        els.seedValue.textContent = safe(detail.seed);
+        els.startValue.textContent = safe(detail.startTime);
+        els.endValue.textContent = safe(detail.endTime);
+        els.hashValue.textContent = safe(detail.configHash);
+        els.yamlView.textContent = detail.configYaml || "";
+        try {
+            els.jsonView.textContent = JSON.stringify(JSON.parse(detail.configJson || "{}"), null, 2);
+        } catch (_) {
+            els.jsonView.textContent = detail.configJson || "";
+        }
+    }
+
+    function renderIterations(rows) {
+        els.iterationsInfo.textContent = `Rows: ${rows.length}`;
+        if (!rows.length) {
+            els.iterationsRows.innerHTML = `<tr><td colspan="6" class="muted">No iteration rows.</td></tr>`;
+            chart.data.labels = [];
+            chart.data.datasets.forEach(ds => ds.data = []);
+            chart.update();
+            return;
+        }
+        els.iterationsRows.innerHTML = rows.map(row => `
+            <tr>
+                <td>${row.iteration}</td>
+                <td>${row.evaluations}</td>
+                <td>${Number(row.bestFitness).toFixed(6)}</td>
+                <td>${Number(row.meanFitness).toFixed(6)}</td>
+                <td>${Number(row.stdFitness).toFixed(6)}</td>
+                <td class="mono">${safe(row.createdAt, "")}</td>
+            </tr>
+        `).join("");
+
+        chart.data.labels = rows.map(row => row.iteration);
+        chart.data.datasets[0].data = rows.map(row => row.bestFitness);
+        chart.data.datasets[1].data = rows.map(row => row.meanFitness);
+        chart.data.datasets[2].data = rows.map(row => row.stdFitness);
+        chart.update();
+    }
+
+    function renderCheckpoints(rows) {
+        els.checkpointInfo.textContent = `Rows: ${rows.length}`;
+        if (!rows.length) {
+            els.checkpointRows.innerHTML = `<tr><td colspan="3" class="muted">No checkpoints.</td></tr>`;
+            return;
+        }
+        els.checkpointRows.innerHTML = rows.map(row => `
+            <tr>
+                <td>${row.iteration}</td>
+                <td class="mono">${safe(row.checkpointPath, "")}</td>
+                <td class="mono">${safe(row.createdAt, "")}</td>
+            </tr>
+        `).join("");
+    }
+
+    function extractValue(row) {
+        if (row.valueText) return row.valueText;
+        if (row.valueNumber != null) return String(row.valueNumber);
+        if (row.valueBoolean != null) return row.valueBoolean === 1 ? "true" : "false";
+        if (row.valueJson) return row.valueJson;
+        return "null";
+    }
+
+    function renderParams(rows) {
+        const q = (els.paramSearch.value || "").toLowerCase();
+        const filtered = rows.filter(row => {
+            if (!q) return true;
+            return (row.paramPath || "").toLowerCase().includes(q)
+                || extractValue(row).toLowerCase().includes(q)
+                || (row.section || "").toLowerCase().includes(q);
+        });
+        if (!filtered.length) {
+            els.paramRows.innerHTML = `<tr><td colspan="4" class="muted">No matching params.</td></tr>`;
+            return;
+        }
+        els.paramRows.innerHTML = filtered.map(row => `
+            <tr>
+                <td>${safe(row.section, "")}</td>
+                <td class="mono">${safe(row.paramPath, "")}</td>
+                <td>${safe(row.valueType, "")}</td>
+                <td class="mono">${extractValue(row)}</td>
+            </tr>
+        `).join("");
+    }
+
+    function renderEvents(pageData) {
+        const rows = pageData.items || [];
+        state.eventsTotalPages = pageData.totalPages || 0;
+
+        if (!rows.length) {
+            els.eventRows.innerHTML = `<tr><td colspan="3" class="muted">No events.</td></tr>`;
+        } else {
+            els.eventRows.innerHTML = rows.map(row => `
+                <tr>
+                    <td class="mono">${safe(row.createdAt, "")}</td>
+                    <td>${safe(row.eventType, "")}</td>
+                    <td><pre>${safe(row.payloadJson, "")}</pre></td>
+                </tr>
+            `).join("");
+        }
+
+        const page = pageData.page || 0;
+        els.eventPageInfo.textContent = state.eventsTotalPages === 0
+            ? "Page 0 / 0"
+            : `Page ${page + 1} / ${state.eventsTotalPages}`;
+        els.eventPrev.disabled = page <= 0;
+        els.eventNext.disabled = state.eventsTotalPages === 0 || page >= (state.eventsTotalPages - 1);
+
+        const types = [...new Set(rows.map(r => r.eventType).filter(Boolean))].sort();
+        const currentType = els.eventType.value;
+        const preserved = currentType && !types.includes(currentType) ? [currentType, ...types] : types;
+        els.eventType.innerHTML = `<option value="">All event types</option>` + preserved.map(type => `<option value="${type}">${type}</option>`).join("");
+        els.eventType.value = currentType || "";
+    }
+
+    async function fetchJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    }
+
+    async function loadRunDetail() {
+        const detail = await fetchJson(`/api/runs/${encodeURIComponent(runId)}`);
+        renderRun(detail);
+    }
+
+    async function loadIterations() {
+        const rows = await fetchJson(`/api/runs/${encodeURIComponent(runId)}/iterations`);
+        renderIterations(rows || []);
+    }
+
+    async function loadCheckpoints() {
+        const rows = await fetchJson(`/api/runs/${encodeURIComponent(runId)}/checkpoints`);
+        renderCheckpoints(rows || []);
+    }
+
+    async function loadParams() {
+        state.params = await fetchJson(`/api/runs/${encodeURIComponent(runId)}/params`);
+        renderParams(state.params || []);
+    }
+
+    async function loadEvents() {
+        const params = new URLSearchParams();
+        if (state.eventType) params.set("eventType", state.eventType);
+        if (state.eventQuery) params.set("q", state.eventQuery);
+        params.set("page", String(state.eventPage));
+        params.set("size", String(state.eventSize));
+        const pageData = await fetchJson(`/api/runs/${encodeURIComponent(runId)}/events?${params.toString()}`);
+        renderEvents(pageData);
+    }
+
+    async function refreshAll() {
+        try {
+            await Promise.all([loadRunDetail(), loadIterations(), loadCheckpoints(), loadParams(), loadEvents()]);
+        } catch (error) {
+            console.error("Refresh failed", error);
+        }
+    }
+
+    els.showYaml.addEventListener("click", () => {
+        els.yamlView.classList.remove("hidden");
+        els.jsonView.classList.add("hidden");
+    });
+
+    els.showJson.addEventListener("click", () => {
+        els.jsonView.classList.remove("hidden");
+        els.yamlView.classList.add("hidden");
+    });
+
+    els.paramSearch.addEventListener("input", () => renderParams(state.params || []));
+
+    els.eventApply.addEventListener("click", async () => {
+        state.eventType = els.eventType.value;
+        state.eventQuery = (els.eventQuery.value || "").trim();
+        state.eventPage = 0;
+        await loadEvents();
+    });
+
+    els.eventPrev.addEventListener("click", async () => {
+        state.eventPage = Math.max(0, state.eventPage - 1);
+        await loadEvents();
+    });
+
+    els.eventNext.addEventListener("click", async () => {
+        state.eventPage = state.eventPage + 1;
+        await loadEvents();
+    });
+
+    els.refreshAll.addEventListener("click", refreshAll);
+
+    renderRun(initialRun);
+    renderIterations(initialIterations || []);
+    renderCheckpoints(initialCheckpoints || []);
+    renderParams(initialParams || []);
+    renderEvents(initialEventsPage || { items: [], page: 0, totalPages: 0 });
+
+    refreshAll();
+    setInterval(refreshAll, 5000);
+</script>
+</body>
+</html>

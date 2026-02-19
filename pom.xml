@@ -27,45 +27,26 @@
         <progressbar.version>0.10.0</progressbar.version>
         <micrometer.version>1.13.4</micrometer.version>
         <jqwik.version>1.9.3</jqwik.version>
+        <spring.boot.version>3.4.2</spring.boot.version>
+        <jansi.version>2.4.1</jansi.version>
         <jacoco.line.minimum>0.60</jacoco.line.minimum>
         <jacoco.branch.minimum>0.40</jacoco.branch.minimum>
     </properties>
 
     <modules>
-        <module>core</module>
-        <module>genotype-binary</module>
-        <module>genotype-fp</module>
-        <module>genotype-integer</module>
-        <module>genotype-tree</module>
-        <module>algorithm-umda</module>
-        <module>algorithm-pbil</module>
-        <module>algorithm-gga</module>
-        <module>algorithm-ega</module>
-        <module>algorithm-cga</module>
-        <module>algorithm-bmda</module>
-        <module>algorithm-mimic</module>
-        <module>algorithm-ltga</module>
-        <module>algorithm-boa</module>
-        <module>algorithm-gp</module>
-        <module>algorithm-fda</module>
-        <module>algorithm-cem</module>
-        <module>algorithm-cgp</module>
-        <module>algorithm-nes</module>
-        <module>configuration</module>
-        <module>statistics</module>
-        <module>testing</module>
-        <module>examples</module>
-        <module>factory</module>
-        <module>selection</module>
-        <module>genotype-permutation</module>
-        <module>genotype-realvalued</module>
-        <module>genotype-categorical</module>
-        <module>metrics</module>
-        <module>persistence-api</module>
-        <module>persistence-file</module>
-        <module>persistence-jdbc</module>
-        <module>reporting</module>
-        <module>dashboard</module>
+        <!-- v3 architecture modules -->
+        <module>edaf-core</module>
+        <module>edaf-representations</module>
+        <module>edaf-models-discrete</module>
+        <module>edaf-models-continuous</module>
+        <module>edaf-models-permutation</module>
+        <module>edaf-problems</module>
+        <module>edaf-algorithms</module>
+        <module>edaf-experiments</module>
+        <module>edaf-persistence</module>
+        <module>edaf-reporting</module>
+        <module>edaf-web</module>
+        <module>edaf-cli</module>
     </modules>
 
     <build>
@@ -278,6 +259,32 @@
                 <groupId>net.jqwik</groupId>
                 <artifactId>jqwik</artifactId>
                 <version>${jqwik.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${jansi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-jdbc</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-thymeleaf</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring.boot.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
