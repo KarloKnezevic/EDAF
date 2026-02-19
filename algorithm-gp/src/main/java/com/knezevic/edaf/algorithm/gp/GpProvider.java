@@ -33,7 +33,7 @@ public class GpProvider implements AlgorithmProvider {
         double crossoverRate = 0.9;
         double mutationRate = 0.1;
         int elitismSize = 0;
-        return new GeneticProgrammingAlgorithm((Problem) problem, (Population) population, (Selection) selection, (Crossover) crossover, (Mutation) mutation, (TerminationCondition) terminationCondition, crossoverRate, mutationRate, elitismSize);
+        return new GeneticProgrammingAlgorithm((Problem) problem, (Population) population, (Selection) selection, (Crossover) crossover, (Mutation) mutation, (TerminationCondition) terminationCondition, crossoverRate, mutationRate, elitismSize, random);
     }
 }
 

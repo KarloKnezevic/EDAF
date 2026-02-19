@@ -15,6 +15,11 @@
     <name>Algorithm :: BMDA</name>
     <description>BMDA algorithm implementation for the EDAF framework.</description>
 
+    <properties>
+        <jacoco.line.minimum>0</jacoco.line.minimum>
+        <jacoco.branch.minimum>0</jacoco.branch.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
@@ -26,11 +31,6 @@
             <artifactId>selection</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>nz.ac.waikato.cms.weka</groupId>
-            <artifactId>weka-dev</artifactId>
-            <version>3.9.5</version>
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>

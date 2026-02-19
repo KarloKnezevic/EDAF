@@ -33,7 +33,7 @@ public class BoaProvider implements AlgorithmProvider {
         int length = Math.max(1, genotypeLength);
         double min = -1.0;
         double max = 1.0;
-        return new Boa((Problem) problem, nInit, nIter, length, min, max);
+        return new Boa((Problem) problem, nInit, nIter, length, min, max, (TerminationCondition) terminationCondition);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class BoaProvider implements AlgorithmProvider {
         int length = Math.max(1, genotypeLength);
         double min = -1.0;
         double max = 1.0;
-        return new Boa((Problem) problem, nInit, nIter, length, min, max);
+        return new Boa((Problem) problem, nInit, nIter, length, min, max, (TerminationCondition) terminationCondition);
     }
 }
 

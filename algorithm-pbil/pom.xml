@@ -15,6 +15,11 @@
     <name>Algorithm :: PBIL</name>
     <description>PBIL algorithm implementation for the EDAF framework.</description>
 
+    <properties>
+        <jacoco.line.minimum>0</jacoco.line.minimum>
+        <jacoco.branch.minimum>0</jacoco.branch.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>

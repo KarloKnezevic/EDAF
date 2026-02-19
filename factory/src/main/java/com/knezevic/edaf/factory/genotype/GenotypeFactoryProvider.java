@@ -19,6 +19,8 @@ public class GenotypeFactoryProvider {
         factoryMap.put("integer", IntegerGenotypeFactory::new);
         factoryMap.put("tree", TreeGenotypeFactory::new);
         factoryMap.put("permutation", PermutationGenotypeFactory::new);
+        factoryMap.put("realvalued", RealValuedGenotypeFactory::new);
+        factoryMap.put("categorical", CategoricalGenotypeFactory::new);
     }
 
     /**

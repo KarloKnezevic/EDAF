@@ -1,9 +1,8 @@
 package com.knezevic.edaf.algorithm.pbil;
 
 import com.knezevic.edaf.core.api.*;
+import com.knezevic.edaf.core.impl.AbstractAlgorithm;
 import com.knezevic.edaf.core.impl.SimplePopulation;
-import com.knezevic.edaf.core.runtime.ExecutionContext;
-import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
 /**
  * Population-Based Incremental Learning (PBIL).
@@ -31,24 +30,19 @@ import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
  *
  * @param <T> The type of individual in the population.
  */
-public class Pbil<T extends Individual> implements Algorithm<T>, SupportsExecutionContext {
+public class Pbil<T extends Individual> extends AbstractAlgorithm<T> {
 
-    private final Problem<T> problem;
     private final Statistics<T> statistics;
     private final TerminationCondition<T> terminationCondition;
     private final int populationSize;
     private final double learningRate;
 
-    private T best;
-    private int generation;
     private Population<T> population;
-    private ProgressListener listener;
-    private ExecutionContext context;
 
     public Pbil(Problem<T> problem, Statistics<T> statistics,
                 TerminationCondition<T> terminationCondition, int populationSize,
                 double learningRate) {
-        this.problem = problem;
+        super(problem, "pbil");
         this.statistics = statistics;
         this.terminationCondition = terminationCondition;
         this.populationSize = populationSize;
@@ -57,16 +51,18 @@ public class Pbil<T extends Individual> implements Algorithm<T>, SupportsExecuti
 
     @Override
     public void run() {
+        publishAlgorithmStarted();
         // 1. Initialize probability vector (done in statistics impl)
-        generation = 0;
+        setGeneration(0);
 
         // 2. Run generations
         while (!terminationCondition.shouldTerminate(this)) {
             // 2.1. Elitism: preserve the best individual from previous population (if exists)
-            T bestFromPrevious = (population != null && population.getSize() > 0) 
-                ? (T) population.getBest().copy() 
+            @SuppressWarnings("unchecked")
+            T bestFromPrevious = (population != null && population.getSize() > 0)
+                ? (T) population.getBest().copy()
                 : null;
-            
+
             // 2.2. Sample a population
             Population<T> sampledPopulation = statistics.sample(populationSize);
             population = new SimplePopulation<>(problem.getOptimizationType());
@@ -75,27 +71,11 @@ public class Pbil<T extends Individual> implements Algorithm<T>, SupportsExecuti
             }
 
             // 2.3. Evaluate the population
-            long e0 = System.nanoTime();
-            for (T individual : population) {
-                problem.evaluate(individual);
-            }
-            long e1 = System.nanoTime();
-            if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("pbil", generation, population.getSize(), e1 - e0));
-            }
+            evaluateAndPublish(population, getGeneration());
             population.sort();
 
             // 2.4. Ensure best individual is preserved (elitism)
-            // Replace worst if best from previous generation is better than current best
-            if (bestFromPrevious != null) {
-                T currentBest = population.getBest();
-                if (isFirstBetter(bestFromPrevious, currentBest)) {
-                    // Best from previous generation is better, replace worst with it
-                    population.remove(population.getWorst());
-                    population.add((T) bestFromPrevious.copy());
-                    population.sort();
-                }
-            }
+            applyElitism(population, bestFromPrevious);
 
             // 2.5. Get the best individual
             T currentBest = population.getBest();
@@ -104,50 +84,17 @@ public class Pbil<T extends Individual> implements Algorithm<T>, SupportsExecuti
             statistics.update(currentBest, learningRate);
 
             // 2.7. Update the best-so-far individual
-            if (isFirstBetter(currentBest, best)) {
-                best = (T) currentBest.copy();
-            }
+            updateBestIfBetter(currentBest);
 
-            generation++;
-            if (listener != null) {
-                listener.onGenerationDone(generation, population.getBest(), population);
-            }
+            incrementGeneration();
+            notifyListener();
+            publishGenerationCompleted();
         }
-    }
-
-    @Override
-    public T getBest() {
-        return best;
-    }
-
-    @Override
-    public int getGeneration() {
-        return generation;
+        publishAlgorithmTerminated();
     }
 
     @Override
     public Population<T> getPopulation() {
         return population;
-    }
-
-    @Override
-    public void setProgressListener(ProgressListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
-    public void setExecutionContext(ExecutionContext context) {
-        this.context = context;
-    }
-
-    private boolean isFirstBetter(Individual first, Individual second) {
-        if (second == null) {
-            return true;
-        }
-        if (problem.getOptimizationType() == OptimizationType.min) {
-            return first.getFitness() < second.getFitness();
-        } else {
-            return first.getFitness() > second.getFitness();
-        }
     }
 }

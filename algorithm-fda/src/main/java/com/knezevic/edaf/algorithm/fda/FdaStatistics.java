@@ -17,6 +17,7 @@ public class FdaStatistics implements Statistics<BinaryIndividual> {
 
     private final int length;
     private final Random random;
+    private OptimizationType optimizationType = OptimizationType.min;
     
     // Bayesian network structure: parent[i] contains the list of parent indices for variable i
     private List<List<Integer>> parents;
@@ -45,6 +46,7 @@ public class FdaStatistics implements Statistics<BinaryIndividual> {
         if (population.getSize() == 0) {
             return;
         }
+        optimizationType = population.getOptimizationType();
 
         // 1. Calculate univariate marginal probabilities
         double[] px = new double[length];
@@ -257,7 +259,7 @@ public class FdaStatistics implements Statistics<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> sample(int size) {
-        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.min);
+        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(optimizationType);
         
         for (int i = 0; i < size; i++) {
             byte[] genotype = new byte[length];

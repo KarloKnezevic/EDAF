@@ -15,6 +15,11 @@
     <name>Configuration Module</name>
     <description>Configuration loading for the EDAF framework.</description>
 
+    <properties>
+        <jacoco.line.minimum>0</jacoco.line.minimum>
+        <jacoco.branch.minimum>0</jacoco.branch.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
@@ -40,6 +45,10 @@
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>jakarta.el</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 

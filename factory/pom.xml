@@ -15,6 +15,11 @@
     <name>Factory Module</name>
     <description>Component factory for the EDAF framework.</description>
 
+    <properties>
+        <jacoco.line.minimum>0</jacoco.line.minimum>
+        <jacoco.branch.minimum>0</jacoco.branch.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
@@ -49,6 +54,16 @@
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
             <artifactId>genotype-fp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-realvalued</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-categorical</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -120,6 +135,11 @@
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
             <artifactId>algorithm-cem</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-nes</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

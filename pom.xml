@@ -27,6 +27,8 @@
         <progressbar.version>0.10.0</progressbar.version>
         <micrometer.version>1.13.4</micrometer.version>
         <jqwik.version>1.9.3</jqwik.version>
+        <jacoco.line.minimum>0.60</jacoco.line.minimum>
+        <jacoco.branch.minimum>0.40</jacoco.branch.minimum>
     </properties>
 
     <modules>
@@ -48,6 +50,7 @@
         <module>algorithm-fda</module>
         <module>algorithm-cem</module>
         <module>algorithm-cgp</module>
+        <module>algorithm-nes</module>
         <module>configuration</module>
         <module>statistics</module>
         <module>testing</module>
@@ -55,10 +58,23 @@
         <module>factory</module>
         <module>selection</module>
         <module>genotype-permutation</module>
+        <module>genotype-realvalued</module>
+        <module>genotype-categorical</module>
         <module>metrics</module>
+        <module>persistence-api</module>
+        <module>persistence-file</module>
+        <module>persistence-jdbc</module>
+        <module>reporting</module>
+        <module>dashboard</module>
     </modules>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -103,6 +119,12 @@
                     <version>3.5.0</version>
                     <configuration>
                         <useModulePath>true</useModulePath>
+                        <includes>
+                            <include>**/*Test.java</include>
+                            <include>**/Test*.java</include>
+                            <include>**/*Tests.java</include>
+                            <include>**/*Properties.java</include>
+                        </includes>
                     </configuration>
                 </plugin>
 
@@ -122,6 +144,32 @@
                             <goals>
                                 <goal>report</goal>
                             </goals>
+                        </execution>
+                        <execution>
+                            <id>check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <rule>
+                                        <element>BUNDLE</element>
+                                        <limits>
+                                            <limit>
+                                                <counter>LINE</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>${jacoco.line.minimum}</minimum>
+                                            </limit>
+                                            <limit>
+                                                <counter>BRANCH</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>${jacoco.branch.minimum}</minimum>
+                                            </limit>
+                                        </limits>
+                                    </rule>
+                                </rules>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>

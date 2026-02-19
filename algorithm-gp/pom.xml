@@ -12,6 +12,11 @@
     <name>Algorithm :: Genetic Programming</name>
     <description>A standard Genetic Programming algorithm implementation.</description>
 
+    <properties>
+        <jacoco.line.minimum>0</jacoco.line.minimum>
+        <jacoco.branch.minimum>0</jacoco.branch.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>

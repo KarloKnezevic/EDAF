@@ -16,6 +16,7 @@ public class MimicStatistics implements Statistics<BinaryIndividual> {
     private int[] chain;
     private double[] p;
     private double[][] CPT;
+    private OptimizationType optimizationType = OptimizationType.min;
 
     public MimicStatistics(Genotype<byte[]> genotype, Random random) {
         this.random = random;
@@ -26,6 +27,7 @@ public class MimicStatistics implements Statistics<BinaryIndividual> {
 
     @Override
     public void estimate(Population<BinaryIndividual> population) {
+        optimizationType = population.getOptimizationType();
         // 1. Calculate univariate probabilities
         double[] px = new double[length];
         for (int i = 0; i < length; i++) {
@@ -109,7 +111,7 @@ public class MimicStatistics implements Statistics<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> sample(int size) {
-        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.min);
+        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(optimizationType);
         for (int i = 0; i < size; i++) {
             byte[] newGenotype = new byte[length];
             // Sample first variable

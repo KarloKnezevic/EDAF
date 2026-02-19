@@ -22,7 +22,9 @@ public class BoaFactory implements AlgorithmFactory {
         double max = config.getProblem().getGenotype().getUpperBound();
         @SuppressWarnings("unchecked")
         Problem<FpIndividual> fpProblem = (Problem<FpIndividual>) problem;
-        return new Boa(fpProblem, nInit, nIter, genotypeLength, min, max);
+        @SuppressWarnings("unchecked")
+        TerminationCondition<FpIndividual> fpTermination = (TerminationCondition<FpIndividual>) terminationCondition;
+        return new Boa(fpProblem, nInit, nIter, genotypeLength, min, max, fpTermination);
     }
 
     @Override

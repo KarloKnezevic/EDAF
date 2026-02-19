@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(mvn --version:*)",
+      "Bash(grep:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git branch:*)",
+      "Bash(git reset:*)",
+      "Bash(gh pr:*)",
+      "Bash(brew install:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(mvn clean compile:*)",
+      "Bash(mvn test:*)",
+      "Bash(mvn install:*)",
+      "Bash(mvn clean test:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(mvn verify:*)",
+      "Bash(bc:*)",
+      "Bash(mvn clean verify:*)",
+      "Bash(done)",
+      "Bash(xargs:*)",
+      "Bash(mvn compile:*)"
+    ]
+  }
+}

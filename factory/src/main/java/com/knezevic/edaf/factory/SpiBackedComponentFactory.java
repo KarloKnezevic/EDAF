@@ -9,19 +9,88 @@ import com.knezevic.edaf.factory.algorithm.AlgorithmFactoryProvider;
 import com.knezevic.edaf.factory.algorithm.GeneticAlgorithmFactory;
 import com.knezevic.edaf.core.runtime.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
-import java.util.stream.StreamSupport;
 import java.util.Random;
 
 /**
  * ComponentFactory implementation that composes the runtime from ServiceLoader-provided plugins.
  * Falls back to default factories for problems, populations, statistics and termination conditions.
+ *
+ * <p>ServiceLoader results are cached lazily on first access to avoid repeated classpath scanning.
+ * Call {@link #reload()} to force re-discovery of providers (useful in test scenarios where the
+ * classpath may change between runs).
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SpiBackedComponentFactory implements ComponentFactory {
 
     private final DefaultComponentFactory fallback = new DefaultComponentFactory();
+
+    /** Lazy-init cached list of SelectionProvider instances; {@code null} means not yet loaded. */
+    private volatile List<SelectionProvider> cachedSelectionProviders;
+
+    /** Lazy-init cached list of AlgorithmProvider instances; {@code null} means not yet loaded. */
+    private volatile List<AlgorithmProvider> cachedAlgorithmProviders;
+
+    /**
+     * Returns the cached list of {@link SelectionProvider} instances, loading them on first access.
+     * The returned list is unmodifiable.
+     */
+    private List<SelectionProvider> selectionProviders() {
+        List<SelectionProvider> providers = cachedSelectionProviders;
+        if (providers == null) {
+            synchronized (this) {
+                providers = cachedSelectionProviders;
+                if (providers == null) {
+                    List<SelectionProvider> loaded = new ArrayList<>();
+                    for (SelectionProvider sp : ServiceLoader.load(SelectionProvider.class)) {
+                        loaded.add(sp);
+                    }
+                    providers = Collections.unmodifiableList(loaded);
+                    cachedSelectionProviders = providers;
+                }
+            }
+        }
+        return providers;
+    }
+
+    /**
+     * Returns the cached list of {@link AlgorithmProvider} instances, loading them on first access.
+     * The returned list is unmodifiable.
+     */
+    private List<AlgorithmProvider> algorithmProviders() {
+        List<AlgorithmProvider> providers = cachedAlgorithmProviders;
+        if (providers == null) {
+            synchronized (this) {
+                providers = cachedAlgorithmProviders;
+                if (providers == null) {
+                    List<AlgorithmProvider> loaded = new ArrayList<>();
+                    for (AlgorithmProvider ap : ServiceLoader.load(AlgorithmProvider.class)) {
+                        loaded.add(ap);
+                    }
+                    providers = Collections.unmodifiableList(loaded);
+                    cachedAlgorithmProviders = providers;
+                }
+            }
+        }
+        return providers;
+    }
+
+    /**
+     * Clears the cached ServiceLoader results so that the next call to
+     * {@link #createSelection} or {@link #createAlgorithm} will re-scan the classpath.
+     * This is primarily intended for test scenarios where provider registrations
+     * may change between invocations.
+     */
+    public void reload() {
+        synchronized (this) {
+            cachedSelectionProviders = null;
+            cachedAlgorithmProviders = null;
+        }
+    }
 
     @Override
     public Problem<?> createProblem(Configuration config) throws Exception {
@@ -49,8 +118,7 @@ public class SpiBackedComponentFactory implements ComponentFactory {
         final String selectionId = Objects.requireNonNull(config.getAlgorithm().getSelection().getName(),
                 "Selection name must be provided");
 
-        ServiceLoader<SelectionProvider> loader = ServiceLoader.load(SelectionProvider.class);
-        Selection<?> fromProvider = StreamSupport.stream(loader.spliterator(), false)
+        Selection<?> fromProvider = selectionProviders().stream()
                 .filter(p -> p.id().equalsIgnoreCase(selectionId))
                 .findFirst()
                 .map(SelectionProvider::create)
@@ -94,7 +162,6 @@ public class SpiBackedComponentFactory implements ComponentFactory {
         }
         int genotypeLength = config.getProblem().getGenotype().getLength();
 
-        ServiceLoader<AlgorithmProvider> loader = ServiceLoader.load(AlgorithmProvider.class);
         // If legacy factory supports GA/GP operators, derive them
         Crossover<?> crossover = null;
         Mutation<?> mutation = null;
@@ -132,7 +199,7 @@ public class SpiBackedComponentFactory implements ComponentFactory {
                 ? config.getAlgorithm().getTermination().getMaxGenerations()
                 : Integer.MAX_VALUE;
 
-        Algorithm<?> fromProvider = StreamSupport.stream(loader.spliterator(), false)
+        Algorithm<?> fromProvider = algorithmProviders().stream()
                 .filter(p -> p.id().equalsIgnoreCase(algorithmId))
                 .filter(p -> p.supports(genotypeOf(genotypeId), problem.getClass()))
                 .findFirst()

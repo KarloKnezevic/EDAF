@@ -14,6 +14,7 @@ public class BernoulliDistribution implements Statistics<BinaryIndividual> {
     private final Genotype<byte[]> genotype;
     private final Random random;
     private final double[] p;
+    private OptimizationType optimizationType = OptimizationType.min;
 
     public BernoulliDistribution(Genotype<byte[]> genotype, Random random) {
         this.genotype = genotype;
@@ -27,6 +28,7 @@ public class BernoulliDistribution implements Statistics<BinaryIndividual> {
 
     @Override
     public void estimate(Population<BinaryIndividual> population) {
+        optimizationType = population.getOptimizationType();
         for (int i = 0; i < p.length; i++) {
             int count = 0;
             for (BinaryIndividual individual : population) {
@@ -43,7 +45,7 @@ public class BernoulliDistribution implements Statistics<BinaryIndividual> {
 
     @Override
     public Population<BinaryIndividual> sample(int size) {
-        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(OptimizationType.min);
+        Population<BinaryIndividual> newPopulation = new SimplePopulation<>(optimizationType);
         for (int i = 0; i < size; i++) {
             byte[] newGenotype = new byte[genotype.getLength()];
             for (int j = 0; j < newGenotype.length; j++) {

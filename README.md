@@ -263,7 +263,7 @@ mvn clean install
 ## License
 
 EDAF (Estimation of Distribution Algorithms Framework)  
-Copyright (C) 2025 Dr. Karlo Knežević
+Copyright (C) 2026 Dr. Karlo Knežević
 
 This project is licensed under the terms of the GNU General Public License v3.0.  
 See the [LICENSE](LICENSE) file for details.

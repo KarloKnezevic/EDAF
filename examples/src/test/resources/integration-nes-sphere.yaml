@@ -1,0 +1,20 @@
+schema-version: "2.0"
+
+problem:
+  class: com.knezevic.edaf.testing.problems.Sphere
+  optimization: min
+  genotype:
+    type: fp
+    length: 5
+    l-bound: -5.0
+    u-bound: 5.0
+
+algorithm:
+  name: nes
+  population:
+    size: 30
+  selection:
+    name: tournament
+    size: 3
+  termination:
+    max-generations: 50

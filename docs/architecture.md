@@ -210,9 +210,8 @@ The framework publishes structured events during execution:
 
 EDAF supports multiple metrics backends:
 
-1. **ConsoleEventPublisher** (default)
-   - Human-readable console output
-   - Progress visualization
+1. **NoOpEventPublisher** (default)
+   - Silent no-op publisher when no metrics are configured
 
 2. **MicrometerEventPublisher** (`--metrics`)
    - Records metrics in `SimpleMeterRegistry`

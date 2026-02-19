@@ -11,6 +11,9 @@ import java.util.Map;
 
 public class Configuration {
 
+    @JsonProperty("schema-version")
+    private String schemaVersion;
+
     @NotNull(message = "Problem configuration is missing.")
     @Valid
     private ProblemConfig problem;
@@ -18,6 +21,9 @@ public class Configuration {
     @NotNull(message = "Algorithm configuration is missing.")
     @Valid
     private AlgorithmConfig algorithm;
+
+    @Valid
+    private OutputConfig output;
 
     public ProblemConfig getProblem() {
         return problem;
@@ -33,6 +39,22 @@ public class Configuration {
 
     public void setAlgorithm(AlgorithmConfig algorithm) {
         this.algorithm = algorithm;
+    }
+
+    public OutputConfig getOutput() {
+        return output;
+    }
+
+    public void setOutput(OutputConfig output) {
+        this.output = output;
+    }
+
+    public String getSchemaVersion() {
+        return schemaVersion;
+    }
+
+    public void setSchemaVersion(String schemaVersion) {
+        this.schemaVersion = schemaVersion;
     }
 
     public static class ProblemConfig {
@@ -175,13 +197,11 @@ public class Configuration {
         @Valid
         private TerminationConfig termination;
         private int elitism;
-        private double mortality;
-        private int stagnation;
         @JsonProperty("log-frequency")
         private int logFrequency;
         @JsonProperty("log-directory")
         private String logDirectory;
-        private Map<String, Object> parameters;
+        private Map<String, Object> parameters = new java.util.HashMap<>();
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
@@ -193,16 +213,17 @@ public class Configuration {
         public void setTermination(TerminationConfig termination) { this.termination = termination; }
         public int getElitism() { return elitism; }
         public void setElitism(int elitism) { this.elitism = elitism; }
-        public double getMortality() { return mortality; }
-        public void setMortality(double mortality) { this.mortality = mortality; }
-        public int getStagnation() { return stagnation; }
-        public void setStagnation(int stagnation) { this.stagnation = stagnation; }
         public int getLogFrequency() { return logFrequency; }
         public void setLogFrequency(int logFrequency) { this.logFrequency = logFrequency; }
         public String getLogDirectory() { return logDirectory; }
         public void setLogDirectory(String logDirectory) { this.logDirectory = logDirectory; }
         public Map<String, Object> getParameters() { return parameters; }
         public void setParameters(Map<String, Object> parameters) { this.parameters = parameters; }
+
+        @com.fasterxml.jackson.annotation.JsonAnySetter
+        public void setParameter(String name, Object value) {
+            this.parameters.put(name, value);
+        }
     }
 
     public static class PopulationConfig {
@@ -244,5 +265,86 @@ public class Configuration {
 
         public int getMaxGenerations() { return maxGenerations; }
         public void setMaxGenerations(int maxGenerations) { this.maxGenerations = maxGenerations; }
+    }
+
+    public static class OutputConfig {
+        @Valid
+        private PersistenceConfig persistence;
+        @Valid
+        private ReportingConfig reporting;
+        @Valid
+        private DashboardConfig dashboard;
+
+        public PersistenceConfig getPersistence() { return persistence; }
+        public void setPersistence(PersistenceConfig persistence) { this.persistence = persistence; }
+        public ReportingConfig getReporting() { return reporting; }
+        public void setReporting(ReportingConfig reporting) { this.reporting = reporting; }
+        public DashboardConfig getDashboard() { return dashboard; }
+        public void setDashboard(DashboardConfig dashboard) { this.dashboard = dashboard; }
+    }
+
+    public static class PersistenceConfig {
+        private boolean enabled;
+        private String type = "file";
+        @Valid
+        private JdbcConfig jdbc;
+        @Valid
+        private FileOutputConfig file;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getType() { return type; }
+        public void setType(String type) { this.type = type; }
+        public JdbcConfig getJdbc() { return jdbc; }
+        public void setJdbc(JdbcConfig jdbc) { this.jdbc = jdbc; }
+        public FileOutputConfig getFile() { return file; }
+        public void setFile(FileOutputConfig file) { this.file = file; }
+    }
+
+    public static class JdbcConfig {
+        private String url;
+        private String user;
+        private String password;
+
+        public String getUrl() { return url; }
+        public void setUrl(String url) { this.url = url; }
+        public String getUser() { return user; }
+        public void setUser(String user) { this.user = user; }
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+    }
+
+    public static class FileOutputConfig {
+        private String directory = "./results";
+        private String format = "json";
+
+        public String getDirectory() { return directory; }
+        public void setDirectory(String directory) { this.directory = directory; }
+        public String getFormat() { return format; }
+        public void setFormat(String format) { this.format = format; }
+    }
+
+    public static class ReportingConfig {
+        private boolean enabled;
+        private String format = "html";
+        @JsonProperty("output-directory")
+        private String outputDirectory = "./reports";
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getFormat() { return format; }
+        public void setFormat(String format) { this.format = format; }
+        public String getOutputDirectory() { return outputDirectory; }
+        public void setOutputDirectory(String outputDirectory) { this.outputDirectory = outputDirectory; }
+    }
+
+    public static class DashboardConfig {
+        private boolean enabled;
+        private int port = 8080;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public int getPort() { return port; }
+        public void setPort(int port) { this.port = port; }
     }
 }

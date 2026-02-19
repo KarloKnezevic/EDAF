@@ -36,7 +36,7 @@ public class GpFactory implements AlgorithmFactory {
                 (Crossover<TreeIndividual>) crossover,
                 (Mutation<TreeIndividual>) mutation,
                 (TerminationCondition<TreeIndividual>) terminationCondition,
-                crossoverRate, mutationRate, elitismSize);
+                crossoverRate, mutationRate, elitismSize, random);
     }
 
     @Override

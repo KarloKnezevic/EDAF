@@ -1,18 +1,16 @@
 package com.knezevic.edaf.algorithm.ltga;
 
 import com.knezevic.edaf.core.api.*;
+import com.knezevic.edaf.core.impl.AbstractAlgorithm;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
-import com.knezevic.edaf.core.runtime.ExecutionContext;
-import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
 import java.util.*;
 
 /**
  * The Linkage Tree Genetic Algorithm (LTGA).
  */
-public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionContext {
+public class LTGA extends AbstractAlgorithm<BinaryIndividual> {
 
-    private final Problem<BinaryIndividual> problem;
     private final Population<BinaryIndividual> population;
     private final Selection<BinaryIndividual> selection;
     private final Mutation<BinaryIndividual> mutation;
@@ -21,15 +19,10 @@ public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionConte
     private final Random random;
     private List<Set<Integer>> tree;
 
-    private BinaryIndividual best;
-    private int generation;
-    private ProgressListener listener;
-    private ExecutionContext context;
-
     public LTGA(Problem<BinaryIndividual> problem, Population<BinaryIndividual> population,
                 Selection<BinaryIndividual> selection, Mutation<BinaryIndividual> mutation,
                 TerminationCondition<BinaryIndividual> terminationCondition, int length, Random random) {
-        this.problem = problem;
+        super(problem, "ltga");
         this.population = population;
         this.selection = selection;
         this.mutation = mutation;
@@ -40,18 +33,18 @@ public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionConte
 
     @Override
     public void run() {
+        publishAlgorithmStarted();
+
         // 1. Initialize population
         long t0 = System.nanoTime();
         for (BinaryIndividual individual : population) {
             problem.evaluate(individual);
         }
         long t1 = System.nanoTime();
-        if (context != null && context.getEvents() != null) {
-            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("ltga", 0, population.getSize(), t1 - t0));
-        }
+        publishEvaluationCompleted(0, population.getSize(), t1 - t0);
         population.sort();
-        best = (BinaryIndividual) population.getBest().copy();
-        generation = 0;
+        setBest(population.getBest());
+        setGeneration(0);
 
         // 2. Run generations
         while (!terminationCondition.shouldTerminate(this)) {
@@ -66,15 +59,13 @@ public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionConte
             long e0 = System.nanoTime();
             problem.evaluate(offspring);
             long e1 = System.nanoTime();
-            if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("ltga", generation, 1, e1 - e0));
-            }
+            publishEvaluationCompleted(getGeneration(), 1, e1 - e0);
 
             // 2.3. Update population (elitism: never replace the best individual)
             population.sort();
             BinaryIndividual currentBest = population.getBest();
             BinaryIndividual worst = population.getWorst();
-            
+
             // Only replace worst if offspring is better AND worst is not the current best
             if (isFirstBetter(offspring, worst) && worst != currentBest) {
                 population.remove(worst);
@@ -84,20 +75,18 @@ public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionConte
                 population.remove(worst);
                 population.add(offspring);
             }
-            
+
             population.sort();
 
             // 2.4. Update best individual
             currentBest = population.getBest();
-            if (isFirstBetter(currentBest, best)) {
-                best = (BinaryIndividual) currentBest.copy();
-            }
+            updateBestIfBetter(currentBest);
 
-            generation++;
-            if (listener != null) {
-                listener.onGenerationDone(generation, population.getBest(), population);
-            }
+            incrementGeneration();
+            notifyListener();
+            publishGenerationCompleted();
         }
+        publishAlgorithmTerminated();
     }
 
     private void buildLinkageTree() {
@@ -184,38 +173,7 @@ public class LTGA implements Algorithm<BinaryIndividual>, SupportsExecutionConte
     }
 
     @Override
-    public BinaryIndividual getBest() {
-        return best;
-    }
-
-    @Override
-    public int getGeneration() {
-        return generation;
-    }
-
-    @Override
     public Population<BinaryIndividual> getPopulation() {
         return population;
-    }
-
-    @Override
-    public void setProgressListener(ProgressListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
-    public void setExecutionContext(ExecutionContext context) {
-        this.context = context;
-    }
-    
-    private boolean isFirstBetter(BinaryIndividual first, BinaryIndividual second) {
-        if (second == null) {
-            return true;
-        }
-        if (problem.getOptimizationType() == com.knezevic.edaf.core.api.OptimizationType.min) {
-            return first.getFitness() < second.getFitness();
-        } else {
-            return first.getFitness() > second.getFitness();
-        }
     }
 }

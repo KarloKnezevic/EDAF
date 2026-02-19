@@ -18,6 +18,7 @@ public class CemStatistics implements Statistics<Individual> {
     private final int length;
     private final Random random;
     private final boolean isBinary;
+    private OptimizationType optimizationType = OptimizationType.min;
     
     // For binary problems: probabilities
     private double[] probabilities;
@@ -54,7 +55,8 @@ public class CemStatistics implements Statistics<Individual> {
         if (population.getSize() == 0) {
             return;
         }
-        
+        optimizationType = population.getOptimizationType();
+
         if (isBinary) {
             estimateBinary(population);
         } else {
@@ -135,7 +137,7 @@ public class CemStatistics implements Statistics<Individual> {
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     public Population<Individual> sample(int size) {
-        Population<Individual> newPopulation = new SimplePopulation<>(OptimizationType.min);
+        Population<Individual> newPopulation = new SimplePopulation<>(optimizationType);
         
         if (isBinary) {
             for (int i = 0; i < size; i++) {

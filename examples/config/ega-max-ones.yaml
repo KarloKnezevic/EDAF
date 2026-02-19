@@ -19,6 +19,5 @@ algorithm:
     size: 3
   termination:
     max-generations: 10000
-  mortality: 0.5
   log-frequency: 10
   log-directory: "logs/ega-max-ones"

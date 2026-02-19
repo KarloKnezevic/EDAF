@@ -1,19 +1,21 @@
 package com.knezevic.edaf.core.runtime;
 
+import com.knezevic.edaf.core.api.Individual;
+
 public final class GenerationCompleted {
     private final String algorithmId;
     private final int generation;
-    private final Object bestIndividual;
+    private final Individual<?> bestIndividual;
     private final double bestFitness;
     private final double worstFitness;
     private final double avgFitness;
     private final double stdFitness;
 
-    public GenerationCompleted(String algorithmId, int generation, Object bestIndividual) {
+    public GenerationCompleted(String algorithmId, int generation, Individual<?> bestIndividual) {
         this(algorithmId, generation, bestIndividual, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
-    public GenerationCompleted(String algorithmId, int generation, Object bestIndividual,
+    public GenerationCompleted(String algorithmId, int generation, Individual<?> bestIndividual,
                               double bestFitness, double worstFitness, double avgFitness, double stdFitness) {
         this.algorithmId = algorithmId;
         this.generation = generation;
@@ -26,7 +28,7 @@ public final class GenerationCompleted {
 
     public String getAlgorithmId() { return algorithmId; }
     public int getGeneration() { return generation; }
-    public Object getBestIndividual() { return bestIndividual; }
+    public Individual<?> getBestIndividual() { return bestIndividual; }
     public double getBestFitness() { return bestFitness; }
     public double getWorstFitness() { return worstFitness; }
     public double getAvgFitness() { return avgFitness; }

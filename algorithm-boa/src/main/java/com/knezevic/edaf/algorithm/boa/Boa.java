@@ -3,6 +3,9 @@ package com.knezevic.edaf.algorithm.boa;
 import com.knezevic.edaf.algorithm.boa.acquisition.ExpectedImprovement;
 import com.knezevic.edaf.algorithm.boa.surrogate.GaussianProcessSurrogate;
 import com.knezevic.edaf.core.api.*;
+import com.knezevic.edaf.core.impl.AbstractAlgorithm;
+import com.knezevic.edaf.core.impl.SimplePopulation;
+import com.knezevic.edaf.core.runtime.ExecutionContext;
 import com.knezevic.edaf.genotype.fp.FpIndividual;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -11,64 +14,74 @@ import weka.core.Instances;
 
 import java.util.ArrayList;
 import java.util.Random;
-import com.knezevic.edaf.core.runtime.ExecutionContext;
-import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
 
-public class Boa implements Algorithm<FpIndividual>, SupportsExecutionContext {
+public class Boa extends AbstractAlgorithm<FpIndividual> {
 
-    private final Problem<FpIndividual> problem;
     private final int nInit;
     private final int nIter;
-    private FpIndividual best;
-    private int iteration;
-    private ProgressListener listener;
+    private final TerminationCondition<FpIndividual> terminationCondition;
     private Random random;
     private final GaussianProcessSurrogate surrogate = new GaussianProcessSurrogate();
     private Instances data;
     private final int genotypeLength;
     private final double min;
     private final double max;
-    private ExecutionContext context;
 
-    public Boa(Problem<FpIndividual> problem, int nInit, int nIter, int genotypeLength, double min, double max) {
-        this.problem = problem;
+    public Boa(Problem<FpIndividual> problem, int nInit, int nIter, int genotypeLength, double min, double max,
+               TerminationCondition<FpIndividual> terminationCondition) {
+        super(problem, "boa");
         this.nInit = nInit;
         this.nIter = nIter;
         this.genotypeLength = genotypeLength;
         this.min = min;
         this.max = max;
+        this.terminationCondition = terminationCondition;
+    }
+
+    @Override
+    public void setExecutionContext(ExecutionContext context) {
+        super.setExecutionContext(context);
+        // Use RandomSource from context if available, otherwise fallback to new Random()
+        if (context != null && context.getRandomSource() != null) {
+            // RandomSource.generator() returns RandomGenerator, extract a seed from it
+            // For compatibility with ExpectedImprovement which uses java.util.Random
+            java.util.random.RandomGenerator gen = context.getRandomSource().generator();
+            // Create a Random with a seed extracted from the generator for reproducibility
+            long seed = gen.nextLong();
+            this.random = new Random(seed);
+        } else if (this.random == null) {
+            this.random = new Random();
+        }
     }
 
     @Override
     public void run() {
+        publishAlgorithmStarted();
         initialize();
 
-        for (iteration = 0; iteration < nIter; iteration++) {
+        for (int iteration = 0; iteration < nIter && (terminationCondition == null || !terminationCondition.shouldTerminate(this)); iteration++) {
+            setGeneration(iteration);
             try {
-                ExpectedImprovement ei = new ExpectedImprovement(surrogate, best.getFitness(), random);
+                ExpectedImprovement ei = new ExpectedImprovement(surrogate, getBest().getFitness(), random);
                 Instance nextPoint = ei.find_max(data);
 
                 FpIndividual newIndividual = new FpIndividual(instanceToDoubleArray(nextPoint));
                 long e0 = System.nanoTime();
                 problem.evaluate(newIndividual);
                 long e1 = System.nanoTime();
-                if (context != null && context.getEvents() != null) {
-                    context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("boa", iteration, 1, e1 - e0));
-                }
+                publishEvaluationCompleted(iteration, 1, e1 - e0);
 
                 updateSurrogate(newIndividual);
 
-                if (best == null || newIndividual.getFitness() < best.getFitness()) {
-                    best = newIndividual.copy();
-                }
+                updateBestIfBetter(newIndividual);
             } catch (Exception e) {
                 // Ignore exceptions during evaluation
             }
 
-            if (listener != null) {
-                listener.onGenerationDone(iteration, best, null);
-            }
+            notifyListener(null);
+            publishGenerationCompleted(getBest().getFitness(), Double.NaN, Double.NaN, Double.NaN);
         }
+        publishAlgorithmTerminated();
     }
 
     private void initialize() {
@@ -92,15 +105,10 @@ public class Boa implements Algorithm<FpIndividual>, SupportsExecutionContext {
             FpIndividual individual = new FpIndividual(genotype);
             problem.evaluate(individual);
             updateSurrogate(individual);
-            if (best == null || individual.getFitness() < best.getFitness()) {
-                best = individual.copy();
-            }
+            updateBestIfBetter(individual);
         }
         long t1 = System.nanoTime();
-        if (context != null && context.getEvents() != null) {
-            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("boa", 0, nInit, t1 - t0));
-        }
-        // metrics for init batch are published in run() via context in callers
+        publishEvaluationCompleted(0, nInit, t1 - t0);
     }
 
     private void updateSurrogate(FpIndividual individual) {
@@ -125,38 +133,9 @@ public class Boa implements Algorithm<FpIndividual>, SupportsExecutionContext {
     }
 
     @Override
-    public FpIndividual getBest() {
-        return best;
-    }
-
-    @Override
-    public int getGeneration() {
-        return iteration;
-    }
-
-    @Override
     public Population<FpIndividual> getPopulation() {
-        return null;
-    }
-
-    @Override
-    public void setProgressListener(ProgressListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
-    public void setExecutionContext(ExecutionContext context) {
-        this.context = context;
-        // Use RandomSource from context if available, otherwise fallback to new Random()
-        if (context != null && context.getRandomSource() != null) {
-            // RandomSource.generator() returns RandomGenerator, extract a seed from it
-            // For compatibility with ExpectedImprovement which uses java.util.Random
-            java.util.random.RandomGenerator gen = context.getRandomSource().generator();
-            // Create a Random with a seed extracted from the generator for reproducibility
-            long seed = gen.nextLong();
-            this.random = new Random(seed);
-        } else if (this.random == null) {
-            this.random = new Random();
-        }
+        SimplePopulation<FpIndividual> pop = new SimplePopulation<>(problem.getOptimizationType());
+        if (getBest() != null) pop.add(getBest());
+        return pop;
     }
 }

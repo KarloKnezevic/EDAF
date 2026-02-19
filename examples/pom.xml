@@ -15,6 +15,11 @@
     <name>Examples Module</name>
     <description>Usage examples for the EDAF framework.</description>
 
+    <properties>
+        <jacoco.line.minimum>0</jacoco.line.minimum>
+        <jacoco.branch.minimum>0</jacoco.branch.minimum>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
@@ -103,7 +108,77 @@
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-nes</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>persistence-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>persistence-file</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>persistence-jdbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>reporting</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>dashboard</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
             <artifactId>genotype-permutation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-fp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-realvalued</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-categorical</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>genotype-integer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-boa</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-mimic</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>algorithm-bmda</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
+            <artifactId>selection</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -130,6 +205,16 @@
         <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

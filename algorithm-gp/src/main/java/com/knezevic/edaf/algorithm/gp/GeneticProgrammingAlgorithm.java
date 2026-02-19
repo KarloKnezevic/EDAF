@@ -1,20 +1,19 @@
 package com.knezevic.edaf.algorithm.gp;
 
 import com.knezevic.edaf.core.api.*;
+import com.knezevic.edaf.core.impl.AbstractAlgorithm;
 import com.knezevic.edaf.genotype.tree.TreeIndividual;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.knezevic.edaf.core.runtime.ExecutionContext;
-import com.knezevic.edaf.core.runtime.SupportsExecutionContext;
+import java.util.Random;
 
 /**
  * A standard Genetic Programming algorithm implementation.
  * It evolves a population of program trees to solve a given problem.
  */
-public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual>, SupportsExecutionContext {
+public class GeneticProgrammingAlgorithm extends AbstractAlgorithm<TreeIndividual> {
 
-    private final Problem<TreeIndividual> problem;
     private final Population<TreeIndividual> population;
     private final Selection<TreeIndividual> selection;
     private final Crossover<TreeIndividual> crossover;
@@ -23,17 +22,13 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual>, S
     private final double crossoverRate;
     private final double mutationRate;
     private final int elitismSize;
-
-    private TreeIndividual best;
-    private int generation;
-    private ProgressListener listener;
-    private ExecutionContext context;
+    private final Random random;
 
     public GeneticProgrammingAlgorithm(Problem<TreeIndividual> problem, Population<TreeIndividual> population,
                                        Selection<TreeIndividual> selection, Crossover<TreeIndividual> crossover,
                                        Mutation<TreeIndividual> mutation, TerminationCondition<TreeIndividual> terminationCondition,
-                                       double crossoverRate, double mutationRate, int elitismSize) {
-        this.problem = problem;
+                                       double crossoverRate, double mutationRate, int elitismSize, Random random) {
+        super(problem, "gp");
         this.population = population;
         this.selection = selection;
         this.crossover = crossover;
@@ -42,24 +37,25 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual>, S
         this.crossoverRate = crossoverRate;
         this.mutationRate = mutationRate;
         this.elitismSize = elitismSize;
+        this.random = random != null ? random : new Random();
     }
 
     @Override
     public void run() {
-        // Initial evaluation
+        publishAlgorithmStarted();
+
+        // Initial evaluation (sequential for GP)
         long t0 = System.nanoTime();
         for (int i = 0; i < population.getSize(); i++) {
             problem.evaluate(population.getIndividual(i));
         }
         long t1 = System.nanoTime();
-        if (context != null && context.getEvents() != null) {
-            context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("gp", 0, population.getSize(), t1 - t0));
-        }
+        publishEvaluationCompleted(0, population.getSize(), t1 - t0);
         population.sort();
-        best = (TreeIndividual) population.getBest().copy();
+        setBest(population.getBest());
 
         while (!terminationCondition.shouldTerminate(this)) {
-            generation++;
+            incrementGeneration();
             List<TreeIndividual> newPopulation = new ArrayList<>();
 
             // Elitism
@@ -76,79 +72,44 @@ public class GeneticProgrammingAlgorithm implements Algorithm<TreeIndividual>, S
 
                 // Crossover
                 TreeIndividual offspring;
-                if (Math.random() < crossoverRate) {
+                if (random.nextDouble() < crossoverRate) {
                     offspring = crossover.crossover(parent1, parent2);
                 } else {
                     offspring = (TreeIndividual) parent1.copy();
                 }
 
                 // Mutation
-                if (Math.random() < mutationRate) {
+                if (random.nextDouble() < mutationRate) {
                     mutation.mutate(offspring);
                 }
 
                 newPopulation.add(offspring);
             }
 
-            // Evaluate and replace
+            // Evaluate only new individuals (skip elites that are already evaluated) - sequential
             long e0 = System.nanoTime();
-            for (TreeIndividual individual : newPopulation) {
-                problem.evaluate(individual);
+            for (int i = elitismSize; i < newPopulation.size(); i++) {
+                problem.evaluate(newPopulation.get(i));
             }
             long e1 = System.nanoTime();
-            if (context != null && context.getEvents() != null) {
-                context.getEvents().publish(new com.knezevic.edaf.core.runtime.EvaluationCompleted("gp", generation, newPopulation.size(), e1 - e0));
-            }
+            publishEvaluationCompleted(getGeneration(), newPopulation.size() - elitismSize, e1 - e0);
 
-            for(int i = 0; i < newPopulation.size(); i++) {
+            for (int i = 0; i < newPopulation.size(); i++) {
                 population.setIndividual(i, newPopulation.get(i));
             }
 
             population.sort();
-            TreeIndividual currentBest = (TreeIndividual) population.getBest();
-            if (isFirstBetter(currentBest, best)) {
-                best = (TreeIndividual) currentBest.copy();
-            }
+            TreeIndividual currentBest = population.getBest();
+            updateBestIfBetter(currentBest);
 
-            if (listener != null) {
-                listener.onGenerationDone(generation, best, population);
-            }
+            notifyListener();
+            publishGenerationCompleted();
         }
-    }
-
-    @Override
-    public TreeIndividual getBest() {
-        return best;
-    }
-
-    @Override
-    public int getGeneration() {
-        return generation;
+        publishAlgorithmTerminated();
     }
 
     @Override
     public Population<TreeIndividual> getPopulation() {
         return population;
-    }
-
-    @Override
-    public void setProgressListener(ProgressListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
-    public void setExecutionContext(ExecutionContext context) {
-        this.context = context;
-    }
-
-    private boolean isFirstBetter(Individual first, Individual second) {
-        if (second == null) {
-            return true;
-        }
-        if (problem.getOptimizationType() == OptimizationType.min) {
-            return first.getFitness() < second.getFitness();
-        } else {
-            return first.getFitness() > second.getFitness();
-        }
     }
 }

@@ -1,6 +1,7 @@
 package com.knezevic.edaf.algorithm.cga;
 
 import com.knezevic.edaf.core.api.*;
+import com.knezevic.edaf.core.impl.AbstractAlgorithm;
 import com.knezevic.edaf.genotype.binary.BinaryIndividual;
 
 import java.util.Random;
@@ -29,22 +30,17 @@ import java.util.Random;
  *
  * @see <a href="https://en.wikipedia.org/wiki/Compact_genetic_algorithm">Compact genetic algorithm on Wikipedia</a>
  */
-public class cGA implements Algorithm<BinaryIndividual> {
+public class cGA extends AbstractAlgorithm<BinaryIndividual> {
 
-    private final Problem<BinaryIndividual> problem;
     private final TerminationCondition<BinaryIndividual> terminationCondition;
     private final int n; // population size for update
     private final int length;
     private final Random random;
     private final double[] p;
 
-    private BinaryIndividual best;
-    private int generation;
-    private ProgressListener listener;
-
     public cGA(Problem<BinaryIndividual> problem, TerminationCondition<BinaryIndividual> terminationCondition,
                int n, int length, Random random) {
-        this.problem = problem;
+        super(problem, "cga");
         this.terminationCondition = terminationCondition;
         this.n = n;
         this.length = length;
@@ -57,7 +53,8 @@ public class cGA implements Algorithm<BinaryIndividual> {
 
     @Override
     public void run() {
-        generation = 0;
+        publishAlgorithmStarted();
+        setGeneration(0);
         while (!terminationCondition.shouldTerminate(this)) {
             // 1. Generate two individuals
             byte[] genotype1 = new byte[length];
@@ -70,8 +67,11 @@ public class cGA implements Algorithm<BinaryIndividual> {
             BinaryIndividual individual2 = new BinaryIndividual(genotype2);
 
             // 2. Evaluate them
+            long e0 = System.nanoTime();
             problem.evaluate(individual1);
             problem.evaluate(individual2);
+            long e1 = System.nanoTime();
+            publishEvaluationCompleted(getGeneration(), 2, e1 - e0);
 
             // 3. Update probability vector
             BinaryIndividual winner, loser;
@@ -90,47 +90,25 @@ public class cGA implements Algorithm<BinaryIndividual> {
                     } else {
                         p[i] -= 1.0 / n;
                     }
+                    p[i] = Math.max(0.0, Math.min(1.0, p[i]));
                 }
             }
 
             // 4. Update best
-            if (best == null || isFirstBetter(winner, best)) {
-                best = (BinaryIndividual) winner.copy();
-            }
+            updateBestIfBetter(winner);
 
-            generation++;
-            if (listener != null) {
-                listener.onGenerationDone(generation, best, null);
-            }
+            incrementGeneration();
+            notifyListener(null);
+            publishGenerationCompleted(getBest().getFitness(), winner.getFitness(),
+                (individual1.getFitness() + individual2.getFitness()) / 2.0,
+                Double.NaN);
         }
-    }
-
-    @Override
-    public BinaryIndividual getBest() {
-        return best;
-    }
-
-    @Override
-    public int getGeneration() {
-        return generation;
+        publishAlgorithmTerminated();
     }
 
     @Override
     public Population<BinaryIndividual> getPopulation() {
         // cGA does not maintain a population, so this method returns null.
         return null;
-    }
-
-    @Override
-    public void setProgressListener(ProgressListener listener) {
-        this.listener = listener;
-    }
-
-    private boolean isFirstBetter(Individual first, Individual second) {
-        if (problem.getOptimizationType() == OptimizationType.min) {
-            return first.getFitness() < second.getFitness();
-        } else {
-            return first.getFitness() > second.getFitness();
-        }
     }
 }
