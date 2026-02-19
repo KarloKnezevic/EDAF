@@ -430,10 +430,13 @@ For full schema and query details, see [`docs/database-schema.md`](docs/database
 ## Web Dashboard and API
 
 Run web app locally:
+From a terminal opened at `/Users/karloknezevic/Desktop/EDAF`:
 
 ```bash
-EDAF_DB_URL=jdbc:sqlite:edaf-v3.db mvn -q -pl edaf-web -am spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
 ```
+
+Stop the server with `Ctrl+C` in that terminal.
 
 Open:
 
