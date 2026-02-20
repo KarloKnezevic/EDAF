@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.knezevic.edaf.v3.core.config.ExperimentConfig;
 import com.knezevic.edaf.v3.core.events.CheckpointSavedEvent;
@@ -40,12 +42,14 @@ public final class JdbcEventSink implements EventSink {
     private final ExperimentConfig config;
     private final String canonicalYaml;
     private final String canonicalJson;
+    private final String experimentCanonicalYaml;
+    private final String experimentCanonicalJson;
     private final String configHash;
     private final String experimentId;
     private final String experimentCreatedAt;
     private final ObjectMapper eventMapper;
     private final ObjectMapper canonicalMapper;
-    private final JsonNode canonicalConfigNode;
+    private final JsonNode experimentConfigNode;
     private final Map<String, Map<String, Double>> latestMetricsByRun = new ConcurrentHashMap<>();
 
     private volatile boolean experimentInitialized;
@@ -55,15 +59,21 @@ public final class JdbcEventSink implements EventSink {
         this.config = config;
         this.canonicalYaml = canonicalYaml;
         this.canonicalJson = canonicalJson;
-        this.configHash = sha256(canonicalJson);
-        this.experimentId = this.configHash;
-        this.experimentCreatedAt = Instant.now().toString();
         this.eventMapper = new ObjectMapper().registerModule(new JavaTimeModule());
         this.canonicalMapper = new ObjectMapper()
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         try {
-            this.canonicalConfigNode = canonicalMapper.readTree(canonicalJson);
+            JsonNode parsed = canonicalMapper.readTree(canonicalJson);
+            this.experimentConfigNode = normalizeForExperimentFingerprint(parsed);
+            this.experimentCanonicalJson = canonicalMapper.writeValueAsString(this.experimentConfigNode);
+            ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory())
+                    .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                    .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+            this.experimentCanonicalYaml = yamlMapper.writeValueAsString(this.experimentConfigNode);
+            this.configHash = sha256(experimentCanonicalJson);
+            this.experimentId = this.configHash;
+            this.experimentCreatedAt = Instant.now().toString();
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid canonical JSON configuration", e);
         }
@@ -148,8 +158,8 @@ public final class JdbcEventSink implements EventSink {
             statement.setString(10, config.getReplacement().getType());
             statement.setString(11, config.getStopping().getType());
             statement.setInt(12, config.getStopping().getMaxIterations());
-            statement.setString(13, canonicalYaml);
-            statement.setString(14, canonicalJson);
+            statement.setString(13, experimentCanonicalYaml);
+            statement.setString(14, experimentCanonicalJson);
             statement.setString(15, experimentCreatedAt);
             statement.executeUpdate();
         }
@@ -207,10 +217,10 @@ public final class JdbcEventSink implements EventSink {
     private List<FlattenedParam> flattenConfigParams() {
         List<FlattenedParam> rows = new ArrayList<>();
         List<String> sections = new ArrayList<>();
-        canonicalConfigNode.fieldNames().forEachRemaining(sections::add);
+        experimentConfigNode.fieldNames().forEachRemaining(sections::add);
         sections.sort(String::compareTo);
         for (String section : sections) {
-            flattenNode(section, section, canonicalConfigNode.path(section), rows);
+            flattenNode(section, section, experimentConfigNode.path(section), rows);
         }
         rows.sort(Comparator.comparing(FlattenedParam::section).thenComparing(FlattenedParam::paramPath));
         return rows;
@@ -516,6 +526,24 @@ public final class JdbcEventSink implements EventSink {
                 || "localSearch".equals(path)
                 || "restart".equals(path)
                 || "niching".equals(path);
+    }
+
+    private JsonNode normalizeForExperimentFingerprint(JsonNode parsed) {
+        JsonNode deepCopy = parsed.deepCopy();
+        if (!(deepCopy instanceof ObjectNode root)) {
+            return deepCopy;
+        }
+        JsonNode runNode = root.path("run");
+        if (runNode instanceof ObjectNode runObject) {
+            runObject.remove("id");
+            runObject.remove("masterSeed");
+        }
+        JsonNode loggingNode = root.path("logging");
+        if (loggingNode instanceof ObjectNode loggingObject) {
+            loggingObject.remove("jsonlFile");
+            loggingObject.remove("logFile");
+        }
+        return root;
     }
 
     private record FlattenedParam(

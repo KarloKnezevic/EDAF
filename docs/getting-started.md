@@ -109,6 +109,9 @@ Validation includes:
 
 ```bash
 ./edaf batch -c configs/batch-v3.yml
+./edaf batch -c configs/batch-benchmark-core-v3.yml
+./edaf batch -c configs/batch-benchmark-crypto-v3.yml
+./edaf batch -c configs/batch-stat-sample-v3.yml
 ```
 
 Batch file format:
@@ -121,6 +124,15 @@ experiments:
 ```
 
 Paths are resolved relative to the batch file location.
+
+`configs/batch-benchmark-core-v3.yml` runs the broader serious suite:
+OneMax, Knapsack, MAX-SAT, TSPLIB TSP, CEC2014, ZDT, DTLZ, Nguyen SR.
+
+`configs/batch-benchmark-crypto-v3.yml` runs cryptographic boolean-function variants:
+truth-table, permutation-balanced, token-tree, and multi-objective.
+
+`configs/batch-stat-sample-v3.yml` demonstrates 30-run style repetition campaigns per experiment
+using `defaultRepetitions`, `seedStart`, and automatic `-rXX` run-id suffixing.
 
 ## 9) Resume from Checkpoint
 

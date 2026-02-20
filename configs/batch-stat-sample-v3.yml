@@ -1,0 +1,11 @@
+defaultRepetitions: 30
+
+defaultSeedStart: 20270000
+
+experiments:
+  - config: umda-onemax-v3.yml
+    runIdPrefix: stats-umda-onemax-v3
+  - config: gaussian-sphere-v3.yml
+    runIdPrefix: stats-gaussian-sphere-v3
+  - config: ehm-tsp-v3.yml
+    runIdPrefix: stats-ehm-tsp-v3

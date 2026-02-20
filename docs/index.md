@@ -16,6 +16,8 @@ This documentation set describes the current **v3-only** architecture and runtim
 
 - [Algorithms](./algorithms.md)
 - [Representations](./representations.md)
+- [Problem Suites](./problem-suites.md)
+- [Boolean Function and Cryptography Suite](./crypto-boolean-problems.md)
 - [COCO Integration](./coco-integration.md)
 - [Extending the Framework](./extending-the-framework.md)
 

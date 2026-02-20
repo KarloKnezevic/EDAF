@@ -46,6 +46,27 @@ experiments:
   - gaussian-sphere-v3.yml
 ```
 
+Advanced batch shape for statistical campaigns (multiple repetitions per experiment):
+
+```yaml
+defaultRepetitions: 30
+defaultSeedStart: 20270000
+experiments:
+  - config: umda-onemax-v3.yml
+    runIdPrefix: stats-umda-onemax-v3
+  - config: gaussian-sphere-v3.yml
+    repetitions: 20
+    seedStart: 303000
+    runIdPrefix: stats-gaussian-sphere-v3
+```
+
+Batch entry fields:
+
+- `config` (or `path`): experiment YAML path relative to batch file
+- `repetitions`: number of repeated runs for stochastic significance studies
+- `seedStart`: starting seed for deterministic repetition stream (`seedStart + repetitionIndex`)
+- `runIdPrefix`: base run-id prefix; repetitions are auto-suffixed as `-r01`, `-r02`, ...
+
 ## 2) `run` Section
 
 | Field | Type | Default | Description |
@@ -90,6 +111,39 @@ representation:
 ```
 
 `type` is consumed by plugin resolution. Remaining fields become a typed section parameter map.
+
+Common `problem.type` values:
+
+- `onemax`
+- `knapsack`
+- `maxsat`
+- `small-tsp`
+- `tsplib-tsp`
+- `sphere`
+- `rosenbrock`
+- `rastrigin`
+- `cec2014`
+- `zdt`
+- `dtlz`
+- `nguyen-sr`
+- `coco-bbob`
+- `boolean-function`
+- `boolean-function-permutation`
+- `boolean-function-tree`
+- `boolean-function-mo`
+
+### Boolean-function crypto problem parameters
+
+Shared parameters (`boolean-function*`):
+
+- `n` (int): number of input variables (`truth table size = 2^n`)
+- `criteria` (string[]): subset/order of `balancedness`, `nonlinearity`, `algebraic-degree`
+- `criterionWeights` (map): scalar aggregation weights for configured criteria
+
+Additional parameters:
+
+- `boolean-function-tree`: `maxDepth` (int), max parser recursion depth
+- `boolean-function-mo`: `objectiveWeights` (double[]), scalar projection weights for vector fitness
 
 ## 4) `stopping` Section
 
@@ -174,16 +228,16 @@ Semantic validator groups components by representation family.
 
 | Family | Model types |
 | --- | --- |
-| Discrete | `umda-bernoulli`, `pbil-frequency`, `cga-frequency`, `bmda`, `mimic-chow-liu`, `boa-ebna` |
-| Continuous | `gaussian-diag`, `gaussian-full`, `gmm`, `kde`, `copula-baseline`, `snes`, `xnes`, `cma-es` |
+| Discrete | `umda-bernoulli`, `pbil-frequency`, `cga-frequency`, `bmda`, `mimic-chow-liu`, `boa-ebna`, `hboa-network`, `token-categorical` |
+| Continuous | `gaussian-diag`, `gaussian-full`, `gmm`, `kde`, `copula-baseline`, `snes`, `xnes`, `cma-es`, `normalizing-flow` |
 | Permutation | `ehm`, `plackett-luce`, `mallows` |
 
 ### Allowed Algorithm Types by Family
 
 | Family | Algorithm types |
 | --- | --- |
-| Discrete | `umda`, `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`, `mo-eda-skeleton` |
-| Continuous | `gaussian-eda`, `gmm-eda`, `kde-eda`, `copula-eda`, `snes`, `xnes`, `cma-es`, `mo-eda-skeleton` |
+| Discrete | `umda`, `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`, `hboa`, `mo-eda-skeleton`, `tree-eda` |
+| Continuous | `gaussian-eda`, `full-covariance-eda`, `flow-eda`, `gmm-eda`, `kde-eda`, `copula-eda`, `snes`, `xnes`, `cma-es`, `mo-eda-skeleton` |
 | Permutation | `ehm-eda`, `plackett-luce-eda`, `mallows-eda`, `mo-eda-skeleton` |
 
 ## 11) Policy Types Currently Handled by `PolicyFactory`
@@ -228,6 +282,8 @@ Semantic validator groups components by representation family.
 ### Continuous (Gaussian EDA + Sphere)
 
 - `configs/gaussian-sphere-v3.yml`
+- `configs/benchmarks/sphere-full-cov-v3.yml`
+- `configs/benchmarks/sphere-flow-eda-v3.yml`
 
 ### Permutation (EHM + small TSP)
 
@@ -236,6 +292,15 @@ Semantic validator groups components by representation family.
 ### Mixed Representation (Copula baseline pipeline)
 
 - `configs/mixed-toy-v3.yml`
+
+### Boolean-function cryptography suite
+
+- `configs/benchmarks/crypto-boolean-umda-v3.yml`
+- `configs/benchmarks/crypto-boolean-permutation-ehm-v3.yml`
+- `configs/benchmarks/crypto-boolean-tree-eda-v3.yml`
+- `configs/benchmarks/crypto-boolean-mo-v3.yml`
+- `configs/benchmarks/onemax-hboa-v3.yml`
+- batch: `configs/batch-benchmark-crypto-v3.yml`
 
 ### Docker/PostgreSQL-ready Example
 

@@ -1,0 +1,81 @@
+schema: "3.0"
+
+run:
+  id: benchmark-sphere-flow-eda-v3
+  name: Sphere on Flow-EDA (v3)
+  masterSeed: 20260412
+  deterministicStreams: true
+  checkpointEveryIterations: 10
+
+representation:
+  type: real-vector
+  length: 12
+  lower: -5.0
+  upper: 5.0
+
+problem:
+  type: sphere
+
+algorithm:
+  type: flow-eda
+  populationSize: 120
+  elitism: 1
+  selectionRatio: 0.40
+
+model:
+  type: normalizing-flow
+  jitter: 1.0e-8
+  learningRate: 0.75
+  maxSkew: 0.90
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 110
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-sphere-flow-eda-v3-events.jsonl
+  logFile: ./edaf-v3.log

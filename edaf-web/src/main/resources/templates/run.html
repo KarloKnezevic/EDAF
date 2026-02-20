@@ -31,9 +31,30 @@
                     radial-gradient(circle at 92% 8%, rgba(11, 74, 111, 0.14), transparent 33%),
                     var(--bg);
         }
-        .wrap { max-width: 1400px; margin: 0 auto; padding: 20px 16px 42px; }
-        .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-        .top a { color: var(--accent); text-decoration: none; font-weight: 700; }
+        .wrap { max-width: 1380px; margin: 0 auto; padding: 20px 14px 40px; }
+        .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .top-links {
+            display: flex;
+            gap: 9px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .top a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 7px 11px;
+            background: #fff;
+        }
         h1 { margin: 0; font-size: clamp(1.25rem, 2.2vw, 1.9rem); }
         .card {
             background: var(--card);
@@ -42,13 +63,20 @@
             padding: 14px;
             box-shadow: 0 9px 25px rgba(0,0,0,.05);
             margin-bottom: 12px;
+            max-width: 100%;
+            overflow: hidden;
         }
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(6, minmax(160px, 1fr));
+            grid-template-columns: repeat(6, minmax(130px, 1fr));
             gap: 10px;
         }
-        .kpi { border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+        .kpi {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            min-width: 0;
+        }
         .kpi .k { color: var(--muted); font-size: .8rem; font-family: "IBM Plex Mono", monospace; }
         .kpi .v { margin-top: 5px; font-weight: 700; word-break: break-word; }
         .status {
@@ -63,9 +91,9 @@
         .status-completed { background: #e0f2fe; color: #075985; }
         .status-failed { background: #fee2e2; color: var(--bad); }
         .status-other { background: #fef3c7; color: var(--warn); }
-        .row {
+        .grid-2 {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
             align-items: start;
         }
@@ -78,7 +106,7 @@
             flex-wrap: wrap;
         }
         .mono { font-family: "IBM Plex Mono", monospace; }
-        input, select, button, textarea {
+        input, select, button {
             border: 1px solid var(--line);
             border-radius: 10px;
             padding: 8px 10px;
@@ -91,13 +119,33 @@
         .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
         .btn-ghost { background: #fff; }
         .canvas-wrap { height: 300px; }
-        .table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: .84rem; vertical-align: top; }
-        th { background: #f8fafc; color: var(--muted); font-family: "IBM Plex Mono", monospace; }
+        .table-wrap {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: auto;
+            max-width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th, td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: .84rem;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+        th {
+            background: #f8fafc;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+        }
         pre {
             margin: 0;
-            max-height: 320px;
+            max-height: 420px;
             overflow: auto;
             padding: 12px;
             border: 1px solid var(--line);
@@ -106,28 +154,77 @@
             font-size: .78rem;
             line-height: 1.45;
             font-family: "IBM Plex Mono", monospace;
-            white-space: pre;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .payload-preview {
+            font-size: .78rem;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            margin-bottom: 6px;
+        }
+        .payload-details summary {
+            cursor: pointer;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: .8rem;
+            margin-bottom: 6px;
         }
         .hidden { display: none; }
         .muted { color: var(--muted); font-size: .84rem; }
         .events-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
         .events-pager { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        details.section {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            background: #fff;
+            margin-bottom: 12px;
+        }
+        details.section > summary {
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--accent-2);
+            list-style: none;
+        }
+        details.section > summary::-webkit-details-marker { display: none; }
+        details.section > summary::before {
+            content: "▸";
+            display: inline-block;
+            margin-right: 8px;
+            transition: transform .15s ease;
+        }
+        details.section[open] > summary::before { transform: rotate(90deg); }
+        .section-body { margin-top: 10px; }
+        .config-toggle { display: flex; gap: 6px; }
+        .event-type-cell {
+            min-width: 120px;
+            max-width: 180px;
+            word-break: break-word;
+        }
         @media (max-width: 1200px) {
-            .summary-grid { grid-template-columns: repeat(3, minmax(140px, 1fr)); }
-            .row { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+            .grid-2 { grid-template-columns: 1fr; }
         }
         @media (max-width: 760px) {
-            .summary-grid { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+            .summary-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
             .wrap { padding: 14px 10px 28px; }
+            .canvas-wrap { height: 250px; }
         }
     </style>
 </head>
 <body>
 <div class="wrap">
     <div class="top">
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="top-links">
             <a href="/">← Runs</a>
+            <a href="/experiments">Experiments</a>
             <a href="/coco">COCO Campaigns</a>
+            <a id="experimentLink" href="#">Experiment</a>
         </div>
         <button id="refreshAll" class="btn-primary">Refresh</button>
     </div>
@@ -158,69 +255,73 @@
         <div class="canvas-wrap"><canvas id="fitnessChart"></canvas></div>
     </section>
 
-    <section class="row">
-        <div class="card">
-            <div class="toolbar">
-                <strong>Iterations</strong>
-                <span id="iterationsInfo" class="muted"></span>
+    <details id="iterationsSection" class="section" open>
+        <summary>Iterations and Checkpoints</summary>
+        <div class="section-body grid-2">
+            <div class="card" style="margin:0; box-shadow:none;">
+                <div class="toolbar">
+                    <strong>Iterations</strong>
+                    <span id="iterationsInfo" class="muted"></span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style="width:12%;">Iteration</th>
+                            <th style="width:16%;">Evaluations</th>
+                            <th style="width:14%;">Best</th>
+                            <th style="width:14%;">Mean</th>
+                            <th style="width:14%;">Std</th>
+                            <th style="width:30%;">Created</th>
+                        </tr>
+                        </thead>
+                        <tbody id="iterationsRows">
+                        <tr th:each="row : ${iterations}">
+                            <td th:text="${row.iteration}"></td>
+                            <td th:text="${row.evaluations}"></td>
+                            <td th:text="${row.bestFitness}"></td>
+                            <td th:text="${row.meanFitness}"></td>
+                            <td th:text="${row.stdFitness}"></td>
+                            <td class="mono" th:text="${row.createdAt}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Iteration</th>
-                        <th>Evaluations</th>
-                        <th>Best</th>
-                        <th>Mean</th>
-                        <th>Std</th>
-                        <th>Created</th>
-                    </tr>
-                    </thead>
-                    <tbody id="iterationsRows">
-                    <tr th:each="row : ${iterations}">
-                        <td th:text="${row.iteration}"></td>
-                        <td th:text="${row.evaluations}"></td>
-                        <td th:text="${row.bestFitness}"></td>
-                        <td th:text="${row.meanFitness}"></td>
-                        <td th:text="${row.stdFitness}"></td>
-                        <td class="mono" th:text="${row.createdAt}"></td>
-                    </tr>
-                    </tbody>
-                </table>
+
+            <div class="card" style="margin:0; box-shadow:none;">
+                <div class="toolbar">
+                    <strong>Checkpoints</strong>
+                    <span id="checkpointInfo" class="muted"></span>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style="width:12%;">Iteration</th>
+                            <th style="width:56%;">Path</th>
+                            <th style="width:32%;">Created</th>
+                        </tr>
+                        </thead>
+                        <tbody id="checkpointRows">
+                        <tr th:each="cp : ${checkpoints}">
+                            <td th:text="${cp.iteration}"></td>
+                            <td class="mono" th:text="${cp.checkpointPath}"></td>
+                            <td class="mono" th:text="${cp.createdAt}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+    </details>
 
-        <div class="card">
+    <details id="eventsSection" class="section" open>
+        <summary>Events</summary>
+        <div class="section-body card" style="margin:0; box-shadow:none;">
             <div class="toolbar">
-                <strong>Checkpoints</strong>
-                <span id="checkpointInfo" class="muted"></span>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Iteration</th>
-                        <th>Path</th>
-                        <th>Created</th>
-                    </tr>
-                    </thead>
-                    <tbody id="checkpointRows">
-                    <tr th:each="cp : ${checkpoints}">
-                        <td th:text="${cp.iteration}"></td>
-                        <td class="mono" th:text="${cp.checkpointPath}"></td>
-                        <td class="mono" th:text="${cp.createdAt}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <section class="row">
-        <div class="card">
-            <div class="toolbar">
-                <strong>Events</strong>
-                <span class="muted">Filter by type/payload</span>
+                <strong>Event Stream</strong>
+                <span class="muted">Large payloads are shown as preview + expand.</span>
             </div>
             <div class="events-controls">
                 <select id="eventType">
@@ -233,15 +334,15 @@
                 <table>
                     <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Type</th>
-                        <th>Payload</th>
+                        <th style="width:22%;">Time</th>
+                        <th style="width:16%;">Type</th>
+                        <th style="width:62%;">Payload</th>
                     </tr>
                     </thead>
                     <tbody id="eventRows">
                     <tr th:each="ev : ${eventsPage.items}">
                         <td class="mono" th:text="${ev.createdAt}"></td>
-                        <td th:text="${ev.eventType}"></td>
+                        <td class="event-type-cell" th:text="${ev.eventType}"></td>
                         <td><pre th:text="${ev.payloadJson}"></pre></td>
                     </tr>
                     </tbody>
@@ -255,44 +356,51 @@
                 <span id="eventPageInfo" class="muted"></span>
             </div>
         </div>
+    </details>
 
-        <div class="card">
-            <div class="toolbar">
-                <strong>Configuration</strong>
-                <div>
-                    <button id="showYaml" class="btn-ghost">YAML</button>
-                    <button id="showJson" class="btn-ghost">JSON</button>
+    <details id="configSection" class="section" open>
+        <summary>Configuration and Flattened Params</summary>
+        <div class="section-body grid-2">
+            <div class="card" style="margin:0; box-shadow:none;">
+                <div class="toolbar">
+                    <strong>Configuration</strong>
+                    <div class="config-toggle">
+                        <button id="showYaml" class="btn-ghost">YAML</button>
+                        <button id="showJson" class="btn-ghost">JSON</button>
+                    </div>
+                </div>
+                <pre id="yamlView"></pre>
+                <pre id="jsonView" class="hidden"></pre>
+            </div>
+
+            <div class="card" style="margin:0; box-shadow:none;">
+                <div class="toolbar">
+                    <strong>Flattened Params</strong>
+                    <input id="paramSearch" placeholder="Search path or value..." />
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th style="width:14%;">Section</th>
+                            <th style="width:42%;">Path</th>
+                            <th style="width:12%;">Type</th>
+                            <th style="width:32%;">Value</th>
+                        </tr>
+                        </thead>
+                        <tbody id="paramRows">
+                        <tr th:each="p : ${params}">
+                            <td th:text="${p.section}"></td>
+                            <td class="mono" th:text="${p.paramPath}"></td>
+                            <td th:text="${p.valueType}"></td>
+                            <td class="mono" th:text="${p.valueText}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <pre id="yamlView"></pre>
-            <pre id="jsonView" class="hidden"></pre>
-
-            <div class="toolbar" style="margin-top: 12px;">
-                <strong>Flattened Params</strong>
-                <input id="paramSearch" placeholder="Search path or value..." />
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Section</th>
-                        <th>Path</th>
-                        <th>Type</th>
-                        <th>Value</th>
-                    </tr>
-                    </thead>
-                    <tbody id="paramRows">
-                    <tr th:each="p : ${params}">
-                        <td th:text="${p.section}"></td>
-                        <td class="mono" th:text="${p.paramPath}"></td>
-                        <td th:text="${p.valueType}"></td>
-                        <td class="mono" th:text="${p.valueText}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
-    </section>
+    </details>
 </div>
 
 <script th:inline="javascript">
@@ -343,7 +451,8 @@
         showJson: document.getElementById("showJson"),
         paramRows: document.getElementById("paramRows"),
         paramSearch: document.getElementById("paramSearch"),
-        refreshAll: document.getElementById("refreshAll")
+        refreshAll: document.getElementById("refreshAll"),
+        experimentLink: document.getElementById("experimentLink")
     };
 
     const chart = new Chart(document.getElementById("fitnessChart"), {
@@ -376,6 +485,15 @@
         return value === null || value === undefined || value === "" ? fallback : value;
     }
 
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     function renderRun(detail) {
         if (!detail) return;
         els.runTitle.textContent = detail.runId;
@@ -397,6 +515,9 @@
             els.jsonView.textContent = JSON.stringify(JSON.parse(detail.configJson || "{}"), null, 2);
         } catch (_) {
             els.jsonView.textContent = detail.configJson || "";
+        }
+        if (detail.experimentId) {
+            els.experimentLink.href = `/experiments/${encodeURIComponent(detail.experimentId)}`;
         }
     }
 
@@ -467,9 +588,27 @@
                 <td>${safe(row.section, "")}</td>
                 <td class="mono">${safe(row.paramPath, "")}</td>
                 <td>${safe(row.valueType, "")}</td>
-                <td class="mono">${extractValue(row)}</td>
+                <td class="mono">${escapeHtml(extractValue(row))}</td>
             </tr>
         `).join("");
+    }
+
+    function payloadCell(payloadJson) {
+        const raw = safe(payloadJson, "");
+        let pretty = raw;
+        try {
+            pretty = JSON.stringify(JSON.parse(raw), null, 2);
+        } catch (_) {
+            // keep raw
+        }
+        const preview = pretty.length > 260 ? `${pretty.slice(0, 260)}\n...` : pretty;
+        return `
+            <div class="payload-preview">${escapeHtml(preview)}</div>
+            <details class="payload-details">
+                <summary>Expand payload</summary>
+                <pre>${escapeHtml(pretty)}</pre>
+            </details>
+        `;
     }
 
     function renderEvents(pageData) {
@@ -482,8 +621,8 @@
             els.eventRows.innerHTML = rows.map(row => `
                 <tr>
                     <td class="mono">${safe(row.createdAt, "")}</td>
-                    <td>${safe(row.eventType, "")}</td>
-                    <td><pre>${safe(row.payloadJson, "")}</pre></td>
+                    <td class="event-type-cell">${safe(row.eventType, "")}</td>
+                    <td>${payloadCell(row.payloadJson)}</td>
                 </tr>
             `).join("");
         }
@@ -498,7 +637,7 @@
         const types = [...new Set(rows.map(r => r.eventType).filter(Boolean))].sort();
         const currentType = els.eventType.value;
         const preserved = currentType && !types.includes(currentType) ? [currentType, ...types] : types;
-        els.eventType.innerHTML = `<option value="">All event types</option>` + preserved.map(type => `<option value="${type}">${type}</option>`).join("");
+        els.eventType.innerHTML = `<option value="">All event types</option>` + preserved.map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join("");
         els.eventType.value = currentType || "";
     }
 

@@ -1,0 +1,81 @@
+schema: "3.0"
+
+run:
+  id: benchmark-crypto-boolean-permutation-ehm-v3
+  name: Crypto Boolean Function (balanced permutation) on EHM-EDA (v3)
+  masterSeed: 20260302
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: permutation-vector
+  size: 64
+
+problem:
+  type: boolean-function-permutation
+  n: 6
+  criteria: [nonlinearity, algebraic-degree]
+  criterionWeights:
+    nonlinearity: 0.75
+    algebraic-degree: 0.25
+
+algorithm:
+  type: ehm-eda
+  populationSize: 260
+  elitism: 2
+  selectionRatio: 0.50
+
+model:
+  type: ehm
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 180
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-crypto-boolean-permutation-ehm-v3-events.jsonl
+  logFile: ./edaf-v3.log

@@ -1,0 +1,8 @@
+defaultRepetitions: 30
+defaultSeedStart: 91800
+
+experiments:
+  - config: umda-onemax-v3.yml
+    runIdPrefix: significance-umda-onemax
+  - config: benchmarks/onemax-pbil-v3.yml
+    runIdPrefix: significance-pbil-onemax

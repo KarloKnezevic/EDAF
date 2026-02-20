@@ -244,6 +244,14 @@ Date of this snapshot: 2026-02-19.
 - discrete vertical slice: UMDA + OneMax
 - continuous vertical slice: Gaussian diagonal EDA + Sphere
 - permutation vertical slice: EHM EDA + small TSP
+- expanded problem suite adapters:
+  - `cec2014`
+  - `knapsack`
+  - `maxsat` (DIMACS CNF)
+  - `tsplib-tsp` (TSPLIB parser)
+  - `zdt` / `dtlz` (multiobjective benchmark suites)
+  - `nguyen-sr` symbolic regression (token-tree encoding)
+- variable-length token pipeline: `tree-eda` + `token-categorical`
 - deterministic replay via master seed + named streams + checkpoint snapshots
 - DB-backed query model with search/filter/sort/pagination used by web/API/reporting
 

@@ -42,12 +42,19 @@ Run multiple experiments from one batch file.
 
 ```bash
 ./edaf batch -c configs/batch-v3.yml
+./edaf batch -c configs/batch-benchmark-core-v3.yml
+./edaf batch -c configs/batch-stat-sample-v3.yml
 ```
 
 Options:
 
 - `-c`, `--config` (required): path to batch YAML
 - `--verbosity` (optional): `quiet|normal|verbose|debug`
+
+Batch config supports both:
+
+- simple list (`experiments: [file1.yml, file2.yml]`)
+- repetition objects (`config`, `repetitions`, `seedStart`, `runIdPrefix`) for 30-run statistical campaigns
 
 ## 4) `resume`
 
@@ -92,6 +99,7 @@ Subcommands:
 ```bash
 ./edaf config validate configs/umda-onemax-v3.yml
 ./edaf config validate configs/batch-v3.yml
+./edaf config validate configs/batch-benchmark-core-v3.yml
 ```
 
 ## 7) `list`
@@ -161,7 +169,7 @@ Rebuild one campaign report from DB state.
 
 ```bash
 ./edaf coco report \
-  --campaign-id coco-bbob-benchmark-v3 \
+  --campaign-id coco-bbob-publishable-v4 \
   --out reports/coco \
   --db-url jdbc:sqlite:edaf-v3.db
 ```

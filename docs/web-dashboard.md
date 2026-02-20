@@ -16,6 +16,12 @@ or
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
 ```
 
+If Maven cannot resolve `spring-boot` prefix, use fully-qualified goal:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+```
+
 Stop the server with `Ctrl+C`.
 
 Open:
@@ -46,10 +52,34 @@ Features:
 
 - run summary cards
 - iteration chart (`best`, `mean`, `std`)
-- iteration table
-- checkpoints table
-- event panel with event type + payload text filter
-- YAML/JSON config view
+- collapsible iteration/checkpoint section
+- collapsible events section with large payload preview + expand view
+- collapsible configuration section (YAML/JSON + flattened params)
+- responsive layout with overflow-safe containers
+
+### `/experiments` Experiment Explorer
+
+Features:
+
+- one row per experiment (`experiment_id`) with grouped run counters
+- search over experiment ids, run ids, config hash, and flattened params
+- filters: algorithm/model/problem/date range
+- sorting + pagination for large benchmark campaigns
+
+### `/experiments/{experimentId}` Experiment Detail
+
+Features:
+
+- experiment metadata and run counters
+- run table for all repetitions in one experiment
+- run-level box-plot and histogram (best fitness distribution)
+- data profile and performance profile charts
+- success rate, ERT, SP1 summary
+- cross-algorithm same-problem section:
+  - Wilcoxon pairwise tests
+  - Holm correction
+  - Friedman omnibus ranking
+- one-click LaTeX export buttons
 - flattened params table with client-side filtering
 
 ### `/coco` COCO Campaign Explorer
@@ -74,6 +104,7 @@ Features:
 
 ### Run endpoints
 
+- `GET /api/experiments`
 - `GET /api/runs`
 - `GET /api/runs/{runId}`
 - `GET /api/runs/{runId}/iterations`
@@ -81,6 +112,18 @@ Features:
 - `GET /api/runs/{runId}/checkpoints`
 - `GET /api/runs/{runId}/params`
 - `GET /api/facets`
+- `GET /api/experiments/{experimentId}`
+- `GET /api/experiments/{experimentId}/runs`
+- `GET /api/experiments/{experimentId}/analysis`
+- `GET /api/experiments/{experimentId}/latex`
+- `GET /api/analysis/problem/{problemType}`
+- `GET /api/analysis/problem/{problemType}/latex`
+
+Analysis query params:
+
+- `direction` in `{min,max}`
+- `target` (optional success threshold)
+- `algorithm` (repeatable; optional subset for problem comparison)
 
 `GET /api/runs` query params:
 
@@ -96,6 +139,19 @@ Features:
 - `page`
 - `size`
 - `sortBy` in `{start_time,best_fitness,runtime_millis,status}`
+- `sortDir` in `{asc,desc}`
+
+`GET /api/experiments` query params:
+
+- `q`
+- `algorithm`
+- `model`
+- `problem`
+- `from`
+- `to`
+- `page`
+- `size`
+- `sortBy` in `{created_at,total_runs,best_fitness,algorithm_type,model_type,problem_type}`
 - `sortDir` in `{asc,desc}`
 
 ### COCO endpoints
@@ -133,6 +189,9 @@ curl "http://localhost:7070/api/runs?algorithm=umda&problem=onemax&status=COMPLE
 curl "http://localhost:7070/api/runs?q=problem.genotype.maxDepth"
 curl "http://localhost:7070/api/runs/umda-onemax-v3/events?eventType=iteration_completed&q=entropy&page=0&size=20"
 curl "http://localhost:7070/api/facets"
+curl "http://localhost:7070/api/experiments/<experimentId>/analysis?direction=max&target=60"
+curl "http://localhost:7070/api/analysis/problem/onemax?direction=max&target=60"
+curl "http://localhost:7070/api/analysis/problem/onemax/latex?direction=max&target=60"
 
 curl "http://localhost:7070/api/coco/campaigns?page=0&size=20&sortBy=created_at&sortDir=desc"
 curl "http://localhost:7070/api/coco/campaigns/coco-bbob-benchmark-v3"

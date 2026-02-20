@@ -1,0 +1,87 @@
+schema: "3.0"
+
+run:
+  id: benchmark-cec2014-f10-cma-v3
+  name: CEC2014 f10 on CMA-ES (v3)
+  masterSeed: 20260220
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: real-vector
+  length: 20
+  lower: -100.0
+  upper: 100.0
+
+problem:
+  type: cec2014
+  functionId: 10
+  dimension: 20
+  instanceId: 1
+
+algorithm:
+  type: cma-es
+  populationSize: 48
+  elitism: 0
+  selectionRatio: 0.5
+
+model:
+  type: cma-es
+  initialSigma: 8.0
+  minSigma: 1.0e-12
+  maxSigma: 20.0
+  restartEnabled: true
+  restartPatience: 28
+  restartSigmaMultiplier: 2.0
+
+selection:
+  type: truncation
+
+replacement:
+  type: generational
+
+stopping:
+  type: max-iterations
+  maxIterations: 180
+
+constraints:
+  type: repair
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-cec2014-f10-cma-v3-events.jsonl
+  logFile: ./edaf-v3.log

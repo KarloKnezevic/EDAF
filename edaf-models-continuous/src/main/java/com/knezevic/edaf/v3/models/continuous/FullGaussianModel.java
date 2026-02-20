@@ -19,12 +19,20 @@ import java.util.Map;
 public final class FullGaussianModel implements Model<RealVector> {
 
     private final double jitter;
+    private final double learningRate;
+    private final double shrinkage;
     private double[] mean;
     private double[][] covariance;
     private double[][] cholesky;
 
     public FullGaussianModel(double jitter) {
+        this(jitter, 1.0, 0.0);
+    }
+
+    public FullGaussianModel(double jitter, double learningRate, double shrinkage) {
         this.jitter = Math.max(1e-10, jitter);
+        this.learningRate = Math.max(0.0, Math.min(1.0, learningRate));
+        this.shrinkage = Math.max(0.0, Math.min(1.0, shrinkage));
     }
 
     @Override
@@ -37,38 +45,21 @@ public final class FullGaussianModel implements Model<RealVector> {
         if (selected.isEmpty()) {
             return;
         }
-        int dim = selected.get(0).genotype().length();
-        mean = new double[dim];
-        covariance = new double[dim][dim];
 
-        for (Individual<RealVector> individual : selected) {
-            double[] x = individual.genotype().values();
-            for (int i = 0; i < dim; i++) {
-                mean[i] += x[i];
-            }
-        }
-        for (int i = 0; i < dim; i++) {
-            mean[i] /= selected.size();
+        double[] estimatedMean = ContinuousModelMath.empiricalMean(selected);
+        double[][] estimatedCovariance = ContinuousModelMath.empiricalCovariance(selected, estimatedMean, jitter);
+
+        if (mean == null || covariance == null || mean.length != estimatedMean.length) {
+            mean = estimatedMean;
+            covariance = estimatedCovariance;
+        } else {
+            ContinuousModelMath.blendInPlace(mean, estimatedMean, learningRate);
+            ContinuousModelMath.blendInPlace(covariance, estimatedCovariance, learningRate);
         }
 
-        for (Individual<RealVector> individual : selected) {
-            double[] x = individual.genotype().values();
-            for (int i = 0; i < dim; i++) {
-                for (int j = 0; j < dim; j++) {
-                    covariance[i][j] += (x[i] - mean[i]) * (x[j] - mean[j]);
-                }
-            }
-        }
-
-        double denom = Math.max(1, selected.size() - 1);
-        for (int i = 0; i < dim; i++) {
-            for (int j = 0; j < dim; j++) {
-                covariance[i][j] /= denom;
-            }
-            covariance[i][i] += jitter;
-        }
-
-        cholesky = cholesky(covariance, jitter);
+        ContinuousModelMath.applyDiagonalShrinkage(covariance, shrinkage);
+        ContinuousModelMath.regularizeSymmetric(covariance, jitter);
+        cholesky = ContinuousModelMath.choleskyWithRetry(covariance, jitter);
     }
 
     @Override
@@ -105,34 +96,33 @@ public final class FullGaussianModel implements Model<RealVector> {
         if (covariance == null) {
             return ModelDiagnostics.empty();
         }
-        double minDiag = Double.POSITIVE_INFINITY;
-        double maxDiag = 0.0;
-        for (int i = 0; i < covariance.length; i++) {
-            minDiag = Math.min(minDiag, covariance[i][i]);
-            maxDiag = Math.max(maxDiag, covariance[i][i]);
-        }
+
         Map<String, Double> values = new LinkedHashMap<>();
-        values.put("cov_condition_number", maxDiag / Math.max(jitter, minDiag));
+        values.put("cov_condition_number", ContinuousModelMath.conditionNumberFromDiagonal(covariance, jitter));
         values.put("gaussian_dim", (double) covariance.length);
+        values.put("gaussian_learning_rate", learningRate);
+        values.put("gaussian_shrinkage", shrinkage);
         return new ModelDiagnostics(values);
     }
 
-    private static double[][] cholesky(double[][] matrix, double jitter) {
-        int n = matrix.length;
-        double[][] l = new double[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j <= i; j++) {
-                double sum = matrix[i][j];
-                for (int k = 0; k < j; k++) {
-                    sum -= l[i][k] * l[j][k];
-                }
-                if (i == j) {
-                    l[i][j] = Math.sqrt(Math.max(jitter, sum));
-                } else {
-                    l[i][j] = sum / l[j][j];
-                }
-            }
+    public double[] mean() {
+        return mean == null ? new double[0] : java.util.Arrays.copyOf(mean, mean.length);
+    }
+
+    public double[][] covariance() {
+        return covariance == null ? new double[0][0] : ContinuousModelMath.deepCopy(covariance);
+    }
+
+    /**
+     * Restores full Gaussian state from checkpoint payload.
+     */
+    public void restore(double[] mean, double[][] covariance) {
+        if (mean == null || covariance == null || covariance.length != mean.length) {
+            throw new IllegalArgumentException("FullGaussianModel restore requires compatible mean/covariance dimensions");
         }
-        return l;
+        this.mean = java.util.Arrays.copyOf(mean, mean.length);
+        this.covariance = ContinuousModelMath.deepCopy(covariance);
+        ContinuousModelMath.regularizeSymmetric(this.covariance, jitter);
+        this.cholesky = ContinuousModelMath.choleskyWithRetry(this.covariance, jitter);
     }
 }

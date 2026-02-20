@@ -17,17 +17,29 @@ public final class ExperimentConfigValidator {
     private static final Set<String> PERMUTATION_REPRESENTATIONS = Set.of("permutation-vector");
 
     private static final Set<String> DISCRETE_MODELS = Set.of(
-            "umda-bernoulli", "pbil-frequency", "cga-frequency", "bmda", "mimic-chow-liu", "boa-ebna");
+            "umda-bernoulli", "pbil-frequency", "cga-frequency", "bmda", "mimic-chow-liu", "boa-ebna",
+            "hboa-network", "token-categorical");
     private static final Set<String> CONTINUOUS_MODELS = Set.of(
-            "gaussian-diag", "gaussian-full", "gmm", "kde", "copula-baseline", "snes", "xnes", "cma-es");
+            "gaussian-diag", "gaussian-full", "gmm", "kde", "copula-baseline", "snes", "xnes", "cma-es",
+            "normalizing-flow");
     private static final Set<String> PERMUTATION_MODELS = Set.of("ehm", "plackett-luce", "mallows");
 
     private static final Set<String> DISCRETE_ALGORITHMS = Set.of(
-            "umda", "pbil", "cga", "bmda", "mimic", "boa", "ebna", "mo-eda-skeleton");
+            "umda", "pbil", "cga", "bmda", "mimic", "boa", "ebna",
+            "hboa", "factorized-discrete-eda", "dependency-tree-eda", "chow-liu-eda",
+            "mo-eda-skeleton", "pareto-eda", "indicator-eda", "tree-eda",
+            "sliding-window-eda", "memory-eda", "random-immigrants-eda", "noisy-resampling-eda");
     private static final Set<String> CONTINUOUS_ALGORITHMS = Set.of(
-            "gaussian-eda", "gmm-eda", "kde-eda", "copula-eda", "snes", "xnes", "cma-es", "mo-eda-skeleton");
+            "gaussian-eda", "gmm-eda", "kde-eda", "copula-eda", "snes", "xnes", "cma-es",
+            "cem", "umda-continuous", "pbil-real", "mimic-continuous",
+            "full-covariance-eda", "lowrank-covariance-eda", "block-covariance-eda", "flow-eda", "igo",
+            "mo-eda-skeleton", "pareto-eda", "indicator-eda",
+            "sliding-window-eda", "memory-eda", "random-immigrants-eda", "noisy-resampling-eda");
     private static final Set<String> PERMUTATION_ALGORITHMS = Set.of(
-            "ehm-eda", "plackett-luce-eda", "mallows-eda", "mo-eda-skeleton");
+            "ehm-eda", "ehbsa", "position-based-permutation-eda", "kendall-permutation-eda",
+            "plackett-luce-eda", "mallows-eda",
+            "mo-eda-skeleton", "pareto-eda", "indicator-eda",
+            "sliding-window-eda", "memory-eda", "random-immigrants-eda", "noisy-resampling-eda");
 
     private static final Set<String> SUPPORTED_LOGGING_MODES = Set.of("console", "jsonl", "file", "db");
     private static final Set<String> SUPPORTED_PERSISTENCE_SINKS = Set.of("console", "csv", "jsonl", "file", "db");

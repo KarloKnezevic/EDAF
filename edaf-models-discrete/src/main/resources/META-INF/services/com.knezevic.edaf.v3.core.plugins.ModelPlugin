@@ -4,3 +4,5 @@ com.knezevic.edaf.v3.models.discrete.plugins.CgaFrequencyModelPlugin
 com.knezevic.edaf.v3.models.discrete.plugins.BmdaModelPlugin
 com.knezevic.edaf.v3.models.discrete.plugins.MimicModelPlugin
 com.knezevic.edaf.v3.models.discrete.plugins.BoaEbnaModelPlugin
+com.knezevic.edaf.v3.models.discrete.plugins.HierarchicalBoaModelPlugin
+com.knezevic.edaf.v3.models.discrete.plugins.TokenCategoricalModelPlugin

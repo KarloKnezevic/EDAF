@@ -1,0 +1,87 @@
+schema: "3.0"
+
+run:
+  id: benchmark-crypto-boolean-tree-eda-v3
+  name: Crypto Boolean Function (token tree) on Tree EDA (v3)
+  masterSeed: 20260303
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: variable-length-vector
+  minLength: 6
+  maxLength: 24
+  maxToken: 24
+
+problem:
+  type: boolean-function-tree
+  n: 5
+  maxDepth: 9
+  criteria: [balancedness, nonlinearity, algebraic-degree]
+  criterionWeights:
+    balancedness: 0.20
+    nonlinearity: 0.60
+    algebraic-degree: 0.20
+
+algorithm:
+  type: tree-eda
+  populationSize: 260
+  elitism: 2
+  selectionRatio: 0.40
+
+model:
+  type: token-categorical
+  maxToken: 24
+  smoothing: 0.02
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 220
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-crypto-boolean-tree-eda-v3-events.jsonl
+  logFile: ./edaf-v3.log

@@ -1,0 +1,79 @@
+schema: "3.0"
+
+run:
+  id: benchmark-onemax-pbil-v3
+  name: OneMax on PBIL (v3)
+  masterSeed: 20260321
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 64
+
+problem:
+  type: onemax
+
+algorithm:
+  type: pbil
+  populationSize: 220
+  elitism: 1
+  selectionRatio: 0.45
+
+model:
+  type: pbil-frequency
+  learningRate: 0.12
+  mutationProbability: 0.02
+  mutationShift: 0.05
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 140
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-onemax-pbil-v3-events.jsonl
+  logFile: ./edaf-v3.log

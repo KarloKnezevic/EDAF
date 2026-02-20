@@ -2,6 +2,7 @@ package com.knezevic.edaf.v3.web.controller;
 
 import com.knezevic.edaf.v3.persistence.query.RunRepository;
 import com.knezevic.edaf.v3.persistence.query.RunQuery;
+import com.knezevic.edaf.v3.persistence.query.ExperimentQuery;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoCampaignQuery;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoRepository;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,25 @@ public class DashboardController {
     public DashboardController(RunRepository runRepository, CocoRepository cocoRepository) {
         this.runRepository = runRepository;
         this.cocoRepository = cocoRepository;
+    }
+
+    @GetMapping("/experiments")
+    public String experiments(Model model,
+                              @RequestParam(required = false) String q,
+                              @RequestParam(required = false) String algorithm,
+                              @RequestParam(name = "model", required = false) String modelFilter,
+                              @RequestParam(required = false) String problem,
+                              @RequestParam(required = false) String from,
+                              @RequestParam(required = false) String to,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "25") int size,
+                              @RequestParam(defaultValue = "created_at") String sortBy,
+                              @RequestParam(defaultValue = "desc") String sortDir) {
+        model.addAttribute("facets", runRepository.listFacets());
+        model.addAttribute("initialPage", runRepository.listExperiments(new ExperimentQuery(
+                q, algorithm, modelFilter, problem, from, to, page, size, sortBy, sortDir
+        )));
+        return "experiments";
     }
 
     @GetMapping("/")
@@ -62,6 +82,29 @@ public class DashboardController {
         model.addAttribute("params", runRepository.listExperimentParams(runId));
         model.addAttribute("eventsPage", runRepository.listEvents(runId, null, null, 0, 25));
         return "run";
+    }
+
+    @GetMapping("/experiments/{experimentId}")
+    public String experiment(@PathVariable String experimentId,
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "50") int size,
+                             @RequestParam(defaultValue = "start_time") String sortBy,
+                             @RequestParam(defaultValue = "desc") String sortDir,
+                             @RequestParam(required = false) String direction,
+                             @RequestParam(required = false) Double target,
+                             Model model) {
+        var detail = runRepository.getExperimentDetail(experimentId);
+        if (detail == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Experiment not found: " + experimentId);
+        }
+
+        model.addAttribute("experimentId", experimentId);
+        model.addAttribute("experiment", detail);
+        model.addAttribute("runsPage", runRepository.listExperimentRuns(experimentId, page, size, sortBy, sortDir));
+        model.addAttribute("analysis", runRepository.analyzeExperiment(experimentId, direction, target));
+        model.addAttribute("problemComparison",
+                runRepository.compareAlgorithmsOnProblem(detail.problemType(), direction, target, null));
+        return "experiment";
     }
 
     @GetMapping("/coco")

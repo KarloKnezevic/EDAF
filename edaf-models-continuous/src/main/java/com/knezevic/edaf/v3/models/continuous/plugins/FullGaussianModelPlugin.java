@@ -24,6 +24,10 @@ public final class FullGaussianModelPlugin implements ModelPlugin<RealVector> {
 
     @Override
     public FullGaussianModel create(Map<String, Object> params) {
-        return new FullGaussianModel(Params.dbl(params, "jitter", 1e-9));
+        return new FullGaussianModel(
+                Params.dbl(params, "jitter", 1e-9),
+                Params.dbl(params, "learningRate", 1.0),
+                Params.dbl(params, "shrinkage", 0.0)
+        );
     }
 }

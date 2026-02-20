@@ -9,6 +9,11 @@ import java.util.stream.Collectors;
 public interface RunRepository {
 
     /**
+     * Returns one page of experiments matching provided query.
+     */
+    PageResult<ExperimentListItem> listExperiments(ExperimentQuery query);
+
+    /**
      * Returns one page of runs matching provided query.
      */
     PageResult<RunListItem> listRuns(RunQuery query);
@@ -42,6 +47,29 @@ public interface RunRepository {
      * Lists distinct facet values used by dashboard filters.
      */
     FilterFacets listFacets();
+
+    /**
+     * Returns one experiment metadata row or {@code null} when id does not exist.
+     */
+    ExperimentDetail getExperimentDetail(String experimentId);
+
+    /**
+     * Lists runs for one experiment with pagination and sortable columns.
+     */
+    PageResult<ExperimentRunItem> listExperimentRuns(String experimentId, int page, int size, String sortBy, String sortDir);
+
+    /**
+     * Computes experiment-level aggregate analytics and profile curves.
+     */
+    ExperimentAnalytics analyzeExperiment(String experimentId, String objectiveDirection, Double targetFitness);
+
+    /**
+     * Computes cross-algorithm comparison for one problem family.
+     */
+    ProblemComparisonReport compareAlgorithmsOnProblem(String problemType,
+                                                       String objectiveDirection,
+                                                       Double targetFitness,
+                                                       List<String> algorithms);
 
     /**
      * Legacy convenience listing used by reporting and older callers.

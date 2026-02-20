@@ -2,6 +2,61 @@
 
 This document records comparable experiment results produced directly from EDAF v3 campaign runs.
 
+## Core Non-COCO Benchmark Set (Cross-Domain)
+
+### Reproducibility Inputs
+
+- Batch config: `/Users/karloknezevic/Desktop/EDAF/configs/batch-benchmark-core-v3.yml`
+- Experiment configs:
+  - `/Users/karloknezevic/Desktop/EDAF/configs/umda-onemax-v3.yml`
+  - `/Users/karloknezevic/Desktop/EDAF/configs/benchmarks/knapsack-umda-v3.yml`
+  - `/Users/karloknezevic/Desktop/EDAF/configs/benchmarks/maxsat-umda-v3.yml`
+  - `/Users/karloknezevic/Desktop/EDAF/configs/benchmarks/tsplib-berlin52-ehm-v3.yml`
+  - `/Users/karloknezevic/Desktop/EDAF/configs/benchmarks/cec2014-f10-cma-v3.yml`
+  - `/Users/karloknezevic/Desktop/EDAF/configs/benchmarks/zdt1-mo-v3.yml`
+  - `/Users/karloknezevic/Desktop/EDAF/configs/benchmarks/dtlz2-mo-v3.yml`
+  - `/Users/karloknezevic/Desktop/EDAF/configs/benchmarks/nguyen1-tree-eda-v3.yml`
+
+### Run Summary
+
+| Run ID | Algorithm | Model | Problem | Best Fitness |
+| --- | --- | --- | --- | ---: |
+| umda-onemax-v3 | umda | umda-bernoulli | onemax | 64.0 |
+| benchmark-knapsack-umda-v3 | umda | umda-bernoulli | knapsack | 159.0 |
+| benchmark-maxsat-umda-v3 | umda | umda-bernoulli | maxsat | 60.0 |
+| benchmark-tsplib-berlin52-ehm-v3 | ehm-eda | ehm | tsplib-tsp | 14146.0 |
+| benchmark-cec2014-f10-cma-v3 | cma-es | cma-es | cec2014 | 4.115598e-4 |
+| benchmark-zdt1-mo-v3 | mo-eda-skeleton | gaussian-diag | zdt | 0.375729 |
+| benchmark-dtlz2-mo-v3 | mo-eda-skeleton | gaussian-diag | dtlz | 0.33 |
+| benchmark-nguyen1-tree-eda-v3 | tree-eda | token-categorical | nguyen-sr | 0.024960 |
+
+### Multiobjective Objective Snapshots
+
+- `benchmark-zdt1-mo-v3`: `best_obj_0=0.2895337996`, `best_obj_1=0.4619246723`
+- `benchmark-dtlz2-mo-v3`: `best_obj_0≈0`, `best_obj_1≈0`, `best_obj_2=1.0`
+
+### Generated Artifacts
+
+- DB summary CSV:
+  - `/Users/karloknezevic/Desktop/EDAF/results/benchmarks/benchmark-core-v3-summary.csv`
+- MO objectives CSV:
+  - `/Users/karloknezevic/Desktop/EDAF/results/benchmarks/benchmark-mo-objectives-v3.csv`
+- Per-run HTML reports:
+  - `/Users/karloknezevic/Desktop/EDAF/reports/benchmarks/report-benchmark-cec2014-f10-cma-v3.html`
+  - `/Users/karloknezevic/Desktop/EDAF/reports/benchmarks/report-benchmark-knapsack-umda-v3.html`
+  - `/Users/karloknezevic/Desktop/EDAF/reports/benchmarks/report-benchmark-maxsat-umda-v3.html`
+  - `/Users/karloknezevic/Desktop/EDAF/reports/benchmarks/report-benchmark-tsplib-berlin52-ehm-v3.html`
+  - `/Users/karloknezevic/Desktop/EDAF/reports/benchmarks/report-benchmark-zdt1-mo-v3.html`
+  - `/Users/karloknezevic/Desktop/EDAF/reports/benchmarks/report-benchmark-dtlz2-mo-v3.html`
+  - `/Users/karloknezevic/Desktop/EDAF/reports/benchmarks/report-benchmark-nguyen1-tree-eda-v3.html`
+
+### Regeneration Commands
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+./edaf batch -c configs/batch-benchmark-core-v3.yml
+```
+
 ## COCO BBOB D=2 Comparison
 
 ### Reproducibility Inputs

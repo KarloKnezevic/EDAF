@@ -34,7 +34,10 @@ import com.knezevic.edaf.v3.experiments.factory.ComponentCatalog;
 import com.knezevic.edaf.v3.experiments.factory.PolicyFactory;
 import com.knezevic.edaf.v3.models.continuous.CmaEsStrategyModel;
 import com.knezevic.edaf.v3.models.continuous.DiagonalGaussianModel;
+import com.knezevic.edaf.v3.models.continuous.FullGaussianModel;
+import com.knezevic.edaf.v3.models.continuous.NormalizingFlowModel;
 import com.knezevic.edaf.v3.models.discrete.BernoulliUmdaModel;
+import com.knezevic.edaf.v3.models.discrete.HierarchicalBoaModel;
 import com.knezevic.edaf.v3.models.permutation.EdgeHistogramModel;
 import com.knezevic.edaf.v3.persistence.checkpoint.CheckpointStore;
 import com.knezevic.edaf.v3.persistence.jdbc.DataSourceFactory;
@@ -454,6 +457,21 @@ public final class ExperimentRunner {
             state.put("type", "gaussian-diag");
             state.set("mean", mapper.valueToTree(gaussian.mean()));
             state.set("sigma", mapper.valueToTree(gaussian.sigma()));
+        } else if (model instanceof FullGaussianModel gaussian) {
+            state.put("type", "gaussian-full");
+            state.set("mean", mapper.valueToTree(gaussian.mean()));
+            state.set("covariance", mapper.valueToTree(gaussian.covariance()));
+        } else if (model instanceof NormalizingFlowModel flow) {
+            state.put("type", "normalizing-flow");
+            state.set("mean", mapper.valueToTree(flow.mean()));
+            state.set("covariance", mapper.valueToTree(flow.covariance()));
+            state.set("skew", mapper.valueToTree(flow.skew()));
+        } else if (model instanceof HierarchicalBoaModel hboa) {
+            state.put("type", "hboa-network");
+            state.set("order", mapper.valueToTree(hboa.order()));
+            state.set("parent", mapper.valueToTree(hboa.parent()));
+            state.set("marginalOne", mapper.valueToTree(hboa.marginalOne()));
+            state.set("conditionalOne", mapper.valueToTree(hboa.conditionalOne()));
         } else if (model instanceof EdgeHistogramModel ehm) {
             state.put("type", "ehm");
             state.set("transitions", mapper.valueToTree(ehm.transitions()));
@@ -483,6 +501,24 @@ public final class ExperimentRunner {
             gaussian.restore(
                     mapper.convertValue(state.path("mean"), double[].class),
                     mapper.convertValue(state.path("sigma"), double[].class)
+            );
+        } else if (model instanceof FullGaussianModel gaussian && "gaussian-full".equals(type)) {
+            gaussian.restore(
+                    mapper.convertValue(state.path("mean"), double[].class),
+                    mapper.convertValue(state.path("covariance"), double[][].class)
+            );
+        } else if (model instanceof NormalizingFlowModel flow && "normalizing-flow".equals(type)) {
+            flow.restore(
+                    mapper.convertValue(state.path("mean"), double[].class),
+                    mapper.convertValue(state.path("covariance"), double[][].class),
+                    mapper.convertValue(state.path("skew"), double[].class)
+            );
+        } else if (model instanceof HierarchicalBoaModel hboa && "hboa-network".equals(type)) {
+            hboa.restore(
+                    mapper.convertValue(state.path("order"), int[].class),
+                    mapper.convertValue(state.path("parent"), int[].class),
+                    mapper.convertValue(state.path("marginalOne"), double[].class),
+                    mapper.convertValue(state.path("conditionalOne"), double[][].class)
             );
         } else if (model instanceof EdgeHistogramModel ehm && "ehm".equals(type)) {
             ehm.restore(mapper.convertValue(state.path("transitions"), double[][].class));

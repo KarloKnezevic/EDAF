@@ -103,6 +103,9 @@ Implementation status:
 - Production vertical slices:
   - `umda` (discrete)
   - `gaussian-eda` (continuous, diagonal Gaussian pipeline)
+  - `full-covariance-eda` (continuous, adaptive covariance)
+  - `flow-eda` (continuous, nonlinear transport)
+  - `hboa` (discrete dependency-aware Bayesian-network variant)
   - `ehm-eda` (permutation)
 - Working baselines/scaffolds (explicit TODO markers in source):
   - `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`
@@ -113,8 +116,8 @@ Implementation status:
 
 ### Models (`./edaf list models`)
 
-- Discrete: `umda-bernoulli`, `pbil-frequency`, `cga-frequency`, `bmda`, `mimic-chow-liu`, `boa-ebna`
-- Continuous: `gaussian-diag`, `gaussian-full`, `gmm`, `kde`, `copula-baseline`, `snes`, `xnes`, `cma-es`
+- Discrete: `umda-bernoulli`, `pbil-frequency`, `cga-frequency`, `bmda`, `mimic-chow-liu`, `boa-ebna`, `hboa-network`
+- Continuous: `gaussian-diag`, `gaussian-full`, `normalizing-flow`, `gmm`, `kde`, `copula-baseline`, `snes`, `xnes`, `cma-es`
 - Permutation: `ehm`, `plackett-luce`, `mallows`
 
 ### Representations
@@ -131,10 +134,21 @@ Implementation status:
 ### Problems (`./edaf list problems`)
 
 - `onemax`
+- `knapsack`
+- `maxsat`
 - `sphere`
 - `rosenbrock`
 - `rastrigin`
 - `small-tsp`
+- `tsplib-tsp`
+- `cec2014`
+- `zdt`
+- `dtlz`
+- `nguyen-sr`
+- `boolean-function`
+- `boolean-function-permutation`
+- `boolean-function-tree`
+- `boolean-function-mo`
 - `mixed-toy`
 
 ## Getting Started
@@ -183,9 +197,18 @@ Top-level help:
 
 ```bash
 ./edaf batch -c configs/batch-v3.yml
+./edaf batch -c configs/batch-benchmark-core-v3.yml
+./edaf batch -c configs/batch-benchmark-crypto-v3.yml
+./edaf batch -c configs/batch-stat-sample-v3.yml
 ```
 
-`configs/batch-v3.yml` contains a list of experiment config paths.
+`configs/batch-v3.yml` is a compact sanity batch.
+`configs/batch-benchmark-core-v3.yml` is the serious cross-domain benchmark batch
+(OneMax, Knapsack, MAX-SAT, TSPLIB TSP, CEC2014, ZDT, DTLZ, Nguyen SR).
+`configs/batch-benchmark-crypto-v3.yml` runs the boolean-function cryptography suite
+(truth-table, permutation-balanced, token-tree, and multi-objective variants).
+`configs/batch-stat-sample-v3.yml` demonstrates experiment-level repetition orchestration for statistical significance
+with deterministic seed streams and auto-suffixed run ids.
 
 ### 3) Resume from Checkpoint
 
@@ -497,14 +520,29 @@ Alternative command (direct module POM invocation):
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
 ```
 
+If Maven reports `No plugin found for prefix 'spring-boot'`, run the fully-qualified goal:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+```
+
 Stop the server with `Ctrl+C` in that terminal.
 
 Open:
 
 - [http://localhost:7070](http://localhost:7070)
 
+Core UI pages:
+
+- `/` run explorer
+- `/experiments` experiment explorer (grouped multi-run view)
+- `/runs/{runId}` run detail
+- `/experiments/{experimentId}` experiment-level analytics (box-plot, profiles, significance tables)
+- `/coco` COCO campaign explorer
+
 REST API:
 
+- `GET /api/experiments`
 - `GET /api/runs`
 - `GET /api/runs/{runId}`
 - `GET /api/runs/{runId}/iterations`
@@ -512,6 +550,12 @@ REST API:
 - `GET /api/runs/{runId}/checkpoints`
 - `GET /api/runs/{runId}/params`
 - `GET /api/facets`
+- `GET /api/experiments/{experimentId}`
+- `GET /api/experiments/{experimentId}/runs`
+- `GET /api/experiments/{experimentId}/analysis`
+- `GET /api/experiments/{experimentId}/latex`
+- `GET /api/analysis/problem/{problemType}`
+- `GET /api/analysis/problem/{problemType}/latex`
 - `GET /api/coco/campaigns`
 - `GET /api/coco/campaigns/{campaignId}`
 - `GET /api/coco/campaigns/{campaignId}/optimizers`
@@ -519,6 +563,8 @@ REST API:
 - `GET /api/coco/campaigns/{campaignId}/trials`
 
 `/api/runs` supports search/filter/sort/pagination (`q`, `algorithm`, `model`, `problem`, `status`, `from`, `to`, `minBest`, `maxBest`, `page`, `size`, `sortBy`, `sortDir`).
+
+`/api/experiments` supports search/filter/sort/pagination (`q`, `algorithm`, `model`, `problem`, `from`, `to`, `page`, `size`, `sortBy`, `sortDir`).
 
 `/api/coco/campaigns` supports `q`, `status`, `suite`, `page`, `size`, `sortBy`, `sortDir`.
 
@@ -616,6 +662,8 @@ Coverage includes:
 - [docs/configuration.md](docs/configuration.md) - complete config reference
 - [docs/algorithms.md](docs/algorithms.md) - algorithm-level details and status
 - [docs/representations.md](docs/representations.md) - representation contracts and parameters
+- [docs/problem-suites.md](docs/problem-suites.md) - non-COCO benchmark suites and extension rules
+- [docs/crypto-boolean-problems.md](docs/crypto-boolean-problems.md) - boolean-function cryptography suite and criteria
 - [docs/coco-integration.md](docs/coco-integration.md) - COCO campaign workflow, DB model, and comparison protocol
 - [docs/logging-and-observability.md](docs/logging-and-observability.md) - events, sinks, metrics
 - [docs/database-schema.md](docs/database-schema.md) - DB schema, relations, indexes, query model

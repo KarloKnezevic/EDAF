@@ -6,3 +6,4 @@ com.knezevic.edaf.v3.models.continuous.plugins.CopulaBaselineModelPlugin
 com.knezevic.edaf.v3.models.continuous.plugins.SNesModelPlugin
 com.knezevic.edaf.v3.models.continuous.plugins.XNesModelPlugin
 com.knezevic.edaf.v3.models.continuous.plugins.CmaEsStrategyModelPlugin
+com.knezevic.edaf.v3.models.continuous.plugins.NormalizingFlowModelPlugin

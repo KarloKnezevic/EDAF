@@ -5,3 +5,14 @@ com.knezevic.edaf.v3.problems.plugins.RastriginProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.SmallTspProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.MixedToyProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.CocoBbobProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.Cec2014ProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.KnapsackProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.MaxSatProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.TsplibTspProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.ZdtProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.DtlzProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.NguyenSymbolicRegressionProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.BooleanFunctionProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.BooleanFunctionPermutationProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.BooleanFunctionTreeProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.BooleanFunctionMultiObjectiveProblemPlugin

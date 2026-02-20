@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDAF Experiment Detail</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --card: #ffffff;
+            --ink: #1b2532;
+            --muted: #5f6f80;
+            --line: #d8e1ec;
+            --accent: #0f766e;
+            --accent-2: #155e75;
+            --good: #166534;
+            --warn: #a16207;
+            --bad: #991b1b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            background:
+                    radial-gradient(circle at 12% 12%, rgba(15, 118, 110, .16), transparent 34%),
+                    radial-gradient(circle at 88% 7%, rgba(21, 94, 117, .14), transparent 33%),
+                    var(--bg);
+        }
+        .wrap {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 20px 14px 36px;
+        }
+        .top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .links a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: #fff;
+        }
+        h1 {
+            margin: 0;
+            font-size: clamp(1.26rem, 2.4vw, 1.9rem);
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 9px 24px rgba(0, 0, 0, .05);
+            padding: 14px;
+            margin-bottom: 12px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .kpi {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            min-width: 0;
+        }
+        .kpi .k {
+            color: var(--muted);
+            font-size: .78rem;
+            font-family: "IBM Plex Mono", monospace;
+        }
+        .kpi .v {
+            margin-top: 5px;
+            font-weight: 700;
+            word-break: break-word;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .muted {
+            color: var(--muted);
+            font-size: .84rem;
+        }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+        input, select, button {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 10px;
+            background: #fff;
+            color: var(--ink);
+            font-family: inherit;
+            font-size: .88rem;
+        }
+        button {
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .btn-ghost {
+            background: #fff;
+        }
+        .control-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        .control {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 140px;
+        }
+        .control label {
+            color: var(--muted);
+            font-size: .78rem;
+            font-family: "IBM Plex Mono", monospace;
+        }
+        .table-wrap {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: auto;
+            max-width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th, td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: .84rem;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+        th {
+            background: #f8fafc;
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+        }
+        .pager {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .chart-wrap {
+            height: 300px;
+            width: 100%;
+        }
+        .box-svg-wrap {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: #fbfdff;
+        }
+        #boxPlotSvg {
+            width: 100%;
+            height: 170px;
+            display: block;
+        }
+        .status {
+            display: inline-flex;
+            border-radius: 999px;
+            font-size: .74rem;
+            letter-spacing: .04em;
+            font-weight: 700;
+            padding: 3px 9px;
+        }
+        .status-running { background: #dcfce7; color: var(--good); }
+        .status-completed { background: #e0f2fe; color: #075985; }
+        .status-failed { background: #fee2e2; color: var(--bad); }
+        .status-other { background: #fef3c7; color: var(--warn); }
+        @media (max-width: 1200px) {
+            .summary-grid { grid-template-columns: repeat(3, minmax(130px, 1fr)); }
+            .grid-3 { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 760px) {
+            .summary-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+            .wrap { padding: 14px 10px 26px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <div class="links">
+            <a href="/">← Runs</a>
+            <a href="/experiments">Experiments</a>
+            <a href="/coco">COCO Campaigns</a>
+        </div>
+        <div class="control-row">
+            <button id="refreshAll" class="btn-primary">Refresh</button>
+            <a id="latexExperimentLink" class="btn-ghost" style="text-decoration:none; display:inline-flex; align-items:center;" href="#">Export experiment LaTeX</a>
+            <a id="latexProblemLink" class="btn-ghost" style="text-decoration:none; display:inline-flex; align-items:center;" href="#">Export problem LaTeX</a>
+        </div>
+    </div>
+
+    <h1 id="experimentTitle" th:text="${experimentId}">experiment-id</h1>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>Experiment Controls</strong>
+            <span class="muted">Define success threshold for ERT/SP1/success rate and profiles.</span>
+        </div>
+        <div class="control-row">
+            <div class="control">
+                <label for="direction">Direction</label>
+                <select id="direction">
+                    <option value="min">min</option>
+                    <option value="max">max</option>
+                </select>
+            </div>
+            <div class="control">
+                <label for="target">Target fitness (optional)</label>
+                <input id="target" type="number" step="any" placeholder="e.g. 1e-8" />
+            </div>
+            <button id="applyAnalysis" class="btn-ghost">Apply analysis</button>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="summary-grid">
+            <div class="kpi"><div class="k">Experiment ID</div><div class="v mono" id="expIdValue">-</div></div>
+            <div class="kpi"><div class="k">Run Name</div><div class="v" id="runNameValue">-</div></div>
+            <div class="kpi"><div class="k">Algorithm</div><div class="v mono" id="algorithmValue">-</div></div>
+            <div class="kpi"><div class="k">Model</div><div class="v mono" id="modelValue">-</div></div>
+            <div class="kpi"><div class="k">Problem</div><div class="v mono" id="problemValue">-</div></div>
+            <div class="kpi"><div class="k">Config Hash</div><div class="v mono" id="hashValue">-</div></div>
+            <div class="kpi"><div class="k">Total runs</div><div class="v" id="totalRunsValue">0</div></div>
+            <div class="kpi"><div class="k">Completed</div><div class="v" id="completedRunsValue">0</div></div>
+            <div class="kpi"><div class="k">Failed</div><div class="v" id="failedRunsValue">0</div></div>
+            <div class="kpi"><div class="k">Running</div><div class="v" id="runningRunsValue">0</div></div>
+            <div class="kpi"><div class="k">Success rate</div><div class="v" id="successRateValue">0</div></div>
+            <div class="kpi"><div class="k">ERT / SP1</div><div class="v" id="ertSp1Value">-</div></div>
+        </div>
+    </section>
+
+    <section class="grid-2">
+        <div class="card">
+            <div class="toolbar">
+                <strong>Best Fitness Box-Plot</strong>
+                <span class="muted" id="boxSummary">No data</span>
+            </div>
+            <div class="box-svg-wrap">
+                <svg id="boxPlotSvg" viewBox="0 0 700 170" preserveAspectRatio="none"></svg>
+            </div>
+        </div>
+        <div class="card">
+            <div class="toolbar">
+                <strong>Best Fitness Histogram</strong>
+                <span class="muted">Distribution across all runs</span>
+            </div>
+            <div class="chart-wrap"><canvas id="histChart"></canvas></div>
+        </div>
+    </section>
+
+    <section class="grid-2">
+        <div class="card">
+            <div class="toolbar">
+                <strong>Data Profile</strong>
+                <span class="muted">Solved fraction vs evaluation budget</span>
+            </div>
+            <div class="chart-wrap"><canvas id="dataProfileChart"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="toolbar">
+                <strong>Performance Profile</strong>
+                <span class="muted">Fraction of runs within τ of best eval</span>
+            </div>
+            <div class="chart-wrap"><canvas id="performanceProfileChart"></canvas></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>Runs in Experiment</strong>
+            <span class="muted" id="runsPageInfo"></span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 20%;">Run ID</th>
+                    <th style="width: 9%;">Seed</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 10%;">Best</th>
+                    <th style="width: 10%;">Runtime</th>
+                    <th style="width: 10%;">Evals</th>
+                    <th style="width: 10%;">Iterations</th>
+                    <th style="width: 21%;">Start</th>
+                </tr>
+                </thead>
+                <tbody id="runsRows">
+                <tr th:each="row : ${runsPage.items}">
+                    <td class="mono"><a th:href="@{'/runs/' + ${row.runId}}" th:text="${row.runId}"></a></td>
+                    <td th:text="${row.seed}"></td>
+                    <td th:text="${row.status}"></td>
+                    <td th:text="${row.bestFitness}"></td>
+                    <td th:text="${row.runtimeMillis}"></td>
+                    <td th:text="${row.evaluations}"></td>
+                    <td th:text="${row.iterations}"></td>
+                    <td class="mono" th:text="${row.startTime}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pager">
+            <div>
+                <button id="runsPrev" class="btn-ghost">Previous</button>
+                <button id="runsNext" class="btn-ghost">Next</button>
+            </div>
+            <div class="control-row">
+                <div class="control">
+                    <label for="runsSize">Page size</label>
+                    <select id="runsSize">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="control">
+                    <label for="runsSortBy">Sort by</label>
+                    <select id="runsSortBy">
+                        <option value="start_time">start_time</option>
+                        <option value="best_fitness">best_fitness</option>
+                        <option value="runtime_millis">runtime_millis</option>
+                        <option value="status">status</option>
+                        <option value="seed">seed</option>
+                    </select>
+                </div>
+                <div class="control">
+                    <label for="runsSortDir">Sort dir</label>
+                    <select id="runsSortDir">
+                        <option value="desc">desc</option>
+                        <option value="asc">asc</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>Cross-Algorithm Comparison on Same Problem</strong>
+            <span class="muted">Wilcoxon, Friedman, Holm correction, data/performance profiles</span>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Runs</th>
+                            <th>Success</th>
+                            <th>Mean best</th>
+                            <th>Median best</th>
+                            <th>ERT</th>
+                            <th>SP1</th>
+                        </tr>
+                        </thead>
+                        <tbody id="algoSummaryRows">
+                        <tr th:each="row : ${problemComparison.algorithms}">
+                            <td class="mono" th:text="${row.algorithm}"></td>
+                            <td th:text="${row.totalRuns}"></td>
+                            <td th:text="${row.successRate}"></td>
+                            <td th:text="${row.meanBest}"></td>
+                            <td th:text="${row.medianBest}"></td>
+                            <td th:text="${row.ert}"></td>
+                            <td th:text="${row.sp1}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="muted" id="friedmanInfo" style="margin-top:8px;"></div>
+            </div>
+            <div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>A</th>
+                            <th>B</th>
+                            <th>p</th>
+                            <th>p<sub>Holm</sub></th>
+                            <th>Better</th>
+                            <th>sig(0.05)</th>
+                        </tr>
+                        </thead>
+                        <tbody id="pairwiseRows">
+                        <tr th:each="row : ${problemComparison.pairwiseWilcoxon}">
+                            <td class="mono" th:text="${row.algorithmA}"></td>
+                            <td class="mono" th:text="${row.algorithmB}"></td>
+                            <td th:text="${row.pValue}"></td>
+                            <td th:text="${row.holmAdjustedPValue}"></td>
+                            <td class="mono" th:text="${row.betterAlgorithm}"></td>
+                            <td th:text="${row.significantAt05}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script th:inline="javascript">
+    const experimentId = /*[[${experimentId}]]*/ "experiment-id";
+    const initialExperiment = /*[[${experiment}]]*/ null;
+    const initialAnalysis = /*[[${analysis}]]*/ null;
+    const initialRunsPage = /*[[${runsPage}]]*/ { items: [], page: 0, size: 50, total: 0, totalPages: 0 };
+    const initialProblemComparison = /*[[${problemComparison}]]*/ { algorithms: [], pairwiseWilcoxon: [], friedman: {} };
+
+    const state = {
+        runsPage: 0,
+        runsSize: (initialRunsPage && initialRunsPage.size) ? initialRunsPage.size : 50,
+        runsSortBy: "start_time",
+        runsSortDir: "desc",
+        direction: (initialAnalysis && initialAnalysis.objectiveDirection) ? initialAnalysis.objectiveDirection : "min",
+        target: (initialAnalysis && initialAnalysis.targetFitness != null) ? String(initialAnalysis.targetFitness) : ""
+    };
+
+    const els = {
+        experimentTitle: document.getElementById("experimentTitle"),
+        expIdValue: document.getElementById("expIdValue"),
+        runNameValue: document.getElementById("runNameValue"),
+        algorithmValue: document.getElementById("algorithmValue"),
+        modelValue: document.getElementById("modelValue"),
+        problemValue: document.getElementById("problemValue"),
+        hashValue: document.getElementById("hashValue"),
+        totalRunsValue: document.getElementById("totalRunsValue"),
+        completedRunsValue: document.getElementById("completedRunsValue"),
+        failedRunsValue: document.getElementById("failedRunsValue"),
+        runningRunsValue: document.getElementById("runningRunsValue"),
+        successRateValue: document.getElementById("successRateValue"),
+        ertSp1Value: document.getElementById("ertSp1Value"),
+        direction: document.getElementById("direction"),
+        target: document.getElementById("target"),
+        applyAnalysis: document.getElementById("applyAnalysis"),
+        refreshAll: document.getElementById("refreshAll"),
+        runsRows: document.getElementById("runsRows"),
+        runsPrev: document.getElementById("runsPrev"),
+        runsNext: document.getElementById("runsNext"),
+        runsSize: document.getElementById("runsSize"),
+        runsSortBy: document.getElementById("runsSortBy"),
+        runsSortDir: document.getElementById("runsSortDir"),
+        runsPageInfo: document.getElementById("runsPageInfo"),
+        boxPlotSvg: document.getElementById("boxPlotSvg"),
+        boxSummary: document.getElementById("boxSummary"),
+        algoSummaryRows: document.getElementById("algoSummaryRows"),
+        pairwiseRows: document.getElementById("pairwiseRows"),
+        friedmanInfo: document.getElementById("friedmanInfo"),
+        latexExperimentLink: document.getElementById("latexExperimentLink"),
+        latexProblemLink: document.getElementById("latexProblemLink")
+    };
+
+    const histChart = new Chart(document.getElementById("histChart"), {
+        type: "bar",
+        data: { labels: [], datasets: [{ label: "Runs", data: [], backgroundColor: "rgba(15, 118, 110, 0.45)", borderColor: "#0f766e", borderWidth: 1 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+
+    const dataProfileChart = new Chart(document.getElementById("dataProfileChart"), {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "Data profile", data: [], borderColor: "#155e75", backgroundColor: "rgba(21, 94, 117, 0.13)", tension: 0.2 }] },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false } }
+    });
+
+    const performanceProfileChart = new Chart(document.getElementById("performanceProfileChart"), {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "Performance profile", data: [], borderColor: "#a16207", backgroundColor: "rgba(161, 98, 7, 0.13)", tension: 0.2 }] },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false } }
+    });
+
+    function safe(value, fallback = "n/a") {
+        return value === null || value === undefined || value === "" ? fallback : value;
+    }
+
+    function fmt(value) {
+        if (value === null || value === undefined || Number.isNaN(Number(value))) {
+            return "n/a";
+        }
+        return Number(value).toFixed(6);
+    }
+
+    function statusClass(status) {
+        const value = (status || "").toUpperCase();
+        if (value === "RUNNING") return "status status-running";
+        if (value === "COMPLETED") return "status status-completed";
+        if (value === "FAILED") return "status status-failed";
+        return "status status-other";
+    }
+
+    function toUrlDate(value) {
+        if (value === null || value === undefined || value === "") {
+            return "";
+        }
+        return String(value);
+    }
+
+    function analysisQuery() {
+        const params = new URLSearchParams();
+        if (state.direction) params.set("direction", state.direction);
+        if (state.target && String(state.target).trim() !== "") params.set("target", String(state.target).trim());
+        return params.toString();
+    }
+
+    function renderExperiment(detail) {
+        if (!detail) return;
+        els.experimentTitle.textContent = detail.experimentId;
+        els.expIdValue.textContent = safe(detail.experimentId);
+        els.runNameValue.textContent = safe(detail.runName);
+        els.algorithmValue.textContent = safe(detail.algorithmType);
+        els.modelValue.textContent = safe(detail.modelType);
+        els.problemValue.textContent = safe(detail.problemType);
+        els.hashValue.textContent = safe(detail.configHash);
+        els.totalRunsValue.textContent = safe(detail.totalRuns, "0");
+        els.completedRunsValue.textContent = safe(detail.completedRuns, "0");
+        els.failedRunsValue.textContent = safe(detail.failedRuns, "0");
+        els.runningRunsValue.textContent = safe(detail.runningRuns, "0");
+
+        const query = analysisQuery();
+        els.latexExperimentLink.href = `/api/experiments/${encodeURIComponent(detail.experimentId)}/latex?${query}`;
+        els.latexProblemLink.href = `/api/analysis/problem/${encodeURIComponent(detail.problemType || "")}/latex?${query}`;
+    }
+
+    function renderRuns(pageData) {
+        const items = pageData.items || [];
+        if (!items.length) {
+            els.runsRows.innerHTML = `<tr><td colspan="8" class="muted">No runs found for this experiment.</td></tr>`;
+        } else {
+            els.runsRows.innerHTML = items.map(row => `
+                <tr>
+                    <td class="mono"><a href="/runs/${encodeURIComponent(row.runId)}">${row.runId}</a></td>
+                    <td>${safe(row.seed, "")}</td>
+                    <td><span class="${statusClass(row.status)}">${safe(row.status, "UNKNOWN")}</span></td>
+                    <td>${row.bestFitness == null ? "n/a" : Number(row.bestFitness).toFixed(6)}</td>
+                    <td>${safe(row.runtimeMillis, "n/a")}</td>
+                    <td>${safe(row.evaluations, "n/a")}</td>
+                    <td>${safe(row.iterations, "n/a")}</td>
+                    <td class="mono">${safe(row.startTime, "")}</td>
+                </tr>
+            `).join("");
+        }
+
+        const page = pageData.page || 0;
+        const totalPages = pageData.totalPages || 0;
+        const total = pageData.total || 0;
+        els.runsPageInfo.textContent = totalPages === 0
+            ? "Page 0/0"
+            : `Page ${page + 1}/${totalPages} · total runs: ${total}`;
+
+        els.runsPrev.disabled = page <= 0;
+        els.runsNext.disabled = totalPages === 0 || page >= (totalPages - 1);
+    }
+
+    function renderBoxPlot(box) {
+        const svg = els.boxPlotSvg;
+        svg.innerHTML = "";
+        if (!box || box.min == null || box.max == null) {
+            els.boxSummary.textContent = "No box-plot data";
+            return;
+        }
+
+        const width = 700;
+        const height = 170;
+        const padding = 52;
+        const y = 85;
+        const min = Number(box.min);
+        const q1 = Number(box.q1);
+        const median = Number(box.median);
+        const q3 = Number(box.q3);
+        const max = Number(box.max);
+
+        const range = (max - min) || 1;
+        const x = v => padding + ((v - min) / range) * (width - 2 * padding);
+
+        const line = (x1, y1, x2, y2, stroke = "#155e75", w = 2) => {
+            const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            el.setAttribute("x1", String(x1));
+            el.setAttribute("y1", String(y1));
+            el.setAttribute("x2", String(x2));
+            el.setAttribute("y2", String(y2));
+            el.setAttribute("stroke", stroke);
+            el.setAttribute("stroke-width", String(w));
+            svg.appendChild(el);
+        };
+
+        const text = (tx, ty, label, anchor = "middle") => {
+            const el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            el.setAttribute("x", String(tx));
+            el.setAttribute("y", String(ty));
+            el.setAttribute("font-size", "11");
+            el.setAttribute("fill", "#4b5d6f");
+            el.setAttribute("font-family", "IBM Plex Mono, monospace");
+            el.setAttribute("text-anchor", anchor);
+            el.textContent = label;
+            svg.appendChild(el);
+        };
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", String(x(q1)));
+        rect.setAttribute("y", "60");
+        rect.setAttribute("width", String(Math.max(1, x(q3) - x(q1))));
+        rect.setAttribute("height", "50");
+        rect.setAttribute("fill", "rgba(15, 118, 110, 0.24)");
+        rect.setAttribute("stroke", "#0f766e");
+        rect.setAttribute("stroke-width", "2");
+        svg.appendChild(rect);
+
+        line(x(min), y, x(q1), y);
+        line(x(q3), y, x(max), y);
+        line(x(min), 70, x(min), 100);
+        line(x(max), 70, x(max), 100);
+        line(x(median), 60, x(median), 110, "#991b1b", 2.6);
+
+        text(x(min), 124, `min=${fmt(min)}`);
+        text(x(q1), 140, `q1=${fmt(q1)}`);
+        text(x(median), 155, `med=${fmt(median)}`);
+        text(x(q3), 140, `q3=${fmt(q3)}`);
+        text(x(max), 124, `max=${fmt(max)}`);
+
+        els.boxSummary.textContent = `mean=${fmt(box.mean)} std=${fmt(box.stdDev)}`;
+    }
+
+    function buildHistogram(values, bins = 14) {
+        if (!values || values.length === 0) {
+            return { labels: [], counts: [] };
+        }
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        if (min === max) {
+            return { labels: [fmt(min)], counts: [values.length] };
+        }
+        const width = (max - min) / bins;
+        const counts = Array.from({ length: bins }, () => 0);
+        for (const v of values) {
+            const idx = Math.min(bins - 1, Math.floor((v - min) / width));
+            counts[idx] += 1;
+        }
+        const labels = counts.map((_, i) => {
+            const a = min + i * width;
+            const b = a + width;
+            return `${fmt(a)}..${fmt(b)}`;
+        });
+        return { labels, counts };
+    }
+
+    function renderAnalysis(analysis) {
+        if (!analysis) return;
+
+        els.successRateValue.textContent = fmt(analysis.successRate);
+        els.ertSp1Value.textContent = `ERT=${fmt(analysis.ert)} / SP1=${fmt(analysis.sp1)}`;
+        renderBoxPlot(analysis.bestFitnessBox);
+
+        const runValues = (analysis.bestFitnessValues || [])
+            .filter(v => v !== null && v !== undefined && Number.isFinite(Number(v)))
+            .map(Number);
+        const histogram = buildHistogram(runValues);
+        histChart.data.labels = histogram.labels;
+        histChart.data.datasets[0].data = histogram.counts;
+        histChart.update();
+
+        const dataPoints = analysis.dataProfile || [];
+        dataProfileChart.data.labels = dataPoints.map(p => p.x);
+        dataProfileChart.data.datasets[0].data = dataPoints.map(p => p.y);
+        dataProfileChart.update();
+
+        const perfPoints = analysis.performanceProfile || [];
+        performanceProfileChart.data.labels = perfPoints.map(p => p.x);
+        performanceProfileChart.data.datasets[0].data = perfPoints.map(p => p.y);
+        performanceProfileChart.update();
+    }
+
+    function renderProblemComparison(report) {
+        const rows = report.algorithms || [];
+        if (!rows.length) {
+            els.algoSummaryRows.innerHTML = `<tr><td colspan="7" class="muted">No comparable runs on this problem.</td></tr>`;
+        } else {
+            els.algoSummaryRows.innerHTML = rows.map(row => `
+                <tr>
+                    <td class="mono">${safe(row.algorithm, "")}</td>
+                    <td>${safe(row.totalRuns, 0)}</td>
+                    <td>${fmt(row.successRate)}</td>
+                    <td>${fmt(row.meanBest)}</td>
+                    <td>${fmt(row.medianBest)}</td>
+                    <td>${fmt(row.ert)}</td>
+                    <td>${fmt(row.sp1)}</td>
+                </tr>
+            `).join("");
+        }
+
+        const pairwise = report.pairwiseWilcoxon || [];
+        if (!pairwise.length) {
+            els.pairwiseRows.innerHTML = `<tr><td colspan="6" class="muted">No pairwise statistics available.</td></tr>`;
+        } else {
+            els.pairwiseRows.innerHTML = pairwise.map(row => `
+                <tr>
+                    <td class="mono">${safe(row.algorithmA, "")}</td>
+                    <td class="mono">${safe(row.algorithmB, "")}</td>
+                    <td>${fmt(row.pValue)}</td>
+                    <td>${fmt(row.holmAdjustedPValue)}</td>
+                    <td class="mono">${safe(row.betterAlgorithm, "none")}</td>
+                    <td>${row.significantAt05 ? "yes" : "no"}</td>
+                </tr>
+            `).join("");
+        }
+
+        const friedman = report.friedman || {};
+        if (friedman.statistic == null) {
+            els.friedmanInfo.textContent = "Friedman: insufficient paired samples for omnibus test.";
+        } else {
+            const ranks = (friedman.ranks || []).map(r => `${r.algorithm}:${fmt(r.averageRank)}`).join(" | ");
+            els.friedmanInfo.textContent = `Friedman χ²=${fmt(friedman.statistic)} p=${fmt(friedman.pValue)} blocks=${safe(friedman.blocks, 0)} · ranks: ${ranks}`;
+        }
+    }
+
+    async function fetchJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    }
+
+    async function loadExperiment() {
+        const detail = await fetchJson(`/api/experiments/${encodeURIComponent(experimentId)}`);
+        renderExperiment(detail);
+        return detail;
+    }
+
+    async function loadRuns() {
+        const params = new URLSearchParams();
+        params.set("page", String(state.runsPage));
+        params.set("size", String(state.runsSize));
+        params.set("sortBy", state.runsSortBy);
+        params.set("sortDir", state.runsSortDir);
+
+        const page = await fetchJson(`/api/experiments/${encodeURIComponent(experimentId)}/runs?${params.toString()}`);
+        renderRuns(page);
+        return page;
+    }
+
+    async function loadAnalysis() {
+        const query = analysisQuery();
+        return fetchJson(`/api/experiments/${encodeURIComponent(experimentId)}/analysis?${query}`);
+    }
+
+    async function loadProblemComparison(problemType) {
+        const query = analysisQuery();
+        return fetchJson(`/api/analysis/problem/${encodeURIComponent(problemType || "")}?${query}`);
+    }
+
+    async function refreshAll() {
+        try {
+            const detail = await loadExperiment();
+            await loadRuns();
+            const analysis = await loadAnalysis();
+            renderAnalysis(analysis);
+
+            if (detail && detail.problemType) {
+                const comparison = await loadProblemComparison(detail.problemType);
+                renderProblemComparison(comparison);
+            }
+        } catch (error) {
+            console.error("Experiment refresh failed", error);
+        }
+    }
+
+    els.applyAnalysis.addEventListener("click", async () => {
+        state.direction = els.direction.value;
+        state.target = els.target.value;
+        await refreshAll();
+    });
+
+    els.runsPrev.addEventListener("click", async () => {
+        state.runsPage = Math.max(0, state.runsPage - 1);
+        await loadRuns();
+        const analysis = await loadAnalysis();
+        renderAnalysis(analysis);
+    });
+
+    els.runsNext.addEventListener("click", async () => {
+        state.runsPage = state.runsPage + 1;
+        await loadRuns();
+        const analysis = await loadAnalysis();
+        renderAnalysis(analysis);
+    });
+
+    els.runsSize.addEventListener("change", async () => {
+        state.runsSize = Number(els.runsSize.value || 50);
+        state.runsPage = 0;
+        await loadRuns();
+        const analysis = await loadAnalysis();
+        renderAnalysis(analysis);
+    });
+
+    els.runsSortBy.addEventListener("change", async () => {
+        state.runsSortBy = els.runsSortBy.value;
+        state.runsPage = 0;
+        await loadRuns();
+        const analysis = await loadAnalysis();
+        renderAnalysis(analysis);
+    });
+
+    els.runsSortDir.addEventListener("change", async () => {
+        state.runsSortDir = els.runsSortDir.value;
+        state.runsPage = 0;
+        await loadRuns();
+        const analysis = await loadAnalysis();
+        renderAnalysis(analysis);
+    });
+
+    els.refreshAll.addEventListener("click", refreshAll);
+
+    if (initialAnalysis && initialAnalysis.objectiveDirection) {
+        state.direction = initialAnalysis.objectiveDirection;
+        els.direction.value = state.direction;
+    }
+    if (initialAnalysis && initialAnalysis.targetFitness != null) {
+        state.target = String(initialAnalysis.targetFitness);
+        els.target.value = state.target;
+    }
+    if (initialRunsPage && initialRunsPage.size) {
+        state.runsSize = initialRunsPage.size;
+        els.runsSize.value = String(state.runsSize);
+    }
+
+    renderExperiment(initialExperiment || {});
+    renderRuns(initialRunsPage || { items: [], page: 0, totalPages: 0 });
+    renderAnalysis(initialAnalysis || {});
+    renderProblemComparison(initialProblemComparison || { algorithms: [], pairwiseWilcoxon: [], friedman: {} });
+
+    refreshAll();
+    setInterval(refreshAll, 8000);
+</script>
+</body>
+</html>

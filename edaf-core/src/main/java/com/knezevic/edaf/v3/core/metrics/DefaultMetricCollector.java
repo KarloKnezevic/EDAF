@@ -24,6 +24,13 @@ public final class DefaultMetricCollector<G> implements MetricCollector<G> {
         values.put("std", PopulationMetrics.std(state.population()));
         values.put("diversity", PopulationMetrics.diversity(state.population()));
         values.put("entropy", PopulationMetrics.entropy(state.population()));
+
+        double[] objectives = state.best().fitness().objectives();
+        values.put("objective_count", (double) objectives.length);
+        for (int i = 0; i < objectives.length; i++) {
+            values.put("best_obj_" + i, objectives[i]);
+        }
+
         values.put("evaluations", (double) state.evaluations());
         values.put("iteration", (double) state.iteration());
         return values;

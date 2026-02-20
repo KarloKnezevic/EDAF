@@ -42,6 +42,53 @@ Resume from checkpoint:
 ./edaf batch -c configs/batch-v3.yml
 ```
 
+### Recipe D2: 30-run statistical batch per experiment
+
+```bash
+./edaf batch -c configs/batch-stat-sample-v3.yml
+```
+
+This file uses per-entry `repetitions`, `seedStart`, and `runIdPrefix` so one logical experiment produces many runs suitable for statistical tests.
+
+### Recipe E: Full cross-domain benchmark set (non-COCO)
+
+```bash
+./edaf batch -c configs/batch-benchmark-core-v3.yml
+```
+
+This batch runs and persists:
+
+- OneMax
+- Knapsack
+- MAX-SAT
+- TSPLIB TSP (Berlin52)
+- CEC2014
+- ZDT
+- DTLZ
+- Nguyen symbolic regression
+
+### Recipe F: Boolean-function cryptography benchmark set
+
+```bash
+./edaf batch -c configs/batch-benchmark-crypto-v3.yml
+```
+
+This batch runs and persists:
+
+- truth-table boolean-function optimization
+- balanced permutation boolean-function optimization
+- token-tree boolean-function optimization
+- multi-objective boolean-function baseline
+
+### Recipe G: Significance campaign (same problem, multiple algorithms, 30x runs)
+
+```bash
+./edaf batch -c configs/batch-significance-onemax-v3.yml
+```
+
+This campaign runs `umda` and `pbil` on `onemax` with identical deterministic seed schedules,
+so `/api/analysis/problem/onemax` can compute paired Friedman/Wilcoxon-style statistics.
+
 ## 3) COCO/BBOB Recipes
 
 ### Build and import fuller reference rows (recommended)
@@ -152,6 +199,12 @@ or
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
 ```
 
+If plugin prefix resolution fails, use fully-qualified goal:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+```
+
 Stop web server with `Ctrl+C` in the same terminal.
 
 Open:
@@ -161,7 +214,9 @@ Open:
 UI pages:
 
 - `/` run explorer
+- `/experiments` experiment explorer (multi-run grouped view)
 - `/runs/{runId}` run detail
+- `/experiments/{experimentId}` experiment detail (multi-run analytics)
 - `/coco` campaign explorer
 - `/coco/{campaignId}` campaign detail
 
@@ -173,10 +228,21 @@ UI pages:
 curl "http://localhost:7070/api/runs?page=0&size=25&sortBy=start_time&sortDir=desc"
 ```
 
+### Experiment list with pagination
+
+```bash
+curl "http://localhost:7070/api/experiments?page=0&size=25&sortBy=created_at&sortDir=desc"
+curl "http://localhost:7070/api/experiments?algorithm=umda&problem=onemax&q=maxDepth"
+```
+
 ### Filter by algorithm/problem/status
 
 ```bash
 curl "http://localhost:7070/api/runs?algorithm=umda&problem=onemax&status=COMPLETED"
+curl "http://localhost:7070/api/runs?problem=knapsack&status=COMPLETED"
+curl "http://localhost:7070/api/runs?problem=cec2014&status=COMPLETED"
+curl "http://localhost:7070/api/runs?problem=zdt&status=COMPLETED"
+curl "http://localhost:7070/api/runs?problem=boolean-function&status=COMPLETED"
 ```
 
 ### Full-text-like search across run and flattened params
@@ -200,6 +266,46 @@ curl "http://localhost:7070/api/runs/umda-onemax-v3/checkpoints"
 curl "http://localhost:7070/api/runs/umda-onemax-v3/params"
 curl "http://localhost:7070/api/runs/umda-onemax-v3/events?eventType=iteration_completed&q=entropy&page=0&size=20"
 ```
+
+### Experiment-level analytics and LaTeX export
+
+```bash
+curl "http://localhost:7070/api/experiments/<experimentId>"
+curl "http://localhost:7070/api/experiments/<experimentId>/runs?page=0&size=50&sortBy=start_time&sortDir=desc"
+curl "http://localhost:7070/api/experiments/<experimentId>/analysis?direction=max&target=60"
+curl "http://localhost:7070/api/experiments/<experimentId>/latex?direction=max&target=60"
+```
+
+### Same-problem algorithm significance analysis
+
+```bash
+curl "http://localhost:7070/api/analysis/problem/onemax?direction=max&target=60"
+curl "http://localhost:7070/api/analysis/problem/onemax/latex?direction=max&target=60"
+```
+
+### Advanced algorithm benchmarks
+
+```bash
+./edaf run -c configs/benchmarks/onemax-hboa-v3.yml
+./edaf run -c configs/benchmarks/sphere-full-cov-v3.yml
+./edaf run -c configs/benchmarks/sphere-flow-eda-v3.yml
+```
+
+Resume checkpoints:
+
+```bash
+./edaf resume --checkpoint results/benchmarks/checkpoints/benchmark-sphere-full-cov-v3-iter-100.ckpt.yaml
+./edaf resume --checkpoint results/benchmarks/checkpoints/benchmark-sphere-flow-eda-v3-iter-100.ckpt.yaml
+```
+
+For browser workflow:
+
+1. Open one run from `/`.
+2. Click `Experiment` in run detail header.
+3. On experiment page inspect:
+   - box-plot and histogram over all repeated runs
+   - data/performance profiles
+   - Wilcoxon/Holm pairwise table and Friedman summary.
 
 ### COCO campaign resources
 

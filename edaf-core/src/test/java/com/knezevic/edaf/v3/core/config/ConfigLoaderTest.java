@@ -1,5 +1,6 @@
 package com.knezevic.edaf.v3.core.config;
 
+import com.knezevic.edaf.v3.core.errors.ConfigurationException;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -7,6 +8,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Validates strict v3 loading behavior.
@@ -125,5 +127,44 @@ class ConfigLoaderTest {
         assertEquals(ConfigDocumentType.BATCH, loader.detectType(file));
         BatchConfig batch = loader.loadBatch(file);
         assertEquals(2, batch.getExperiments().size());
+        assertEquals("umda-onemax-v3.yml", batch.getExperiments().get(0).getConfig());
+        assertEquals(1, batch.getExperiments().get(0).getRepetitions());
+    }
+
+    @Test
+    void batchConfigSupportsRepetitionsAndSeedRanges() throws Exception {
+        Path file = Files.createTempFile("batch-advanced", ".yaml");
+        Files.writeString(file, """
+                defaultRepetitions: 30
+                defaultSeedStart: 8100
+                experiments:
+                  - config: umda-onemax-v3.yml
+                    runIdPrefix: sig-umda
+                  - config: gaussian-sphere-v3.yml
+                    repetitions: 10
+                    seedStart: 12000
+                    runIdPrefix: sig-gaussian
+                """);
+
+        ConfigLoader loader = new ConfigLoader();
+        BatchConfig batch = loader.loadBatch(file);
+        assertEquals(2, batch.getExperiments().size());
+        assertEquals(30, batch.getExperiments().get(0).getRepetitions());
+        assertEquals(8100L, batch.getExperiments().get(0).getSeedStart());
+        assertEquals(10, batch.getExperiments().get(1).getRepetitions());
+        assertEquals(12000L, batch.getExperiments().get(1).getSeedStart());
+    }
+
+    @Test
+    void batchConfigRejectsUnknownFields() throws Exception {
+        Path file = Files.createTempFile("batch-invalid", ".yaml");
+        Files.writeString(file, """
+                experiments:
+                  - config: umda-onemax-v3.yml
+                    foo: bar
+                """);
+
+        ConfigLoader loader = new ConfigLoader();
+        assertThrows(ConfigurationException.class, () -> loader.loadBatch(file));
     }
 }

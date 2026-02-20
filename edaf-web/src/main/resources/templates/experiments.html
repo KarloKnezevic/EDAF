@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDAF Experiments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f8fb;
+            --card: #ffffff;
+            --ink: #1b2532;
+            --muted: #5f6f80;
+            --line: #d8e1ec;
+            --accent: #0f766e;
+            --accent-2: #155e75;
+            --ok: #166534;
+            --warn: #a16207;
+            --bad: #991b1b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Space Grotesk", "Segoe UI", sans-serif;
+            background:
+                    radial-gradient(circle at 10% 9%, rgba(15, 118, 110, 0.16), transparent 34%),
+                    radial-gradient(circle at 90% 8%, rgba(21, 94, 117, 0.14), transparent 33%),
+                    var(--bg);
+        }
+        .wrap { max-width: 1420px; margin: 0 auto; padding: 22px 16px 40px; }
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .hero-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .hero-link {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 7px 11px;
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: .84rem;
+            background: rgba(255, 255, 255, .86);
+        }
+        h1 { margin: 0; font-size: clamp(1.35rem, 2.5vw, 2rem); }
+        .sub { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, .05);
+            padding: 16px;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .f { display: flex; flex-direction: column; gap: 5px; }
+        .f label {
+            color: var(--muted);
+            font-size: .8rem;
+            font-family: "IBM Plex Mono", monospace;
+        }
+        input, select, button {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--ink);
+            padding: 9px 10px;
+            font-family: inherit;
+            font-size: .9rem;
+        }
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+        button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15, 118, 110, .16); }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-ghost { background: #fff; color: var(--ink); }
+        .actions {
+            display: flex;
+            align-items: end;
+            gap: 8px;
+        }
+        .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1080px; table-layout: fixed; }
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: .86rem;
+            overflow-wrap: anywhere;
+            vertical-align: top;
+        }
+        th {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            background: #f8fafc;
+            font-weight: 600;
+        }
+        tr:hover td { background: #f8fffd; }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+        a.link { color: var(--accent); text-decoration: none; font-weight: 700; }
+        .kpi {
+            display: inline-flex;
+            border-radius: 999px;
+            padding: 3px 9px;
+            font-weight: 700;
+            font-size: .74rem;
+        }
+        .kpi-ok { background: #dcfce7; color: var(--ok); }
+        .kpi-warn { background: #fef3c7; color: var(--warn); }
+        .kpi-bad { background: #fee2e2; color: var(--bad); }
+        .pager {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .pager-left, .pager-right { display: flex; align-items: center; gap: 8px; }
+        .muted { color: var(--muted); font-size: .84rem; }
+        @media (max-width: 1200px) {
+            .filters { grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+        }
+        @media (max-width: 760px) {
+            .wrap { padding: 14px 10px 26px; }
+            .filters { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+            .actions { grid-column: span 2; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <section class="hero">
+        <div>
+            <h1>EDAF Experiments</h1>
+            <p class="sub">Each experiment groups multiple stochastic runs (e.g. 30 repetitions).</p>
+        </div>
+        <div class="hero-links">
+            <a class="hero-link" href="/">Runs</a>
+            <a class="hero-link" href="/coco">COCO Campaigns</a>
+            <span class="mono muted">/api/experiments (paged)</span>
+        </div>
+    </section>
+
+    <section class="card">
+        <form id="filterForm" class="filters">
+            <div class="f" style="grid-column: span 2;">
+                <label for="q">Search</label>
+                <input id="q" placeholder="experiment id, run id, config hash, param path/value..." />
+            </div>
+            <div class="f">
+                <label for="algorithm">Algorithm</label>
+                <select id="algorithm"><option value="">All</option></select>
+            </div>
+            <div class="f">
+                <label for="model">Model</label>
+                <select id="model"><option value="">All</option></select>
+            </div>
+            <div class="f">
+                <label for="problem">Problem</label>
+                <select id="problem"><option value="">All</option></select>
+            </div>
+
+            <div class="f">
+                <label for="from">From</label>
+                <input id="from" type="datetime-local" />
+            </div>
+            <div class="f">
+                <label for="to">To</label>
+                <input id="to" type="datetime-local" />
+            </div>
+            <div class="f">
+                <label for="sortBy">Sort by</label>
+                <select id="sortBy">
+                    <option value="created_at">created_at</option>
+                    <option value="total_runs">total_runs</option>
+                    <option value="best_fitness">best_fitness</option>
+                    <option value="algorithm_type">algorithm_type</option>
+                    <option value="model_type">model_type</option>
+                    <option value="problem_type">problem_type</option>
+                </select>
+            </div>
+            <div class="f">
+                <label for="sortDir">Sort dir</label>
+                <select id="sortDir">
+                    <option value="desc">desc</option>
+                    <option value="asc">asc</option>
+                </select>
+            </div>
+            <div class="f">
+                <label for="size">Page size</label>
+                <select id="size">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn-primary">Apply</button>
+                <button type="button" id="resetBtn" class="btn-ghost">Reset</button>
+            </div>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Experiment ID</th>
+                    <th>Algorithm</th>
+                    <th>Model</th>
+                    <th>Problem</th>
+                    <th>Total Runs</th>
+                    <th>Completed</th>
+                    <th>Failed</th>
+                    <th>Best Fitness</th>
+                    <th>Latest Run</th>
+                    <th>Created</th>
+                </tr>
+                </thead>
+                <tbody id="rows">
+                <tr th:each="item : ${initialPage.items}">
+                    <td class="mono"><a class="link" th:href="@{'/experiments/' + ${item.experimentId}}" th:text="${item.experimentId}"></a></td>
+                    <td th:text="${item.algorithmType}"></td>
+                    <td th:text="${item.modelType}"></td>
+                    <td th:text="${item.problemType}"></td>
+                    <td th:text="${item.totalRuns}"></td>
+                    <td th:text="${item.completedRuns}"></td>
+                    <td th:text="${item.failedRuns}"></td>
+                    <td th:text="${item.bestFitness}"></td>
+                    <td class="mono" th:text="${item.latestRunTime}"></td>
+                    <td class="mono" th:text="${item.createdAt}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pager">
+            <div class="pager-left">
+                <button id="prevBtn" class="btn-ghost">Previous</button>
+                <button id="nextBtn" class="btn-ghost">Next</button>
+                <span id="pageInfo" class="muted"></span>
+            </div>
+            <div class="pager-right">
+                <span id="totalInfo" class="muted"></span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script th:inline="javascript">
+    const initialPage = /*[[${initialPage}]]*/ { items: [], page: 0, size: 25, total: 0, totalPages: 0 };
+    const facets = /*[[${facets}]]*/ { algorithms: [], models: [], problems: [] };
+
+    const state = {
+        q: "",
+        algorithm: "",
+        model: "",
+        problem: "",
+        from: "",
+        to: "",
+        page: 0,
+        size: 25,
+        sortBy: "created_at",
+        sortDir: "desc"
+    };
+
+    const els = {
+        filterForm: document.getElementById("filterForm"),
+        q: document.getElementById("q"),
+        algorithm: document.getElementById("algorithm"),
+        model: document.getElementById("model"),
+        problem: document.getElementById("problem"),
+        from: document.getElementById("from"),
+        to: document.getElementById("to"),
+        sortBy: document.getElementById("sortBy"),
+        sortDir: document.getElementById("sortDir"),
+        size: document.getElementById("size"),
+        rows: document.getElementById("rows"),
+        pageInfo: document.getElementById("pageInfo"),
+        totalInfo: document.getElementById("totalInfo"),
+        prevBtn: document.getElementById("prevBtn"),
+        nextBtn: document.getElementById("nextBtn"),
+        resetBtn: document.getElementById("resetBtn")
+    };
+
+    function safe(value, fallback = "n/a") {
+        return value === null || value === undefined || value === "" ? fallback : value;
+    }
+
+    function statusBadge(completed, total) {
+        const c = Number(completed || 0);
+        const t = Number(total || 0);
+        if (t === 0) return '<span class="kpi kpi-warn">EMPTY</span>';
+        if (c === t) return '<span class="kpi kpi-ok">COMPLETE</span>';
+        if (c > 0) return '<span class="kpi kpi-warn">PARTIAL</span>';
+        return '<span class="kpi kpi-bad">NONE</span>';
+    }
+
+    function populateSelect(select, values) {
+        const current = select.value;
+        select.innerHTML = '<option value="">All</option>';
+        (values || []).forEach(value => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+        if (current) {
+            select.value = current;
+        }
+    }
+
+    function toDateTimeLocal(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return "";
+        const pad = value => String(value).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function toIso(value) {
+        if (!value) return "";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "";
+        return d.toISOString();
+    }
+
+    function readStateFromForm() {
+        state.q = (els.q.value || "").trim();
+        state.algorithm = els.algorithm.value || "";
+        state.model = els.model.value || "";
+        state.problem = els.problem.value || "";
+        state.from = toIso(els.from.value);
+        state.to = toIso(els.to.value);
+        state.size = Number(els.size.value || 25);
+        state.sortBy = els.sortBy.value || "created_at";
+        state.sortDir = els.sortDir.value || "desc";
+    }
+
+    function writeStateToForm() {
+        els.q.value = state.q || "";
+        els.algorithm.value = state.algorithm || "";
+        els.model.value = state.model || "";
+        els.problem.value = state.problem || "";
+        els.from.value = toDateTimeLocal(state.from);
+        els.to.value = toDateTimeLocal(state.to);
+        els.size.value = String(state.size);
+        els.sortBy.value = state.sortBy;
+        els.sortDir.value = state.sortDir;
+    }
+
+    function syncStateFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        state.q = params.get("q") || "";
+        state.algorithm = params.get("algorithm") || "";
+        state.model = params.get("model") || "";
+        state.problem = params.get("problem") || "";
+        state.from = params.get("from") || "";
+        state.to = params.get("to") || "";
+        state.page = Number(params.get("page") || 0);
+        state.size = Number(params.get("size") || 25);
+        state.sortBy = params.get("sortBy") || "created_at";
+        state.sortDir = params.get("sortDir") || "desc";
+    }
+
+    function pushUrlState() {
+        const params = new URLSearchParams();
+        if (state.q) params.set("q", state.q);
+        if (state.algorithm) params.set("algorithm", state.algorithm);
+        if (state.model) params.set("model", state.model);
+        if (state.problem) params.set("problem", state.problem);
+        if (state.from) params.set("from", state.from);
+        if (state.to) params.set("to", state.to);
+        params.set("page", String(state.page));
+        params.set("size", String(state.size));
+        params.set("sortBy", state.sortBy);
+        params.set("sortDir", state.sortDir);
+        const next = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, "", next);
+    }
+
+    function renderPage(pageData) {
+        const items = pageData.items || [];
+        if (!items.length) {
+            els.rows.innerHTML = '<tr><td colspan="10" class="muted">No experiments found.</td></tr>';
+        } else {
+            els.rows.innerHTML = items.map(item => `
+                <tr>
+                    <td class="mono"><a class="link" href="/experiments/${encodeURIComponent(item.experimentId)}">${item.experimentId}</a></td>
+                    <td>${safe(item.algorithmType)}</td>
+                    <td>${safe(item.modelType)}</td>
+                    <td>${safe(item.problemType)}</td>
+                    <td>${safe(item.totalRuns, 0)}</td>
+                    <td>${safe(item.completedRuns, 0)}</td>
+                    <td>${safe(item.failedRuns, 0)}</td>
+                    <td>${item.bestFitness == null ? "n/a" : Number(item.bestFitness).toFixed(6)}</td>
+                    <td class="mono">${safe(item.latestRunTime, "")}</td>
+                    <td class="mono">${safe(item.createdAt, "")} ${statusBadge(item.completedRuns, item.totalRuns)}</td>
+                </tr>
+            `).join("");
+        }
+
+        const page = pageData.page || 0;
+        const totalPages = pageData.totalPages || 0;
+        const total = pageData.total || 0;
+        els.pageInfo.textContent = totalPages === 0 ? "Page 0/0" : `Page ${page + 1}/${totalPages}`;
+        els.totalInfo.textContent = `Total experiments: ${total}`;
+        els.prevBtn.disabled = page <= 0;
+        els.nextBtn.disabled = totalPages === 0 || page >= totalPages - 1;
+    }
+
+    async function fetchPage() {
+        const params = new URLSearchParams();
+        if (state.q) params.set("q", state.q);
+        if (state.algorithm) params.set("algorithm", state.algorithm);
+        if (state.model) params.set("model", state.model);
+        if (state.problem) params.set("problem", state.problem);
+        if (state.from) params.set("from", state.from);
+        if (state.to) params.set("to", state.to);
+        params.set("page", String(state.page));
+        params.set("size", String(state.size));
+        params.set("sortBy", state.sortBy);
+        params.set("sortDir", state.sortDir);
+
+        const response = await fetch(`/api/experiments?${params.toString()}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const pageData = await response.json();
+        renderPage(pageData);
+        pushUrlState();
+    }
+
+    els.filterForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        readStateFromForm();
+        state.page = 0;
+        await fetchPage();
+    });
+
+    els.prevBtn.addEventListener("click", async () => {
+        state.page = Math.max(0, state.page - 1);
+        await fetchPage();
+    });
+
+    els.nextBtn.addEventListener("click", async () => {
+        state.page += 1;
+        await fetchPage();
+    });
+
+    els.resetBtn.addEventListener("click", async () => {
+        state.q = "";
+        state.algorithm = "";
+        state.model = "";
+        state.problem = "";
+        state.from = "";
+        state.to = "";
+        state.page = 0;
+        state.size = 25;
+        state.sortBy = "created_at";
+        state.sortDir = "desc";
+        writeStateToForm();
+        await fetchPage();
+    });
+
+    populateSelect(els.algorithm, facets.algorithms || []);
+    populateSelect(els.model, facets.models || []);
+    populateSelect(els.problem, facets.problems || []);
+
+    syncStateFromUrl();
+    writeStateToForm();
+    renderPage(initialPage || { items: [], page: 0, totalPages: 0, total: 0 });
+    fetchPage().catch(error => {
+        console.error("Failed loading experiments", error);
+    });
+</script>
+</body>
+</html>

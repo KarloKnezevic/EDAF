@@ -1,0 +1,78 @@
+schema: "3.0"
+
+run:
+  id: benchmark-tsplib-berlin52-ehm-v3
+  name: TSPLIB Berlin52 on EHM (v3)
+  masterSeed: 20260223
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: permutation-vector
+  size: 52
+
+problem:
+  type: tsplib-tsp
+  instance: classpath:tsplib/berlin52.tsp
+
+algorithm:
+  type: ehm-eda
+  populationSize: 320
+  elitism: 2
+  selectionRatio: 0.5
+
+model:
+  type: ehm
+  epsilon: 1.0e-6
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 180
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-tsplib-berlin52-ehm-v3-events.jsonl
+  logFile: ./edaf-v3.log

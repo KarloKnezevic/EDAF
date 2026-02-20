@@ -1,0 +1,84 @@
+schema: "3.0"
+
+run:
+  id: benchmark-nguyen1-tree-eda-v3
+  name: Nguyen-1 Symbolic Regression on Tree EDA (v3)
+  masterSeed: 20260226
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: variable-length-vector
+  minLength: 8
+  maxLength: 28
+  maxToken: 16
+
+problem:
+  type: nguyen-sr
+  variant: 1
+  samples: 31
+  minX: -1.0
+  maxX: 1.0
+
+algorithm:
+  type: tree-eda
+  populationSize: 220
+  elitism: 2
+  selectionRatio: 0.4
+
+model:
+  type: token-categorical
+  maxToken: 16
+  smoothing: 0.02
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 140
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-nguyen1-tree-eda-v3-events.jsonl
+  logFile: ./edaf-v3.log

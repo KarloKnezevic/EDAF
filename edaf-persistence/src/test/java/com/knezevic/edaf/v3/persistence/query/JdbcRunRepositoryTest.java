@@ -38,7 +38,8 @@ class JdbcRunRepositoryTest {
                         max_iterations, config_yaml, config_json, created_at
                     ) VALUES
                     ('exp-1', 'hash-aaa', '3.0', 'Exp A', 'umda', 'umda-bernoulli', 'onemax', 'bitstring', 'truncation', 'elitist', 'max-iterations', 80, 'yaml-a', '{"problem":{"type":"onemax"}}', '2026-02-01T10:00:00Z'),
-                    ('exp-2', 'hash-bbb', '3.0', 'Exp B', 'gaussian-eda', 'gaussian-diag', 'sphere', 'real-vector', 'truncation', 'elitist', 'max-iterations', 90, 'yaml-b', '{"problem":{"type":"sphere"}}', '2026-02-02T10:00:00Z')
+                    ('exp-2', 'hash-bbb', '3.0', 'Exp B', 'gaussian-eda', 'gaussian-diag', 'sphere', 'real-vector', 'truncation', 'elitist', 'max-iterations', 90, 'yaml-b', '{"problem":{"type":"sphere"}}', '2026-02-02T10:00:00Z'),
+                    ('exp-3', 'hash-ccc', '3.0', 'Exp C', 'pbil', 'pbil-frequency', 'onemax', 'bitstring', 'truncation', 'elitist', 'max-iterations', 80, 'yaml-c', '{"problem":{"type":"onemax"}}', '2026-02-03T10:00:00Z')
                     """);
 
             statement.execute("""
@@ -54,7 +55,12 @@ class JdbcRunRepositoryTest {
                         iterations, evaluations, best_fitness, best_summary, runtime_millis
                     ) VALUES
                     ('run-1', 'exp-1', 11, 'COMPLETED', '2026-02-10T09:00:00Z', '2026-02-10T09:02:00Z', 80, 9600, 64.0, '1111', 120000),
-                    ('run-2', 'exp-2', 22, 'FAILED', '2026-02-11T09:00:00Z', '2026-02-11T09:00:10Z', 3, 300, 12.3, 'vec', 10000)
+                    ('run-2', 'exp-2', 22, 'FAILED', '2026-02-11T09:00:00Z', '2026-02-11T09:00:10Z', 3, 300, 12.3, 'vec', 10000),
+                    ('run-3', 'exp-1', 12, 'COMPLETED', '2026-02-10T10:00:00Z', '2026-02-10T10:02:00Z', 80, 8700, 61.0, '1011', 111000),
+                    ('run-4', 'exp-1', 13, 'FAILED', '2026-02-10T11:00:00Z', '2026-02-10T11:01:00Z', 12, 1500, 44.0, '0001', 60000),
+                    ('run-5', 'exp-3', 11, 'COMPLETED', '2026-02-12T09:00:00Z', '2026-02-12T09:01:50Z', 80, 9900, 59.0, '0111', 110000),
+                    ('run-6', 'exp-3', 12, 'COMPLETED', '2026-02-12T10:00:00Z', '2026-02-12T10:01:55Z', 80, 9400, 57.5, '0011', 115000),
+                    ('run-7', 'exp-3', 13, 'COMPLETED', '2026-02-12T11:00:00Z', '2026-02-12T11:02:15Z', 80, 9800, 60.0, '0010', 135000)
                     """);
 
             statement.execute("""
@@ -85,9 +91,21 @@ class JdbcRunRepositoryTest {
                 0, 10, "best_fitness", "desc"
         ));
 
-        assertEquals(1, page.items().size());
+        assertEquals(2, page.items().size());
         assertEquals("run-1", page.items().get(0).runId());
-        assertEquals(1, page.total());
+        assertEquals(2, page.total());
+    }
+
+    @Test
+    void listExperimentsSupportsFilterSearchSortAndPaging() {
+        PageResult<ExperimentListItem> page = repository.listExperiments(new ExperimentQuery(
+                "maxDepth", "umda", null, null, null, null, 0, 10, "created_at", "asc"
+        ));
+
+        assertEquals(1, page.items().size());
+        assertEquals("exp-1", page.items().getFirst().experimentId());
+        assertEquals(3, page.items().getFirst().totalRuns());
+        assertEquals(2, page.items().getFirst().completedRuns());
     }
 
     @Test
@@ -112,5 +130,34 @@ class JdbcRunRepositoryTest {
         assertTrue(facets.algorithms().contains("umda"));
         assertTrue(facets.models().contains("gaussian-diag"));
         assertTrue(facets.statuses().contains("FAILED"));
+    }
+
+    @Test
+    void experimentQueriesAndAnalyticsWork() {
+        ExperimentDetail detail = repository.getExperimentDetail("exp-1");
+        assertNotNull(detail);
+        assertEquals(3, detail.totalRuns());
+        assertEquals(2, detail.completedRuns());
+
+        PageResult<ExperimentRunItem> page = repository.listExperimentRuns("exp-1", 0, 10, "start_time", "asc");
+        assertEquals(3, page.items().size());
+        assertEquals("run-1", page.items().get(0).runId());
+
+        ExperimentAnalytics analytics = repository.analyzeExperiment("exp-1", "max", 60.0);
+        assertEquals(3, analytics.totalRuns());
+        assertEquals(2, analytics.successfulRuns());
+        assertTrue(analytics.successRate() > 0.6);
+        assertNotNull(analytics.bestFitnessBox().median());
+    }
+
+    @Test
+    void problemComparisonBuildsSignificanceAndProfiles() {
+        ProblemComparisonReport report = repository.compareAlgorithmsOnProblem("onemax", "max", 58.0, null);
+        assertEquals("onemax", report.problemType());
+        assertTrue(report.algorithms().size() >= 2);
+        assertTrue(report.pairwiseWilcoxon().size() >= 1);
+        assertNotNull(report.friedman());
+        assertTrue(report.dataProfiles().size() >= 2);
+        assertTrue(report.performanceProfiles().size() >= 2);
     }
 }

@@ -21,7 +21,7 @@ class IntegrationSlicesTest {
         Path outDir = Files.createTempDirectory("edaf-v3-umda");
         ExperimentRunner runner = new ExperimentRunner();
 
-        ExperimentConfig config = baseConfig("int-umda", outDir);
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-umda", outDir);
         config.getRepresentation().setType("bitstring");
         config.getRepresentation().getParams().put("length", 32);
         config.getProblem().setType("onemax");
@@ -41,7 +41,7 @@ class IntegrationSlicesTest {
         Path outDir = Files.createTempDirectory("edaf-v3-sphere");
         ExperimentRunner runner = new ExperimentRunner();
 
-        ExperimentConfig config = baseConfig("int-gaussian", outDir);
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-gaussian", outDir);
         config.getRepresentation().setType("real-vector");
         config.getRepresentation().getParams().put("length", 8);
         config.getRepresentation().getParams().put("lower", -5.0);
@@ -68,7 +68,7 @@ class IntegrationSlicesTest {
         Path outDir = Files.createTempDirectory("edaf-v3-cma");
         ExperimentRunner runner = new ExperimentRunner();
 
-        ExperimentConfig config = baseConfig("int-cma", outDir);
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-cma", outDir);
         config.getRepresentation().setType("real-vector");
         config.getRepresentation().getParams().put("length", 10);
         config.getRepresentation().getParams().put("lower", -5.0);
@@ -98,7 +98,7 @@ class IntegrationSlicesTest {
         Path outDir = Files.createTempDirectory("edaf-v3-tsp");
         ExperimentRunner runner = new ExperimentRunner();
 
-        ExperimentConfig config = baseConfig("int-ehm", outDir);
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-ehm", outDir);
         config.getRepresentation().setType("permutation-vector");
         config.getRepresentation().getParams().put("size", 8);
         config.getProblem().setType("small-tsp");
@@ -117,35 +117,144 @@ class IntegrationSlicesTest {
         assertTrue(Files.readAllLines(csv).size() > 10);
     }
 
-    private static ExperimentConfig baseConfig(String runId, Path outDir) {
-        ExperimentConfig config = new ExperimentConfig();
-        config.getRun().setId(runId);
-        config.getRun().setMasterSeed(12345L);
+    @Test
+    void umdaOnKnapsackImprovesFitness() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-knapsack");
+        ExperimentRunner runner = new ExperimentRunner();
 
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-knapsack", outDir);
         config.getRepresentation().setType("bitstring");
-        config.getProblem().setType("onemax");
+        config.getRepresentation().getParams().put("length", 20);
+        config.getProblem().setType("knapsack");
+        config.getProblem().getParams().put("capacity", 78);
         config.getAlgorithm().setType("umda");
+        config.getAlgorithm().getParams().put("populationSize", 160);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.4);
         config.getModel().setType("umda-bernoulli");
         config.getSelection().setType("truncation");
-        config.getReplacement().setType("elitist");
-        config.getConstraints().setType("identity");
-        config.getLocalSearch().setType("none");
-        config.getRestart().setType("none");
-        config.getNiching().setType("none");
+        config.getStopping().setMaxIterations(90);
 
-        config.getStopping().setType("max-iterations");
+        var result = runner.run(config, List.of());
+        assertTrue(result.result().best().fitness().scalar() > 90.0);
+    }
+
+    @Test
+    void umdaOnMaxSatFindsHighClauseCoverage() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-maxsat");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-maxsat", outDir);
+        config.getRepresentation().setType("bitstring");
+        config.getRepresentation().getParams().put("length", 20);
+        config.getProblem().setType("maxsat");
+        config.getProblem().getParams().put("instance", "classpath:maxsat/uf20-01.cnf");
+        config.getAlgorithm().setType("umda");
+        config.getAlgorithm().getParams().put("populationSize", 180);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.45);
+        config.getModel().setType("umda-bernoulli");
+        config.getSelection().setType("truncation");
+        config.getStopping().setMaxIterations(110);
+
+        var result = runner.run(config, List.of());
+        assertTrue(result.result().best().fitness().scalar() >= 45.0);
+    }
+
+    @Test
+    void moSkeletonOnZdtProducesVectorFitness() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-zdt");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-zdt", outDir);
+        config.getRepresentation().setType("real-vector");
+        config.getRepresentation().getParams().put("length", 20);
+        config.getRepresentation().getParams().put("lower", 0.0);
+        config.getRepresentation().getParams().put("upper", 1.0);
+        config.getProblem().setType("zdt");
+        config.getProblem().getParams().put("functionId", 1);
+        config.getAlgorithm().setType("mo-eda-skeleton");
+        config.getAlgorithm().getParams().put("populationSize", 120);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.4);
+        config.getModel().setType("gaussian-diag");
+        config.getSelection().setType("truncation");
         config.getStopping().setMaxIterations(50);
 
-        config.getPersistence().setEnabled(true);
-        config.getPersistence().setSinks(List.of("csv", "jsonl"));
-        config.getPersistence().setOutputDirectory(outDir.toString());
-        config.getPersistence().getDatabase().setEnabled(false);
-
-        config.getReporting().setEnabled(false);
-        config.getWeb().setEnabled(false);
-        config.getLogging().setModes(List.of("jsonl"));
-        config.getLogging().setVerbosity("normal");
-
-        return config;
+        var result = runner.run(config, List.of());
+        assertEquals(2, result.result().best().fitness().objectives().length);
     }
+
+    @Test
+    void treeEdaRunsNguyenSymbolicRegression() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-nguyen");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-nguyen", outDir);
+        config.getRepresentation().setType("variable-length-vector");
+        config.getRepresentation().getParams().put("minLength", 8);
+        config.getRepresentation().getParams().put("maxLength", 24);
+        config.getRepresentation().getParams().put("maxToken", 16);
+        config.getProblem().setType("nguyen-sr");
+        config.getProblem().getParams().put("variant", 1);
+        config.getAlgorithm().setType("tree-eda");
+        config.getAlgorithm().getParams().put("populationSize", 150);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.4);
+        config.getModel().setType("token-categorical");
+        config.getModel().getParams().put("maxToken", 16);
+        config.getSelection().setType("truncation");
+        config.getStopping().setMaxIterations(80);
+
+        var result = runner.run(config, List.of());
+        assertTrue(Double.isFinite(result.result().best().fitness().scalar()));
+    }
+
+    @Test
+    void umdaRunsBooleanFunctionCryptoProblem() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-crypto-bf");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-crypto-bf", outDir);
+        config.getRepresentation().setType("bitstring");
+        config.getRepresentation().getParams().put("length", 32);
+        config.getProblem().setType("boolean-function");
+        config.getProblem().getParams().put("n", 5);
+        config.getProblem().getParams().put("criteria", List.of("balancedness", "nonlinearity", "algebraic-degree"));
+        config.getProblem().getParams().put("criterionWeights", java.util.Map.of(
+                "balancedness", 0.35,
+                "nonlinearity", 0.5,
+                "algebraic-degree", 0.15
+        ));
+        config.getAlgorithm().setType("umda");
+        config.getAlgorithm().getParams().put("populationSize", 180);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.45);
+        config.getModel().setType("umda-bernoulli");
+        config.getSelection().setType("truncation");
+        config.getStopping().setMaxIterations(80);
+
+        var result = runner.run(config, List.of());
+        assertTrue(Double.isFinite(result.result().best().fitness().scalar()));
+        assertTrue(result.result().best().fitness().scalar() > 0.4);
+    }
+
+    @Test
+    void ehmRunsBooleanFunctionPermutationProblem() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-crypto-perm");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("int-crypto-perm", outDir);
+        config.getRepresentation().setType("permutation-vector");
+        config.getRepresentation().getParams().put("size", 32);
+        config.getProblem().setType("boolean-function-permutation");
+        config.getProblem().getParams().put("n", 5);
+        config.getProblem().getParams().put("criteria", List.of("nonlinearity", "algebraic-degree"));
+        config.getAlgorithm().setType("ehm-eda");
+        config.getAlgorithm().getParams().put("populationSize", 160);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.5);
+        config.getModel().setType("ehm");
+        config.getSelection().setType("truncation");
+        config.getStopping().setMaxIterations(70);
+
+        var result = runner.run(config, List.of());
+        assertTrue(Double.isFinite(result.result().best().fitness().scalar()));
+        assertTrue(result.result().best().fitness().scalar() > 0.2);
+    }
+
 }

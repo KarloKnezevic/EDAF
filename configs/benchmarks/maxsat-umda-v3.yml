@@ -1,0 +1,78 @@
+schema: "3.0"
+
+run:
+  id: benchmark-maxsat-umda-v3
+  name: MAX-SAT on UMDA (v3)
+  masterSeed: 20260222
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 20
+
+problem:
+  type: maxsat
+  instance: classpath:maxsat/uf20-01.cnf
+
+algorithm:
+  type: umda
+  populationSize: 220
+  elitism: 1
+  selectionRatio: 0.45
+
+model:
+  type: umda-bernoulli
+  smoothing: 0.01
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 140
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-maxsat-umda-v3-events.jsonl
+  logFile: ./edaf-v3.log

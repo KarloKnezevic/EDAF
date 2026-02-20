@@ -229,6 +229,20 @@ model:
 - using `Math.random()` instead of provided `RngStream`
 - missing diagnostics keys for model observability
 
+## 10) Extending the Boolean-Function Crypto Suite
+
+For cryptographic boolean-function objectives, add new criteria without introducing a new problem type:
+
+1. Implement `CryptoFitnessCriterion` in:
+   - `edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/crypto/criteria`
+2. Register criterion id aliases in:
+   - `CryptoCriteriaFactory#create(...)`
+3. Keep scores normalized to `0..1` (higher is better) for stable scalar aggregation.
+4. Add unit tests in:
+   - `edaf-problems/src/test/java/com/knezevic/edaf/v3/problems/crypto`
+5. Document config usage in:
+   - `docs/crypto-boolean-problems.md`
+
 ## 10) Suggested Test Strategy for New Plugin
 
 - unit tests for local logic

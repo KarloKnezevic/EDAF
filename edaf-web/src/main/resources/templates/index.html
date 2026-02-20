@@ -154,6 +154,7 @@
             <p class="sub">Search, filter, and inspect persisted optimization runs.</p>
         </div>
         <div class="hero-links">
+            <a class="hero-link" href="/experiments">Experiments</a>
             <a class="hero-link" href="/coco">COCO Campaigns</a>
             <span class="mono muted">/api/runs (paged)</span>
         </div>
@@ -235,6 +236,7 @@
                 <thead>
                 <tr>
                     <th>Run ID</th>
+                    <th>Experiment</th>
                     <th>Algorithm</th>
                     <th>Model</th>
                     <th>Problem</th>
@@ -249,6 +251,7 @@
                 <tbody id="rows">
                 <tr th:each="run : ${initialPage.items}">
                     <td><a class="run-link" th:href="@{'/runs/' + ${run.runId}}" th:text="${run.runId}"></a></td>
+                    <td><a class="run-link mono" th:href="@{'/experiments/' + ${run.experimentId}}" th:text="${run.experimentId}"></a></td>
                     <td th:text="${run.algorithmType}"></td>
                     <td th:text="${run.modelType}"></td>
                     <td th:text="${run.problemType}"></td>
@@ -403,12 +406,13 @@
 
     function renderRows(items) {
         if (!items || items.length === 0) {
-            els.rows.innerHTML = `<tr><td colspan="10" class="muted">No runs match current filters.</td></tr>`;
+            els.rows.innerHTML = `<tr><td colspan="11" class="muted">No runs match current filters.</td></tr>`;
             return;
         }
         els.rows.innerHTML = items.map(row => `
             <tr>
                 <td><a class="run-link mono" href="/runs/${encodeURIComponent(row.runId)}">${row.runId}</a></td>
+                <td><a class="run-link mono" href="/experiments/${encodeURIComponent(row.experimentId)}">${row.experimentId || ""}</a></td>
                 <td>${row.algorithmType || ""}</td>
                 <td>${row.modelType || ""}</td>
                 <td>${row.problemType || ""}</td>
@@ -454,7 +458,7 @@
         const query = buildApiQuery();
         const response = await fetch(`/api/runs?${query}`);
         if (!response.ok) {
-            els.rows.innerHTML = `<tr><td colspan="10">Failed to load runs (${response.status}).</td></tr>`;
+            els.rows.innerHTML = `<tr><td colspan="11">Failed to load runs (${response.status}).</td></tr>`;
             return;
         }
         const pageData = await response.json();

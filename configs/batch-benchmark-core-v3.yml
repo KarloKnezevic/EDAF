@@ -1,0 +1,9 @@
+experiments:
+  - umda-onemax-v3.yml
+  - benchmarks/knapsack-umda-v3.yml
+  - benchmarks/maxsat-umda-v3.yml
+  - benchmarks/tsplib-berlin52-ehm-v3.yml
+  - benchmarks/cec2014-f10-cma-v3.yml
+  - benchmarks/zdt1-mo-v3.yml
+  - benchmarks/dtlz2-mo-v3.yml
+  - benchmarks/nguyen1-tree-eda-v3.yml

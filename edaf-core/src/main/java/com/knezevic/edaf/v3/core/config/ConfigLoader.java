@@ -65,7 +65,8 @@ public final class ConfigLoader {
      */
     public BatchConfig loadBatch(Path path) {
         try {
-            BatchConfig config = mapper.readValue(Files.newBufferedReader(path), BatchConfig.class);
+            JsonNode root = mapper.readTree(Files.newBufferedReader(path));
+            BatchConfig config = parseBatch(root);
             Set<ConstraintViolation<BatchConfig>> violations = validator.validate(config);
             if (!violations.isEmpty()) {
                 List<ConfigIssue> issues = new ArrayList<>();
@@ -80,6 +81,107 @@ public final class ConfigLoader {
         } catch (IOException e) {
             throw new ConfigurationException("Failed to read batch config '" + path + "'", e);
         }
+    }
+
+    private BatchConfig parseBatch(JsonNode root) {
+        if (root == null || !root.isObject()) {
+            throw new ConfigurationException("Batch config must be a YAML object");
+        }
+        enforceAllowedBatchRootFields(root);
+        JsonNode experimentsNode = root.path("experiments");
+        if (!experimentsNode.isArray()) {
+            throw new ConfigurationException("batch.experiments must be a YAML array");
+        }
+
+        int defaultRepetitions = root.path("defaultRepetitions").asInt(1);
+        if (defaultRepetitions < 1) {
+            throw new ConfigurationException("batch.defaultRepetitions must be >= 1");
+        }
+        Long defaultSeedStart = root.has("defaultSeedStart")
+                ? root.path("defaultSeedStart").asLong()
+                : null;
+
+        List<BatchConfig.BatchExperimentEntry> entries = new ArrayList<>();
+        for (int index = 0; index < experimentsNode.size(); index++) {
+            JsonNode node = experimentsNode.get(index);
+            if (node.isTextual()) {
+                entries.add(new BatchConfig.BatchExperimentEntry(
+                        node.asText(),
+                        defaultRepetitions,
+                        defaultSeedStart,
+                        null
+                ));
+                continue;
+            }
+
+            if (!node.isObject()) {
+                throw new ConfigurationException("batch.experiments[" + index + "] must be string or object");
+            }
+            enforceAllowedBatchEntryFields(node, index);
+
+            String configPath = textOrNull(node, "config");
+            if (configPath == null) {
+                configPath = textOrNull(node, "path");
+            }
+            if (configPath == null) {
+                throw new ConfigurationException("batch.experiments[" + index + "].config is required");
+            }
+
+            int repetitions = node.has("repetitions")
+                    ? node.path("repetitions").asInt(defaultRepetitions)
+                    : defaultRepetitions;
+            if (repetitions < 1) {
+                throw new ConfigurationException("batch.experiments[" + index + "].repetitions must be >= 1");
+            }
+            Long seedStart = node.has("seedStart")
+                    ? node.path("seedStart").asLong()
+                    : defaultSeedStart;
+            String runIdPrefix = textOrNull(node, "runIdPrefix");
+
+            entries.add(new BatchConfig.BatchExperimentEntry(
+                    configPath,
+                    repetitions,
+                    seedStart,
+                    runIdPrefix
+            ));
+        }
+
+        BatchConfig config = new BatchConfig();
+        config.setDefaultRepetitions(defaultRepetitions);
+        config.setDefaultSeedStart(defaultSeedStart);
+        config.setExperiments(entries);
+        return config;
+    }
+
+    private static void enforceAllowedBatchRootFields(JsonNode root) {
+        List<String> allowed = List.of("experiments", "defaultRepetitions", "defaultSeedStart");
+        root.fieldNames().forEachRemaining(field -> {
+            if (!allowed.contains(field)) {
+                throw new ConfigurationException(
+                        "Unknown batch property '" + field + "'. Allowed: " + allowed
+                );
+            }
+        });
+    }
+
+    private static void enforceAllowedBatchEntryFields(JsonNode node, int index) {
+        List<String> allowed = List.of("config", "path", "repetitions", "seedStart", "runIdPrefix");
+        node.fieldNames().forEachRemaining(field -> {
+            if (!allowed.contains(field)) {
+                throw new ConfigurationException(
+                        "Unknown batch.experiments[" + index + "] property '" + field + "'. Allowed: " + allowed
+                );
+            }
+        });
+    }
+
+    private static String textOrNull(JsonNode node, String field) {
+        JsonNode value = node.path(field);
+        if (value == null || value.isMissingNode() || value.isNull()) {
+            return null;
+        }
+        String text = value.asText();
+        return text == null || text.isBlank() ? null : text;
     }
 
     private ExperimentConfig decode(Path path) {

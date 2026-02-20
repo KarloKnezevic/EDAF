@@ -1,0 +1,5 @@
+experiments:
+  - benchmarks/crypto-boolean-umda-v3.yml
+  - benchmarks/crypto-boolean-permutation-ehm-v3.yml
+  - benchmarks/crypto-boolean-tree-eda-v3.yml
+  - benchmarks/crypto-boolean-mo-v3.yml
