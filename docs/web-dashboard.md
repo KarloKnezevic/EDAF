@@ -1,17 +1,22 @@
 # Web Dashboard and API
 
-`edaf-web` provides a lightweight monitoring and analysis UI powered by Spring Boot + Thymeleaf + vanilla JavaScript.
+`edaf-web` is a lightweight monitoring and analysis UI built with Spring Boot + Thymeleaf + vanilla JavaScript.
 
 ## 1) Startup
 
-Default local command:
-Run from `/Users/karloknezevic/Desktop/EDAF`:
+From `/Users/karloknezevic/Desktop/EDAF` run one of:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+```
+
+or
 
 ```bash
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
 ```
 
-Stop the server with `Ctrl+C` in that terminal.
+Stop the server with `Ctrl+C`.
 
 Open:
 
@@ -19,11 +24,7 @@ Open:
 
 Configuration source:
 
-- `edaf-web/src/main/resources/application.yml`
-
-Default datasource URL fallback:
-
-- `jdbc:sqlite:edaf-v3.db`
+- `/Users/karloknezevic/Desktop/EDAF/edaf-web/src/main/resources/application.yml`
 
 ## 2) UI Pages
 
@@ -31,32 +32,57 @@ Default datasource URL fallback:
 
 Features:
 
-- search box
-- algorithm/model/problem/status filters
-- datetime range filters (`from`, `to`)
-- best-fitness range filters (`minBest`, `maxBest`)
-- sort controls (`sortBy`, `sortDir`)
-- page size and pagination controls
-- URL query-state persistence for refresh/shareability
+- full-text search (`q`)
+- filters: algorithm, model, problem, status
+- ranges: `from`, `to`, `minBest`, `maxBest`
+- sorting: `start_time`, `best_fitness`, `runtime_millis`, `status`
+- pagination and page size control
+- URL query-state persistence
+- link to COCO campaign explorer
 
 ### `/runs/{runId}` Run Detail
 
 Features:
 
-- summary cards (status, algorithm, model, problem, seed, runtime, hash)
-- best/mean/std chart across iterations
-- iterations table
+- run summary cards
+- iteration chart (`best`, `mean`, `std`)
+- iteration table
 - checkpoints table
-- events panel with event-type and text filtering
-- config YAML and pretty JSON view
-- flattened params table with client-side search
-- periodic refresh polling
+- event panel with event type + payload text filter
+- YAML/JSON config view
+- flattened params table with client-side filtering
+
+### `/coco` COCO Campaign Explorer
+
+Features:
+
+- campaign search (`campaign id`, `name`, `notes`)
+- filters: status, suite
+- sorting and pagination
+
+### `/coco/{campaignId}` COCO Campaign Detail
+
+Features:
+
+- campaign summary cards
+- ERT-ratio-by-dimension chart
+- optimizer configuration table
+- aggregate metrics table
+- trial table with filters (`optimizer`, `functionId`, `dimension`, `reachedTarget`)
 
 ## 3) REST API Endpoints
 
-### `GET /api/runs`
+### Run endpoints
 
-Query parameters:
+- `GET /api/runs`
+- `GET /api/runs/{runId}`
+- `GET /api/runs/{runId}/iterations`
+- `GET /api/runs/{runId}/events`
+- `GET /api/runs/{runId}/checkpoints`
+- `GET /api/runs/{runId}/params`
+- `GET /api/facets`
+
+`GET /api/runs` query params:
 
 - `q`
 - `algorithm`
@@ -69,98 +95,73 @@ Query parameters:
 - `maxBest`
 - `page`
 - `size`
-- `sortBy` (`start_time`, `best_fitness`, `runtime_millis`, `status`)
-- `sortDir` (`asc`, `desc`)
+- `sortBy` in `{start_time,best_fitness,runtime_millis,status}`
+- `sortDir` in `{asc,desc}`
 
-Response envelope:
+### COCO endpoints
 
-```json
-{
-  "items": [ ... ],
-  "page": 0,
-  "size": 25,
-  "total": 123,
-  "totalPages": 5
-}
-```
+- `GET /api/coco/campaigns`
+- `GET /api/coco/campaigns/{campaignId}`
+- `GET /api/coco/campaigns/{campaignId}/optimizers`
+- `GET /api/coco/campaigns/{campaignId}/aggregates`
+- `GET /api/coco/campaigns/{campaignId}/trials`
 
-### `GET /api/runs/{runId}`
+`GET /api/coco/campaigns` query params:
 
-Returns full run+experiment detail projection.
-
-### `GET /api/runs/{runId}/iterations`
-
-Returns ordered iteration series.
-
-### `GET /api/runs/{runId}/events`
-
-Additional params:
-
-- `eventType` (exact type)
-- `q` (search in event type/payload)
+- `q`
+- `status`
+- `suite`
 - `page`
 - `size`
+- `sortBy` in `{created_at,started_at,finished_at,status,name}`
+- `sortDir` in `{asc,desc}`
 
-### `GET /api/runs/{runId}/checkpoints`
+`GET /api/coco/campaigns/{campaignId}/trials` query params:
 
-Returns checkpoint rows ordered by iteration.
-
-### `GET /api/runs/{runId}/params`
-
-Returns flattened experiment params associated with run experiment.
-
-### `GET /api/facets`
-
-Returns distinct values for:
-
-- algorithms
-- models
-- problems
-- statuses
+- `optimizer`
+- `functionId`
+- `dimension`
+- `reachedTarget`
+- `page`
+- `size`
 
 ## 4) API Examples
 
 ```bash
 curl "http://localhost:7070/api/runs?page=0&size=25&sortBy=start_time&sortDir=desc"
 curl "http://localhost:7070/api/runs?algorithm=umda&problem=onemax&status=COMPLETED"
-curl "http://localhost:7070/api/runs?q=maxDepth&sortBy=best_fitness&sortDir=desc"
-curl "http://localhost:7070/api/runs/gp-nested-smoke-v3"
-curl "http://localhost:7070/api/runs/gp-nested-smoke-v3/events?eventType=iteration_completed&q=entropy&page=0&size=20"
+curl "http://localhost:7070/api/runs?q=problem.genotype.maxDepth"
+curl "http://localhost:7070/api/runs/umda-onemax-v3/events?eventType=iteration_completed&q=entropy&page=0&size=20"
 curl "http://localhost:7070/api/facets"
+
+curl "http://localhost:7070/api/coco/campaigns?page=0&size=20&sortBy=created_at&sortDir=desc"
+curl "http://localhost:7070/api/coco/campaigns/coco-bbob-benchmark-v3"
+curl "http://localhost:7070/api/coco/campaigns/coco-bbob-benchmark-v3/aggregates"
+curl "http://localhost:7070/api/coco/campaigns/coco-bbob-benchmark-v3/trials?optimizer=gaussian-baseline&dimension=10&page=0&size=25"
 ```
 
-## 5) MVC and Repository Wiring
+## 5) MVC + Repository Wiring
 
-- `DashboardController` serves Thymeleaf pages with initial data.
-- `ApiController` serves JSON endpoints.
-- `RepositoryConfig` creates `RunRepository` bean and initializes schema at startup.
+- `DashboardController` serves Thymeleaf pages with initial server-rendered data.
+- `ApiController` serves JSON polling/filter endpoints.
+- `RepositoryConfig` wires and initializes:
+  - `RunRepository` (`JdbcRunRepository`)
+  - `CocoRepository` (`JdbcCocoRepository`)
 
-Repository implementation:
+## 6) Security and Query Safety
 
-- `JdbcRunRepository`
+Implemented guards:
 
-## 6) Security Notes
+- prepared statements for all user-provided filters
+- `sortBy` whitelist per endpoint
+- restricted `sortDir` normalization (`asc|desc`)
 
-Current app is intended for trusted internal/research deployment.
+This prevents SQL injection in sorting/filtering paths while keeping dynamic search capability.
 
-Implemented query safeguards:
+## 7) Docker
 
-- prepared statements for all filter values
-- sort column whitelist
-- strict sort direction normalization
-
-If deploying publicly, add authentication/authorization and HTTP hardening.
-
-## 7) Performance Notes
-
-- run list and events are paged
-- indexes support filter combinations and time-based queries
-- event payloads are stored as JSON text; avoid unbounded payload growth in custom sinks
-
-## 8) Docker Deployment
-
-The default `docker-compose.yml` starts `web` against PostgreSQL at:
+The default `docker-compose.yml` starts web against PostgreSQL:
 
 - `EDAF_DB_URL=jdbc:postgresql://db:5432/edaf`
 
-See [Docker Guide](./docker.md) for lifecycle commands.
+See `/Users/karloknezevic/Desktop/EDAF/docs/docker.md` for lifecycle commands.

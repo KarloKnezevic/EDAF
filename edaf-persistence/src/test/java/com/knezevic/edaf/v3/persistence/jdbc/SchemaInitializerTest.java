@@ -43,6 +43,7 @@ class SchemaInitializerTest {
              Statement statement = connection.createStatement()) {
             assertTrue(columnExists(connection, "runs", "experiment_id"));
             assertTrue(tableExists(connection, "experiments"));
+            assertTrue(tableExists(connection, "coco_campaigns"));
             try (ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM runs")) {
                 rs.next();
                 assertEquals(0, rs.getInt(1));

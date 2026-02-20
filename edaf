@@ -4,7 +4,16 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLI_JAR="$ROOT_DIR/edaf-cli/target/edaf-cli.jar"
 
+needs_build=false
 if [[ ! -f "$CLI_JAR" ]]; then
+  needs_build=true
+elif [[ "$ROOT_DIR/pom.xml" -nt "$CLI_JAR" ]]; then
+  needs_build=true
+elif find "$ROOT_DIR"/edaf-* -path '*/src/*' -type f -newer "$CLI_JAR" | grep -q .; then
+  needs_build=true
+fi
+
+if [[ "$needs_build" == true ]]; then
   mvn -q -pl edaf-cli -am package -DskipTests
 fi
 

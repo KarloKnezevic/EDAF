@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDAF COCO Campaigns</title>
+    <style>
+        :root {
+            --bg: #f7faf8;
+            --card: #ffffff;
+            --ink: #18222b;
+            --muted: #60707f;
+            --line: #d7e2e8;
+            --accent: #0f766e;
+            --accent2: #9a3412;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 10% 10%, rgba(15, 118, 110, 0.15), transparent 32%),
+                radial-gradient(circle at 90% 8%, rgba(154, 52, 18, 0.13), transparent 30%),
+                var(--bg);
+        }
+        .wrap { max-width: 1300px; margin: 0 auto; padding: 24px 16px 34px; }
+        .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .top h1 { margin: 0; }
+        .top a { color: var(--accent); text-decoration: none; font-weight: 700; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .05);
+            padding: 14px;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: 2fr repeat(4, minmax(120px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .f { display: flex; flex-direction: column; gap: 4px; }
+        .f label { color: var(--muted); font-size: .78rem; }
+        input, select, button {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 9px;
+            font: inherit;
+            background: white;
+        }
+        button { cursor: pointer; }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 950px; }
+        th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: .85rem; }
+        th { background: #f8fbfd; color: var(--muted); }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+        .status { display: inline-flex; border-radius: 999px; padding: 3px 8px; font-size: .75rem; font-weight: 700; }
+        .status-running { background: #dcfce7; color: #166534; }
+        .status-completed { background: #e0f2fe; color: #075985; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .status-other { background: #fef3c7; color: #92400e; }
+        .pager { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <h1>COCO Campaign Explorer</h1>
+        <a href="/">Back to runs</a>
+    </div>
+
+    <section class="card">
+        <form id="filterForm" class="filters">
+            <div class="f">
+                <label for="q">Search</label>
+                <input id="q" placeholder="campaign id, name, notes" />
+            </div>
+            <div class="f">
+                <label for="status">Status</label>
+                <select id="status">
+                    <option value="">All</option>
+                    <option value="RUNNING">RUNNING</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="COMPLETED_WITH_ERRORS">COMPLETED_WITH_ERRORS</option>
+                    <option value="FAILED">FAILED</option>
+                </select>
+            </div>
+            <div class="f">
+                <label for="suite">Suite</label>
+                <select id="suite">
+                    <option value="">All</option>
+                    <option value="bbob">bbob</option>
+                </select>
+            </div>
+            <div class="f">
+                <label for="sortBy">Sort by</label>
+                <select id="sortBy">
+                    <option value="created_at">created_at</option>
+                    <option value="started_at">started_at</option>
+                    <option value="finished_at">finished_at</option>
+                    <option value="status">status</option>
+                    <option value="name">name</option>
+                </select>
+            </div>
+            <div class="f">
+                <label for="sortDir">Sort dir</label>
+                <select id="sortDir">
+                    <option value="desc">desc</option>
+                    <option value="asc">asc</option>
+                </select>
+            </div>
+            <div class="f" style="justify-content: end;">
+                <button type="submit" class="btn-primary">Apply</button>
+            </div>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Campaign ID</th>
+                    <th>Name</th>
+                    <th>Suite</th>
+                    <th>Status</th>
+                    <th>Optimizers</th>
+                    <th>Trials</th>
+                    <th>Reached target</th>
+                    <th>Created</th>
+                    <th>Finished</th>
+                </tr>
+                </thead>
+                <tbody id="rows">
+                <tr th:each="row : ${initialCampaignPage.items}">
+                    <td><a th:href="@{'/coco/' + ${row.campaignId}}" class="mono" th:text="${row.campaignId}"></a></td>
+                    <td th:text="${row.name}"></td>
+                    <td class="mono" th:text="${row.suite}"></td>
+                    <td th:text="${row.status}"></td>
+                    <td th:text="${row.optimizerCount}"></td>
+                    <td th:text="${row.trials}"></td>
+                    <td th:text="${row.reachedTargets}"></td>
+                    <td class="mono" th:text="${row.createdAt}"></td>
+                    <td class="mono" th:text="${row.finishedAt}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pager">
+            <div>
+                <button id="prevPage" type="button">Previous</button>
+                <button id="nextPage" type="button">Next</button>
+            </div>
+            <span id="pageInfo"></span>
+        </div>
+    </section>
+</div>
+
+<script th:inline="javascript">
+    const initialPage = /*[[${initialCampaignPage}]]*/ { items: [], page: 0, size: 25, total: 0, totalPages: 0 };
+
+    const state = {
+        page: initialPage.page || 0,
+        size: initialPage.size || 25,
+        q: "",
+        status: "",
+        suite: "",
+        sortBy: "created_at",
+        sortDir: "desc"
+    };
+
+    const els = {
+        form: document.getElementById("filterForm"),
+        q: document.getElementById("q"),
+        status: document.getElementById("status"),
+        suite: document.getElementById("suite"),
+        sortBy: document.getElementById("sortBy"),
+        sortDir: document.getElementById("sortDir"),
+        rows: document.getElementById("rows"),
+        prevPage: document.getElementById("prevPage"),
+        nextPage: document.getElementById("nextPage"),
+        pageInfo: document.getElementById("pageInfo")
+    };
+
+    function statusClass(status) {
+        const s = (status || "").toUpperCase();
+        if (s === "RUNNING") return "status status-running";
+        if (s === "COMPLETED") return "status status-completed";
+        if (s === "FAILED") return "status status-failed";
+        return "status status-other";
+    }
+
+    function readFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        ["q", "status", "suite", "sortBy", "sortDir", "page", "size"].forEach(k => {
+            if (params.has(k)) state[k] = params.get(k);
+        });
+        state.page = Number(state.page) || 0;
+        state.size = Number(state.size) || 25;
+    }
+
+    function syncControls() {
+        els.q.value = state.q || "";
+        els.status.value = state.status || "";
+        els.suite.value = state.suite || "";
+        els.sortBy.value = state.sortBy || "created_at";
+        els.sortDir.value = state.sortDir || "desc";
+    }
+
+    function buildQuery() {
+        const params = new URLSearchParams();
+        ["q", "status", "suite", "sortBy", "sortDir"].forEach(k => {
+            if (state[k]) params.set(k, state[k]);
+        });
+        params.set("page", String(state.page));
+        params.set("size", String(state.size));
+        return params;
+    }
+
+    function pushUrl() {
+        const params = buildQuery();
+        const url = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, "", url);
+    }
+
+    async function loadPage() {
+        const params = buildQuery();
+        const response = await fetch(`/api/coco/campaigns?${params.toString()}`);
+        const payload = await response.json();
+
+        els.rows.innerHTML = "";
+        for (const row of payload.items) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><a class="mono" href="/coco/${row.campaignId}">${row.campaignId}</a></td>
+                <td>${row.name || ""}</td>
+                <td class="mono">${row.suite || ""}</td>
+                <td><span class="${statusClass(row.status)}">${row.status || ""}</span></td>
+                <td>${row.optimizerCount ?? ""}</td>
+                <td>${row.trials ?? ""}</td>
+                <td>${row.reachedTargets ?? ""}</td>
+                <td class="mono">${row.createdAt || ""}</td>
+                <td class="mono">${row.finishedAt || ""}</td>
+            `;
+            els.rows.appendChild(tr);
+        }
+
+        els.pageInfo.textContent = `page ${payload.page + 1} / ${Math.max(1, payload.totalPages)} · total ${payload.total}`;
+        els.prevPage.disabled = payload.page <= 0;
+        els.nextPage.disabled = payload.page >= payload.totalPages - 1;
+        pushUrl();
+    }
+
+    els.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        state.q = els.q.value.trim();
+        state.status = els.status.value;
+        state.suite = els.suite.value;
+        state.sortBy = els.sortBy.value;
+        state.sortDir = els.sortDir.value;
+        state.page = 0;
+        loadPage();
+    });
+
+    els.prevPage.addEventListener("click", () => {
+        if (state.page > 0) {
+            state.page -= 1;
+            loadPage();
+        }
+    });
+
+    els.nextPage.addEventListener("click", () => {
+        state.page += 1;
+        loadPage();
+    });
+
+    readFromUrl();
+    syncControls();
+    loadPage();
+</script>
+</body>
+</html>

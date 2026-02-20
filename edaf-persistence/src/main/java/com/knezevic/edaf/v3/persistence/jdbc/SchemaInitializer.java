@@ -18,6 +18,11 @@ import java.util.Locale;
 public final class SchemaInitializer {
 
     private static final List<String> MANAGED_TABLES_DROP_ORDER = List.of(
+            "coco_aggregates",
+            "coco_trials",
+            "coco_optimizer_configs",
+            "coco_reference_results",
+            "coco_campaigns",
             "run_objectives",
             "iterations",
             "checkpoints",

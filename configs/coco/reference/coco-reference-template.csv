@@ -1,0 +1,7 @@
+# optimizer_name,function_id,dimension,target_value,ert,success_rate
+# Replace sample numbers with official COCO/BBOB values from your source of truth.
+best-online,1,2,1.0e-8,350.0,1.0
+best-online,2,2,1.0e-8,420.0,1.0
+best-online,3,2,1.0e-8,580.0,1.0
+best-online,8,2,1.0e-8,910.0,0.95
+best-online,15,2,1.0e-8,1320.0,0.86

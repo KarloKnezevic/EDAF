@@ -1,0 +1,30 @@
+schema: "3.0-coco"
+
+campaign:
+  id: coco-bbob-compare-d2-v3
+  name: COCO BBOB Comparison D=2 (EDAF v3)
+  suite: bbob
+  functions: [1, 2, 3, 8, 15]
+  dimensions: [2]
+  instances: [1, 2]
+  repetitions: 3
+  maxEvaluationsMultiplier: 1500
+  targetFitness: 1.0e-8
+  databaseUrl: jdbc:sqlite:edaf-v3.db
+  databaseUser: ""
+  databasePassword: ""
+  outputDirectory: ./results/coco
+  reportDirectory: ./reports/coco
+  referenceMode: best-online
+  notes: >
+    Comparison campaign focused on D=2 where reference rows are available,
+    enabling direct ERT-ratio comparisons between optimizer configurations.
+
+optimizers:
+  - id: gaussian-baseline
+    displayName: Gaussian EDA Baseline
+    config: optimizers/gaussian-baseline-v3.yml
+
+  - id: gaussian-aggressive
+    displayName: Gaussian EDA Aggressive
+    config: optimizers/gaussian-aggressive-v3.yml

@@ -32,6 +32,7 @@ import com.knezevic.edaf.v3.core.rng.RngManager;
 import com.knezevic.edaf.v3.core.rng.RngSnapshot;
 import com.knezevic.edaf.v3.experiments.factory.ComponentCatalog;
 import com.knezevic.edaf.v3.experiments.factory.PolicyFactory;
+import com.knezevic.edaf.v3.models.continuous.CmaEsStrategyModel;
 import com.knezevic.edaf.v3.models.continuous.DiagonalGaussianModel;
 import com.knezevic.edaf.v3.models.discrete.BernoulliUmdaModel;
 import com.knezevic.edaf.v3.models.permutation.EdgeHistogramModel;
@@ -438,6 +439,17 @@ public final class ExperimentRunner {
         if (model instanceof BernoulliUmdaModel bernoulli) {
             state.put("type", "umda-bernoulli");
             state.set("probabilities", mapper.valueToTree(bernoulli.probabilities()));
+        } else if (model instanceof CmaEsStrategyModel cma) {
+            state.put("type", "cma-es");
+            state.set("mean", mapper.valueToTree(cma.mean()));
+            state.put("sigma", cma.sigma());
+            state.set("covariance", mapper.valueToTree(cma.covariance()));
+            state.set("pathSigma", mapper.valueToTree(cma.pathSigma()));
+            state.set("pathCovariance", mapper.valueToTree(cma.pathCovariance()));
+            state.put("generation", cma.generation());
+            state.put("restartCount", cma.restartCount());
+            state.put("stagnationIterations", cma.stagnationIterations());
+            state.put("bestFitnessSeen", cma.bestFitnessSeen());
         } else if (model instanceof DiagonalGaussianModel gaussian) {
             state.put("type", "gaussian-diag");
             state.set("mean", mapper.valueToTree(gaussian.mean()));
@@ -455,6 +467,18 @@ public final class ExperimentRunner {
         String type = normalize(state.path("type").asText(model.name()));
         if (model instanceof BernoulliUmdaModel bernoulli && "umda-bernoulli".equals(type)) {
             bernoulli.restore(mapper.convertValue(state.path("probabilities"), double[].class));
+        } else if (model instanceof CmaEsStrategyModel cma && "cma-es".equals(type)) {
+            cma.restore(
+                    mapper.convertValue(state.path("mean"), double[].class),
+                    state.path("sigma").asDouble(1.0),
+                    mapper.convertValue(state.path("covariance"), double[][].class),
+                    mapper.convertValue(state.path("pathSigma"), double[].class),
+                    mapper.convertValue(state.path("pathCovariance"), double[].class),
+                    state.path("generation").asInt(0),
+                    state.path("restartCount").asInt(0),
+                    state.path("stagnationIterations").asInt(0),
+                    state.path("bestFitnessSeen").asDouble(Double.POSITIVE_INFINITY)
+            );
         } else if (model instanceof DiagonalGaussianModel gaussian && "gaussian-diag".equals(type)) {
             gaussian.restore(
                     mapper.convertValue(state.path("mean"), double[].class),

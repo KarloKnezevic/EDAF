@@ -1,0 +1,88 @@
+schema: "3.0"
+
+run:
+  id: coco-cma-es-template
+  name: COCO CMA-ES Template
+  masterSeed: 424242
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: real-vector
+  length: 10
+  lower: -5.0
+  upper: 5.0
+
+problem:
+  type: sphere
+
+algorithm:
+  type: cma-es
+  populationSize: 16
+  autoPopulationSize: true
+  elitism: 0
+  selectionRatio: 0.5
+
+model:
+  type: cma-es
+  initialSigma: 1.5
+  minSigma: 1.0e-12
+  maxSigma: 5.0
+  jitter: 1.0e-12
+  restartEnabled: true
+  restartPatience: 24
+  restartSigmaMultiplier: 2.0
+  restartConditionThreshold: 1.0e12
+  restartImprovementEpsilon: 1.0e-12
+
+selection:
+  type: truncation
+
+replacement:
+  type: generational
+
+stopping:
+  type: max-iterations
+  maxIterations: 200
+
+constraints:
+  type: repair
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl]
+  outputDirectory: ./results/coco
+  database:
+    enabled: false
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/coco
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console]
+  verbosity: normal
+  jsonlFile: ./results/coco/cma-es-events.jsonl
+  logFile: ./edaf-v3.log

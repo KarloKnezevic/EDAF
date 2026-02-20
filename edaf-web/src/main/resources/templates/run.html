@@ -125,7 +125,10 @@
 <body>
 <div class="wrap">
     <div class="top">
-        <a href="/">← Runs</a>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="/">← Runs</a>
+            <a href="/coco">COCO Campaigns</a>
+        </div>
         <button id="refreshAll" class="btn-primary">Refresh</button>
     </div>
     <h1 id="runTitle" th:text="${run.runId}">run-id</h1>

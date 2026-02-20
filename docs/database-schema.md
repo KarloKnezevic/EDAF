@@ -2,13 +2,13 @@
 
 EDAF persistence supports SQLite by default and PostgreSQL where configured via JDBC URL.
 
-Primary migration script:
+Primary schema source:
 
-- `edaf-persistence/src/main/resources/db/migration/V1__init.sql`
+- `/Users/karloknezevic/Desktop/EDAF/edaf-persistence/src/main/resources/db/migration/V1__init.sql`
 
-Schema initialization:
+Schema initialization entrypoint:
 
-- `SchemaInitializer.initialize(dataSource)`
+- `/Users/karloknezevic/Desktop/EDAF/edaf-persistence/src/main/java/com/knezevic/edaf/v3/persistence/jdbc/SchemaInitializer.java`
 
 ## 1) Schema Overview
 
@@ -20,6 +20,11 @@ erDiagram
     runs ||--o{ iterations : "has"
     runs ||--o{ checkpoints : "has"
     runs ||--o{ events : "emits"
+
+    coco_campaigns ||--o{ coco_optimizer_configs : "has"
+    coco_campaigns ||--o{ coco_trials : "has"
+    coco_campaigns ||--o{ coco_aggregates : "has"
+    runs ||--o{ coco_trials : "linked by run_id"
 
     experiments {
       text experiment_id PK
@@ -39,19 +44,6 @@ erDiagram
       text created_at
     }
 
-    experiment_params {
-      int id PK
-      text experiment_id FK
-      text section
-      text param_path
-      text leaf_key
-      text value_type
-      text value_text
-      double value_number
-      int value_boolean
-      text value_json
-    }
-
     runs {
       text run_id PK
       text experiment_id FK
@@ -69,44 +61,18 @@ erDiagram
       text error_message
     }
 
-    run_objectives {
-      int id PK
-      text run_id FK
-      text objective_name
-      double objective_value
-    }
-
-    iterations {
-      int id PK
-      text run_id FK
-      int iteration
-      bigint evaluations
-      double best_fitness
-      double mean_fitness
-      double std_fitness
-      text metrics_json
-      text diagnostics_json
+    coco_campaigns {
+      text campaign_id PK
+      text name
+      text suite
+      text status
       text created_at
-    }
-
-    checkpoints {
-      int id PK
-      text run_id FK
-      int iteration
-      text checkpoint_path
-      text created_at
-    }
-
-    events {
-      int id PK
-      text run_id FK
-      text event_type
-      text payload_json
-      text created_at
+      text started_at
+      text finished_at
     }
 ```
 
-## 2) Tables
+## 2) Core Run Tables
 
 ### `experiments`
 
@@ -114,23 +80,23 @@ Stores canonicalized experiment metadata and full config payloads.
 
 Important columns:
 
-- `experiment_id`: stable id derived from config hash
+- `experiment_id`: stable id derived from `config_hash`
 - `config_hash`: SHA-256 of canonical JSON config
-- `config_yaml`, `config_json`: canonical snapshots persisted for reproducibility
-- typed columns for algorithm/model/problem/etc. used by filtering and faceting
+- `config_yaml`, `config_json`: canonical snapshots for reproducibility
+- typed columns (`algorithm_type`, `model_type`, `problem_type`, ...) used for filtering
 
 ### `experiment_params`
 
-Flattened config paths for search and filtering.
+Flattened configuration paths for search and filtering.
 
-Examples of stored paths:
+Path examples:
 
 - `problem.genotype.maxDepth`
 - `problem.criteria[0]`
 - `problem.genotype.primitives.functionSet[2]`
 - `problem.genotype.primitives.terminals[1].name`
 
-`value_type` values:
+`value_type` enum:
 
 - `string`
 - `number`
@@ -140,7 +106,7 @@ Examples of stored paths:
 
 ### `runs`
 
-One row per run instance, linked to `experiments`.
+One row per execution, linked to one experiment.
 
 Status lifecycle:
 
@@ -149,23 +115,59 @@ Status lifecycle:
 
 ### `run_objectives`
 
-Stores final/latest scalar objective-like values extracted from iteration metrics at completion.
+Stores final/latest scalar objective-like values extracted from iteration metrics.
 
 ### `iterations`
 
-Stores per-iteration core stats plus raw metrics/diagnostics JSON payloads.
+Per-iteration scalar metrics + serialized metric/diagnostic payload JSON.
 
 ### `checkpoints`
 
-Stores checkpoint metadata (path + iteration + timestamp).
+Checkpoint metadata table (run, iteration, path, timestamp).
 
 ### `events`
 
-Stores raw event JSON with event type and timestamp.
+Raw event stream table with type and JSON payload.
 
-## 3) Required Indexes
+## 3) COCO Campaign Tables
 
-Implemented indexes:
+### `coco_campaigns`
+
+Campaign-level metadata and lifecycle state.
+
+### `coco_optimizer_configs`
+
+Optimizer templates participating in the campaign, including persisted canonical YAML.
+
+### `coco_trials`
+
+One row per `(campaign, optimizer, function, instance, dimension, repetition)`.
+
+Stores:
+
+- evaluation budget and achieved evaluations
+- best fitness
+- success flag (`reached_target`)
+- `evals_to_target` when target reached
+- run linkage (`run_id`)
+
+### `coco_reference_results`
+
+Imported external benchmark references for comparison (e.g., COCO online sources).
+
+### `coco_aggregates`
+
+Campaign aggregate metrics by optimizer and dimension:
+
+- `success_rate`
+- `mean_evals_to_target`
+- `edaf_ert`
+- `reference_ert`
+- `ert_ratio = edaf_ert / reference_ert`
+
+## 4) Required Indexes
+
+Core indexes:
 
 - `runs(start_time DESC)`
 - `runs(status)`
@@ -178,72 +180,68 @@ Implemented indexes:
 - `events(run_id, event_type, created_at)`
 - `checkpoints(run_id, iteration)`
 
-## 4) Legacy Schema Handling (No Migration Chain)
+COCO indexes:
+
+- `coco_campaigns(status)`
+- `coco_trials(campaign_id, optimizer_id, dimension, function_id)`
+- `coco_trials(run_id)`
+- `coco_aggregates(campaign_id, optimizer_id, dimension)`
+- `coco_reference_results(suite, optimizer_name, function_id, dimension, target_value)`
+
+## 5) Legacy Schema Handling (No Migration Chain)
 
 `SchemaInitializer` behavior:
 
-1. detect legacy schema condition:
-   - `runs` table exists but column `experiment_id` is missing
+1. detect legacy schema condition (`runs` exists but `experiment_id` column missing)
 2. if legacy detected:
    - drop managed tables in dependency-safe order
-   - recreate using `V1__init.sql`
-3. if current schema present:
-   - do not drop data
-   - execute idempotent `CREATE TABLE/INDEX IF NOT EXISTS`
+   - recreate schema from `V1__init.sql`
+3. if current schema exists:
+   - do not wipe data
+   - execute idempotent `CREATE TABLE IF NOT EXISTS` + `CREATE INDEX IF NOT EXISTS`
 
-This provides safe reset for incompatible legacy layouts while avoiding unnecessary data wipes.
+This avoids unnecessary wipes while guaranteeing compatible schema.
 
-## 5) Write Path (`JdbcEventSink`)
+## 6) Write Path
 
-Write sequence highlights:
+Run-level write path (`JdbcEventSink`):
 
-- receives `ExperimentConfig` + canonical YAML + canonical JSON
-- computes `config_hash` (SHA-256) and `experiment_id`
 - upserts `experiments`
-- rewrites flattened `experiment_params`
-- ensures run skeleton row
+- rewrites `experiment_params`
 - persists raw events
-- upserts iteration rows and checkpoints
-- finalizes run rows on completion/failure
-- upserts `run_objectives` from latest metrics map
+- upserts run/iteration/checkpoint rows
+- stores run completion/failure outcome and objectives
 
-## 6) Read Path (`JdbcRunRepository`)
+COCO campaign write path (`CocoJdbcStore` + `CocoCampaignRunner`):
 
-Supports:
+- upserts campaign start/finish
+- persists optimizer templates
+- persists trial rows per expanded slice
+- rebuilds aggregate rows and reference comparisons
 
-- paged run list with filters/sorting/search (`RunQuery`)
-- run detail retrieval (`RunDetail`)
-- iterations/checkpoints/events/params lists
-- facets for filter UI (`algorithm`, `model`, `problem`, `status`)
+## 7) Read Path
 
-Security hardening:
+Run read repository (`JdbcRunRepository`) provides:
 
-- prepared statements for bound values
-- whitelisted sort columns (`start_time`, `best_fitness`, `runtime_millis`, `status`)
-- restricted sort direction (`asc|desc`)
+- paged run listing with search/filter/sort
+- run details
+- iterations/events/checkpoints/params
+- filter facets
 
-## 7) Search Semantics
+COCO read repository (`JdbcCocoRepository`) provides:
 
-`q` search in run listing includes:
+- paged campaign listing
+- campaign details
+- optimizer config rows
+- aggregate metrics
+- paged trial rows with filters
 
-- run id
-- algorithm/model/problem
-- config hash
-- experiment id
-- flattened param path
-- flattened param `value_text`
-- flattened param `value_json`
+## 8) Query Safety
 
-## 8) API Mapping
+Security-relevant guards in read repositories:
 
-Database projections feed web/API DTOs:
+- prepared statements for all user-provided filter values
+- whitelist for `sortBy` columns
+- normalized `sortDir` (`asc|desc`)
 
-- `RunListItem`
-- `RunDetail`
-- `IterationMetric`
-- `CheckpointRow`
-- `EventRow`
-- `ExperimentParamRow`
-- `FilterFacets`
-
-See [Web Dashboard and API](./web-dashboard.md) for endpoint contract.
+This applies to both run and COCO dashboard query endpoints.

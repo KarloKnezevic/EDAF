@@ -1,18 +1,18 @@
 # CLI Reference
 
-EDAF CLI command root:
+EDAF CLI root:
 
 ```bash
 ./edaf --help
 ```
 
-## 1) Global Command
+## 1) Command Overview
 
 ```text
 edaf [COMMAND]
 ```
 
-Commands:
+Top-level commands:
 
 - `run`
 - `batch`
@@ -20,6 +20,7 @@ Commands:
 - `report`
 - `config`
 - `list`
+- `coco`
 
 ## 2) `run`
 
@@ -63,7 +64,7 @@ Options:
 
 ## 5) `report`
 
-Generate report artifacts from persisted run history.
+Generate run-level report artifacts from persisted run history.
 
 ```bash
 ./edaf report --run-id umda-onemax-v3 --out reports --db-url jdbc:sqlite:edaf-v3.db
@@ -109,36 +110,85 @@ Examples:
 ./edaf list problems
 ```
 
-## 8) Exit Behavior
+## 8) `coco`
 
-- command returns `0` on successful execution
-- validation/runtime errors return non-zero and include actionable message paths where available
+COCO/BBOB campaign orchestration commands.
 
-## 9) Typical Workflows
+Subcommands:
 
-### Single run + report
+- `run`
+- `import-reference`
+- `report`
 
-```bash
-./edaf run -c configs/umda-onemax-v3.yml
-./edaf report --run-id umda-onemax-v3 --out reports --db-url jdbc:sqlite:edaf-v3.db
-```
+### `coco run`
 
-### Batch experiment pack
+Run one campaign YAML and persist campaign-level rows + report.
 
 ```bash
-./edaf batch -c configs/batch-v3.yml
+./edaf coco run -c configs/coco/bbob-campaign-v3.yml
+./edaf coco run -c configs/coco/bbob-smoke-v3.yml
 ```
 
-### Resume interrupted run
+Options:
+
+- `-c`, `--config` (required): campaign YAML path
+- `--verbosity` (optional): `quiet|normal|verbose|debug`
+
+### `coco import-reference`
+
+Import external reference ERT rows used for ERT ratio comparison.
 
 ```bash
-./edaf resume --checkpoint results/checkpoints/<run-id>-iter-<k>.ckpt.yaml
+./edaf coco import-reference \
+  --csv configs/coco/reference/coco-reference-template.csv \
+  --suite bbob \
+  --source-url https://numbbo.github.io/coco/ \
+  --db-url jdbc:sqlite:edaf-v3.db
 ```
 
-### Discover available components
+Options:
+
+- `--csv` (required): CSV path
+- `--suite` (optional, default `bbob`)
+- `--source-url` (optional)
+- `--db-url` (optional, default `jdbc:sqlite:edaf-v3.db`)
+- `--db-user` (optional)
+- `--db-password` (optional)
+
+### `coco report`
+
+Rebuild one campaign report from DB state.
 
 ```bash
-./edaf list algorithms
-./edaf list models
-./edaf list problems
+./edaf coco report \
+  --campaign-id coco-bbob-benchmark-v3 \
+  --out reports/coco \
+  --db-url jdbc:sqlite:edaf-v3.db
 ```
+
+Options:
+
+- `--campaign-id` (required)
+- `--out` (required)
+- `--db-url` (optional)
+- `--db-user` (optional)
+- `--db-password` (optional)
+
+## 9) Web Startup Command Notes
+
+From repository root, recommended web startup command is:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+```
+
+Alternative direct module command:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
+```
+
+## 10) Exit Behavior
+
+- successful execution returns `0`
+- validation/runtime failures return non-zero with actionable messages

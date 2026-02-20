@@ -64,6 +64,36 @@ class IntegrationSlicesTest {
     }
 
     @Test
+    void cmaEsOnSphereResumeIsDeterministic() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-cma");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = baseConfig("int-cma", outDir);
+        config.getRepresentation().setType("real-vector");
+        config.getRepresentation().getParams().put("length", 10);
+        config.getRepresentation().getParams().put("lower", -5.0);
+        config.getRepresentation().getParams().put("upper", 5.0);
+        config.getProblem().setType("sphere");
+        config.getAlgorithm().setType("cma-es");
+        config.getAlgorithm().getParams().put("populationSize", 64);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.5);
+        config.getAlgorithm().getParams().put("elitism", 0);
+        config.getModel().setType("cma-es");
+        config.getModel().getParams().put("initialSigma", 1.2);
+        config.getModel().getParams().put("minSigma", 1.0e-12);
+        config.getSelection().setType("truncation");
+        config.getStopping().setMaxIterations(35);
+        config.getRun().setCheckpointEveryIterations(10);
+
+        var baseline = runner.run(config, List.of());
+        Path checkpoint = outDir.resolve("checkpoints").resolve("int-cma-iter-20.ckpt.yaml");
+        assertTrue(Files.exists(checkpoint));
+
+        var resumed = runner.resume(checkpoint, List.of());
+        assertEquals(baseline.result().best().fitness().scalar(), resumed.result().best().fitness().scalar(), 1e-9);
+    }
+
+    @Test
     void ehmOnSmallTspProducesMetrics() throws Exception {
         Path outDir = Files.createTempDirectory("edaf-v3-tsp");
         ExperimentRunner runner = new ExperimentRunner();

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EDAF COCO Campaign Detail</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #f7faf8;
+            --card: #ffffff;
+            --ink: #16222d;
+            --muted: #617380;
+            --line: #d7e3ea;
+            --accent: #0f766e;
+            --accent2: #0b4a6f;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 14% 12%, rgba(15, 118, 110, 0.16), transparent 30%),
+                radial-gradient(circle at 90% 8%, rgba(11, 74, 111, 0.12), transparent 30%),
+                var(--bg);
+        }
+        .wrap { max-width: 1400px; margin: 0 auto; padding: 20px 14px 36px; }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .top a { color: var(--accent); text-decoration: none; font-weight: 700; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 10px 26px rgba(0,0,0,.05);
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(140px, 1fr));
+            gap: 8px;
+        }
+        .kpi { border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+        .kpi .k { color: var(--muted); font-size: .78rem; }
+        .kpi .v { margin-top: 4px; font-weight: 700; }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+        .canvas-wrap { height: 320px; }
+        .table-wrap { border: 1px solid var(--line); border-radius: 10px; overflow: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 980px; }
+        th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: .84rem; }
+        th { color: var(--muted); background: #f8fbfd; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        input, select, button {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 9px;
+            font: inherit;
+            background: white;
+        }
+        button { cursor: pointer; }
+        .pager { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .muted { color: var(--muted); font-size: .84rem; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="top">
+        <a href="/coco">← COCO campaigns</a>
+        <button id="refreshBtn">Refresh</button>
+    </div>
+
+    <section class="card">
+        <h1 id="title" th:text="${campaign.name}">Campaign</h1>
+        <div class="summary" id="summaryGrid">
+            <div class="kpi"><div class="k">Campaign ID</div><div class="v mono" id="campaignId" th:text="${campaign.campaignId}"></div></div>
+            <div class="kpi"><div class="k">Suite</div><div class="v mono" id="suiteValue" th:text="${campaign.suite}"></div></div>
+            <div class="kpi"><div class="k">Status</div><div class="v" id="statusValue" th:text="${campaign.status}"></div></div>
+            <div class="kpi"><div class="k">Created</div><div class="v mono" id="createdValue" th:text="${campaign.createdAt}"></div></div>
+            <div class="kpi"><div class="k">Started</div><div class="v mono" id="startedValue" th:text="${campaign.startedAt}"></div></div>
+            <div class="kpi"><div class="k">Finished</div><div class="v mono" id="finishedValue" th:text="${campaign.finishedAt}"></div></div>
+            <div class="kpi"><div class="k">Functions</div><div class="v mono" id="functionsValue" th:text="${campaign.functionsJson}"></div></div>
+            <div class="kpi"><div class="k">Dimensions</div><div class="v mono" id="dimensionsValue" th:text="${campaign.dimensionsJson}"></div></div>
+            <div class="kpi"><div class="k">Instances</div><div class="v mono" id="instancesValue" th:text="${campaign.instancesJson}"></div></div>
+            <div class="kpi"><div class="k">Optimizers</div><div class="v" id="optimizerCount"></div></div>
+            <div class="kpi"><div class="k">Trials</div><div class="v" id="trialCount"></div></div>
+            <div class="kpi"><div class="k">Success Rate</div><div class="v" id="successRate"></div></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>ERT Ratio by Dimension</strong>
+            <span class="muted">lower is better</span>
+        </div>
+        <div class="canvas-wrap"><canvas id="ratioChart"></canvas></div>
+    </section>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>Optimizer Configs</strong>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr><th>Optimizer</th><th>Algorithm</th><th>Model</th><th>Representation</th><th>Config path</th></tr>
+                </thead>
+                <tbody id="optimizerRows">
+                <tr th:each="opt : ${optimizers}">
+                    <td class="mono" th:text="${opt.optimizerId}"></td>
+                    <td th:text="${opt.algorithmType}"></td>
+                    <td th:text="${opt.modelType}"></td>
+                    <td th:text="${opt.representationType}"></td>
+                    <td class="mono" th:text="${opt.configPath}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>Aggregate Metrics</strong>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Optimizer</th><th>Dimension</th><th>Target</th><th>Success rate</th><th>Mean evals to target</th>
+                    <th>EDAF ERT</th><th>Reference</th><th>Reference ERT</th><th>ERT ratio</th><th>Median best</th>
+                </tr>
+                </thead>
+                <tbody id="aggregateRows">
+                <tr th:each="row : ${aggregates}">
+                    <td class="mono" th:text="${row.optimizerId}"></td>
+                    <td th:text="${row.dimension}"></td>
+                    <td class="mono" th:text="${row.targetValue}"></td>
+                    <td th:text="${row.successRate}"></td>
+                    <td th:text="${row.meanEvaluationsToTarget}"></td>
+                    <td th:text="${row.edafErt}"></td>
+                    <td class="mono" th:text="${row.comparedReferenceOptimizer}"></td>
+                    <td th:text="${row.referenceErt}"></td>
+                    <td th:text="${row.ertRatio}"></td>
+                    <td th:text="${row.medianBestFitness}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="toolbar">
+            <strong>Trials</strong>
+            <div class="controls">
+                <select id="trialOptimizer"><option value="">All optimizers</option></select>
+                <input id="trialFunction" type="number" placeholder="function id" />
+                <input id="trialDimension" type="number" placeholder="dimension" />
+                <select id="trialReached">
+                    <option value="">all</option>
+                    <option value="true">reached target</option>
+                    <option value="false">not reached</option>
+                </select>
+                <button id="applyTrials">Apply</button>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Optimizer</th><th>Run</th><th>f</th><th>instance</th><th>dim</th><th>rep</th><th>budget</th>
+                    <th>evals</th><th>best</th><th>reached</th><th>evals_to_target</th><th>status</th>
+                </tr>
+                </thead>
+                <tbody id="trialRows">
+                <tr th:each="row : ${trialsPage.items}">
+                    <td class="mono" th:text="${row.optimizerId}"></td>
+                    <td class="mono" th:text="${row.runId}"></td>
+                    <td th:text="${row.functionId}"></td>
+                    <td th:text="${row.instanceId}"></td>
+                    <td th:text="${row.dimension}"></td>
+                    <td th:text="${row.repetition}"></td>
+                    <td th:text="${row.budgetEvaluations}"></td>
+                    <td th:text="${row.evaluations}"></td>
+                    <td th:text="${row.bestFitness}"></td>
+                    <td th:text="${row.reachedTarget}"></td>
+                    <td th:text="${row.evaluationsToTarget}"></td>
+                    <td th:text="${row.status}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pager">
+            <div>
+                <button id="trialPrev">Previous</button>
+                <button id="trialNext">Next</button>
+            </div>
+            <span id="trialPageInfo"></span>
+        </div>
+    </section>
+</div>
+
+<script th:inline="javascript">
+    const campaignId = /*[[${campaignId}]]*/ "campaign";
+    const initialCampaign = /*[[${campaign}]]*/ {};
+    const initialOptimizers = /*[[${optimizers}]]*/ [];
+    const initialAggregates = /*[[${aggregates}]]*/ [];
+    const initialTrialsPage = /*[[${trialsPage}]]*/ { items: [], page: 0, size: 25, total: 0, totalPages: 0 };
+
+    const state = {
+        trialPage: initialTrialsPage.page || 0,
+        trialSize: initialTrialsPage.size || 25,
+        optimizer: "",
+        functionId: "",
+        dimension: "",
+        reachedTarget: ""
+    };
+
+    const els = {
+        optimizerRows: document.getElementById("optimizerRows"),
+        aggregateRows: document.getElementById("aggregateRows"),
+        trialRows: document.getElementById("trialRows"),
+        trialOptimizer: document.getElementById("trialOptimizer"),
+        trialFunction: document.getElementById("trialFunction"),
+        trialDimension: document.getElementById("trialDimension"),
+        trialReached: document.getElementById("trialReached"),
+        applyTrials: document.getElementById("applyTrials"),
+        trialPrev: document.getElementById("trialPrev"),
+        trialNext: document.getElementById("trialNext"),
+        trialPageInfo: document.getElementById("trialPageInfo"),
+        refreshBtn: document.getElementById("refreshBtn"),
+        optimizerCount: document.getElementById("optimizerCount"),
+        trialCount: document.getElementById("trialCount"),
+        successRate: document.getElementById("successRate")
+    };
+
+    const ratioChart = new Chart(document.getElementById("ratioChart"), {
+        type: "line",
+        data: { labels: [], datasets: [] },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false } }
+    });
+
+    function fmt(v) {
+        if (v === null || v === undefined || Number.isNaN(v)) return "-";
+        if (typeof v === "number") return Number(v).toPrecision(6);
+        return String(v);
+    }
+
+    function renderOptimizers(optimizers) {
+        els.optimizerRows.innerHTML = "";
+        els.trialOptimizer.innerHTML = '<option value="">All optimizers</option>';
+        for (const row of optimizers) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="mono">${row.optimizerId}</td>
+                <td>${row.algorithmType || ""}</td>
+                <td>${row.modelType || ""}</td>
+                <td>${row.representationType || ""}</td>
+                <td class="mono">${row.configPath || ""}</td>
+            `;
+            els.optimizerRows.appendChild(tr);
+
+            const opt = document.createElement("option");
+            opt.value = row.optimizerId;
+            opt.textContent = row.optimizerId;
+            els.trialOptimizer.appendChild(opt);
+        }
+        els.trialOptimizer.value = state.optimizer;
+        els.optimizerCount.textContent = String(optimizers.length);
+    }
+
+    function renderAggregates(aggregates) {
+        els.aggregateRows.innerHTML = "";
+        for (const row of aggregates) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="mono">${row.optimizerId}</td>
+                <td>${row.dimension}</td>
+                <td class="mono">${fmt(row.targetValue)}</td>
+                <td>${(Number(row.successRate || 0) * 100).toFixed(1)}%</td>
+                <td>${fmt(row.meanEvaluationsToTarget)}</td>
+                <td>${fmt(row.edafErt)}</td>
+                <td class="mono">${row.comparedReferenceOptimizer || "-"}</td>
+                <td>${fmt(row.referenceErt)}</td>
+                <td>${fmt(row.ertRatio)}</td>
+                <td>${fmt(row.medianBestFitness)}</td>
+            `;
+            els.aggregateRows.appendChild(tr);
+        }
+
+        const dimensions = [...new Set(aggregates.map(a => a.dimension))].sort((a, b) => a - b);
+        const optimizers = [...new Set(aggregates.map(a => a.optimizerId))];
+        const palette = ["#0f766e", "#0b4a6f", "#b45309", "#9333ea", "#be123c", "#1d4ed8"];
+
+        ratioChart.data.labels = dimensions;
+        ratioChart.data.datasets = optimizers.map((optimizer, idx) => {
+            const map = new Map(aggregates.filter(a => a.optimizerId === optimizer).map(a => [a.dimension, a]));
+            return {
+                label: optimizer,
+                data: dimensions.map(dim => {
+                    const row = map.get(dim);
+                    return row ? row.ertRatio : null;
+                }),
+                borderColor: palette[idx % palette.length],
+                backgroundColor: `${palette[idx % palette.length]}33`,
+                tension: 0.2
+            };
+        });
+        ratioChart.update();
+
+        const totalTrials = initialTrialsPage.total || 0;
+        const reachedApprox = aggregates.reduce((acc, row) => acc + Number(row.successRate || 0), 0);
+        const successAvg = aggregates.length === 0 ? 0 : reachedApprox / aggregates.length;
+        els.trialCount.textContent = String(totalTrials);
+        els.successRate.textContent = `${(successAvg * 100).toFixed(1)}%`;
+    }
+
+    function buildTrialQuery() {
+        const params = new URLSearchParams();
+        params.set("page", String(state.trialPage));
+        params.set("size", String(state.trialSize));
+        if (state.optimizer) params.set("optimizer", state.optimizer);
+        if (state.functionId) params.set("functionId", state.functionId);
+        if (state.dimension) params.set("dimension", state.dimension);
+        if (state.reachedTarget) params.set("reachedTarget", state.reachedTarget);
+        return params;
+    }
+
+    async function loadTrials() {
+        const params = buildTrialQuery();
+        const response = await fetch(`/api/coco/campaigns/${campaignId}/trials?${params.toString()}`);
+        const payload = await response.json();
+
+        els.trialRows.innerHTML = "";
+        for (const row of payload.items) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="mono">${row.optimizerId}</td>
+                <td class="mono">${row.runId}</td>
+                <td>${row.functionId}</td>
+                <td>${row.instanceId}</td>
+                <td>${row.dimension}</td>
+                <td>${row.repetition}</td>
+                <td>${row.budgetEvaluations}</td>
+                <td>${row.evaluations ?? "-"}</td>
+                <td>${fmt(row.bestFitness)}</td>
+                <td>${row.reachedTarget ? "yes" : "no"}</td>
+                <td>${row.evaluationsToTarget ?? "-"}</td>
+                <td>${row.status}</td>
+            `;
+            els.trialRows.appendChild(tr);
+        }
+
+        els.trialPageInfo.textContent = `page ${payload.page + 1} / ${Math.max(1, payload.totalPages)} · total ${payload.total}`;
+        els.trialPrev.disabled = payload.page <= 0;
+        els.trialNext.disabled = payload.page >= payload.totalPages - 1;
+    }
+
+    async function loadAll() {
+        const [optimizersRes, aggregatesRes] = await Promise.all([
+            fetch(`/api/coco/campaigns/${campaignId}/optimizers`),
+            fetch(`/api/coco/campaigns/${campaignId}/aggregates`)
+        ]);
+        const optimizers = await optimizersRes.json();
+        const aggregates = await aggregatesRes.json();
+        renderOptimizers(optimizers);
+        renderAggregates(aggregates);
+        await loadTrials();
+    }
+
+    els.applyTrials.addEventListener("click", () => {
+        state.optimizer = els.trialOptimizer.value;
+        state.functionId = els.trialFunction.value.trim();
+        state.dimension = els.trialDimension.value.trim();
+        state.reachedTarget = els.trialReached.value;
+        state.trialPage = 0;
+        loadTrials();
+    });
+
+    els.trialPrev.addEventListener("click", () => {
+        if (state.trialPage > 0) {
+            state.trialPage -= 1;
+            loadTrials();
+        }
+    });
+
+    els.trialNext.addEventListener("click", () => {
+        state.trialPage += 1;
+        loadTrials();
+    });
+
+    els.refreshBtn.addEventListener("click", () => loadAll());
+
+    loadAll();
+</script>
+</body>
+</html>

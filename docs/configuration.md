@@ -268,3 +268,52 @@ Examples of enforced errors:
 - For long runs, enable checkpoints and DB sink.
 - Use `metricsEveryIterations` to balance console readability and verbosity.
 - Keep `logging.modes` and `persistence.sinks` aligned with analysis needs.
+
+## 16) COCO Campaign Configuration (`schema: "3.0-coco"`)
+
+COCO campaign files are separate from single-run experiment files and are executed with:
+
+```bash
+./edaf coco run -c configs/coco/bbob-campaign-v3.yml
+```
+
+Core shape:
+
+```yaml
+schema: "3.0-coco"
+
+campaign:
+  id: coco-bbob-benchmark-v3
+  suite: bbob
+  functions: [1, 2, 3, 8, 15]
+  dimensions: [2, 5, 10]
+  instances: [1, 2]
+  repetitions: 2
+  maxEvaluationsMultiplier: 2000
+  targetFitness: 1.0e-8
+  databaseUrl: jdbc:sqlite:edaf-v3.db
+  outputDirectory: ./results/coco
+  reportDirectory: ./reports/coco
+  referenceMode: best-online
+
+optimizers:
+  - id: gaussian-baseline
+    config: optimizers/gaussian-baseline-v3.yml
+```
+
+COCO campaign fields:
+
+| Field | Description |
+| --- | --- |
+| `campaign.id` | campaign primary key persisted in DB |
+| `campaign.suite` | currently `bbob` |
+| `campaign.functions` | list of BBOB function IDs (`1..24`) |
+| `campaign.dimensions` | list of tested dimensions |
+| `campaign.instances` | list of BBOB instances |
+| `campaign.repetitions` | repeated trials for each `(optimizer,function,dimension,instance)` |
+| `campaign.maxEvaluationsMultiplier` | budget multiplier: `budget = multiplier * dimension` |
+| `campaign.targetFitness` | success target used by ERT/success metrics |
+| `campaign.referenceMode` | `best-online` or `optimizer:<name>` |
+| `optimizers[].config` | path to a standard v3 experiment config template |
+
+See `/Users/karloknezevic/Desktop/EDAF/docs/coco-integration.md` for full details.

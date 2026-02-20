@@ -4,3 +4,4 @@ com.knezevic.edaf.v3.problems.plugins.RosenbrockProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.RastriginProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.SmallTspProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.MixedToyProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.CocoBbobProblemPlugin

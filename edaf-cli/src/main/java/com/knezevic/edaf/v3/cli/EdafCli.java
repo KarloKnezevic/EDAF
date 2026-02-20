@@ -1,6 +1,7 @@
 package com.knezevic.edaf.v3.cli;
 
 import com.knezevic.edaf.v3.cli.commands.BatchCommand;
+import com.knezevic.edaf.v3.cli.commands.CocoCommand;
 import com.knezevic.edaf.v3.cli.commands.ConfigCommand;
 import com.knezevic.edaf.v3.cli.commands.ListCommand;
 import com.knezevic.edaf.v3.cli.commands.ReportCommand;
@@ -26,7 +27,8 @@ import picocli.CommandLine.Command;
                 ResumeCommand.class,
                 ReportCommand.class,
                 ConfigCommand.class,
-                ListCommand.class
+                ListCommand.class,
+                CocoCommand.class
         }
 )
 public final class EdafCli implements Runnable {

@@ -1,0 +1,79 @@
+schema: "3.0"
+
+run:
+  id: coco-gaussian-aggressive-template
+  name: COCO Gaussian Aggressive Template
+  masterSeed: 24680
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: real-vector
+  length: 10
+  lower: -5.0
+  upper: 5.0
+
+problem:
+  type: sphere
+
+algorithm:
+  type: gaussian-eda
+  populationSize: 80
+  elitism: 1
+  selectionRatio: 0.20
+
+model:
+  type: gaussian-diag
+  minSigma: 1.0e-10
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 200
+
+constraints:
+  type: repair
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl]
+  outputDirectory: ./results/coco
+  database:
+    enabled: false
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/coco
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console]
+  verbosity: normal
+  jsonlFile: ./results/coco/aggressive-events.jsonl
+  logFile: ./edaf-v3.log

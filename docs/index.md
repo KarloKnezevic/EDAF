@@ -16,6 +16,7 @@ This documentation set describes the current **v3-only** architecture and runtim
 
 - [Algorithms](./algorithms.md)
 - [Representations](./representations.md)
+- [COCO Integration](./coco-integration.md)
 - [Extending the Framework](./extending-the-framework.md)
 
 ## Observability, Persistence, and Web
@@ -24,6 +25,7 @@ This documentation set describes the current **v3-only** architecture and runtim
 - [Database Schema](./database-schema.md)
 - [Web Dashboard and API](./web-dashboard.md)
 - [Metrics and Results](./metrics-and-results.md)
+- [Benchmark Comparisons](./benchmark-comparisons.md)
 
 ## Operations
 

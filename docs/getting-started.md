@@ -36,7 +36,7 @@ mvn -q -pl edaf-cli -am package
 `./edaf` is the primary entrypoint.
 
 - It checks if `edaf-cli/target/edaf-cli.jar` exists.
-- If missing, it builds `edaf-cli` and dependencies.
+- If missing or stale relative to source changes, it rebuilds `edaf-cli` and dependencies.
 - It then launches the CLI jar.
 
 Usage:
@@ -151,7 +151,7 @@ By default web uses SQLite DB at `jdbc:sqlite:edaf-v3.db`.
 Run this from a terminal in `/Users/karloknezevic/Desktop/EDAF`:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
 ```
 
 Stop the server with `Ctrl+C` in that terminal.
@@ -160,7 +160,25 @@ Open:
 
 - [http://localhost:7070](http://localhost:7070)
 
-## 11) Run Full Docker Stack
+Alternative command if Maven prefix resolution fails:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
+```
+
+## 11) Run COCO Smoke Campaign
+
+```bash
+./edaf coco run -c configs/coco/bbob-smoke-v3.yml
+```
+
+Then inspect:
+
+- campaign rows in DB (`coco_campaigns`, `coco_trials`, `coco_aggregates`)
+- campaign pages in web UI (`/coco`, `/coco/{campaignId}`)
+- generated campaign report in `reports/coco/`
+
+## 12) Run Full Docker Stack
 
 ```bash
 docker compose up --build
@@ -191,3 +209,4 @@ docker compose down -v
 - [CLI Reference](./cli-reference.md)
 - [Database Schema](./database-schema.md)
 - [Web Dashboard and API](./web-dashboard.md)
+- [COCO Integration Guide](./coco-integration.md)

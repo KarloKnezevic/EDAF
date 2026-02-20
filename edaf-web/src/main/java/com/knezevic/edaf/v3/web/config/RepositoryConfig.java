@@ -3,6 +3,8 @@ package com.knezevic.edaf.v3.web.config;
 import com.knezevic.edaf.v3.persistence.jdbc.SchemaInitializer;
 import com.knezevic.edaf.v3.persistence.query.JdbcRunRepository;
 import com.knezevic.edaf.v3.persistence.query.RunRepository;
+import com.knezevic.edaf.v3.persistence.query.coco.CocoRepository;
+import com.knezevic.edaf.v3.persistence.query.coco.JdbcCocoRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,5 +20,11 @@ public class RepositoryConfig {
     public RunRepository runRepository(DataSource dataSource) {
         SchemaInitializer.initialize(dataSource);
         return new JdbcRunRepository(dataSource);
+    }
+
+    @Bean
+    public CocoRepository cocoRepository(DataSource dataSource) {
+        SchemaInitializer.initialize(dataSource);
+        return new JdbcCocoRepository(dataSource);
     }
 }

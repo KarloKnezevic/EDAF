@@ -1,0 +1,30 @@
+schema: "3.0-coco"
+
+campaign:
+  id: coco-bbob-benchmark-v3
+  name: COCO BBOB Benchmark Campaign (EDAF v3)
+  suite: bbob
+  functions: [1, 2, 3, 8, 15]
+  dimensions: [2, 5, 10]
+  instances: [1, 2]
+  repetitions: 2
+  maxEvaluationsMultiplier: 2000
+  targetFitness: 1.0e-8
+  databaseUrl: jdbc:sqlite:edaf-v3.db
+  databaseUser: ""
+  databasePassword: ""
+  outputDirectory: ./results/coco
+  reportDirectory: ./reports/coco
+  referenceMode: best-online
+  notes: >
+    Campaign compares Gaussian EDA configurations on BBOB slices.
+    Import reference rows before running if you want ERT ratio vs online baselines.
+
+optimizers:
+  - id: gaussian-baseline
+    displayName: Gaussian EDA Baseline
+    config: optimizers/gaussian-baseline-v3.yml
+
+  - id: gaussian-aggressive
+    displayName: Gaussian EDA Aggressive
+    config: optimizers/gaussian-aggressive-v3.yml

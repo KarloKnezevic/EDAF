@@ -38,6 +38,24 @@
             justify-content: space-between;
             gap: 16px;
         }
+        .hero-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .hero-link {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 7px 11px;
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: .84rem;
+            background: rgba(255, 255, 255, .8);
+        }
         h1 { margin: 0; font-size: clamp(1.45rem, 2.6vw, 2.1rem); letter-spacing: .01em; }
         .sub { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
         .card {
@@ -135,7 +153,10 @@
             <h1>EDAF Run Explorer</h1>
             <p class="sub">Search, filter, and inspect persisted optimization runs.</p>
         </div>
-        <span class="mono muted">/api/runs (paged)</span>
+        <div class="hero-links">
+            <a class="hero-link" href="/coco">COCO Campaigns</a>
+            <span class="mono muted">/api/runs (paged)</span>
+        </div>
     </section>
 
     <section class="card">

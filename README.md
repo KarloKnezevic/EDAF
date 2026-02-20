@@ -16,6 +16,7 @@
 - [Getting Started](#getting-started)
 - [CLI Commands](#cli-commands)
 - [Configuration](#configuration)
+- [COCO Benchmarking](#coco-benchmarking)
 - [Operators and Policies](#operators-and-policies)
 - [Logging and Observability](#logging-and-observability)
 - [Persistence and Database](#persistence-and-database)
@@ -34,6 +35,7 @@ EDAF v3 is plugin-driven and strongly typed. A run is assembled from representat
 graph LR
     CFG["YAML Config (schema 3.0)"] --> CLI["edaf-cli (picocli)"]
     CLI --> RUNNER["edaf-experiments::ExperimentRunner"]
+    CLI --> COCOCLI["edaf coco ..."]
 
     RUNNER --> REG["PluginRegistry (ServiceLoader)"]
     REG --> REP["RepresentationPlugin<G>"]
@@ -57,6 +59,11 @@ graph LR
     JDBC --> DB[("SQLite/PostgreSQL")]
     DB --> WEB["edaf-web (Spring Boot + Thymeleaf + API)"]
     DB --> REPORT["edaf-reporting (HTML/LaTeX)"]
+    COCOCLI --> COCORUN["edaf-coco::CocoCampaignRunner"]
+    COCORUN --> RUNNER
+    COCORUN --> COCOSTORE["COCO campaign store + aggregates"]
+    COCOSTORE --> DB
+    DB --> COCOWEB["/coco dashboard pages + /api/coco/*"]
 ```
 
 ### Core Design Principles
@@ -79,6 +86,7 @@ graph LR
 | `edaf-problems` | Built-in benchmark/objective implementations |
 | `edaf-algorithms` | Algorithm drivers and algorithm plugins |
 | `edaf-experiments` | Runtime orchestration, batch execution, checkpoint/resume |
+| `edaf-coco` | COCO/BBOB campaign orchestration, reference import, aggregate/report generation |
 | `edaf-persistence` | Event sinks, JDBC schema/bootstrap, read query repository |
 | `edaf-reporting` | HTML/LaTeX report generation |
 | `edaf-web` | Web UI + REST API over persisted runs |
@@ -207,6 +215,16 @@ Top-level help:
 ./edaf list problems
 ```
 
+### 7) COCO Campaign Commands
+
+```bash
+./edaf coco run -c configs/coco/bbob-campaign-v3.yml
+./scripts/coco/build_reference_from_ppdata.py --functions 1,2,3,8,15 --dimensions 2,5,10,20 --target-label 1e-7 --target-value 1e-7 --out configs/coco/reference/coco-reference-bbob-ppdata-2009-2023-f1-2-3-8-15-d2-5-10-20-t1e-7.csv
+./edaf coco import-reference --csv configs/coco/reference/coco-reference-bbob-ppdata-2009-2023-f1-2-3-8-15-d2-5-10-20-t1e-7.csv --suite bbob --source-url https://numbbo.github.io/ppdata-archive/bbob/ --db-url jdbc:sqlite:edaf-v3.db
+./edaf coco run -c configs/coco/bbob-publishable-v4.yml
+./edaf coco report --campaign-id coco-bbob-publishable-v4 --out reports/coco --db-url jdbc:sqlite:edaf-v3.db
+```
+
 ## Configuration
 
 EDAF uses strict YAML with `schema: "3.0"`.
@@ -313,6 +331,38 @@ logging:
 
 Compatibility rules are validated semantically (for example, permutation representation cannot use Gaussian continuous models).
 
+## COCO Benchmarking
+
+EDAF includes first-class COCO/BBOB campaign support via `edaf-coco`.
+
+Primary campaign configs:
+
+- `configs/coco/bbob-smoke-v3.yml` (quick smoke)
+- `configs/coco/bbob-campaign-v3.yml` (multi-slice benchmark)
+- `configs/coco/bbob-publishable-v4.yml` (larger publishable campaign with CMA variants)
+- `configs/coco/bbob-cma-compare-v3.yml` (CMA-ES vs Gaussian baselines)
+
+Reference CSV options:
+
+- `configs/coco/reference/coco-reference-template.csv`
+- `configs/coco/reference/coco-reference-bbob-ppdata-2009-2023-f1-2-3-8-15-d2-5-10-20-t1e-7.csv`
+
+Typical workflow:
+
+1. optionally generate fuller reference rows from official COCO ppdata via `scripts/coco/build_reference_from_ppdata.py`
+2. import reference rows
+3. run campaign with `./edaf coco run -c ...`
+4. inspect campaign explorer at `/coco`
+5. publish generated HTML report from `reports/coco/`
+
+Persisted campaign tables:
+
+- `coco_campaigns`
+- `coco_optimizer_configs`
+- `coco_trials`
+- `coco_reference_results`
+- `coco_aggregates`
+
 ## Operators and Policies
 
 EDAF v3 separates probabilistic modeling from runtime policies. Instead of hard-coding operators inside each algorithm, the same algorithm can be composed with different policies through config.
@@ -418,6 +468,11 @@ Main tables:
 - `iterations`
 - `checkpoints`
 - `events`
+- `coco_campaigns`
+- `coco_optimizer_configs`
+- `coco_trials`
+- `coco_reference_results`
+- `coco_aggregates`
 
 Key behaviors:
 
@@ -431,6 +486,12 @@ For full schema and query details, see [`docs/database-schema.md`](docs/database
 
 Run web app locally:
 From a terminal opened at `/Users/karloknezevic/Desktop/EDAF`:
+
+```bash
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+```
+
+Alternative command (direct module POM invocation):
 
 ```bash
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
@@ -451,8 +512,15 @@ REST API:
 - `GET /api/runs/{runId}/checkpoints`
 - `GET /api/runs/{runId}/params`
 - `GET /api/facets`
+- `GET /api/coco/campaigns`
+- `GET /api/coco/campaigns/{campaignId}`
+- `GET /api/coco/campaigns/{campaignId}/optimizers`
+- `GET /api/coco/campaigns/{campaignId}/aggregates`
+- `GET /api/coco/campaigns/{campaignId}/trials`
 
 `/api/runs` supports search/filter/sort/pagination (`q`, `algorithm`, `model`, `problem`, `status`, `from`, `to`, `minBest`, `maxBest`, `page`, `size`, `sortBy`, `sortDir`).
+
+`/api/coco/campaigns` supports `q`, `status`, `suite`, `page`, `size`, `sortBy`, `sortDir`.
 
 ## Docker Usage
 
@@ -548,9 +616,11 @@ Coverage includes:
 - [docs/configuration.md](docs/configuration.md) - complete config reference
 - [docs/algorithms.md](docs/algorithms.md) - algorithm-level details and status
 - [docs/representations.md](docs/representations.md) - representation contracts and parameters
+- [docs/coco-integration.md](docs/coco-integration.md) - COCO campaign workflow, DB model, and comparison protocol
 - [docs/logging-and-observability.md](docs/logging-and-observability.md) - events, sinks, metrics
 - [docs/database-schema.md](docs/database-schema.md) - DB schema, relations, indexes, query model
 - [docs/web-dashboard.md](docs/web-dashboard.md) - UI/API behavior and filtering
+- [docs/benchmark-comparisons.md](docs/benchmark-comparisons.md) - reproducible side-by-side benchmark outputs
 - [docs/cli-reference.md](docs/cli-reference.md) - exhaustive command reference
 - [docs/docker.md](docs/docker.md) - containerized workflows
 - [docs/extending-the-framework.md](docs/extending-the-framework.md) - plugin authoring guide

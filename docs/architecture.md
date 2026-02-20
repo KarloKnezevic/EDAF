@@ -16,6 +16,7 @@ graph TD
     PERSIST["edaf-persistence"]
     REPORT["edaf-reporting"]
     EXP["edaf-experiments"]
+    COCO["edaf-coco"]
     CLI["edaf-cli"]
     WEB["edaf-web"]
 
@@ -40,9 +41,13 @@ graph TD
     ALG --> EXP
     PERSIST --> EXP
     REPORT --> EXP
+    EXP --> COCO
+    PERSIST --> COCO
 
     EXP --> CLI
+    COCO --> CLI
     PERSIST --> WEB
+    COCO --> WEB
 ```
 
 ## 2) Runtime Pipeline
@@ -195,7 +200,9 @@ This split keeps write path append/update-oriented and read path query-focused.
 `edaf-web` is a Spring Boot + Thymeleaf app that reads persistence data:
 
 - MVC pages for run list/detail
+- MVC pages for COCO campaign list/detail
 - REST API for polling/filters/pagination
+- REST API for COCO campaign filters/pagination
 - no frontend build toolchain
 
 ## 10) Reporting Layer
@@ -226,6 +233,7 @@ Date of this snapshot: 2026-02-19.
 - `edaf-problems`
 - `edaf-algorithms`
 - `edaf-experiments`
+- `edaf-coco`
 - `edaf-persistence`
 - `edaf-reporting`
 - `edaf-web`

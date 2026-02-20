@@ -1,0 +1,39 @@
+schema: "3.0-coco"
+
+campaign:
+  id: coco-bbob-publishable-v4
+  name: COCO BBOB Publishable Comparison Campaign (EDAF v4)
+  suite: bbob
+  functions: [1, 2, 3, 8, 15]
+  dimensions: [2, 5, 10, 20]
+  instances: [1, 2]
+  repetitions: 6
+  maxEvaluationsMultiplier: 1200
+  targetFitness: 1.0e-7
+  databaseUrl: jdbc:sqlite:edaf-v3.db
+  databaseUser: ""
+  databasePassword: ""
+  outputDirectory: ./results/coco
+  reportDirectory: ./reports/coco
+  referenceMode: best-online
+  notes: >
+    Publishable comparison campaign for EDAF v4.
+    Includes Gaussian baselines and two CMA-ES variants with auto-sized populations,
+    dimensions 2/5/10/20, instances 1/2, and increased repetition count.
+
+optimizers:
+  - id: gaussian-baseline
+    displayName: Gaussian EDA Baseline
+    config: optimizers/gaussian-baseline-v3.yml
+
+  - id: gaussian-aggressive
+    displayName: Gaussian EDA Aggressive
+    config: optimizers/gaussian-aggressive-v3.yml
+
+  - id: cma-es
+    displayName: CMA-ES Strategy
+    config: optimizers/cma-es-v3.yml
+
+  - id: cma-es-restart
+    displayName: CMA-ES Restart
+    config: optimizers/cma-es-restart-v3.yml

@@ -43,6 +43,7 @@
         <module>edaf-problems</module>
         <module>edaf-algorithms</module>
         <module>edaf-experiments</module>
+        <module>edaf-coco</module>
         <module>edaf-persistence</module>
         <module>edaf-reporting</module>
         <module>edaf-web</module>
@@ -54,6 +55,14 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>
