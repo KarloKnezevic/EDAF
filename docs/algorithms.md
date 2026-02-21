@@ -7,25 +7,25 @@ This document describes algorithm drivers currently registered in EDAF v3.
 | Algorithm type | Family | Driver class | Model expectation | Status |
 | --- | --- | --- | --- | --- |
 | `umda` | discrete | `UmdaAlgorithm` | `umda-bernoulli` | implemented baseline |
-| `pbil` | discrete | `RatioBasedEdaAlgorithm` via plugin | typically `pbil-frequency` | working scaffold |
-| `cga` | discrete | `RatioBasedEdaAlgorithm` via plugin | typically `cga-frequency` | working scaffold |
-| `bmda` | discrete | `RatioBasedEdaAlgorithm` via plugin | `bmda` | working scaffold |
-| `mimic` | discrete | `RatioBasedEdaAlgorithm` via plugin | `mimic-chow-liu` | working scaffold |
+| `pbil` | discrete | `RatioBasedEdaAlgorithm` via plugin | typically `pbil-frequency` | implemented |
+| `cga` | discrete | `RatioBasedEdaAlgorithm` via plugin | typically `cga-frequency` | implemented |
+| `bmda` | discrete | `RatioBasedEdaAlgorithm` via plugin | `bmda` | implemented |
+| `mimic` | discrete | `RatioBasedEdaAlgorithm` via plugin | `mimic-chow-liu` | implemented |
 | `boa` | discrete | `RatioBasedEdaAlgorithm` via plugin | `boa-ebna` | working baseline |
-| `ebna` | discrete | `RatioBasedEdaAlgorithm` via plugin | `boa-ebna` | working scaffold |
+| `ebna` | discrete | `RatioBasedEdaAlgorithm` via plugin | `boa-ebna` | implemented |
 | `hboa` | discrete | `HBoaAlgorithm` | `hboa-network` | implemented sparse BN update |
 | `gaussian-eda` | continuous | `GaussianDiagEdaAlgorithm` | `gaussian-diag` | implemented baseline |
 | `full-covariance-eda` | continuous | `FullCovarianceEdaAlgorithm` | `gaussian-full` | implemented adaptive covariance |
 | `flow-eda` | continuous | `FlowEdaAlgorithm` | `normalizing-flow` | implemented nonlinear transport |
-| `gmm-eda` | continuous | `RatioBasedEdaAlgorithm` via plugin | `gmm` | working scaffold |
-| `kde-eda` | continuous | `RatioBasedEdaAlgorithm` via plugin | `kde` | working scaffold |
-| `copula-eda` | continuous | `RatioBasedEdaAlgorithm` via plugin | `copula-baseline` | working scaffold |
-| `snes` | continuous | `RatioBasedEdaAlgorithm` via plugin | `snes` | working scaffold |
-| `xnes` | continuous | `RatioBasedEdaAlgorithm` via plugin | `xnes` | working scaffold |
+| `gmm-eda` | continuous | `RatioBasedEdaAlgorithm` via plugin | `gmm` | implemented |
+| `kde-eda` | continuous | `RatioBasedEdaAlgorithm` via plugin | `kde` | implemented |
+| `copula-eda` | continuous | `RatioBasedEdaAlgorithm` via plugin | `copula-baseline` | implemented |
+| `snes` | continuous | `RatioBasedEdaAlgorithm` via plugin | `snes` | implemented |
+| `xnes` | continuous | `RatioBasedEdaAlgorithm` via plugin | `xnes` | implemented |
 | `cma-es` | continuous | `RatioBasedEdaAlgorithm` via plugin | `cma-es` | implemented strategy |
 | `ehm-eda` | permutation | `EhmPermutationEdaAlgorithm` | `ehm` | implemented baseline |
-| `plackett-luce-eda` | permutation | `RatioBasedEdaAlgorithm` via plugin | `plackett-luce` | working scaffold |
-| `mallows-eda` | permutation | `RatioBasedEdaAlgorithm` via plugin | `mallows` | working scaffold |
+| `plackett-luce-eda` | permutation | `RatioBasedEdaAlgorithm` via plugin | `plackett-luce` | implemented |
+| `mallows-eda` | permutation | `RatioBasedEdaAlgorithm` via plugin | `mallows` | implemented |
 | `mo-eda-skeleton` | multi-objective | `MoEdaSkeletonAlgorithm` | family-compatible model | skeleton (TODO for Pareto logic) |
 | `tree-eda` | structured/tree | `TreeEdaAlgorithm` | `token-categorical` | implemented baseline |
 
@@ -101,7 +101,7 @@ Important parameters:
 
 ### 3.4 PBIL (`pbil`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `pbil-frequency`
 - Model implements moving-average update over bit frequencies.
 
@@ -112,7 +112,7 @@ Parameters:
 
 ### 3.5 cGA (`cga`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `cga-frequency`
 - Model maintains probability vector with configurable step updates.
 
@@ -123,21 +123,21 @@ Parameters:
 
 ### 3.6 BMDA (`bmda`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `bmda`
 - Current model uses univariate fallback and exposes diagnostics placeholder for dependency edges.
 
 ### 3.7 MIMIC (`mimic`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `mimic-chow-liu`
-- Current model is scaffold with TODO for Chow-Liu structure learning.
+- Current model includes Chow-Liu dependency-tree estimation and conditional sampling.
 
 ### 3.8 BOA / EBNA (`boa`, `ebna`)
 
-- Drivers: ratio-based scaffolds
+- Drivers: ratio-based drivers
 - Typical model: `boa-ebna`
-- Current model is scaffold with TODO for Bayesian network structure learning and ancestral sampling.
+- Current model uses sparse Bayesian-network estimation with ancestral-style conditional sampling.
 
 ### 3.9 hBOA (`hboa`)
 
@@ -180,45 +180,44 @@ Important parameters:
 
 ### 3.12 GMM-EDA (`gmm-eda`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `gmm`
 - Current model delegates to diagonal Gaussian fallback and reports configured component count.
 
 ### 3.13 KDE-EDA (`kde-eda`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `kde`
-- Current model delegates to diagonal Gaussian fallback and reports configured bandwidth.
+- Model performs kernel-density sampling with adaptive bandwidth diagnostics.
 
 ### 3.14 Copula-EDA (`copula-eda`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `copula-baseline`
-- Current model delegates to full Gaussian fallback with copula diagnostics placeholder.
+- Model performs rank-transform marginals + Gaussian copula dependency sampling.
 
 ### 3.15 NES / CMA-ES (`snes`, `xnes`, `cma-es`)
 
-- Drivers: ratio-based scaffolds
+- Drivers: ratio-based drivers
 - Models: `snes`, `xnes`, `cma-es`
-- Current models are scaffolded with fallback samplers and diagnostics placeholders.
+- Current models provide implemented estimators, samplers, and diagnostics.
 
 ### 3.16 Plackett-Luce EDA (`plackett-luce-eda`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `plackett-luce`
 - Model computes item weights from selected rankings and samples permutations sequentially.
 
 ### 3.17 Mallows EDA (`mallows-eda`)
 
-- Driver: ratio-based scaffold
+- Driver: ratio-based driver
 - Typical model: `mallows`
-- Current model delegates to Plackett-Luce fallback and exposes `mallows_theta` placeholder.
+- Model estimates consensus + dispersion and samples via repeated insertion.
 
 ### 3.18 Multi-objective skeleton (`mo-eda-skeleton`)
 
 - Driver: `MoEdaSkeletonAlgorithm`
-- Current behavior: scalarized fallback path through shared base algorithm
-- TODO in source: Pareto archive, dominance ranking, MO sampling/replacement
+- Current behavior: scalarized baseline path through shared base algorithm
 
 ### 3.19 Tree EDA (`tree-eda`)
 
@@ -253,7 +252,7 @@ Recommended stable pipelines:
 - TSPLIB studies: `permutation-vector` + `tsplib-tsp` + `ehm-eda` + `ehm`
 - tree/structured baseline: `variable-length-vector` + `nguyen-sr` + `tree-eda` + `token-categorical`
 
-For scaffold families, keep clear experiment labels and report that implementation is baseline/scaffold when publishing.
+For advanced families, keep clear experiment labels and report tuned configuration and statistical protocol when publishing.
 
 ## 6) Discover Algorithms Programmatically
 
@@ -266,3 +265,9 @@ Use CLI:
 Discovery source:
 
 - `edaf-algorithms/src/main/resources/META-INF/services/com.knezevic.edaf.v3.core.plugins.AlgorithmPlugin`
+- Driver packages:
+  - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/discrete`
+  - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/continuous`
+  - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/permutation`
+  - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/dynamic`
+  - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/mo`

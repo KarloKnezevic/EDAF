@@ -83,4 +83,71 @@ class AdvancedAlgorithmBenchmarkSlicesTest {
         var result = runner.run(config, java.util.List.of());
         assertTrue(result.result().best().fitness().scalar() < 20.0);
     }
+
+    @Test
+    void ehbsaOnSmallTspProducesFiniteTourLength() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-ehbsa");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("bench-ehbsa", outDir);
+        config.getRepresentation().setType("permutation-vector");
+        config.getRepresentation().getParams().put("size", 8);
+        config.getProblem().setType("small-tsp");
+        config.getAlgorithm().setType("ehbsa");
+        config.getAlgorithm().getParams().put("populationSize", 120);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.4);
+        config.getModel().setType("ehm");
+        config.getModel().getParams().put("epsilon", 1e-6);
+        config.getStopping().setMaxIterations(90);
+
+        var result = runner.run(config, java.util.List.of());
+        assertTrue(result.result().best().fitness().scalar() > 0.0);
+        assertTrue(Double.isFinite(result.result().best().fitness().scalar()));
+    }
+
+    @Test
+    void slidingWindowEdaOnOnemaxMaintainsHighFitness() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-sliding");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("bench-sliding", outDir);
+        config.getRepresentation().setType("bitstring");
+        config.getRepresentation().getParams().put("length", 48);
+        config.getProblem().setType("onemax");
+        config.getAlgorithm().setType("sliding-window-eda");
+        config.getAlgorithm().getParams().put("populationSize", 160);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.5);
+        config.getAlgorithm().getParams().put("windowSize", 8);
+        config.getAlgorithm().getParams().put("adjustmentStep", 0.02);
+        config.getModel().setType("pbil-frequency");
+        config.getModel().getParams().put("learningRate", 0.2);
+        config.getStopping().setMaxIterations(70);
+
+        var result = runner.run(config, java.util.List.of());
+        assertTrue(result.result().best().fitness().scalar() >= 30.0);
+    }
+
+    @Test
+    void noisyResamplingEdaOnSphereStaysStable() throws Exception {
+        Path outDir = Files.createTempDirectory("edaf-v3-noisy");
+        ExperimentRunner runner = new ExperimentRunner();
+
+        ExperimentConfig config = TestConfigFactory.baseConfig("bench-noisy", outDir);
+        config.getRepresentation().setType("real-vector");
+        config.getRepresentation().getParams().put("length", 5);
+        config.getRepresentation().getParams().put("lower", -5.0);
+        config.getRepresentation().getParams().put("upper", 5.0);
+        config.getProblem().setType("sphere");
+        config.getAlgorithm().setType("noisy-resampling-eda");
+        config.getAlgorithm().getParams().put("populationSize", 110);
+        config.getAlgorithm().getParams().put("selectionRatio", 0.5);
+        config.getAlgorithm().getParams().put("resamples", 4);
+        config.getModel().setType("gaussian-diag");
+        config.getModel().getParams().put("minSigma", 1e-8);
+        config.getStopping().setMaxIterations(70);
+
+        var result = runner.run(config, java.util.List.of());
+        assertTrue(Double.isFinite(result.result().best().fitness().scalar()));
+        assertTrue(result.result().best().fitness().scalar() < 30.0);
+    }
 }

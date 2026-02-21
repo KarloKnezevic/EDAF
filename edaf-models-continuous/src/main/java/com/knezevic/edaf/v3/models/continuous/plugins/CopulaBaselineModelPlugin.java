@@ -1,13 +1,14 @@
 package com.knezevic.edaf.v3.models.continuous.plugins;
 
 import com.knezevic.edaf.v3.core.plugins.ModelPlugin;
+import com.knezevic.edaf.v3.core.util.Params;
 import com.knezevic.edaf.v3.models.continuous.CopulaBaselineModel;
 import com.knezevic.edaf.v3.repr.types.RealVector;
 
 import java.util.Map;
 
 /**
- * Plugin factory for copula baseline scaffold model.
+ * Plugin factory for Gaussian-copula baseline model.
  */
 public final class CopulaBaselineModelPlugin implements ModelPlugin<RealVector> {
 
@@ -18,11 +19,11 @@ public final class CopulaBaselineModelPlugin implements ModelPlugin<RealVector> 
 
     @Override
     public String description() {
-        return "Copula baseline scaffold model";
+        return "Gaussian copula with empirical marginals";
     }
 
     @Override
     public CopulaBaselineModel create(Map<String, Object> params) {
-        return new CopulaBaselineModel();
+        return new CopulaBaselineModel(Params.dbl(params, "jitter", 1.0e-9));
     }
 }

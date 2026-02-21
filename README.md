@@ -81,7 +81,7 @@ graph LR
 | `edaf-core` | Core contracts (`Algorithm`, `Model`, `Problem`, `Representation`), policies, RNG, events, config model/validation |
 | `edaf-representations` | Genotype domains and domain repair/validation implementations |
 | `edaf-models-discrete` | Discrete probabilistic models |
-| `edaf-models-continuous` | Continuous probabilistic models and strategy-model scaffolds |
+| `edaf-models-continuous` | Continuous probabilistic models and strategy-model implementations |
 | `edaf-models-permutation` | Permutation models |
 | `edaf-problems` | Built-in benchmark/objective implementations |
 | `edaf-algorithms` | Algorithm drivers and algorithm plugins |
@@ -91,6 +91,13 @@ graph LR
 | `edaf-reporting` | HTML/LaTeX report generation |
 | `edaf-web` | Web UI + REST API over persisted runs |
 | `edaf-cli` | User-facing CLI entrypoint and console UX |
+
+`edaf-algorithms` is organized by driver family:
+- `.../algorithms/discrete`
+- `.../algorithms/continuous`
+- `.../algorithms/permutation`
+- `.../algorithms/dynamic`
+- `.../algorithms/mo`
 
 ## Supported Components
 
@@ -107,7 +114,7 @@ Implementation status:
   - `flow-eda` (continuous, nonlinear transport)
   - `hboa` (discrete dependency-aware Bayesian-network variant)
   - `ehm-eda` (permutation)
-- Working baselines/scaffolds (explicit TODO markers in source):
+- Implemented baseline and advanced families:
   - `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`
   - `gmm-eda`, `kde-eda`, `copula-eda`
   - `snes`, `xnes`, `cma-es`

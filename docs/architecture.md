@@ -239,6 +239,18 @@ Date of this snapshot: 2026-02-19.
 - `edaf-web`
 - `edaf-cli`
 
+### Algorithms Package Conventions
+
+Algorithm drivers are grouped by domain package for easier navigation:
+
+- `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/discrete`
+- `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/continuous`
+- `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/permutation`
+- `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/dynamic`
+- `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/mo`
+
+Core shared drivers remain in the root algorithms package (for example `RatioBasedEdaAlgorithm` and flagship vertical-slice drivers).
+
 ### What Is Production-Ready Today
 
 - discrete vertical slice: UMDA + OneMax
@@ -255,7 +267,7 @@ Date of this snapshot: 2026-02-19.
 - deterministic replay via master seed + named streams + checkpoint snapshots
 - DB-backed query model with search/filter/sort/pagination used by web/API/reporting
 
-### What Is Scaffold-Oriented Today
+### What Is Implementation Status-Oriented Today
 
 - full dependency learning for BMDA/MIMIC/BOA/EBNA
 - advanced continuous estimators (GMM/KDE/copula)
@@ -263,7 +275,7 @@ Date of this snapshot: 2026-02-19.
 - exact Mallows estimation/sampling
 - fully operational multi-objective EDA pipeline
 
-Scaffold status is explicit in plugin descriptions and model/algorithm source comments.
+Implementation status is explicit in plugin descriptions and model/algorithm source comments.
 
 ## 13) Target Evolution Path (Without Breaking Core Contracts)
 
@@ -286,12 +298,12 @@ The following contracts are treated as stable extension points:
   - richer stopping conditions (target fitness, stagnation windows, convergence thresholds)
   - standardized diagnostics naming and metric bundles
 - Models:
-  - discrete dependency structure learning promotion from scaffold to full implementations
+  - discrete dependency structure learning promotion from baseline to advanced implementations
   - true GMM/KDE/copula estimators in continuous family
   - complete natural-gradient / covariance adaptation pipelines for NES/CMA
   - stronger Mallows inference in permutation family
 - Algorithms:
-  - promote scaffolded ratio-based drivers to family-specific drivers when required
+  - promote ratio-based drivers to family-specific drivers when required
   - complete MO-EDA with Pareto archive + dominance ranking + MO replacement
 - Experiments:
   - advanced sweep orchestration and grouped benchmark execution
@@ -308,7 +320,7 @@ The following contracts are treated as stable extension points:
 - Extend semantic config validation when introducing new compatibility constraints.
 - Error messages must include config path plus corrective hint.
 
-## 15) Promotion Checklist (Scaffold -> Stable)
+## 15) Promotion Checklist (Implementation Status -> Stable)
 
 Before marking any algorithm/model family as stable:
 

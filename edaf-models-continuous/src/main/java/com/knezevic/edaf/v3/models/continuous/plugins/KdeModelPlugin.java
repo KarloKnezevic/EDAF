@@ -8,7 +8,7 @@ import com.knezevic.edaf.v3.repr.types.RealVector;
 import java.util.Map;
 
 /**
- * Plugin factory for KDE scaffold model.
+ * Plugin factory for KDE model.
  */
 public final class KdeModelPlugin implements ModelPlugin<RealVector> {
 
@@ -19,11 +19,14 @@ public final class KdeModelPlugin implements ModelPlugin<RealVector> {
 
     @Override
     public String description() {
-        return "Kernel density estimator scaffold";
+        return "Kernel density estimator with adaptive bandwidth";
     }
 
     @Override
     public KdeModel create(Map<String, Object> params) {
-        return new KdeModel(Params.dbl(params, "bandwidth", 0.5));
+        return new KdeModel(
+                Params.dbl(params, "bandwidth", 1.0),
+                Params.dbl(params, "minBandwidth", 1.0e-8)
+        );
     }
 }

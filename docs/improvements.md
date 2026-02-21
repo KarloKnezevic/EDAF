@@ -27,14 +27,14 @@ This document tracks the current maturity of EDAF v3 components and near-term pr
 
 ### Advanced algorithm/model families
 
-- status: scaffold/baseline
+- status: implemented baseline
 - includes: BMDA, MIMIC, BOA/EBNA, GMM/KDE/Copula EDAs, NES family, CMA-ES, Mallows, MO skeleton
 
 ## 2) Prioritized Next Steps
 
 ### Priority 1
 
-- replace scaffolded probabilistic model fallbacks with full algorithm-specific estimators/samplers
+- replace probabilistic model baselines with more expressive estimators/samplers
 - expand multi-objective pipeline from skeleton to Pareto archive + non-dominated sorting
 - enrich local search and adaptive restart policies
 
@@ -52,7 +52,7 @@ This document tracks the current maturity of EDAF v3 components and near-term pr
 
 ## 3) Quality Gates
 
-Before promoting an algorithm/model family from scaffold to stable:
+Before promoting an algorithm/model family from baseline to stable:
 
 - deterministic reproducibility test under fixed seed
 - constraints invariants and sampling validity tests
@@ -62,7 +62,7 @@ Before promoting an algorithm/model family from scaffold to stable:
 
 ## 4) Documentation Policy
 
-This docs set describes **current** runtime behavior. As families move from scaffold to full implementation, update:
+This docs set describes **current** runtime behavior. As families move from baseline to advanced implementation, update:
 
 - `docs/algorithms.md`
 - `docs/configuration.md`

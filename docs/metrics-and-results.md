@@ -38,7 +38,7 @@ Examples by model family:
 - Diagonal Gaussian: sigma min/max, condition number
 - Full Gaussian: covariance condition number
 - EHM: edge entropy
-- scaffold models: placeholder diagnostics signaling TODO fields
+- advanced models: diagnostics include family-specific metrics
 
 ## 4) Sink Outputs
 
@@ -171,5 +171,5 @@ Current generators:
 
 ## 9) Caveats
 
-- Some advanced model families are scaffold implementations and expose diagnostic placeholders.
+- Advanced model families expose concrete diagnostics (dependency, covariance, entropy, gradient and rank-dependence metrics).
 - `run_objectives` currently stores final scalar-like metrics from the latest iteration payload.

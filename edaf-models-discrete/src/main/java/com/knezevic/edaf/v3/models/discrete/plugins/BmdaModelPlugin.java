@@ -1,13 +1,14 @@
 package com.knezevic.edaf.v3.models.discrete.plugins;
 
 import com.knezevic.edaf.v3.core.plugins.ModelPlugin;
+import com.knezevic.edaf.v3.core.util.Params;
 import com.knezevic.edaf.v3.models.discrete.BmdaModel;
 import com.knezevic.edaf.v3.repr.types.BitString;
 
 import java.util.Map;
 
 /**
- * Plugin factory for BMDA scaffold model.
+ * Plugin factory for BMDA bivariate dependency model.
  */
 public final class BmdaModelPlugin implements ModelPlugin<BitString> {
 
@@ -18,11 +19,11 @@ public final class BmdaModelPlugin implements ModelPlugin<BitString> {
 
     @Override
     public String description() {
-        return "BMDA scaffold with TODO for dependency graph learning";
+        return "BMDA dependency-tree model with conditional Bernoulli sampling";
     }
 
     @Override
     public BmdaModel create(Map<String, Object> params) {
-        return new BmdaModel();
+        return new BmdaModel(Params.dbl(params, "smoothing", 0.5));
     }
 }

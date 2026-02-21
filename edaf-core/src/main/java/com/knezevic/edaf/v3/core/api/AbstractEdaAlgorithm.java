@@ -33,6 +33,26 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
         // default no-op
     }
 
+    /**
+     * Evaluates one feasible genotype.
+     *
+     * <p>Specialized algorithms can override this hook for noisy resampling or
+     * surrogate-assisted evaluation while preserving the shared iteration flow.</p>
+     */
+    protected Fitness evaluateGenotype(AlgorithmContext<G> context, G feasibleGenotype, RngStream evaluationRng) {
+        return context.problem().evaluate(feasibleGenotype);
+    }
+
+    /**
+     * Allows algorithm-specific population post-processing after replacement,
+     * niching, and restarts (for example random immigrants injection).
+     */
+    protected Population<G> postProcessPopulation(AlgorithmContext<G> context,
+                                                  Population<G> previous,
+                                                  Population<G> next) {
+        return next;
+    }
+
     @Override
     public void initialize(AlgorithmContext<G> context) {
         Population<G> population = new Population<>(context.problem().objectiveSense());
@@ -102,7 +122,7 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
                     context.problem(),
                     context.rngManager().stream("constraint")
             );
-            Fitness fitness = context.problem().evaluate(feasible);
+            Fitness fitness = evaluateGenotype(context, feasible, context.rngManager().stream("evaluation"));
             Individual<G> individual = new Individual<>(feasible, fitness);
             offspring.add(context.localSearch().refine(
                     individual,
@@ -125,6 +145,9 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
             next = context.restartPolicy().restart(state, context.representation(), context.rngManager().stream("restart"));
             next.sortByFitness();
         }
+
+        next = postProcessPopulation(context, current, next);
+        next.sortByFitness();
 
         Individual<G> previousBest = state.best();
         Individual<G> newBest = better(context.problem().objectiveSense(), next.best(), previousBest)

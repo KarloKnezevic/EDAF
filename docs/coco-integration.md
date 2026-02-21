@@ -298,7 +298,7 @@ Main extension points:
 - BBOB objective implementation:
   - `/Users/karloknezevic/Desktop/EDAF/edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/coco/BbobFunctions.java`
 - Problem plugin registration:
-  - `/Users/karloknezevic/Desktop/EDAF/edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/plugins/CocoBbobProblemPlugin.java`
+  - `/Users/karloknezevic/Desktop/EDAF/edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/plugins/continuous/CocoBbobProblemPlugin.java`
 - Campaign orchestration:
   - `/Users/karloknezevic/Desktop/EDAF/edaf-coco/src/main/java/com/knezevic/edaf/v3/coco/runner/CocoCampaignRunner.java`
 - Campaign persistence:

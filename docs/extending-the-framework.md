@@ -74,10 +74,10 @@ public final class LeadingOnesProblem implements Problem<BitString> {
 
 ### Step 2: Add plugin wrapper
 
-`edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/plugins/LeadingOnesProblemPlugin.java`
+`edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/plugins/discrete/LeadingOnesProblemPlugin.java`
 
 ```java
-package com.knezevic.edaf.v3.problems.plugins;
+package com.knezevic.edaf.v3.problems.plugins.discrete;
 
 import com.knezevic.edaf.v3.core.plugins.ProblemPlugin;
 import com.knezevic.edaf.v3.problems.LeadingOnesProblem;
@@ -111,7 +111,7 @@ Append to:
 `edaf-problems/src/main/resources/META-INF/services/com.knezevic.edaf.v3.core.plugins.ProblemPlugin`
 
 ```text
-com.knezevic.edaf.v3.problems.plugins.LeadingOnesProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.discrete.LeadingOnesProblemPlugin
 ```
 
 ### Step 4: Verify
