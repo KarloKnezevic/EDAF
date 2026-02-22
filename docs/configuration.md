@@ -162,6 +162,84 @@ Current policy factory supports `max-iterations` runtime behavior.
 | `metricsEveryIterations` | int >= 1 | `1` | console summary cadence |
 | `emitModelDiagnostics` | boolean | `true` | include model diagnostics in iteration events |
 
+## 5.1) Latent Insights and Adaptive Control (Algorithm Params)
+
+Latent telemetry and adaptive behavior are configured via `algorithm` params.
+
+Example:
+
+```yaml
+algorithm:
+  type: pbil
+  populationSize: 320
+  selectionRatio: 0.25
+  latentTopK: 16
+  latentDependencyTopK: 20
+  latentPairwiseMaxDimensions: 120
+  latentPairSampleLimit: 1200
+  latentFixationEpsilon: 0.02
+  latentDependencyEnabled: true
+  adaptiveEnabled: true
+  adaptiveEarlyIterationLimit: 60
+  adaptiveBinaryEntropyThreshold: 0.70
+  adaptiveBinaryFixationThreshold: 0.08
+  adaptiveBinaryEntropyDropThreshold: 0.01
+  adaptiveExplorationFraction: 0.45
+  adaptiveExplorationNoiseRate: 0.12
+  adaptiveStagnationGenerations: 6
+  adaptiveBinaryDiversityThreshold: 0.10
+  adaptivePartialRestartFraction: 0.30
+  adaptiveImprovementEpsilon: 1.0e-10
+```
+
+Common latent extraction keys:
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `latentTopK` | `10` | number of top ranked elements saved in insight lists |
+| `latentDependencyTopK` | `16` | number of top dependency edges saved |
+| `latentPairwiseMaxDimensions` | `64` | dimension cap for pairwise dependency scan |
+| `latentPairSampleLimit` | family-specific fallback | max pair samples used in diversity estimates |
+| `latentFixationEpsilon` | `0.02` | binary fixation threshold epsilon |
+| `latentDependencyEnabled` | `true` | enable dependency scan for binary family |
+| `realSigmaCollapseThreshold` | `1e-3` | sigma below threshold counted as collapsed dimension |
+| `realNearIdenticalThreshold` | `1e-7` | near-identical threshold for real vector pair ratio |
+
+Adaptive master toggles:
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `adaptiveEnabled` | `false` | enables adaptive interventions |
+| `adaptiveEarlyIterationLimit` | `40` | early-phase window for collapse checks |
+| `adaptiveImprovementEpsilon` | `1e-12` | normalized improvement threshold to reset stagnation |
+| `adaptiveExplorationFraction` | `0.35` | sampled-offspring fraction to perturb |
+| `adaptiveExplorationNoiseRate` | `0.08` | perturbation probability per gene/value |
+| `adaptiveRealNoiseScale` | dynamic fallback (`real_sigma_mean` or `0.05`) | gaussian perturbation scale in real family |
+| `adaptivePermutationSwaps` | `2` | swaps per perturbed permutation |
+| `adaptiveStagnationGenerations` | `10` | stagnation window before restart check |
+| `adaptivePartialRestartFraction` | `0.25` | fraction replaced with random samples on partial restart |
+
+Family-specific trigger thresholds:
+
+| Key | Default | Description |
+| --- | --- | --- |
+| `adaptiveBinaryEntropyThreshold` | `0.28` | low-entropy collapse threshold |
+| `adaptiveBinaryFixationThreshold` | `0.6` | high fixation-ratio threshold |
+| `adaptiveBinaryEntropyDropThreshold` | `0.1` | rapid entropy-drop threshold |
+| `adaptiveBinaryDiversityThreshold` | `0.08` | low elite Hamming diversity threshold |
+| `adaptivePermutationEntropyThreshold` | `0.9` | low position-entropy threshold |
+| `adaptivePermutationDiversityThreshold` | `0.18` | low elite Kendall diversity threshold |
+| `adaptiveRealSigmaThreshold` | `0.04` | low sigma mean threshold |
+| `adaptiveRealDiversityThreshold` | `0.12` | low elite Euclidean diversity threshold |
+
+Generated adaptive actions:
+
+- `entropy_collapse` -> `exploration_boost`
+- `stagnation_low_diversity` -> `partial_restart`
+
+For detailed interpretation of each signal and chart mapping, see:
+- [Latent Insights and Adaptive Control](./latent-insights.md)
+
 ## 6) `persistence` Section
 
 | Field | Type | Default | Description |

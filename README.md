@@ -16,6 +16,7 @@
 - [Getting Started](#getting-started)
 - [CLI Commands](#cli-commands)
 - [Configuration](#configuration)
+- [Latent Insights and Adaptive Control](#latent-insights-and-adaptive-control-in-yaml)
 - [COCO Benchmarking](#coco-benchmarking)
 - [Operators and Policies](#operators-and-policies)
 - [Logging and Observability](#logging-and-observability)
@@ -361,6 +362,50 @@ logging:
 
 Compatibility rules are validated semantically (for example, permutation representation cannot use Gaussian continuous models).
 
+### Latent Insights and Adaptive Control in YAML
+
+EDAF now exposes representation-aware latent telemetry and adaptive interventions directly through `algorithm` params.
+
+Common latent controls:
+
+- `latentTopK`
+- `latentDependencyTopK`
+- `latentPairwiseMaxDimensions`
+- `latentPairSampleLimit`
+- `latentFixationEpsilon`
+- `latentDependencyEnabled`
+
+Common adaptive controls:
+
+- `adaptiveEnabled`
+- `adaptiveEarlyIterationLimit`
+- `adaptiveExplorationFraction`
+- `adaptiveExplorationNoiseRate`
+- `adaptiveStagnationGenerations`
+- `adaptivePartialRestartFraction`
+
+Family thresholds:
+
+- binary: `adaptiveBinaryEntropyThreshold`, `adaptiveBinaryFixationThreshold`, `adaptiveBinaryEntropyDropThreshold`, `adaptiveBinaryDiversityThreshold`
+- permutation: `adaptivePermutationEntropyThreshold`, `adaptivePermutationDiversityThreshold`
+- real: `adaptiveRealSigmaThreshold`, `adaptiveRealDiversityThreshold`, `adaptiveRealNoiseScale`
+
+Available adaptive actions:
+
+- `entropy_collapse` -> `exploration_boost`
+- `stagnation_low_diversity` -> `partial_restart`
+
+Start with demo configs in `configs/latent-insights/`, then inspect:
+
+- static report: `results/.../runs/<runId>/report.html`
+- web run page: `/runs/<runId>` (`Insights` + `Events` tabs)
+
+Detailed reference:
+
+- [`docs/latent-insights.md`](docs/latent-insights.md)
+- [`docs/configuration.md`](docs/configuration.md)
+- [`docs/usage-guide.md`](docs/usage-guide.md)
+
 ## COCO Benchmarking
 
 EDAF includes first-class COCO/BBOB campaign support via `edaf-coco`.
@@ -521,11 +566,7 @@ From a terminal opened at `/Users/karloknezevic/Desktop/EDAF`:
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
 ```
 
-Alternative command (direct module POM invocation):
-
-```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
-```
+Use repo-root execution with `-pl edaf-web -am` so sibling modules are available on classpath.
 
 If Maven reports `No plugin found for prefix 'spring-boot'`, run the fully-qualified goal:
 
@@ -673,6 +714,7 @@ Coverage includes:
 - [docs/crypto-boolean-problems.md](docs/crypto-boolean-problems.md) - boolean-function cryptography suite and criteria
 - [docs/coco-integration.md](docs/coco-integration.md) - COCO campaign workflow, DB model, and comparison protocol
 - [docs/logging-and-observability.md](docs/logging-and-observability.md) - events, sinks, metrics
+- [docs/latent-insights.md](docs/latent-insights.md) - latent telemetry, adaptive controls, interpretation workflow
 - [docs/database-schema.md](docs/database-schema.md) - DB schema, relations, indexes, query model
 - [docs/web-dashboard.md](docs/web-dashboard.md) - UI/API behavior and filtering
 - [docs/benchmark-comparisons.md](docs/benchmark-comparisons.md) - reproducible side-by-side benchmark outputs

@@ -4,16 +4,10 @@
 
 ## 1) Startup
 
-From `/Users/karloknezevic/Desktop/EDAF` run one of:
+From `/Users/karloknezevic/Desktop/EDAF` run:
 
 ```bash
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
-```
-
-or
-
-```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
 ```
 
 If Maven cannot resolve `spring-boot` prefix, use fully-qualified goal:
@@ -21,6 +15,8 @@ If Maven cannot resolve `spring-boot` prefix, use fully-qualified goal:
 ```bash
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
+
+Use `-pl edaf-web -am` from repo root to ensure sibling modules are on classpath.
 
 Stop the server with `Ctrl+C`.
 
@@ -51,11 +47,23 @@ Features:
 Features:
 
 - run summary cards
-- iteration chart (`best`, `mean`, `std`)
+- tabs for:
+  - fitness (`best`, `mean`, `std`)
+  - diversity
+  - drift
+  - representation insights
+  - iterations/checkpoints
+  - events
+  - configuration
+- representation-specific insights:
+  - binary: entropy heatmap, probability trajectories, fixation curve, dependency edges
+  - permutation: item-position heatmap, consensus drift, adjacency trends
+  - real: sigma heatmap, mean trajectories, eigen summary
 - collapsible iteration/checkpoint section
 - collapsible events section with large payload preview + expand view
 - collapsible configuration section (YAML/JSON + flattened params)
 - responsive layout with overflow-safe containers
+- adaptive timeline table from `adaptive_action` events
 
 ### `/experiments` Experiment Explorer
 
@@ -141,6 +149,13 @@ Analysis query params:
 - `sortBy` in `{start_time,best_fitness,runtime_millis,status}`
 - `sortDir` in `{asc,desc}`
 
+`GET /api/runs/{runId}/events` query params:
+
+- `eventType` (for example `adaptive_action`)
+- `q` (payload text search)
+- `page`
+- `size`
+
 `GET /api/experiments` query params:
 
 - `q`
@@ -188,6 +203,7 @@ curl "http://localhost:7070/api/runs?page=0&size=25&sortBy=start_time&sortDir=de
 curl "http://localhost:7070/api/runs?algorithm=umda&problem=onemax&status=COMPLETED"
 curl "http://localhost:7070/api/runs?q=problem.genotype.maxDepth"
 curl "http://localhost:7070/api/runs/umda-onemax-v3/events?eventType=iteration_completed&q=entropy&page=0&size=20"
+curl "http://localhost:7070/api/runs/latent-adaptive-showcase-onemax/events?eventType=adaptive_action&page=0&size=20"
 curl "http://localhost:7070/api/facets"
 curl "http://localhost:7070/api/experiments/<experimentId>/analysis?direction=max&target=60"
 curl "http://localhost:7070/api/analysis/problem/onemax?direction=max&target=60"
@@ -217,7 +233,20 @@ Implemented guards:
 
 This prevents SQL injection in sorting/filtering paths while keeping dynamic search capability.
 
-## 7) Docker
+## 8) Latent Insights Workflow in UI
+
+1. Run one of configs from `configs/latent-insights/`.
+2. Open `/runs/<runId>`.
+3. In `Insights` tab:
+   - verify family-specific charts are rendered.
+4. In `Events` tab:
+   - filter `eventType=adaptive_action` to inspect triggers and actions.
+5. In `Configuration` tab:
+   - inspect flattened params and validate threshold values used in run.
+6. Cross-check with static report:
+   - `results/.../runs/<runId>/report.html`.
+
+## 9) Docker
 
 The default `docker-compose.yml` starts web against PostgreSQL:
 

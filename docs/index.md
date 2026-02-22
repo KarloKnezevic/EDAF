@@ -23,6 +23,7 @@ This documentation set describes the current **v3-only** architecture and runtim
 
 ## Observability, Persistence, and Web
 
+- [Latent Insights and Adaptive Control](./latent-insights.md)
 - [Logging and Observability](./logging-and-observability.md)
 - [Database Schema](./database-schema.md)
 - [Web Dashboard and API](./web-dashboard.md)

@@ -28,6 +28,24 @@ Default per-iteration scalar metrics:
 
 These are emitted by `DefaultMetricCollector`.
 
+Latent-knowledge additions are merged into the same numeric map:
+
+- binary examples:
+  - `binary_mean_entropy`
+  - `binary_fixation_ratio`
+  - `drift_binary_prob_l2`
+  - `diversity_hamming_population`
+- permutation examples:
+  - `perm_position_entropy_mean`
+  - `drift_consensus_kendall`
+  - `diversity_kendall_population`
+- real examples:
+  - `real_sigma_mean`
+  - `drift_gaussian_kl_diag`
+  - `diversity_euclidean_population`
+- adaptive:
+  - `adaptive_event_count`
+
 ## 3) Model Diagnostics
 
 `Model.diagnostics()` returns numeric key-value pairs.
@@ -58,11 +76,15 @@ Columns:
 - run_id
 - iteration
 - evaluations
+- population_size
+- elite_size
 - best_fitness
 - mean_fitness
 - std_fitness
 - metrics_json
 - diagnostics_json
+- latent_json
+- adaptive_actions_json
 
 ### JSONL
 
@@ -70,6 +92,14 @@ File: `results/<run-id>.jsonl` (or configured path)
 
 - one event JSON per line
 - suitable for stream ingestion and replay tools
+
+Per-run artifact bundle (`results/.../runs/<runId>/`) includes:
+
+- `telemetry.jsonl` (one row per generation with latent payload)
+- `events.jsonl` (all events including `adaptive_action`)
+- `metrics.csv` (compact numeric series for quick import)
+- `summary.json` (highlights and artifact pointers)
+- `report.html` (static charted report)
 
 ### Rotating File
 
@@ -92,6 +122,14 @@ Tables:
 
 See [Database Schema](./database-schema.md).
 
+`iterations.diagnostics_json` contains:
+
+- `populationSize`
+- `eliteSize`
+- `modelDiagnostics`
+- `latentTelemetry`
+- `adaptiveActions`
+
 ## 5) Recommended Analysis Patterns
 
 ### Convergence trend
@@ -105,6 +143,9 @@ Use:
 - `std_fitness`
 - `metrics_json.diversity`
 - `metrics_json.entropy`
+- `metrics_json.drift_*`
+- `metrics_json.diversity_*`
+- `diagnostics_json.latentTelemetry.metrics`
 
 ### Failure diagnosis
 
@@ -113,6 +154,15 @@ Use:
 - `runs.status`
 - `runs.error_message`
 - tail of `events.payload_json`
+
+### Adaptive behavior diagnosis
+
+Use:
+
+- `events.event_type = 'adaptive_action'`
+- `events.payload_json` (`trigger`, `actionType`, `reason`, `details`)
+- `iterations.diagnostics_json.adaptiveActions`
+- `metrics_json.adaptive_event_count`
 
 ### Parameter trace
 
@@ -138,6 +188,28 @@ Iterations for one run:
 SELECT iteration, evaluations, best_fitness, mean_fitness, std_fitness
 FROM iterations
 WHERE run_id = 'umda-onemax-v3'
+ORDER BY iteration;
+```
+
+Adaptive events for one run:
+
+```sql
+SELECT created_at, event_type, payload_json
+FROM events
+WHERE run_id = 'latent-adaptive-showcase-onemax'
+  AND event_type = 'adaptive_action'
+ORDER BY created_at;
+```
+
+Extract latent family and fixation ratio from diagnostics:
+
+```sql
+SELECT
+  iteration,
+  json_extract(diagnostics_json, '$.latentTelemetry.representationFamily') AS family,
+  json_extract(diagnostics_json, '$.latentTelemetry.metrics.binary_fixation_ratio') AS fixation_ratio
+FROM iterations
+WHERE run_id = 'latent-adaptive-showcase-onemax'
 ORDER BY iteration;
 ```
 
@@ -173,3 +245,18 @@ Current generators:
 
 - Advanced model families expose concrete diagnostics (dependency, covariance, entropy, gradient and rank-dependence metrics).
 - `run_objectives` currently stores final scalar-like metrics from the latest iteration payload.
+- Some heavy latent computations (for example dependency edges) are configurable; disable or reduce top-K/dimension caps for very high-dimensional runs.
+
+## 10) Signal Interpretation Quick Guide
+
+- rising `binary_fixation_ratio` very early:
+  - model is committing quickly; consider enabling adaptive exploration boost
+- near-zero `diversity_*` + flat best fitness:
+  - likely stagnation; partial restart threshold is too weak or disabled
+- repeated high `drift_*` spikes:
+  - model update is unstable; consider larger elite, smoothing, or reduced learning pressure
+- real family low `real_sigma_mean` too early:
+  - premature collapse in sampling distribution; use sigma/adaptive thresholds
+
+For full metric semantics and YAML controls:
+- [Latent Insights and Adaptive Control](./latent-insights.md)

@@ -8,6 +8,7 @@ Run events are strongly typed records:
 
 - `RunStartedEvent`
 - `IterationCompletedEvent`
+- `AdaptiveActionEvent`
 - `CheckpointSavedEvent`
 - `RunResumedEvent`
 - `RunCompletedEvent`
@@ -23,9 +24,20 @@ Iteration payload includes:
 
 - iteration index
 - evaluation count
+- population size
+- elite size
 - best/mean/std fitness
 - metrics map (from metric collectors)
 - model diagnostics map
+- latent telemetry payload (`representationFamily`, `metrics`, `insights`, `drift`, `diversity`)
+- adaptive actions list (possibly empty)
+
+Adaptive event payload includes:
+
+- `trigger` (for example `entropy_collapse`)
+- `actionType` (for example `exploration_boost`)
+- `reason`
+- `details` map (thresholds/metrics used for decision)
 
 ## 2) Event Bus
 
@@ -74,9 +86,13 @@ Writes one row per iteration with:
 - run id
 - iteration
 - evaluations
+- population size
+- elite size
 - best/mean/std
 - serialized metrics JSON
 - serialized diagnostics JSON
+- serialized latent JSON
+- serialized adaptive actions JSON
 
 ### JSONL (`JsonLinesEventSink`)
 
@@ -94,6 +110,7 @@ Persists full run metadata model:
 - flattened config paths
 - run lifecycle updates
 - per-iteration metrics
+- latent telemetry and adaptive action payloads in `iterations.diagnostics_json`
 - checkpoints
 - raw events
 
@@ -154,6 +171,7 @@ logging:
 - verbosity: `debug`
 - sinks: `console`, `jsonl`, `file`, `db`
 - low `metricsEveryIterations` (e.g., `1`)
+- `adaptiveEnabled: true` with explicit thresholds for controlled experiments
 
 ### CI/automation run
 
@@ -168,3 +186,10 @@ On unhandled runtime exceptions, runner publishes `RunFailedEvent`, and DB sink 
 - `runs.error_message`
 
 This keeps run failures queryable from web/API/reporting workflows.
+
+## 9) Latent Insight Visibility
+
+For latent telemetry interpretation and YAML knobs:
+
+- [Latent Insights and Adaptive Control](./latent-insights.md)
+- [Metrics and Results](./metrics-and-results.md)

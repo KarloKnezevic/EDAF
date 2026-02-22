@@ -139,6 +139,60 @@ Telemetry rows include:
 - drift/diversity payload
 - adaptive actions for that generation
 
+## 2.3) What You Can Control in YAML (Latent + Adaptive)
+
+Latent extraction and adaptive behavior are configured in `algorithm` params.
+
+Most important tuning keys:
+
+- latent extraction:
+  - `latentTopK`
+  - `latentDependencyTopK`
+  - `latentPairwiseMaxDimensions`
+  - `latentPairSampleLimit`
+  - `latentFixationEpsilon`
+  - `latentDependencyEnabled`
+- adaptive toggles:
+  - `adaptiveEnabled`
+  - `adaptiveEarlyIterationLimit`
+  - `adaptiveExplorationFraction`
+  - `adaptiveExplorationNoiseRate`
+  - `adaptiveStagnationGenerations`
+  - `adaptivePartialRestartFraction`
+- family thresholds:
+  - binary: `adaptiveBinaryEntropyThreshold`, `adaptiveBinaryFixationThreshold`, `adaptiveBinaryEntropyDropThreshold`, `adaptiveBinaryDiversityThreshold`
+  - permutation: `adaptivePermutationEntropyThreshold`, `adaptivePermutationDiversityThreshold`
+  - real: `adaptiveRealSigmaThreshold`, `adaptiveRealDiversityThreshold`, `adaptiveRealNoiseScale`
+
+Practical behavior:
+
+- lower collapse thresholds -> later exploration boosts
+- higher collapse thresholds -> earlier exploration boosts
+- larger `adaptivePartialRestartFraction` -> stronger recovery from stagnation
+
+Detailed semantics:
+
+- `docs/latent-insights.md`
+- `docs/configuration.md`
+
+## 2.4) How to Use the Insights After a Run
+
+Recommended workflow:
+
+1. Run one config:
+   - `./edaf run -c configs/latent-insights/adaptive-showcase-onemax-collapse.yml`
+2. Open static report:
+   - `results/latent-insights/runs/latent-adaptive-showcase-onemax/report.html`
+3. Start web app:
+   - `EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run`
+4. Open:
+   - `http://localhost:7070/runs/latent-adaptive-showcase-onemax`
+5. Inspect:
+   - `Insights` tab for family-specific charts
+   - `Events` tab with `eventType=adaptive_action`
+   - `Configuration` tab to confirm threshold params used in that run
+6. Tune YAML thresholds and rerun with same `masterSeed` for reproducible A/B comparisons.
+
 ## 3) COCO/BBOB Recipes
 
 ### Build and import fuller reference rows (recommended)
