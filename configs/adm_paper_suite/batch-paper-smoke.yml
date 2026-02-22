@@ -1,0 +1,147 @@
+defaultRepetitions: 1
+
+experiments:
+  - config: dm/t2/dm-t2-m08-n08-umda.yml
+    repetitions: 1
+    seedStart: 91604993
+    runIdPrefix: adm-paper-dm-t2-m08-n08-umda-smoke
+  - config: dm/t2/dm-t2-m08-n08-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 91600686
+    runIdPrefix: adm-paper-dm-t2-m08-n08-chow-liu-eda-smoke
+  - config: dm/t2/dm-t2-m08-n08-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 91146747
+    runIdPrefix: adm-paper-dm-t2-m08-n08-dependency-tree-eda-smoke
+  - config: dm/t2/dm-t2-m08-n08-bmda.yml
+    repetitions: 1
+    seedStart: 91736691
+    runIdPrefix: adm-paper-dm-t2-m08-n08-bmda-smoke
+  - config: dm/t2/dm-t2-m08-n08-ebna.yml
+    repetitions: 1
+    seedStart: 91753899
+    runIdPrefix: adm-paper-dm-t2-m08-n08-ebna-smoke
+  - config: dm/t2/dm-t2-m08-n08-boa.yml
+    repetitions: 1
+    seedStart: 91013001
+    runIdPrefix: adm-paper-dm-t2-m08-n08-boa-smoke
+  - config: dm/t2/dm-t2-m08-n08-hboa.yml
+    repetitions: 1
+    seedStart: 91607958
+    runIdPrefix: adm-paper-dm-t2-m08-n08-hboa-smoke
+  - config: dm/t2/dm-t2-m08-n08-pbil.yml
+    repetitions: 1
+    seedStart: 91996312
+    runIdPrefix: adm-paper-dm-t2-m08-n08-pbil-smoke
+  - config: dm/t2/dm-t2-m08-n08-cga.yml
+    repetitions: 1
+    seedStart: 91559460
+    runIdPrefix: adm-paper-dm-t2-m08-n08-cga-smoke
+  - config: dm/t2/dm-t2-m08-n08-mimic.yml
+    repetitions: 1
+    seedStart: 91163697
+    runIdPrefix: adm-paper-dm-t2-m08-n08-mimic-smoke
+  - config: dm/t2/dm-t2-m09-n12-umda.yml
+    repetitions: 1
+    seedStart: 91750024
+    runIdPrefix: adm-paper-dm-t2-m09-n12-umda-smoke
+  - config: dm/t2/dm-t2-m09-n12-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 91234190
+    runIdPrefix: adm-paper-dm-t2-m09-n12-chow-liu-eda-smoke
+  - config: dm/t2/dm-t2-m09-n12-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 91080547
+    runIdPrefix: adm-paper-dm-t2-m09-n12-dependency-tree-eda-smoke
+  - config: dm/t2/dm-t2-m09-n12-bmda.yml
+    repetitions: 1
+    seedStart: 91512323
+    runIdPrefix: adm-paper-dm-t2-m09-n12-bmda-smoke
+  - config: dm/t2/dm-t2-m09-n12-ebna.yml
+    repetitions: 1
+    seedStart: 91545218
+    runIdPrefix: adm-paper-dm-t2-m09-n12-ebna-smoke
+  - config: dm/t2/dm-t2-m09-n12-boa.yml
+    repetitions: 1
+    seedStart: 91411066
+    runIdPrefix: adm-paper-dm-t2-m09-n12-boa-smoke
+  - config: dm/t2/dm-t2-m09-n12-hboa.yml
+    repetitions: 1
+    seedStart: 91996577
+    runIdPrefix: adm-paper-dm-t2-m09-n12-hboa-smoke
+  - config: dm/t2/dm-t2-m09-n12-pbil.yml
+    repetitions: 1
+    seedStart: 91807995
+    runIdPrefix: adm-paper-dm-t2-m09-n12-pbil-smoke
+  - config: dm/t2/dm-t2-m09-n12-cga.yml
+    repetitions: 1
+    seedStart: 91930542
+    runIdPrefix: adm-paper-dm-t2-m09-n12-cga-smoke
+  - config: dm/t2/dm-t2-m09-n12-mimic.yml
+    repetitions: 1
+    seedStart: 91645569
+    runIdPrefix: adm-paper-dm-t2-m09-n12-mimic-smoke
+  - config: dm/t2/dm-t2-m10-n13-umda.yml
+    repetitions: 1
+    seedStart: 91562678
+    runIdPrefix: adm-paper-dm-t2-m10-n13-umda-smoke
+  - config: dm/t2/dm-t2-m10-n13-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 91101832
+    runIdPrefix: adm-paper-dm-t2-m10-n13-chow-liu-eda-smoke
+  - config: dm/t2/dm-t2-m10-n13-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 91027797
+    runIdPrefix: adm-paper-dm-t2-m10-n13-dependency-tree-eda-smoke
+  - config: dm/t2/dm-t2-m10-n13-bmda.yml
+    repetitions: 1
+    seedStart: 91253607
+    runIdPrefix: adm-paper-dm-t2-m10-n13-bmda-smoke
+  - config: dm/t2/dm-t2-m10-n13-ebna.yml
+    repetitions: 1
+    seedStart: 91660453
+    runIdPrefix: adm-paper-dm-t2-m10-n13-ebna-smoke
+  - config: dm/t2/dm-t2-m10-n13-boa.yml
+    repetitions: 1
+    seedStart: 91659621
+    runIdPrefix: adm-paper-dm-t2-m10-n13-boa-smoke
+  - config: dm/t2/dm-t2-m10-n13-hboa.yml
+    repetitions: 1
+    seedStart: 91763414
+    runIdPrefix: adm-paper-dm-t2-m10-n13-hboa-smoke
+  - config: dm/t2/dm-t2-m10-n13-pbil.yml
+    repetitions: 1
+    seedStart: 91154040
+    runIdPrefix: adm-paper-dm-t2-m10-n13-pbil-smoke
+  - config: dm/t2/dm-t2-m10-n13-cga.yml
+    repetitions: 1
+    seedStart: 91001535
+    runIdPrefix: adm-paper-dm-t2-m10-n13-cga-smoke
+  - config: dm/t2/dm-t2-m10-n13-mimic.yml
+    repetitions: 1
+    seedStart: 91639404
+    runIdPrefix: adm-paper-dm-t2-m10-n13-mimic-smoke
+  - config: dm/t2/dm-t2-m11-n18-umda.yml
+    repetitions: 1
+    seedStart: 91576293
+    runIdPrefix: adm-paper-dm-t2-m11-n18-umda-smoke
+  - config: dm/t2/dm-t2-m11-n18-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 91474839
+    runIdPrefix: adm-paper-dm-t2-m11-n18-chow-liu-eda-smoke
+  - config: dm/t2/dm-t2-m11-n18-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 91430333
+    runIdPrefix: adm-paper-dm-t2-m11-n18-dependency-tree-eda-smoke
+  - config: dm/t2/dm-t2-m11-n18-bmda.yml
+    repetitions: 1
+    seedStart: 91850527
+    runIdPrefix: adm-paper-dm-t2-m11-n18-bmda-smoke
+  - config: dm/t2/dm-t2-m11-n18-ebna.yml
+    repetitions: 1
+    seedStart: 91761136
+    runIdPrefix: adm-paper-dm-t2-m11-n18-ebna-smoke
+  - config: dm/t2/dm-t2-m11-n18-boa.yml
+    repetitions: 1
+    seedStart: 91732595
+    runIdPrefix: adm-paper-dm-t2-m11-n18-boa-smoke

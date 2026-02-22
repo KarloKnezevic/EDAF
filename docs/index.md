@@ -17,6 +17,8 @@ This documentation set describes the current **v3-only** architecture and runtim
 - [Algorithms](./algorithms.md)
 - [Representations](./representations.md)
 - [Problem Suites](./problem-suites.md)
+- [Disjunct Matrix Family (DM/RM/ADM)](./disjunct-matrix-problems.md)
+- [ADM Paper Suite Benchmark](./adm-paper-suite.md)
 - [Boolean Function and Cryptography Suite](./crypto-boolean-problems.md)
 - [COCO Integration](./coco-integration.md)
 - [Extending the Framework](./extending-the-framework.md)

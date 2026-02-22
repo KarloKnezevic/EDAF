@@ -331,7 +331,8 @@ public class ExperimentConfig {
         private String type = "max-iterations";
         @Min(value = 1, message = "stopping.maxIterations must be >= 1")
         private int maxIterations = 100;
-        @Min(value = 0, message = "stopping.targetFitness must be >= 0 when set")
+        @Min(value = 1, message = "stopping.maxEvaluations must be >= 1 when set")
+        private Long maxEvaluations;
         private Double targetFitness;
 
         public String getType() {
@@ -348,6 +349,14 @@ public class ExperimentConfig {
 
         public void setMaxIterations(int maxIterations) {
             this.maxIterations = maxIterations;
+        }
+
+        public Long getMaxEvaluations() {
+            return maxEvaluations;
+        }
+
+        public void setMaxEvaluations(Long maxEvaluations) {
+            this.maxEvaluations = maxEvaluations;
         }
 
         public Double getTargetFitness() {
@@ -391,6 +400,7 @@ public class ExperimentConfig {
     @JsonIgnoreProperties(ignoreUnknown = false)
     public static class PersistenceSection {
         private boolean enabled = true;
+        private boolean bundleArtifacts = true;
         private List<String> sinks = List.of("console", "csv", "jsonl");
         private String outputDirectory = "./results";
         @Valid
@@ -402,6 +412,14 @@ public class ExperimentConfig {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
+        }
+
+        public boolean isBundleArtifacts() {
+            return bundleArtifacts;
+        }
+
+        public void setBundleArtifacts(boolean bundleArtifacts) {
+            this.bundleArtifacts = bundleArtifacts;
         }
 
         public List<String> getSinks() {

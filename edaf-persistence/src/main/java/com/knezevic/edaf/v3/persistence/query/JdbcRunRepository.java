@@ -54,7 +54,10 @@ public final class JdbcRunRepository implements RunRepository {
             "nguyen-sr",
             "zdt",
             "dtlz",
-            "coco-bbob"
+            "coco-bbob",
+            "disjunct-matrix",
+            "resolvable-matrix",
+            "almost-disjunct-matrix"
     );
 
     private final DataSource dataSource;

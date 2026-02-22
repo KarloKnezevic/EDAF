@@ -1,0 +1,615 @@
+defaultRepetitions: 1
+
+experiments:
+  - config: dm/t2/dm-t2-m08-n08-pbil.yml
+    repetitions: 30
+    seedStart: 91996312
+    runIdPrefix: adm-paper-dm-t2-m08-n08-pbil
+  - config: dm/t2/dm-t2-m08-n08-cga.yml
+    repetitions: 30
+    seedStart: 91559460
+    runIdPrefix: adm-paper-dm-t2-m08-n08-cga
+  - config: dm/t2/dm-t2-m08-n08-mimic.yml
+    repetitions: 30
+    seedStart: 91163697
+    runIdPrefix: adm-paper-dm-t2-m08-n08-mimic
+  - config: dm/t2/dm-t2-m09-n12-pbil.yml
+    repetitions: 30
+    seedStart: 91807995
+    runIdPrefix: adm-paper-dm-t2-m09-n12-pbil
+  - config: dm/t2/dm-t2-m09-n12-cga.yml
+    repetitions: 30
+    seedStart: 91930542
+    runIdPrefix: adm-paper-dm-t2-m09-n12-cga
+  - config: dm/t2/dm-t2-m09-n12-mimic.yml
+    repetitions: 30
+    seedStart: 91645569
+    runIdPrefix: adm-paper-dm-t2-m09-n12-mimic
+  - config: dm/t2/dm-t2-m10-n13-pbil.yml
+    repetitions: 30
+    seedStart: 91154040
+    runIdPrefix: adm-paper-dm-t2-m10-n13-pbil
+  - config: dm/t2/dm-t2-m10-n13-cga.yml
+    repetitions: 30
+    seedStart: 91001535
+    runIdPrefix: adm-paper-dm-t2-m10-n13-cga
+  - config: dm/t2/dm-t2-m10-n13-mimic.yml
+    repetitions: 30
+    seedStart: 91639404
+    runIdPrefix: adm-paper-dm-t2-m10-n13-mimic
+  - config: dm/t2/dm-t2-m11-n18-pbil.yml
+    repetitions: 30
+    seedStart: 91498019
+    runIdPrefix: adm-paper-dm-t2-m11-n18-pbil
+  - config: dm/t2/dm-t2-m11-n18-cga.yml
+    repetitions: 30
+    seedStart: 91020486
+    runIdPrefix: adm-paper-dm-t2-m11-n18-cga
+  - config: dm/t2/dm-t2-m11-n18-mimic.yml
+    repetitions: 30
+    seedStart: 91536125
+    runIdPrefix: adm-paper-dm-t2-m11-n18-mimic
+  - config: dm/t2/dm-t2-m12-n20-pbil.yml
+    repetitions: 30
+    seedStart: 91561032
+    runIdPrefix: adm-paper-dm-t2-m12-n20-pbil
+  - config: dm/t2/dm-t2-m12-n20-cga.yml
+    repetitions: 30
+    seedStart: 91285093
+    runIdPrefix: adm-paper-dm-t2-m12-n20-cga
+  - config: dm/t2/dm-t2-m12-n20-mimic.yml
+    repetitions: 30
+    seedStart: 91669137
+    runIdPrefix: adm-paper-dm-t2-m12-n20-mimic
+  - config: dm/t2/dm-t2-m13-n26-pbil.yml
+    repetitions: 30
+    seedStart: 91978458
+    runIdPrefix: adm-paper-dm-t2-m13-n26-pbil
+  - config: dm/t2/dm-t2-m13-n26-cga.yml
+    repetitions: 30
+    seedStart: 91285956
+    runIdPrefix: adm-paper-dm-t2-m13-n26-cga
+  - config: dm/t2/dm-t2-m13-n26-mimic.yml
+    repetitions: 30
+    seedStart: 91983415
+    runIdPrefix: adm-paper-dm-t2-m13-n26-mimic
+  - config: dm/t2/dm-t2-m14-n28-pbil.yml
+    repetitions: 30
+    seedStart: 91154291
+    runIdPrefix: adm-paper-dm-t2-m14-n28-pbil
+  - config: dm/t2/dm-t2-m14-n28-cga.yml
+    repetitions: 30
+    seedStart: 91649353
+    runIdPrefix: adm-paper-dm-t2-m14-n28-cga
+  - config: dm/t2/dm-t2-m14-n28-mimic.yml
+    repetitions: 30
+    seedStart: 91852884
+    runIdPrefix: adm-paper-dm-t2-m14-n28-mimic
+  - config: dm/t2/dm-t2-m15-n35-pbil.yml
+    repetitions: 30
+    seedStart: 91681358
+    runIdPrefix: adm-paper-dm-t2-m15-n35-pbil
+  - config: dm/t2/dm-t2-m15-n35-cga.yml
+    repetitions: 30
+    seedStart: 91379183
+    runIdPrefix: adm-paper-dm-t2-m15-n35-cga
+  - config: dm/t2/dm-t2-m15-n35-mimic.yml
+    repetitions: 30
+    seedStart: 91179415
+    runIdPrefix: adm-paper-dm-t2-m15-n35-mimic
+  - config: dm/t3/dm-t3-m13-n13-pbil.yml
+    repetitions: 30
+    seedStart: 91730975
+    runIdPrefix: adm-paper-dm-t3-m13-n13-pbil
+  - config: dm/t3/dm-t3-m13-n13-cga.yml
+    repetitions: 30
+    seedStart: 91300640
+    runIdPrefix: adm-paper-dm-t3-m13-n13-cga
+  - config: dm/t3/dm-t3-m13-n13-mimic.yml
+    repetitions: 30
+    seedStart: 91592316
+    runIdPrefix: adm-paper-dm-t3-m13-n13-mimic
+  - config: dm/t3/dm-t3-m14-n14-pbil.yml
+    repetitions: 30
+    seedStart: 91619984
+    runIdPrefix: adm-paper-dm-t3-m14-n14-pbil
+  - config: dm/t3/dm-t3-m14-n14-cga.yml
+    repetitions: 30
+    seedStart: 91182755
+    runIdPrefix: adm-paper-dm-t3-m14-n14-cga
+  - config: dm/t3/dm-t3-m14-n14-mimic.yml
+    repetitions: 30
+    seedStart: 91176022
+    runIdPrefix: adm-paper-dm-t3-m14-n14-mimic
+  - config: dm/t3/dm-t3-m15-n15-pbil.yml
+    repetitions: 30
+    seedStart: 91216953
+    runIdPrefix: adm-paper-dm-t3-m15-n15-pbil
+  - config: dm/t3/dm-t3-m15-n15-cga.yml
+    repetitions: 30
+    seedStart: 91481560
+    runIdPrefix: adm-paper-dm-t3-m15-n15-cga
+  - config: dm/t3/dm-t3-m15-n15-mimic.yml
+    repetitions: 30
+    seedStart: 91809659
+    runIdPrefix: adm-paper-dm-t3-m15-n15-mimic
+  - config: dm/t3/dm-t3-m16-n20-pbil.yml
+    repetitions: 30
+    seedStart: 91647833
+    runIdPrefix: adm-paper-dm-t3-m16-n20-pbil
+  - config: dm/t3/dm-t3-m16-n20-cga.yml
+    repetitions: 30
+    seedStart: 91194187
+    runIdPrefix: adm-paper-dm-t3-m16-n20-cga
+  - config: dm/t3/dm-t3-m16-n20-mimic.yml
+    repetitions: 30
+    seedStart: 91334628
+    runIdPrefix: adm-paper-dm-t3-m16-n20-mimic
+  - config: dm/t3/dm-t3-m17-n21-pbil.yml
+    repetitions: 30
+    seedStart: 91728755
+    runIdPrefix: adm-paper-dm-t3-m17-n21-pbil
+  - config: dm/t3/dm-t3-m17-n21-cga.yml
+    repetitions: 30
+    seedStart: 91322886
+    runIdPrefix: adm-paper-dm-t3-m17-n21-cga
+  - config: dm/t3/dm-t3-m17-n21-mimic.yml
+    repetitions: 30
+    seedStart: 91447587
+    runIdPrefix: adm-paper-dm-t3-m17-n21-mimic
+  - config: dm/t3/dm-t3-m18-n22-pbil.yml
+    repetitions: 30
+    seedStart: 91999338
+    runIdPrefix: adm-paper-dm-t3-m18-n22-pbil
+  - config: dm/t3/dm-t3-m18-n22-cga.yml
+    repetitions: 30
+    seedStart: 91161337
+    runIdPrefix: adm-paper-dm-t3-m18-n22-cga
+  - config: dm/t3/dm-t3-m18-n22-mimic.yml
+    repetitions: 30
+    seedStart: 91715474
+    runIdPrefix: adm-paper-dm-t3-m18-n22-mimic
+  - config: dm/t3/dm-t3-m19-n28-pbil.yml
+    repetitions: 30
+    seedStart: 91710345
+    runIdPrefix: adm-paper-dm-t3-m19-n28-pbil
+  - config: dm/t3/dm-t3-m19-n28-cga.yml
+    repetitions: 30
+    seedStart: 91747218
+    runIdPrefix: adm-paper-dm-t3-m19-n28-cga
+  - config: dm/t3/dm-t3-m19-n28-mimic.yml
+    repetitions: 30
+    seedStart: 91711466
+    runIdPrefix: adm-paper-dm-t3-m19-n28-mimic
+  - config: dm/t3/dm-t3-m20-n30-pbil.yml
+    repetitions: 30
+    seedStart: 91245305
+    runIdPrefix: adm-paper-dm-t3-m20-n30-pbil
+  - config: dm/t3/dm-t3-m20-n30-cga.yml
+    repetitions: 30
+    seedStart: 91759979
+    runIdPrefix: adm-paper-dm-t3-m20-n30-cga
+  - config: dm/t3/dm-t3-m20-n30-mimic.yml
+    repetitions: 30
+    seedStart: 91799223
+    runIdPrefix: adm-paper-dm-t3-m20-n30-mimic
+  - config: dm/t3/dm-t3-m21-n31-pbil.yml
+    repetitions: 30
+    seedStart: 91569139
+    runIdPrefix: adm-paper-dm-t3-m21-n31-pbil
+  - config: dm/t3/dm-t3-m21-n31-cga.yml
+    repetitions: 30
+    seedStart: 91813098
+    runIdPrefix: adm-paper-dm-t3-m21-n31-cga
+  - config: dm/t3/dm-t3-m21-n31-mimic.yml
+    repetitions: 30
+    seedStart: 91424481
+    runIdPrefix: adm-paper-dm-t3-m21-n31-mimic
+  - config: rm/t2/rm-t2-m08-n08-pbil.yml
+    repetitions: 30
+    seedStart: 91701321
+    runIdPrefix: adm-paper-rm-t2-m08-n08-pbil
+  - config: rm/t2/rm-t2-m08-n08-cga.yml
+    repetitions: 30
+    seedStart: 91567848
+    runIdPrefix: adm-paper-rm-t2-m08-n08-cga
+  - config: rm/t2/rm-t2-m08-n08-mimic.yml
+    repetitions: 30
+    seedStart: 91487115
+    runIdPrefix: adm-paper-rm-t2-m08-n08-mimic
+  - config: rm/t2/rm-t2-m09-n12-pbil.yml
+    repetitions: 30
+    seedStart: 91436942
+    runIdPrefix: adm-paper-rm-t2-m09-n12-pbil
+  - config: rm/t2/rm-t2-m09-n12-cga.yml
+    repetitions: 30
+    seedStart: 91166976
+    runIdPrefix: adm-paper-rm-t2-m09-n12-cga
+  - config: rm/t2/rm-t2-m09-n12-mimic.yml
+    repetitions: 30
+    seedStart: 91416743
+    runIdPrefix: adm-paper-rm-t2-m09-n12-mimic
+  - config: rm/t2/rm-t2-m10-n13-pbil.yml
+    repetitions: 30
+    seedStart: 91414028
+    runIdPrefix: adm-paper-rm-t2-m10-n13-pbil
+  - config: rm/t2/rm-t2-m10-n13-cga.yml
+    repetitions: 30
+    seedStart: 91079824
+    runIdPrefix: adm-paper-rm-t2-m10-n13-cga
+  - config: rm/t2/rm-t2-m10-n13-mimic.yml
+    repetitions: 30
+    seedStart: 91911890
+    runIdPrefix: adm-paper-rm-t2-m10-n13-mimic
+  - config: rm/t2/rm-t2-m11-n18-pbil.yml
+    repetitions: 30
+    seedStart: 91471240
+    runIdPrefix: adm-paper-rm-t2-m11-n18-pbil
+  - config: rm/t2/rm-t2-m11-n18-cga.yml
+    repetitions: 30
+    seedStart: 91921726
+    runIdPrefix: adm-paper-rm-t2-m11-n18-cga
+  - config: rm/t2/rm-t2-m11-n18-mimic.yml
+    repetitions: 30
+    seedStart: 91388568
+    runIdPrefix: adm-paper-rm-t2-m11-n18-mimic
+  - config: rm/t2/rm-t2-m12-n20-pbil.yml
+    repetitions: 30
+    seedStart: 91148261
+    runIdPrefix: adm-paper-rm-t2-m12-n20-pbil
+  - config: rm/t2/rm-t2-m12-n20-cga.yml
+    repetitions: 30
+    seedStart: 91683719
+    runIdPrefix: adm-paper-rm-t2-m12-n20-cga
+  - config: rm/t2/rm-t2-m12-n20-mimic.yml
+    repetitions: 30
+    seedStart: 91177306
+    runIdPrefix: adm-paper-rm-t2-m12-n20-mimic
+  - config: rm/t2/rm-t2-m13-n26-pbil.yml
+    repetitions: 30
+    seedStart: 91725380
+    runIdPrefix: adm-paper-rm-t2-m13-n26-pbil
+  - config: rm/t2/rm-t2-m13-n26-cga.yml
+    repetitions: 30
+    seedStart: 91733494
+    runIdPrefix: adm-paper-rm-t2-m13-n26-cga
+  - config: rm/t2/rm-t2-m13-n26-mimic.yml
+    repetitions: 30
+    seedStart: 91714560
+    runIdPrefix: adm-paper-rm-t2-m13-n26-mimic
+  - config: rm/t2/rm-t2-m14-n28-pbil.yml
+    repetitions: 30
+    seedStart: 91671500
+    runIdPrefix: adm-paper-rm-t2-m14-n28-pbil
+  - config: rm/t2/rm-t2-m14-n28-cga.yml
+    repetitions: 30
+    seedStart: 91293215
+    runIdPrefix: adm-paper-rm-t2-m14-n28-cga
+  - config: rm/t2/rm-t2-m14-n28-mimic.yml
+    repetitions: 30
+    seedStart: 91713215
+    runIdPrefix: adm-paper-rm-t2-m14-n28-mimic
+  - config: rm/t2/rm-t2-m15-n35-pbil.yml
+    repetitions: 30
+    seedStart: 91571693
+    runIdPrefix: adm-paper-rm-t2-m15-n35-pbil
+  - config: rm/t2/rm-t2-m15-n35-cga.yml
+    repetitions: 30
+    seedStart: 91965223
+    runIdPrefix: adm-paper-rm-t2-m15-n35-cga
+  - config: rm/t2/rm-t2-m15-n35-mimic.yml
+    repetitions: 30
+    seedStart: 91067320
+    runIdPrefix: adm-paper-rm-t2-m15-n35-mimic
+  - config: rm/t3/rm-t3-m13-n13-pbil.yml
+    repetitions: 30
+    seedStart: 91938607
+    runIdPrefix: adm-paper-rm-t3-m13-n13-pbil
+  - config: rm/t3/rm-t3-m13-n13-cga.yml
+    repetitions: 30
+    seedStart: 91958383
+    runIdPrefix: adm-paper-rm-t3-m13-n13-cga
+  - config: rm/t3/rm-t3-m13-n13-mimic.yml
+    repetitions: 30
+    seedStart: 91096541
+    runIdPrefix: adm-paper-rm-t3-m13-n13-mimic
+  - config: rm/t3/rm-t3-m14-n14-pbil.yml
+    repetitions: 30
+    seedStart: 91572321
+    runIdPrefix: adm-paper-rm-t3-m14-n14-pbil
+  - config: rm/t3/rm-t3-m14-n14-cga.yml
+    repetitions: 30
+    seedStart: 91076736
+    runIdPrefix: adm-paper-rm-t3-m14-n14-cga
+  - config: rm/t3/rm-t3-m14-n14-mimic.yml
+    repetitions: 30
+    seedStart: 91087777
+    runIdPrefix: adm-paper-rm-t3-m14-n14-mimic
+  - config: rm/t3/rm-t3-m15-n15-pbil.yml
+    repetitions: 30
+    seedStart: 91782523
+    runIdPrefix: adm-paper-rm-t3-m15-n15-pbil
+  - config: rm/t3/rm-t3-m15-n15-cga.yml
+    repetitions: 30
+    seedStart: 91850719
+    runIdPrefix: adm-paper-rm-t3-m15-n15-cga
+  - config: rm/t3/rm-t3-m15-n15-mimic.yml
+    repetitions: 30
+    seedStart: 91191730
+    runIdPrefix: adm-paper-rm-t3-m15-n15-mimic
+  - config: rm/t3/rm-t3-m16-n20-pbil.yml
+    repetitions: 30
+    seedStart: 91210193
+    runIdPrefix: adm-paper-rm-t3-m16-n20-pbil
+  - config: rm/t3/rm-t3-m16-n20-cga.yml
+    repetitions: 30
+    seedStart: 91256989
+    runIdPrefix: adm-paper-rm-t3-m16-n20-cga
+  - config: rm/t3/rm-t3-m16-n20-mimic.yml
+    repetitions: 30
+    seedStart: 91320829
+    runIdPrefix: adm-paper-rm-t3-m16-n20-mimic
+  - config: rm/t3/rm-t3-m17-n21-pbil.yml
+    repetitions: 30
+    seedStart: 91930923
+    runIdPrefix: adm-paper-rm-t3-m17-n21-pbil
+  - config: rm/t3/rm-t3-m17-n21-cga.yml
+    repetitions: 30
+    seedStart: 91912813
+    runIdPrefix: adm-paper-rm-t3-m17-n21-cga
+  - config: rm/t3/rm-t3-m17-n21-mimic.yml
+    repetitions: 30
+    seedStart: 91062633
+    runIdPrefix: adm-paper-rm-t3-m17-n21-mimic
+  - config: rm/t3/rm-t3-m18-n22-pbil.yml
+    repetitions: 30
+    seedStart: 91230324
+    runIdPrefix: adm-paper-rm-t3-m18-n22-pbil
+  - config: rm/t3/rm-t3-m18-n22-cga.yml
+    repetitions: 30
+    seedStart: 91845354
+    runIdPrefix: adm-paper-rm-t3-m18-n22-cga
+  - config: rm/t3/rm-t3-m18-n22-mimic.yml
+    repetitions: 30
+    seedStart: 91840086
+    runIdPrefix: adm-paper-rm-t3-m18-n22-mimic
+  - config: rm/t3/rm-t3-m19-n28-pbil.yml
+    repetitions: 30
+    seedStart: 91538440
+    runIdPrefix: adm-paper-rm-t3-m19-n28-pbil
+  - config: rm/t3/rm-t3-m19-n28-cga.yml
+    repetitions: 30
+    seedStart: 91186842
+    runIdPrefix: adm-paper-rm-t3-m19-n28-cga
+  - config: rm/t3/rm-t3-m19-n28-mimic.yml
+    repetitions: 30
+    seedStart: 91689227
+    runIdPrefix: adm-paper-rm-t3-m19-n28-mimic
+  - config: rm/t3/rm-t3-m20-n30-pbil.yml
+    repetitions: 30
+    seedStart: 91793004
+    runIdPrefix: adm-paper-rm-t3-m20-n30-pbil
+  - config: rm/t3/rm-t3-m20-n30-cga.yml
+    repetitions: 30
+    seedStart: 91563268
+    runIdPrefix: adm-paper-rm-t3-m20-n30-cga
+  - config: rm/t3/rm-t3-m20-n30-mimic.yml
+    repetitions: 30
+    seedStart: 91706616
+    runIdPrefix: adm-paper-rm-t3-m20-n30-mimic
+  - config: rm/t3/rm-t3-m21-n31-pbil.yml
+    repetitions: 30
+    seedStart: 91379100
+    runIdPrefix: adm-paper-rm-t3-m21-n31-pbil
+  - config: rm/t3/rm-t3-m21-n31-cga.yml
+    repetitions: 30
+    seedStart: 91823939
+    runIdPrefix: adm-paper-rm-t3-m21-n31-cga
+  - config: rm/t3/rm-t3-m21-n31-mimic.yml
+    repetitions: 30
+    seedStart: 91902663
+    runIdPrefix: adm-paper-rm-t3-m21-n31-mimic
+  - config: adm/t2/adm-t2-m08-n08-pbil.yml
+    repetitions: 30
+    seedStart: 91262052
+    runIdPrefix: adm-paper-adm-t2-m08-n08-pbil
+  - config: adm/t2/adm-t2-m08-n08-cga.yml
+    repetitions: 30
+    seedStart: 91139275
+    runIdPrefix: adm-paper-adm-t2-m08-n08-cga
+  - config: adm/t2/adm-t2-m08-n08-mimic.yml
+    repetitions: 30
+    seedStart: 91147494
+    runIdPrefix: adm-paper-adm-t2-m08-n08-mimic
+  - config: adm/t2/adm-t2-m09-n12-pbil.yml
+    repetitions: 30
+    seedStart: 91496199
+    runIdPrefix: adm-paper-adm-t2-m09-n12-pbil
+  - config: adm/t2/adm-t2-m09-n12-cga.yml
+    repetitions: 30
+    seedStart: 91407686
+    runIdPrefix: adm-paper-adm-t2-m09-n12-cga
+  - config: adm/t2/adm-t2-m09-n12-mimic.yml
+    repetitions: 30
+    seedStart: 91783094
+    runIdPrefix: adm-paper-adm-t2-m09-n12-mimic
+  - config: adm/t2/adm-t2-m10-n13-pbil.yml
+    repetitions: 30
+    seedStart: 91098683
+    runIdPrefix: adm-paper-adm-t2-m10-n13-pbil
+  - config: adm/t2/adm-t2-m10-n13-cga.yml
+    repetitions: 30
+    seedStart: 91398241
+    runIdPrefix: adm-paper-adm-t2-m10-n13-cga
+  - config: adm/t2/adm-t2-m10-n13-mimic.yml
+    repetitions: 30
+    seedStart: 91973833
+    runIdPrefix: adm-paper-adm-t2-m10-n13-mimic
+  - config: adm/t2/adm-t2-m11-n18-pbil.yml
+    repetitions: 30
+    seedStart: 91414198
+    runIdPrefix: adm-paper-adm-t2-m11-n18-pbil
+  - config: adm/t2/adm-t2-m11-n18-cga.yml
+    repetitions: 30
+    seedStart: 91280280
+    runIdPrefix: adm-paper-adm-t2-m11-n18-cga
+  - config: adm/t2/adm-t2-m11-n18-mimic.yml
+    repetitions: 30
+    seedStart: 91532085
+    runIdPrefix: adm-paper-adm-t2-m11-n18-mimic
+  - config: adm/t2/adm-t2-m12-n20-pbil.yml
+    repetitions: 30
+    seedStart: 91955809
+    runIdPrefix: adm-paper-adm-t2-m12-n20-pbil
+  - config: adm/t2/adm-t2-m12-n20-cga.yml
+    repetitions: 30
+    seedStart: 91261645
+    runIdPrefix: adm-paper-adm-t2-m12-n20-cga
+  - config: adm/t2/adm-t2-m12-n20-mimic.yml
+    repetitions: 30
+    seedStart: 91940905
+    runIdPrefix: adm-paper-adm-t2-m12-n20-mimic
+  - config: adm/t2/adm-t2-m13-n26-pbil.yml
+    repetitions: 30
+    seedStart: 91882125
+    runIdPrefix: adm-paper-adm-t2-m13-n26-pbil
+  - config: adm/t2/adm-t2-m13-n26-cga.yml
+    repetitions: 30
+    seedStart: 91490154
+    runIdPrefix: adm-paper-adm-t2-m13-n26-cga
+  - config: adm/t2/adm-t2-m13-n26-mimic.yml
+    repetitions: 30
+    seedStart: 91614909
+    runIdPrefix: adm-paper-adm-t2-m13-n26-mimic
+  - config: adm/t2/adm-t2-m14-n28-pbil.yml
+    repetitions: 30
+    seedStart: 91858627
+    runIdPrefix: adm-paper-adm-t2-m14-n28-pbil
+  - config: adm/t2/adm-t2-m14-n28-cga.yml
+    repetitions: 30
+    seedStart: 91748010
+    runIdPrefix: adm-paper-adm-t2-m14-n28-cga
+  - config: adm/t2/adm-t2-m14-n28-mimic.yml
+    repetitions: 30
+    seedStart: 91443718
+    runIdPrefix: adm-paper-adm-t2-m14-n28-mimic
+  - config: adm/t2/adm-t2-m15-n35-pbil.yml
+    repetitions: 30
+    seedStart: 91204744
+    runIdPrefix: adm-paper-adm-t2-m15-n35-pbil
+  - config: adm/t2/adm-t2-m15-n35-cga.yml
+    repetitions: 30
+    seedStart: 91205620
+    runIdPrefix: adm-paper-adm-t2-m15-n35-cga
+  - config: adm/t2/adm-t2-m15-n35-mimic.yml
+    repetitions: 30
+    seedStart: 91209136
+    runIdPrefix: adm-paper-adm-t2-m15-n35-mimic
+  - config: adm/t3/adm-t3-m13-n13-pbil.yml
+    repetitions: 30
+    seedStart: 91955891
+    runIdPrefix: adm-paper-adm-t3-m13-n13-pbil
+  - config: adm/t3/adm-t3-m13-n13-cga.yml
+    repetitions: 30
+    seedStart: 91152682
+    runIdPrefix: adm-paper-adm-t3-m13-n13-cga
+  - config: adm/t3/adm-t3-m13-n13-mimic.yml
+    repetitions: 30
+    seedStart: 91980906
+    runIdPrefix: adm-paper-adm-t3-m13-n13-mimic
+  - config: adm/t3/adm-t3-m14-n14-pbil.yml
+    repetitions: 30
+    seedStart: 91991281
+    runIdPrefix: adm-paper-adm-t3-m14-n14-pbil
+  - config: adm/t3/adm-t3-m14-n14-cga.yml
+    repetitions: 30
+    seedStart: 91429134
+    runIdPrefix: adm-paper-adm-t3-m14-n14-cga
+  - config: adm/t3/adm-t3-m14-n14-mimic.yml
+    repetitions: 30
+    seedStart: 91369551
+    runIdPrefix: adm-paper-adm-t3-m14-n14-mimic
+  - config: adm/t3/adm-t3-m15-n15-pbil.yml
+    repetitions: 30
+    seedStart: 91395827
+    runIdPrefix: adm-paper-adm-t3-m15-n15-pbil
+  - config: adm/t3/adm-t3-m15-n15-cga.yml
+    repetitions: 30
+    seedStart: 91162850
+    runIdPrefix: adm-paper-adm-t3-m15-n15-cga
+  - config: adm/t3/adm-t3-m15-n15-mimic.yml
+    repetitions: 30
+    seedStart: 91700134
+    runIdPrefix: adm-paper-adm-t3-m15-n15-mimic
+  - config: adm/t3/adm-t3-m16-n20-pbil.yml
+    repetitions: 30
+    seedStart: 91705821
+    runIdPrefix: adm-paper-adm-t3-m16-n20-pbil
+  - config: adm/t3/adm-t3-m16-n20-cga.yml
+    repetitions: 30
+    seedStart: 91035090
+    runIdPrefix: adm-paper-adm-t3-m16-n20-cga
+  - config: adm/t3/adm-t3-m16-n20-mimic.yml
+    repetitions: 30
+    seedStart: 91797951
+    runIdPrefix: adm-paper-adm-t3-m16-n20-mimic
+  - config: adm/t3/adm-t3-m17-n21-pbil.yml
+    repetitions: 30
+    seedStart: 91856514
+    runIdPrefix: adm-paper-adm-t3-m17-n21-pbil
+  - config: adm/t3/adm-t3-m17-n21-cga.yml
+    repetitions: 30
+    seedStart: 91345095
+    runIdPrefix: adm-paper-adm-t3-m17-n21-cga
+  - config: adm/t3/adm-t3-m17-n21-mimic.yml
+    repetitions: 30
+    seedStart: 91412135
+    runIdPrefix: adm-paper-adm-t3-m17-n21-mimic
+  - config: adm/t3/adm-t3-m18-n22-pbil.yml
+    repetitions: 30
+    seedStart: 91559461
+    runIdPrefix: adm-paper-adm-t3-m18-n22-pbil
+  - config: adm/t3/adm-t3-m18-n22-cga.yml
+    repetitions: 30
+    seedStart: 91470781
+    runIdPrefix: adm-paper-adm-t3-m18-n22-cga
+  - config: adm/t3/adm-t3-m18-n22-mimic.yml
+    repetitions: 30
+    seedStart: 91588212
+    runIdPrefix: adm-paper-adm-t3-m18-n22-mimic
+  - config: adm/t3/adm-t3-m19-n28-pbil.yml
+    repetitions: 30
+    seedStart: 91577843
+    runIdPrefix: adm-paper-adm-t3-m19-n28-pbil
+  - config: adm/t3/adm-t3-m19-n28-cga.yml
+    repetitions: 30
+    seedStart: 91483463
+    runIdPrefix: adm-paper-adm-t3-m19-n28-cga
+  - config: adm/t3/adm-t3-m19-n28-mimic.yml
+    repetitions: 30
+    seedStart: 91614856
+    runIdPrefix: adm-paper-adm-t3-m19-n28-mimic
+  - config: adm/t3/adm-t3-m20-n30-pbil.yml
+    repetitions: 30
+    seedStart: 91578247
+    runIdPrefix: adm-paper-adm-t3-m20-n30-pbil
+  - config: adm/t3/adm-t3-m20-n30-cga.yml
+    repetitions: 30
+    seedStart: 91999213
+    runIdPrefix: adm-paper-adm-t3-m20-n30-cga
+  - config: adm/t3/adm-t3-m20-n30-mimic.yml
+    repetitions: 30
+    seedStart: 91337678
+    runIdPrefix: adm-paper-adm-t3-m20-n30-mimic
+  - config: adm/t3/adm-t3-m21-n31-pbil.yml
+    repetitions: 30
+    seedStart: 91601250
+    runIdPrefix: adm-paper-adm-t3-m21-n31-pbil
+  - config: adm/t3/adm-t3-m21-n31-cga.yml
+    repetitions: 30
+    seedStart: 91033343
+    runIdPrefix: adm-paper-adm-t3-m21-n31-cga
+  - config: adm/t3/adm-t3-m21-n31-mimic.yml
+    repetitions: 30
+    seedStart: 91766139
+    runIdPrefix: adm-paper-adm-t3-m21-n31-mimic

@@ -1,0 +1,89 @@
+defaultRepetitions: 1
+
+experiments:
+  - config: dm/t3/dm-t3-m13-n13-umda.yml
+    repetitions: 1
+    seedStart: 93000001
+    runIdPrefix: adm-paper-dm-t3-m13-n13-umda-xsmoke
+  - config: dm/t3/dm-t3-m13-n13-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 93000002
+    runIdPrefix: adm-paper-dm-t3-m13-n13-chow-liu-eda-xsmoke
+  - config: dm/t3/dm-t3-m13-n13-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 93000003
+    runIdPrefix: adm-paper-dm-t3-m13-n13-dependency-tree-eda-xsmoke
+  - config: dm/t3/dm-t3-m13-n13-bmda.yml
+    repetitions: 1
+    seedStart: 93000004
+    runIdPrefix: adm-paper-dm-t3-m13-n13-bmda-xsmoke
+  - config: dm/t3/dm-t3-m13-n13-ebna.yml
+    repetitions: 1
+    seedStart: 93000005
+    runIdPrefix: adm-paper-dm-t3-m13-n13-ebna-xsmoke
+  - config: dm/t3/dm-t3-m13-n13-boa.yml
+    repetitions: 1
+    seedStart: 93000006
+    runIdPrefix: adm-paper-dm-t3-m13-n13-boa-xsmoke
+  - config: dm/t3/dm-t3-m13-n13-hboa.yml
+    repetitions: 1
+    seedStart: 93000007
+    runIdPrefix: adm-paper-dm-t3-m13-n13-hboa-xsmoke
+
+  - config: rm/t3/rm-t3-m13-n13-umda.yml
+    repetitions: 1
+    seedStart: 93000011
+    runIdPrefix: adm-paper-rm-t3-m13-n13-umda-xsmoke
+  - config: rm/t3/rm-t3-m13-n13-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 93000012
+    runIdPrefix: adm-paper-rm-t3-m13-n13-chow-liu-eda-xsmoke
+  - config: rm/t3/rm-t3-m13-n13-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 93000013
+    runIdPrefix: adm-paper-rm-t3-m13-n13-dependency-tree-eda-xsmoke
+  - config: rm/t3/rm-t3-m13-n13-bmda.yml
+    repetitions: 1
+    seedStart: 93000014
+    runIdPrefix: adm-paper-rm-t3-m13-n13-bmda-xsmoke
+  - config: rm/t3/rm-t3-m13-n13-ebna.yml
+    repetitions: 1
+    seedStart: 93000015
+    runIdPrefix: adm-paper-rm-t3-m13-n13-ebna-xsmoke
+  - config: rm/t3/rm-t3-m13-n13-boa.yml
+    repetitions: 1
+    seedStart: 93000016
+    runIdPrefix: adm-paper-rm-t3-m13-n13-boa-xsmoke
+  - config: rm/t3/rm-t3-m13-n13-hboa.yml
+    repetitions: 1
+    seedStart: 93000017
+    runIdPrefix: adm-paper-rm-t3-m13-n13-hboa-xsmoke
+
+  - config: adm/t3/adm-t3-m13-n13-umda.yml
+    repetitions: 1
+    seedStart: 93000021
+    runIdPrefix: adm-paper-adm-t3-m13-n13-umda-xsmoke
+  - config: adm/t3/adm-t3-m13-n13-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 93000022
+    runIdPrefix: adm-paper-adm-t3-m13-n13-chow-liu-eda-xsmoke
+  - config: adm/t3/adm-t3-m13-n13-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 93000023
+    runIdPrefix: adm-paper-adm-t3-m13-n13-dependency-tree-eda-xsmoke
+  - config: adm/t3/adm-t3-m13-n13-bmda.yml
+    repetitions: 1
+    seedStart: 93000024
+    runIdPrefix: adm-paper-adm-t3-m13-n13-bmda-xsmoke
+  - config: adm/t3/adm-t3-m13-n13-ebna.yml
+    repetitions: 1
+    seedStart: 93000025
+    runIdPrefix: adm-paper-adm-t3-m13-n13-ebna-xsmoke
+  - config: adm/t3/adm-t3-m13-n13-boa.yml
+    repetitions: 1
+    seedStart: 93000026
+    runIdPrefix: adm-paper-adm-t3-m13-n13-boa-xsmoke
+  - config: adm/t3/adm-t3-m13-n13-hboa.yml
+    repetitions: 1
+    seedStart: 93000027
+    runIdPrefix: adm-paper-adm-t3-m13-n13-hboa-xsmoke

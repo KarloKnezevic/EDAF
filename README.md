@@ -153,6 +153,9 @@ Implementation status:
 - `zdt`
 - `dtlz`
 - `nguyen-sr`
+- `disjunct-matrix`
+- `resolvable-matrix`
+- `almost-disjunct-matrix`
 - `boolean-function`
 - `boolean-function-permutation`
 - `boolean-function-tree`
@@ -711,6 +714,8 @@ Coverage includes:
 - [docs/algorithms.md](docs/algorithms.md) - algorithm-level details and status
 - [docs/representations.md](docs/representations.md) - representation contracts and parameters
 - [docs/problem-suites.md](docs/problem-suites.md) - non-COCO benchmark suites and extension rules
+- [docs/disjunct-matrix-problems.md](docs/disjunct-matrix-problems.md) - formal DM/RM/ADM definitions, fitness, and validation module
+- [docs/adm-paper-suite.md](docs/adm-paper-suite.md) - full multi-algorithm DM/RM/ADM paper-instance campaign setup and reporting flow
 - [docs/crypto-boolean-problems.md](docs/crypto-boolean-problems.md) - boolean-function cryptography suite and criteria
 - [docs/coco-integration.md](docs/coco-integration.md) - COCO campaign workflow, DB model, and comparison protocol
 - [docs/logging-and-observability.md](docs/logging-and-observability.md) - events, sinks, metrics

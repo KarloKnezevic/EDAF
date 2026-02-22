@@ -87,11 +87,22 @@ public final class ExperimentConfigValidator {
         }
 
         String stoppingType = normalize(config.getStopping().getType());
-        if (!"max-iterations".equals(stoppingType)) {
+        if (!Set.of("max-iterations", "budget-or-target", "max-evaluations-or-target").contains(stoppingType)) {
             issues.add(new ConfigIssue(
                     "stopping.type",
                     "Unsupported stopping type '" + config.getStopping().getType() + "'",
-                    "Currently supported: max-iterations"
+                    "Currently supported: max-iterations, budget-or-target"
+            ));
+        }
+
+        if (Set.of("budget-or-target", "max-evaluations-or-target").contains(stoppingType)
+                && config.getStopping().getMaxEvaluations() == null
+                && config.getStopping().getTargetFitness() == null
+                && config.getStopping().getMaxIterations() <= 0) {
+            issues.add(new ConfigIssue(
+                    "stopping",
+                    "budget-or-target requires at least one active criterion",
+                    "Set stopping.maxIterations and/or stopping.maxEvaluations and/or stopping.targetFitness"
             ));
         }
 

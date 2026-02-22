@@ -89,6 +89,57 @@ This batch runs and persists:
 This campaign runs `umda` and `pbil` on `onemax` with identical deterministic seed schedules,
 so `/api/analysis/problem/onemax` can compute paired Friedman/Wilcoxon-style statistics.
 
+### Recipe H: Disjunct Matrix family (DM/RM/ADM)
+
+```bash
+./edaf run -c configs/benchmarks/disjunct-matrix-dm-v3.yml
+./edaf run -c configs/benchmarks/disjunct-matrix-rm-v3.yml
+./edaf run -c configs/benchmarks/disjunct-matrix-adm-v3.yml
+```
+
+These configs use exact paper fitness functions:
+
+- DM: `fit1(A) = sum delta(S)`
+- RM: `fit2(A) = |{S: delta(S) > f}|`
+- ADM: `fit3(A) = fit1(A) / (C(N,t) * (N-t))`
+
+Detailed semantics and validator API:
+
+- `docs/disjunct-matrix-problems.md`
+
+### Recipe I: Full paper-instance multi-algorithm campaign (DM/RM/ADM)
+
+Generate campaign configs (mandatory + optional algorithms):
+
+```bash
+./scripts/adm_paper_suite/generate_configs.py --include-optional
+```
+
+Run mandatory 30x campaign:
+
+```bash
+./edaf batch -c configs/adm_paper_suite/batch-paper-mandatory-30.yml
+```
+
+Run full 30x campaign (mandatory + optional):
+
+```bash
+./edaf batch -c configs/adm_paper_suite/batch-paper-full-30.yml
+```
+
+Build comparative report bundle from DB:
+
+```bash
+./scripts/adm_paper_suite/build_comparison_report.py \
+  --db edaf-v3.db \
+  --metadata configs/adm_paper_suite/paper-suite-metadata.csv \
+  --out reports/adm_paper_suite
+```
+
+Detailed campaign specification:
+
+- `docs/adm-paper-suite.md`
+
 ## 2.1) Latent-Knowledge Demo Configs (10+)
 
 All latent demos are in:

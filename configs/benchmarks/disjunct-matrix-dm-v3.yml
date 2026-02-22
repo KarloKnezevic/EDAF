@@ -1,0 +1,80 @@
+schema: "3.0"
+
+run:
+  id: benchmark-disjunct-matrix-dm-v3
+  name: Disjunct Matrix DM (fit1) with UMDA
+  masterSeed: 20260222
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 96
+
+problem:
+  type: disjunct-matrix
+  m: 8
+  n: 12
+  t: 2
+
+algorithm:
+  type: umda
+  populationSize: 260
+  elitism: 2
+  selectionRatio: 0.45
+
+model:
+  type: umda-bernoulli
+  smoothing: 0.015
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 220
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-disjunct-matrix-dm-v3-events.jsonl
+  logFile: ./edaf-v3.log

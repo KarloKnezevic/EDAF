@@ -33,6 +33,7 @@ public final class RunArtifactBundleSink implements EventSink {
     private final Path metricsCsv;
     private final Path summaryJson;
     private final Path reportHtml;
+    private final Path bestMatrixTxt;
     private final Path configYaml;
     private final Path configJson;
 
@@ -59,6 +60,7 @@ public final class RunArtifactBundleSink implements EventSink {
         this.metricsCsv = runDirectory.resolve("metrics.csv");
         this.summaryJson = runDirectory.resolve("summary.json");
         this.reportHtml = runDirectory.resolve("report.html");
+        this.bestMatrixTxt = runDirectory.resolve("best-matrix.txt");
         this.configYaml = runDirectory.resolve("config-resolved.yaml");
         this.configJson = runDirectory.resolve("config-resolved.json");
         this.resolvedYaml = resolvedYaml;
@@ -245,6 +247,7 @@ public final class RunArtifactBundleSink implements EventSink {
 
     private void writeSummaryAndReport() {
         try {
+            writeBestMatrixIfApplicable();
             Map<String, Object> summary = buildSummary();
             Files.writeString(summaryJson,
                     mapper.writerWithDefaultPrettyPrinter().writeValueAsString(summary),
@@ -283,6 +286,7 @@ public final class RunArtifactBundleSink implements EventSink {
                 ? (iterations.isEmpty() ? null : iterations.get(iterations.size() - 1).bestFitness())
                 : completedEvent.bestFitness());
         summary.put("bestSummary", completedEvent == null ? null : completedEvent.bestSummary());
+        summary.put("bestGenotype", completedEvent == null ? null : completedEvent.bestGenotype());
         summary.put("errorMessage", failedEvent == null ? null : failedEvent.errorMessage());
 
         summary.put("artifactPaths", Map.of(
@@ -292,6 +296,7 @@ public final class RunArtifactBundleSink implements EventSink {
                 "metricsCsv", metricsCsv.toString(),
                 "summaryJson", summaryJson.toString(),
                 "reportHtml", reportHtml.toString(),
+                "bestMatrixTxt", bestMatrixTxt.toString(),
                 "configYaml", configYaml.toString(),
                 "configJson", configJson.toString()
         ));
@@ -311,6 +316,66 @@ public final class RunArtifactBundleSink implements EventSink {
 
         summary.put("generatedAt", Instant.now().toString());
         return summary;
+    }
+
+    private void writeBestMatrixIfApplicable() {
+        if (completedEvent == null || startedEvent == null) {
+            return;
+        }
+        String problem = startedEvent.problem();
+        if (problem == null) {
+            return;
+        }
+        String normalized = problem.trim().toLowerCase(Locale.ROOT);
+        if (!normalized.equals("disjunct-matrix")
+                && !normalized.equals("resolvable-matrix")
+                && !normalized.equals("almost-disjunct-matrix")) {
+            return;
+        }
+        String genotype = completedEvent.bestGenotype();
+        if (genotype == null || genotype.isBlank() || !genotype.chars().allMatch(ch -> ch == '0' || ch == '1')) {
+            return;
+        }
+
+        try {
+            int m = readProblemInteger("m", readProblemInteger("rows", -1));
+            int n = readProblemInteger("n", readProblemInteger("columns", -1));
+            if (m <= 0 || n <= 0 || genotype.length() != m * n) {
+                return;
+            }
+
+            StringBuilder out = new StringBuilder();
+            out.append("# Best matrix (rows=").append(m).append(", cols=").append(n).append(")\n");
+            for (int row = 0; row < m; row++) {
+                for (int col = 0; col < n; col++) {
+                    if (col > 0) {
+                        out.append(' ');
+                    }
+                    out.append(genotype.charAt(col * m + row));
+                }
+                out.append('\n');
+            }
+            Files.writeString(bestMatrixTxt, out.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (Exception ignored) {
+            // best-matrix artifact is best-effort and must not fail run persistence.
+        }
+    }
+
+    private int readProblemInteger(String key, int defaultValue) {
+        try {
+            var root = mapper.readTree(resolvedJson);
+            var problem = root.path("problem");
+            var value = problem.path(key);
+            if (value.isMissingNode() || value.isNull()) {
+                value = problem.path("params").path(key);
+            }
+            if (value.isMissingNode() || value.isNull()) {
+                return defaultValue;
+            }
+            return value.asInt(defaultValue);
+        } catch (Exception e) {
+            return defaultValue;
+        }
     }
 
     private Map<String, Object> latentHighlights(LatentTelemetry telemetry) {

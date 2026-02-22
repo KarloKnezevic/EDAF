@@ -1,0 +1,60 @@
+defaultRepetitions: 1
+
+experiments:
+  - config: rm/t2/rm-t2-m08-n08-umda.yml
+    repetitions: 1
+    seedStart: 92000001
+    runIdPrefix: adm-paper-rm-t2-m08-n08-umda-xsmoke
+  - config: rm/t2/rm-t2-m08-n08-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 92000002
+    runIdPrefix: adm-paper-rm-t2-m08-n08-chow-liu-eda-xsmoke
+  - config: rm/t2/rm-t2-m08-n08-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 92000003
+    runIdPrefix: adm-paper-rm-t2-m08-n08-dependency-tree-eda-xsmoke
+  - config: rm/t2/rm-t2-m08-n08-bmda.yml
+    repetitions: 1
+    seedStart: 92000004
+    runIdPrefix: adm-paper-rm-t2-m08-n08-bmda-xsmoke
+  - config: rm/t2/rm-t2-m08-n08-ebna.yml
+    repetitions: 1
+    seedStart: 92000005
+    runIdPrefix: adm-paper-rm-t2-m08-n08-ebna-xsmoke
+  - config: rm/t2/rm-t2-m08-n08-boa.yml
+    repetitions: 1
+    seedStart: 92000006
+    runIdPrefix: adm-paper-rm-t2-m08-n08-boa-xsmoke
+  - config: rm/t2/rm-t2-m08-n08-hboa.yml
+    repetitions: 1
+    seedStart: 92000007
+    runIdPrefix: adm-paper-rm-t2-m08-n08-hboa-xsmoke
+
+  - config: adm/t2/adm-t2-m08-n08-umda.yml
+    repetitions: 1
+    seedStart: 92000011
+    runIdPrefix: adm-paper-adm-t2-m08-n08-umda-xsmoke
+  - config: adm/t2/adm-t2-m08-n08-chow-liu-eda.yml
+    repetitions: 1
+    seedStart: 92000012
+    runIdPrefix: adm-paper-adm-t2-m08-n08-chow-liu-eda-xsmoke
+  - config: adm/t2/adm-t2-m08-n08-dependency-tree-eda.yml
+    repetitions: 1
+    seedStart: 92000013
+    runIdPrefix: adm-paper-adm-t2-m08-n08-dependency-tree-eda-xsmoke
+  - config: adm/t2/adm-t2-m08-n08-bmda.yml
+    repetitions: 1
+    seedStart: 92000014
+    runIdPrefix: adm-paper-adm-t2-m08-n08-bmda-xsmoke
+  - config: adm/t2/adm-t2-m08-n08-ebna.yml
+    repetitions: 1
+    seedStart: 92000015
+    runIdPrefix: adm-paper-adm-t2-m08-n08-ebna-xsmoke
+  - config: adm/t2/adm-t2-m08-n08-boa.yml
+    repetitions: 1
+    seedStart: 92000016
+    runIdPrefix: adm-paper-adm-t2-m08-n08-boa-xsmoke
+  - config: adm/t2/adm-t2-m08-n08-hboa.yml
+    repetitions: 1
+    seedStart: 92000017
+    runIdPrefix: adm-paper-adm-t2-m08-n08-hboa-xsmoke

@@ -127,10 +127,28 @@ Common `problem.type` values:
 - `dtlz`
 - `nguyen-sr`
 - `coco-bbob`
+- `disjunct-matrix`
+- `resolvable-matrix`
+- `almost-disjunct-matrix`
 - `boolean-function`
 - `boolean-function-permutation`
 - `boolean-function-tree`
 - `boolean-function-mo`
+
+### Disjunct-matrix family parameters
+
+For `disjunct-matrix`, `resolvable-matrix`, `almost-disjunct-matrix`:
+
+- `m` or `rows` (int): number of matrix rows `M`
+- `n` or `columns` (int): number of matrix columns `N`
+- `t` (int): disjunctness parameter (`1 <= t < N`)
+- `f` (int): RM threshold (`0 <= f < N`), used by `resolvable-matrix`
+- `epsilon` (double): ADM threshold in `[0,1]`, used by `almost-disjunct-matrix`
+
+Important:
+
+- representation must be `bitstring` with `length = m * n`
+- encoding is column-major (`M` bits per column)
 
 ### Boolean-function crypto problem parameters
 
@@ -149,11 +167,30 @@ Additional parameters:
 
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
-| `type` | string | `max-iterations` | currently supported stopping strategy |
+| `type` | string | `max-iterations` | stopping strategy (`max-iterations` or `budget-or-target`) |
 | `maxIterations` | int >= 1 | `100` | hard iteration cap |
-| `targetFitness` | double (optional) | `null` | accepted but currently not used by default stopping policy |
+| `maxEvaluations` | long >= 1 (optional) | `null` | hard evaluation cap |
+| `targetFitness` | double (optional) | `null` | objective target threshold |
 
-Current policy factory supports `max-iterations` runtime behavior.
+Supported runtime behavior:
+
+- `max-iterations`: stops only on `maxIterations`
+- `budget-or-target`: stops when any active criterion is reached (`maxIterations`, `maxEvaluations`, or `targetFitness`)
+
+Target comparison follows objective sense:
+
+- minimization problems: stop when `bestFitness <= targetFitness`
+- maximization problems: stop when `bestFitness >= targetFitness`
+
+Example:
+
+```yaml
+stopping:
+  type: budget-or-target
+  maxIterations: 10000
+  maxEvaluations: 500000
+  targetFitness: 0.0
+```
 
 ## 5) `observability` Section
 
@@ -245,6 +282,7 @@ For detailed interpretation of each signal and chart mapping, see:
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
 | `enabled` | boolean | `true` | global persistence toggle |
+| `bundleArtifacts` | boolean | `true` | write run artifact bundle (`summary.json`, CSV/JSONL traces, matrix artifacts) |
 | `sinks` | string[] | `[console, csv, jsonl]` | sink selection |
 | `outputDirectory` | string | `./results` | output root for file sinks/checkpoints |
 | `database.enabled` | boolean | `false` | JDBC sink toggle |

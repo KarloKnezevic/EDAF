@@ -1,0 +1,88 @@
+schema: 3.0
+
+run:
+  id: adm-paper-adm-t3-m21-n31-umda
+  name: "ADM t=3 M=21 N=31 umda"
+  masterSeed: 91000000
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 651
+
+problem:
+  type: almost-disjunct-matrix
+  m: 21
+  n: 31
+  t: 3
+  epsilon: 0.0001
+  evaluationMode: sampled
+  maxExactSubsets: 1500
+  sampleSize: 512
+  samplingSeed: 20260222
+
+algorithm:
+  type: umda
+  populationSize: 220
+  elitism: 2
+  selectionRatio: 0.45
+
+model:
+  type: umda-bernoulli
+  smoothing: 0.01
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: budget-or-target
+  maxIterations: 10000
+  maxEvaluations: 500000
+  targetFitness: 0.0001
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  bundleArtifacts: false
+  sinks: [db]
+  outputDirectory: ./results/adm_paper_suite/adm/t3
+  database:
+    enabled: true
+    url: "jdbc:sqlite:edaf-v3.db"
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/adm_paper_suite
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [db, file]
+  verbosity: quiet
+  jsonlFile: ./results/adm_paper_suite/adm/t3/adm-paper-adm-t3-m21-n31-umda-events.jsonl
+  logFile: ./results/adm_paper_suite/adm-paper-adm.log

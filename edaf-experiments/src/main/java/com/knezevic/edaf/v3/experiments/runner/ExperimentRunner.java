@@ -296,7 +296,7 @@ public final class ExperimentRunner {
         String outputDirectory = config.getPersistence().getOutputDirectory();
         Path outputDir = Path.of(outputDirectory);
 
-        if (config.getPersistence().isEnabled()) {
+        if (config.getPersistence().isEnabled() && config.getPersistence().isBundleArtifacts()) {
             RunArtifactBundleSink bundleSink = new RunArtifactBundleSink(
                     outputDir,
                     config.getRun().getId(),

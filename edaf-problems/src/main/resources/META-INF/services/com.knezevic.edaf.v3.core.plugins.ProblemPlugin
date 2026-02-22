@@ -8,6 +8,9 @@ com.knezevic.edaf.v3.problems.plugins.continuous.CocoBbobProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.continuous.Cec2014ProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.discrete.KnapsackProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.discrete.MaxSatProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.discrete.DisjunctMatrixProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.discrete.ResolvableMatrixProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.discrete.AlmostDisjunctMatrixProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.permutation.TsplibTspProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.mo.ZdtProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.mo.DtlzProblemPlugin

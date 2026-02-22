@@ -1,0 +1,60 @@
+defaultRepetitions: 1
+
+experiments:
+  - config: dm/t2/dm-t2-m08-n08-umda.yml
+    repetitions: 30
+    seedStart: 91604993
+    runIdPrefix: adm-paper-dm-t2-m08-n08-umda
+  - config: dm/t2/dm-t2-m08-n08-chow-liu-eda.yml
+    repetitions: 30
+    seedStart: 91600686
+    runIdPrefix: adm-paper-dm-t2-m08-n08-chow-liu-eda
+  - config: dm/t2/dm-t2-m08-n08-dependency-tree-eda.yml
+    repetitions: 30
+    seedStart: 91146747
+    runIdPrefix: adm-paper-dm-t2-m08-n08-dependency-tree-eda
+  - config: dm/t2/dm-t2-m08-n08-bmda.yml
+    repetitions: 30
+    seedStart: 91736691
+    runIdPrefix: adm-paper-dm-t2-m08-n08-bmda
+  - config: dm/t2/dm-t2-m08-n08-ebna.yml
+    repetitions: 30
+    seedStart: 91753899
+    runIdPrefix: adm-paper-dm-t2-m08-n08-ebna
+  - config: dm/t2/dm-t2-m08-n08-boa.yml
+    repetitions: 30
+    seedStart: 91013001
+    runIdPrefix: adm-paper-dm-t2-m08-n08-boa
+  - config: dm/t2/dm-t2-m08-n08-hboa.yml
+    repetitions: 30
+    seedStart: 91607958
+    runIdPrefix: adm-paper-dm-t2-m08-n08-hboa
+
+  - config: rm/t2/rm-t2-m08-n08-umda.yml
+    repetitions: 30
+    seedStart: 91527545
+    runIdPrefix: adm-paper-rm-t2-m08-n08-umda
+  - config: rm/t2/rm-t2-m08-n08-chow-liu-eda.yml
+    repetitions: 30
+    seedStart: 91651357
+    runIdPrefix: adm-paper-rm-t2-m08-n08-chow-liu-eda
+  - config: rm/t2/rm-t2-m08-n08-dependency-tree-eda.yml
+    repetitions: 30
+    seedStart: 91287903
+    runIdPrefix: adm-paper-rm-t2-m08-n08-dependency-tree-eda
+  - config: rm/t2/rm-t2-m08-n08-bmda.yml
+    repetitions: 30
+    seedStart: 91518879
+    runIdPrefix: adm-paper-rm-t2-m08-n08-bmda
+  - config: rm/t2/rm-t2-m08-n08-ebna.yml
+    repetitions: 30
+    seedStart: 91320898
+    runIdPrefix: adm-paper-rm-t2-m08-n08-ebna
+  - config: rm/t2/rm-t2-m08-n08-boa.yml
+    repetitions: 30
+    seedStart: 91069475
+    runIdPrefix: adm-paper-rm-t2-m08-n08-boa
+  - config: rm/t2/rm-t2-m08-n08-hboa.yml
+    repetitions: 30
+    seedStart: 91736510
+    runIdPrefix: adm-paper-rm-t2-m08-n08-hboa

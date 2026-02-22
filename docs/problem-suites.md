@@ -19,6 +19,10 @@ For deep details on boolean-function cryptographic optimization, see:
 - `knapsack` (0/1 with linear overweight penalty)
 - `maxsat` (DIMACS CNF)
 - `tsplib-tsp` (TSPLIB `NODE_COORD_SECTION`)
+- disjunct-matrix family:
+  - `disjunct-matrix` (DM, exact `fit1`)
+  - `resolvable-matrix` (RM, exact `fit2`)
+  - `almost-disjunct-matrix` (ADM, exact `fit3`)
 
 ### Multiobjective
 
@@ -48,6 +52,7 @@ Problem implementations are grouped by domain:
 
 - `edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/continuous`
 - `edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/discrete`
+- `edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/discrete/disjunct`
 - `edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/multiobjective`
 - `edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/permutation`
 - `edaf-problems/src/main/java/com/knezevic/edaf/v3/problems/tree`
@@ -96,6 +101,9 @@ problem:
 - `zdt1-mo-v3.yml`
 - `dtlz2-mo-v3.yml`
 - `nguyen1-tree-eda-v3.yml`
+- `disjunct-matrix-dm-v3.yml`
+- `disjunct-matrix-rm-v3.yml`
+- `disjunct-matrix-adm-v3.yml`
 - `crypto-boolean-umda-v3.yml`
 - `crypto-boolean-permutation-ehm-v3.yml`
 - `crypto-boolean-tree-eda-v3.yml`
@@ -156,10 +164,25 @@ Use filters:
 - `problem=zdt`
 - `problem=dtlz`
 - `problem=nguyen-sr`
+- `problem=disjunct-matrix`
+- `problem=resolvable-matrix`
+- `problem=almost-disjunct-matrix`
 - `problem=boolean-function`
 - `problem=boolean-function-permutation`
 - `problem=boolean-function-tree`
 - `problem=boolean-function-mo`
+
+## 9) Disjunct-Matrix Validation API
+
+EDAF now ships an explicit validator for formal DM/RM/ADM properties with:
+
+- exact enumeration for small `C(N,t)` spaces
+- statistically bounded sampling for large spaces
+- witness subsets when violations are detected
+
+See dedicated guide:
+
+- [Disjunct Matrix Family (DM/RM/ADM)](./disjunct-matrix-problems.md)
 
 ## 8) How to Add a New Problem (clean extension path)
 

@@ -14,6 +14,7 @@ public record RunCompletedEvent(
         long runtimeMillis,
         double bestFitness,
         String bestSummary,
+        String bestGenotype,
         Map<String, String> artifacts
 ) implements RunEvent {
 

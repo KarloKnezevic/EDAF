@@ -277,6 +277,7 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
                 runtime.toMillis(),
                 state.best().fitness().scalar(),
                 context.representation().summarize(state.best().genotype()),
+                String.valueOf(state.best().genotype()),
                 artifacts
         ));
     }

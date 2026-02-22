@@ -1,0 +1,82 @@
+schema: "3.0"
+
+run:
+  id: benchmark-disjunct-matrix-adm-v3
+  name: Disjunct Matrix ADM (fit3) with BMDA
+  masterSeed: 20260224
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 160
+
+problem:
+  type: almost-disjunct-matrix
+  m: 10
+  n: 16
+  t: 3
+  epsilon: 0.08
+
+algorithm:
+  type: bmda
+  populationSize: 320
+  elitism: 2
+  selectionRatio: 0.40
+
+model:
+  type: bmda
+  smoothing: 0.02
+  minEdgeWeight: 0.0001
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 260
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/benchmarks
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/benchmarks
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/benchmarks/benchmark-disjunct-matrix-adm-v3-events.jsonl
+  logFile: ./edaf-v3.log

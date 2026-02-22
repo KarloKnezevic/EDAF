@@ -1,0 +1,89 @@
+schema: 3.0
+
+run:
+  id: adm-paper-rm-t2-m11-n18-ebna
+  name: "RM t=2 M=11 N=18 ebna"
+  masterSeed: 91000000
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 198
+
+problem:
+  type: resolvable-matrix
+  m: 11
+  n: 18
+  t: 2
+  f: 5
+  evaluationMode: exact
+  maxExactSubsets: 1500
+  sampleSize: 512
+  samplingSeed: 20260222
+
+algorithm:
+  type: ebna
+  populationSize: 260
+  elitism: 2
+  selectionRatio: 0.4
+
+model:
+  type: boa-ebna
+  maxParents: 3
+  smoothing: 0.35
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: budget-or-target
+  maxIterations: 10000
+  maxEvaluations: 500000
+  targetFitness: 0.0
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  bundleArtifacts: false
+  sinks: [db]
+  outputDirectory: ./results/adm_paper_suite/rm/t2
+  database:
+    enabled: true
+    url: "jdbc:sqlite:edaf-v3.db"
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/adm_paper_suite
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [db, file]
+  verbosity: quiet
+  jsonlFile: ./results/adm_paper_suite/rm/t2/adm-paper-rm-t2-m11-n18-ebna-events.jsonl
+  logFile: ./results/adm_paper_suite/adm-paper-rm.log

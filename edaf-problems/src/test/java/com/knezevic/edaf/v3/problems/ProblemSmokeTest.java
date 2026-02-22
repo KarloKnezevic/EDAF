@@ -4,6 +4,10 @@ import com.knezevic.edaf.v3.problems.continuous.Cec2014Problem;
 import com.knezevic.edaf.v3.problems.crypto.BooleanFunctionProblem;
 import com.knezevic.edaf.v3.problems.discrete.KnapsackProblem;
 import com.knezevic.edaf.v3.problems.discrete.MaxSatProblem;
+import com.knezevic.edaf.v3.problems.discrete.disjunct.AlmostDisjunctMatrixProblem;
+import com.knezevic.edaf.v3.problems.discrete.disjunct.DisjunctEvaluationConfig;
+import com.knezevic.edaf.v3.problems.discrete.disjunct.DisjunctMatrixProblem;
+import com.knezevic.edaf.v3.problems.discrete.disjunct.ResolvableMatrixProblem;
 import com.knezevic.edaf.v3.problems.multiobjective.DtlzProblem;
 import com.knezevic.edaf.v3.problems.multiobjective.ZdtProblem;
 import com.knezevic.edaf.v3.problems.permutation.TsplibTspProblem;
@@ -120,5 +124,23 @@ class ProblemSmokeTest {
         double fitness = problem.evaluate(new BitString(new boolean[]{false, true, false, true, true, false, true, false}))
                 .scalar();
         assertTrue(Double.isFinite(fitness));
+    }
+
+    @Test
+    void disjunctMatrixFamilyProblemsReturnFiniteFitness() {
+        BitString identity3x3 = new BitString(new boolean[]{
+                true, false, false,
+                false, true, false,
+                false, false, true
+        });
+
+        DisjunctEvaluationConfig eval = DisjunctEvaluationConfig.defaults();
+        DisjunctMatrixProblem dm = new DisjunctMatrixProblem(3, 3, 1, eval);
+        ResolvableMatrixProblem rm = new ResolvableMatrixProblem(3, 3, 1, 0, eval);
+        AlmostDisjunctMatrixProblem adm = new AlmostDisjunctMatrixProblem(3, 3, 1, 0.0, eval);
+
+        assertEquals(0.0, dm.evaluate(identity3x3).scalar(), 1e-9);
+        assertEquals(0.0, rm.evaluate(identity3x3).scalar(), 1e-9);
+        assertEquals(0.0, adm.evaluate(identity3x3).scalar(), 1e-9);
     }
 }

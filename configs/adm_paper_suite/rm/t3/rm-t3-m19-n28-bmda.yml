@@ -1,0 +1,88 @@
+schema: 3.0
+
+run:
+  id: adm-paper-rm-t3-m19-n28-bmda
+  name: "RM t=3 M=19 N=28 bmda"
+  masterSeed: 91000000
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 532
+
+problem:
+  type: resolvable-matrix
+  m: 19
+  n: 28
+  t: 3
+  f: 8
+  evaluationMode: sampled
+  maxExactSubsets: 1500
+  sampleSize: 512
+  samplingSeed: 20260222
+
+algorithm:
+  type: bmda
+  populationSize: 240
+  elitism: 2
+  selectionRatio: 0.42
+
+model:
+  type: bmda
+  smoothing: 0.25
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: budget-or-target
+  maxIterations: 10000
+  maxEvaluations: 500000
+  targetFitness: 0.0
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  bundleArtifacts: false
+  sinks: [db]
+  outputDirectory: ./results/adm_paper_suite/rm/t3
+  database:
+    enabled: true
+    url: "jdbc:sqlite:edaf-v3.db"
+    user: ""
+    password: ""
+
+reporting:
+  enabled: false
+  formats: [html]
+  outputDirectory: ./reports/adm_paper_suite
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [db, file]
+  verbosity: quiet
+  jsonlFile: ./results/adm_paper_suite/rm/t3/adm-paper-rm-t3-m19-n28-bmda-events.jsonl
+  logFile: ./results/adm_paper_suite/adm-paper-rm.log

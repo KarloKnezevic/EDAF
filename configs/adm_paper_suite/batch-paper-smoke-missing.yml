@@ -1,0 +1,39 @@
+defaultRepetitions: 1
+
+experiments:
+  - config: dm/t2/dm-t2-m08-n08-pbil.yml
+    repetitions: 1
+    seedStart: 91996312
+    runIdPrefix: adm-paper-dm-t2-m08-n08-pbil-smoke
+  - config: dm/t2/dm-t2-m08-n08-cga.yml
+    repetitions: 1
+    seedStart: 91559460
+    runIdPrefix: adm-paper-dm-t2-m08-n08-cga-smoke
+  - config: dm/t2/dm-t2-m08-n08-mimic.yml
+    repetitions: 1
+    seedStart: 91163697
+    runIdPrefix: adm-paper-dm-t2-m08-n08-mimic-smoke
+  - config: dm/t2/dm-t2-m09-n12-pbil.yml
+    repetitions: 1
+    seedStart: 91807995
+    runIdPrefix: adm-paper-dm-t2-m09-n12-pbil-smoke
+  - config: dm/t2/dm-t2-m09-n12-cga.yml
+    repetitions: 1
+    seedStart: 91930542
+    runIdPrefix: adm-paper-dm-t2-m09-n12-cga-smoke
+  - config: dm/t2/dm-t2-m09-n12-mimic.yml
+    repetitions: 1
+    seedStart: 91645569
+    runIdPrefix: adm-paper-dm-t2-m09-n12-mimic-smoke
+  - config: dm/t2/dm-t2-m10-n13-pbil.yml
+    repetitions: 1
+    seedStart: 91154040
+    runIdPrefix: adm-paper-dm-t2-m10-n13-pbil-smoke
+  - config: dm/t2/dm-t2-m10-n13-cga.yml
+    repetitions: 1
+    seedStart: 91001535
+    runIdPrefix: adm-paper-dm-t2-m10-n13-cga-smoke
+  - config: dm/t2/dm-t2-m10-n13-mimic.yml
+    repetitions: 1
+    seedStart: 91639404
+    runIdPrefix: adm-paper-dm-t2-m10-n13-mimic-smoke

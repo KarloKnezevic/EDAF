@@ -7,6 +7,7 @@ import com.knezevic.edaf.v3.core.api.ReplacementPolicy;
 import com.knezevic.edaf.v3.core.api.RestartPolicy;
 import com.knezevic.edaf.v3.core.api.SelectionPolicy;
 import com.knezevic.edaf.v3.core.api.StoppingCondition;
+import com.knezevic.edaf.v3.core.api.defaults.BudgetOrTargetStoppingCondition;
 import com.knezevic.edaf.v3.core.api.defaults.ElitistReplacementPolicy;
 import com.knezevic.edaf.v3.core.api.defaults.FitnessSharingNichingPolicy;
 import com.knezevic.edaf.v3.core.api.defaults.IdentityConstraintHandling;
@@ -49,7 +50,17 @@ public final class PolicyFactory {
     }
 
     public static <G> StoppingCondition<G> createStopping(ExperimentConfig config) {
-        return new MaxIterationsStoppingCondition<>(config.getStopping().getMaxIterations());
+        String type = config.getStopping().getType().toLowerCase(java.util.Locale.ROOT);
+        return switch (type) {
+            case "max-iterations" -> new MaxIterationsStoppingCondition<>(config.getStopping().getMaxIterations());
+            case "budget-or-target", "max-evaluations-or-target" ->
+                    new BudgetOrTargetStoppingCondition<>(
+                            config.getStopping().getMaxIterations(),
+                            config.getStopping().getMaxEvaluations(),
+                            config.getStopping().getTargetFitness()
+                    );
+            default -> new MaxIterationsStoppingCondition<>(config.getStopping().getMaxIterations());
+        };
     }
 
     public static <G> ConstraintHandling<G> createConstraintHandling(ExperimentConfig config) {
