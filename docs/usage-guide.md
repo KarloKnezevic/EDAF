@@ -89,6 +89,56 @@ This batch runs and persists:
 This campaign runs `umda` and `pbil` on `onemax` with identical deterministic seed schedules,
 so `/api/analysis/problem/onemax` can compute paired Friedman/Wilcoxon-style statistics.
 
+## 2.1) Latent-Knowledge Demo Configs (10+)
+
+All latent demos are in:
+
+- `configs/latent-insights/`
+
+Included runs:
+
+- Binary (3): `binary-onemax-umda-latent.yml`, `binary-onemax-pbil-latent.yml`, `binary-knapsack-bmda-latent.yml`
+- Permutation (3): `permutation-smalltsp-ehm-latent.yml`, `permutation-smalltsp-mallows-latent.yml`, `permutation-tsplib-ehbsa-latent.yml`
+- Real-valued (3): `real-sphere-gaussian-latent.yml`, `real-rastrigin-snes-latent.yml`, `real-rosenbrock-cma-latent.yml`
+- Adaptive showcase (1): `adaptive-showcase-onemax-collapse.yml` (configured to trigger adaptive events)
+
+Run any demo:
+
+```bash
+./edaf run -c configs/latent-insights/binary-onemax-umda-latent.yml
+./edaf run -c configs/latent-insights/permutation-smalltsp-ehm-latent.yml
+./edaf run -c configs/latent-insights/real-sphere-gaussian-latent.yml
+./edaf run -c configs/latent-insights/adaptive-showcase-onemax-collapse.yml
+```
+
+## 2.2) Per-Run Artifact Bundle (always generated when `persistence.enabled=true`)
+
+Each run now creates:
+
+- `results/.../runs/<runId>/config-resolved.yaml`
+- `results/.../runs/<runId>/config-resolved.json`
+- `results/.../runs/<runId>/telemetry.jsonl`
+- `results/.../runs/<runId>/events.jsonl`
+- `results/.../runs/<runId>/metrics.csv`
+- `results/.../runs/<runId>/summary.json`
+- `results/.../runs/<runId>/report.html`
+
+Open static report directly:
+
+```bash
+open results/latent-insights/runs/latent-adaptive-showcase-onemax/report.html
+```
+
+Telemetry rows include:
+
+- generation, evaluations, population size, elite size
+- best/mean/std fitness
+- representation family
+- algorithm/model/problem IDs
+- latent metrics payload
+- drift/diversity payload
+- adaptive actions for that generation
+
 ## 3) COCO/BBOB Recipes
 
 ### Build and import fuller reference rows (recommended)
@@ -187,16 +237,10 @@ Multiple formats:
 
 ## 7) Web Dashboard Recipes
 
-Open a terminal in `/Users/karloknezevic/Desktop/EDAF` and run one of these commands:
+Open a terminal in `/Users/karloknezevic/Desktop/EDAF` and run from repo root:
 
 ```bash
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
-```
-
-or
-
-```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
 ```
 
 If plugin prefix resolution fails, use fully-qualified goal:
@@ -204,6 +248,8 @@ If plugin prefix resolution fails, use fully-qualified goal:
 ```bash
 EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
+
+`-pl edaf-web -am` is important because the web module depends on sibling modules; running from repo root ensures all required classes are on classpath.
 
 Stop web server with `Ctrl+C` in the same terminal.
 

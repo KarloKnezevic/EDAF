@@ -362,6 +362,13 @@ public final class JdbcEventSink implements EventSink {
                     created_at = excluded.created_at
                 """;
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            ObjectNode diagnostics = eventMapper.createObjectNode();
+            diagnostics.put("populationSize", event.populationSize());
+            diagnostics.put("eliteSize", event.eliteSize());
+            diagnostics.set("modelDiagnostics", eventMapper.valueToTree(event.diagnostics().numeric()));
+            diagnostics.set("latentTelemetry", eventMapper.valueToTree(event.latentTelemetry()));
+            diagnostics.set("adaptiveActions", eventMapper.valueToTree(event.adaptiveActions()));
+
             statement.setString(1, event.runId());
             statement.setInt(2, event.iteration());
             statement.setLong(3, event.evaluations());
@@ -369,7 +376,7 @@ public final class JdbcEventSink implements EventSink {
             statement.setDouble(5, event.meanFitness());
             statement.setDouble(6, event.stdFitness());
             statement.setString(7, eventMapper.writeValueAsString(event.metrics()));
-            statement.setString(8, eventMapper.writeValueAsString(event.diagnostics().numeric()));
+            statement.setString(8, eventMapper.writeValueAsString(diagnostics));
             statement.setString(9, event.timestamp().toString());
             statement.executeUpdate();
         } catch (Exception e) {

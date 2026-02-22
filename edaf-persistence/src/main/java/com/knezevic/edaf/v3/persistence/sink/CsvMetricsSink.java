@@ -34,7 +34,7 @@ public final class CsvMetricsSink implements EventSink {
             if (!headerWritten) {
                 if (!Files.exists(file) || Files.size(file) == 0L) {
                     Files.writeString(file,
-                            "timestamp,run_id,iteration,evaluations,best_fitness,mean_fitness,std_fitness,metrics_json,diagnostics_json\n",
+                            "timestamp,run_id,iteration,evaluations,population_size,elite_size,best_fitness,mean_fitness,std_fitness,metrics_json,diagnostics_json,latent_json,adaptive_actions_json\n",
                             StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
                 }
                 headerWritten = true;
@@ -44,11 +44,15 @@ public final class CsvMetricsSink implements EventSink {
                     quote(iteration.runId()),
                     String.valueOf(iteration.iteration()),
                     String.valueOf(iteration.evaluations()),
+                    String.valueOf(iteration.populationSize()),
+                    String.valueOf(iteration.eliteSize()),
                     String.valueOf(iteration.bestFitness()),
                     String.valueOf(iteration.meanFitness()),
                     String.valueOf(iteration.stdFitness()),
                     quote(mapper.writeValueAsString(iteration.metrics())),
-                    quote(mapper.writeValueAsString(iteration.diagnostics().numeric()))
+                    quote(mapper.writeValueAsString(iteration.diagnostics().numeric())),
+                    quote(mapper.writeValueAsString(iteration.latentTelemetry())),
+                    quote(mapper.writeValueAsString(iteration.adaptiveActions()))
             ) + "\n";
             Files.writeString(file, line, StandardOpenOption.APPEND);
         } catch (IOException e) {

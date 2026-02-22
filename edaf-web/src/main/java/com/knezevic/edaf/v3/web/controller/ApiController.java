@@ -23,6 +23,7 @@ import com.knezevic.edaf.v3.persistence.query.coco.CocoCampaignQuery;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoOptimizerConfigRow;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoRepository;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoTrialMetric;
+import com.knezevic.edaf.v3.web.service.RunArtifactService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,10 +46,14 @@ public class ApiController {
 
     private final RunRepository runRepository;
     private final CocoRepository cocoRepository;
+    private final RunArtifactService runArtifactService;
 
-    public ApiController(RunRepository runRepository, CocoRepository cocoRepository) {
+    public ApiController(RunRepository runRepository,
+                         CocoRepository cocoRepository,
+                         RunArtifactService runArtifactService) {
         this.runRepository = runRepository;
         this.cocoRepository = cocoRepository;
+        this.runArtifactService = runArtifactService;
     }
 
     @GetMapping("/experiments")
@@ -94,6 +99,9 @@ public class ApiController {
     public RunDetail getRun(@PathVariable String runId) {
         RunDetail detail = runRepository.getRunDetail(runId);
         if (detail == null) {
+            detail = runArtifactService.loadRunDetail(runId).orElse(null);
+        }
+        if (detail == null) {
             throw new ResponseStatusException(NOT_FOUND, "Run not found: " + runId);
         }
         return detail;
@@ -101,7 +109,11 @@ public class ApiController {
 
     @GetMapping("/runs/{runId}/iterations")
     public List<IterationMetric> listIterations(@PathVariable String runId) {
-        return runRepository.listIterations(runId);
+        List<IterationMetric> rows = runRepository.listIterations(runId);
+        if (!rows.isEmpty()) {
+            return rows;
+        }
+        return runArtifactService.loadIterations(runId);
     }
 
     @GetMapping("/runs/{runId}/events")
@@ -112,17 +124,29 @@ public class ApiController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int size
     ) {
-        return runRepository.listEvents(runId, eventType, q, page, size);
+        PageResult<EventRow> rows = runRepository.listEvents(runId, eventType, q, page, size);
+        if (rows.total() > 0) {
+            return rows;
+        }
+        return runArtifactService.loadEvents(runId, eventType, q, page, size);
     }
 
     @GetMapping("/runs/{runId}/checkpoints")
     public List<CheckpointRow> listCheckpoints(@PathVariable String runId) {
-        return runRepository.listCheckpoints(runId);
+        List<CheckpointRow> rows = runRepository.listCheckpoints(runId);
+        if (!rows.isEmpty()) {
+            return rows;
+        }
+        return runArtifactService.loadCheckpoints(runId);
     }
 
     @GetMapping("/runs/{runId}/params")
     public List<ExperimentParamRow> listParams(@PathVariable String runId) {
-        return runRepository.listExperimentParams(runId);
+        List<ExperimentParamRow> rows = runRepository.listExperimentParams(runId);
+        if (!rows.isEmpty()) {
+            return rows;
+        }
+        return runArtifactService.loadParams(runId);
     }
 
     @GetMapping("/facets")

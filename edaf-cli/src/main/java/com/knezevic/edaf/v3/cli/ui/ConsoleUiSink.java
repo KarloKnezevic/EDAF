@@ -57,7 +57,15 @@ public final class ConsoleUiSink implements EventSink {
                         + " @|green best|@=" + format(iteration.bestFitness())
                         + " @|yellow mean|@=" + format(iteration.meanFitness())
                         + " @|magenta std|@=" + format(iteration.stdFitness())
-                        + " evals=" + iteration.evaluations());
+                        + " evals=" + iteration.evaluations()
+                        + " adaptive=" + iteration.adaptiveActions().size());
+                if (!iteration.adaptiveActions().isEmpty()) {
+                    for (var action : iteration.adaptiveActions()) {
+                        printlnAnsi("  @|bold,fg(yellow)adaptive|@ trigger=" + action.trigger()
+                                + " action=" + action.actionType()
+                                + " reason=" + action.reason());
+                    }
+                }
             }
 
             if (verbosity != Verbosity.QUIET && iteration.iteration() % summaryEvery == 0) {

@@ -7,6 +7,7 @@ import com.knezevic.edaf.v3.core.events.RunEvent;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
@@ -46,6 +47,10 @@ public final class RotatingFileEventSink implements EventSink {
             return;
         }
         Path rotated = file.resolveSibling(file.getFileName() + "." + System.currentTimeMillis());
-        Files.move(file, rotated);
+        try {
+            Files.move(file, rotated);
+        } catch (NoSuchFileException ignored) {
+            // Another writer may rotate/delete the file concurrently; safe to ignore.
+        }
     }
 }

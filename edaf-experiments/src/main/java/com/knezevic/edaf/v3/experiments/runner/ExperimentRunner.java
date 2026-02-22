@@ -46,6 +46,7 @@ import com.knezevic.edaf.v3.persistence.jdbc.SchemaInitializer;
 import com.knezevic.edaf.v3.persistence.sink.CsvMetricsSink;
 import com.knezevic.edaf.v3.persistence.sink.JsonLinesEventSink;
 import com.knezevic.edaf.v3.persistence.sink.RotatingFileEventSink;
+import com.knezevic.edaf.v3.persistence.sink.RunArtifactBundleSink;
 import com.knezevic.edaf.v3.repr.types.BitString;
 import com.knezevic.edaf.v3.repr.types.CategoricalVector;
 import com.knezevic.edaf.v3.repr.types.IntVector;
@@ -294,6 +295,22 @@ public final class ExperimentRunner {
 
         String outputDirectory = config.getPersistence().getOutputDirectory();
         Path outputDir = Path.of(outputDirectory);
+
+        if (config.getPersistence().isEnabled()) {
+            RunArtifactBundleSink bundleSink = new RunArtifactBundleSink(
+                    outputDir,
+                    config.getRun().getId(),
+                    canonicalYaml,
+                    canonicalJson
+            );
+            sinks.add(bundleSink);
+            artifacts.put("run_dir", bundleSink.runDirectory().toString());
+            artifacts.put("telemetry", bundleSink.telemetryJsonl().toString());
+            artifacts.put("events_jsonl", bundleSink.eventsJsonl().toString());
+            artifacts.put("metrics_compact_csv", bundleSink.metricsCsv().toString());
+            artifacts.put("summary", bundleSink.summaryJson().toString());
+            artifacts.put("report_html", bundleSink.reportHtml().toString());
+        }
 
         List<String> sinkNames = new ArrayList<>(config.getPersistence().getSinks());
         if (config.getLogging().getModes() != null) {

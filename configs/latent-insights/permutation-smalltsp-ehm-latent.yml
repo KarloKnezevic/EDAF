@@ -1,0 +1,80 @@
+schema: "3.0"
+
+run:
+  id: latent-perm-smalltsp-ehm
+  name: Latent Permutation SmallTSP EHM
+  masterSeed: 2026022104
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: permutation-vector
+  size: 8
+
+problem:
+  type: small-tsp
+
+algorithm:
+  type: ehm-eda
+  populationSize: 260
+  elitism: 2
+  selectionRatio: 0.45
+  latentTopK: 12
+  latentPairSampleLimit: 1000
+  adaptiveEnabled: false
+
+model:
+  type: ehm
+  epsilon: 1.0e-6
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 220
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/latent-insights
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/latent-insights
+
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/latent-insights/latent-perm-smalltsp-ehm-events.jsonl
+  logFile: ./edaf-v3.log

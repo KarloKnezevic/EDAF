@@ -14,7 +14,8 @@ elif find "$ROOT_DIR"/edaf-* -path '*/src/*' -type f -newer "$CLI_JAR" | grep -q
 fi
 
 if [[ "$needs_build" == true ]]; then
-  mvn -q -pl edaf-cli -am package -DskipTests
+  # Build fast for local execution without compiling/running test sources.
+  mvn -q -pl edaf-cli -am package -Dmaven.test.skip=true
 fi
 
 exec java --enable-native-access=ALL-UNNAMED -jar "$CLI_JAR" "$@"

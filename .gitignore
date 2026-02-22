@@ -13,6 +13,7 @@
 
 # Runtime outputs
 *.log
+*.log.*
 results.json
 /results/
 /reports/

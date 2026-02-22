@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EDAF Run Detail</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
     <style>
         :root {
-            --bg: #f5f8fb;
+            --bg: #f4f8fb;
             --card: #ffffff;
-            --ink: #1b2734;
-            --muted: #607080;
+            --ink: #1b2837;
+            --muted: #607087;
             --line: #d6dfeb;
             --accent: #0f766e;
             --accent-2: #0b4a6f;
+            --warn: #b45309;
+            --bad: #b91c1c;
             --good: #166534;
-            --warn: #92400e;
-            --bad: #991b1b;
         }
         * { box-sizing: border-box; }
         body {
@@ -27,98 +27,130 @@
             color: var(--ink);
             font-family: "Space Grotesk", "Segoe UI", sans-serif;
             background:
-                    radial-gradient(circle at 12% 12%, rgba(15, 118, 110, 0.16), transparent 34%),
-                    radial-gradient(circle at 92% 8%, rgba(11, 74, 111, 0.14), transparent 33%),
+                    radial-gradient(circle at 10% 8%, rgba(15, 118, 110, .16), transparent 32%),
+                    radial-gradient(circle at 90% 12%, rgba(11, 74, 111, .14), transparent 34%),
                     var(--bg);
         }
-        .wrap { max-width: 1380px; margin: 0 auto; padding: 20px 14px 40px; }
+        .wrap { max-width: 1420px; margin: 0 auto; padding: 18px 12px 32px; }
         .top {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
-        .top-links {
-            display: flex;
-            gap: 9px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .top a {
-            color: var(--accent);
+        .top-links { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .top-links a {
             text-decoration: none;
-            font-weight: 700;
+            color: var(--accent);
             border: 1px solid var(--line);
+            background: #fff;
             border-radius: 999px;
             padding: 7px 11px;
-            background: #fff;
+            font-weight: 700;
+            font-size: .86rem;
         }
-        h1 { margin: 0; font-size: clamp(1.25rem, 2.2vw, 1.9rem); }
+        .btn {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font: inherit;
+            cursor: pointer;
+            background: #fff;
+            color: var(--ink);
+        }
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        h1 { margin: 0 0 10px; font-size: clamp(1.2rem, 2.2vw, 1.8rem); }
         .card {
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 14px;
-            padding: 14px;
-            box-shadow: 0 9px 25px rgba(0,0,0,.05);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, .05);
+            padding: 13px;
             margin-bottom: 12px;
             max-width: 100%;
             overflow: hidden;
         }
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(6, minmax(130px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(6, minmax(140px, 1fr));
+            gap: 9px;
         }
         .kpi {
             border: 1px solid var(--line);
-            border-radius: 12px;
+            border-radius: 11px;
             padding: 10px;
             min-width: 0;
         }
-        .kpi .k { color: var(--muted); font-size: .8rem; font-family: "IBM Plex Mono", monospace; }
-        .kpi .v { margin-top: 5px; font-weight: 700; word-break: break-word; }
+        .kpi .k {
+            color: var(--muted);
+            font-family: "IBM Plex Mono", monospace;
+            font-size: .78rem;
+        }
+        .kpi .v {
+            font-weight: 700;
+            margin-top: 5px;
+            overflow-wrap: anywhere;
+        }
         .status {
             display: inline-flex;
             border-radius: 999px;
+            padding: 4px 9px;
             font-size: .75rem;
             letter-spacing: .04em;
             font-weight: 700;
-            padding: 4px 10px;
         }
         .status-running { background: #dcfce7; color: var(--good); }
         .status-completed { background: #e0f2fe; color: #075985; }
         .status-failed { background: #fee2e2; color: var(--bad); }
         .status-other { background: #fef3c7; color: var(--warn); }
-        .grid-2 {
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .tab-btn {
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--ink);
+            padding: 7px 12px;
+            font: inherit;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: .86rem;
+        }
+        .tab-btn.active {
+            background: var(--accent-2);
+            border-color: var(--accent-2);
+            color: #fff;
+        }
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        .row-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             align-items: start;
         }
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
+
+        .chart-wrap { height: 320px; }
+        canvas { width: 100%; height: 100%; }
+
+        .section-title {
+            margin: 0 0 8px;
+            font-size: 1rem;
         }
         .mono { font-family: "IBM Plex Mono", monospace; }
-        input, select, button {
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 8px 10px;
-            font-family: inherit;
-            font-size: .88rem;
-            background: #fff;
-            color: var(--ink);
-        }
-        button { cursor: pointer; font-weight: 600; }
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-ghost { background: #fff; }
-        .canvas-wrap { height: 300px; }
+        .muted { color: var(--muted); font-size: .83rem; }
+
         .table-wrap {
             border: 1px solid var(--line);
             border-radius: 10px;
@@ -131,33 +163,19 @@
             table-layout: fixed;
         }
         th, td {
-            padding: 9px 10px;
             border-bottom: 1px solid var(--line);
+            padding: 8px 10px;
             text-align: left;
-            font-size: .84rem;
             vertical-align: top;
+            font-size: .82rem;
             overflow-wrap: anywhere;
         }
         th {
-            background: #f8fafc;
+            font-family: "IBM Plex Mono", monospace;
             color: var(--muted);
-            font-family: "IBM Plex Mono", monospace;
+            background: #f8fbff;
         }
-        pre {
-            margin: 0;
-            max-height: 420px;
-            overflow: auto;
-            padding: 12px;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            background: #fafcff;
-            font-size: .78rem;
-            line-height: 1.45;
-            font-family: "IBM Plex Mono", monospace;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-            word-break: break-word;
-        }
+
         .payload-preview {
             font-size: .78rem;
             color: var(--muted);
@@ -174,46 +192,67 @@
             font-size: .8rem;
             margin-bottom: 6px;
         }
-        .hidden { display: none; }
-        .muted { color: var(--muted); font-size: .84rem; }
-        .events-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-        .events-pager { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-        details.section {
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        input, select {
             border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 7px 10px;
+            font: inherit;
+            font-size: .86rem;
             background: #fff;
-            margin-bottom: 12px;
+            color: var(--ink);
         }
-        details.section > summary {
-            cursor: pointer;
-            font-weight: 700;
-            color: var(--accent-2);
-            list-style: none;
+        pre {
+            margin: 0;
+            padding: 11px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #f8fbff;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            font-size: .78rem;
+            font-family: "IBM Plex Mono", monospace;
         }
-        details.section > summary::-webkit-details-marker { display: none; }
-        details.section > summary::before {
-            content: "▸";
-            display: inline-block;
-            margin-right: 8px;
-            transition: transform .15s ease;
+
+        .hidden { display: none; }
+        .insight-pill {
+            display: inline-flex;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            padding: 4px 9px;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: .75rem;
+            color: var(--accent);
+            background: #f8ffff;
         }
-        details.section[open] > summary::before { transform: rotate(90deg); }
-        .section-body { margin-top: 10px; }
-        .config-toggle { display: flex; gap: 6px; }
-        .event-type-cell {
-            min-width: 120px;
-            max-width: 180px;
-            word-break: break-word;
+
+        .pager {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        @media (max-width: 1200px) {
-            .summary-grid { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
-            .grid-2 { grid-template-columns: 1fr; }
+
+        @media (max-width: 1250px) {
+            .summary-grid { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+            .row-2 { grid-template-columns: 1fr; }
         }
         @media (max-width: 760px) {
-            .summary-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
-            .wrap { padding: 14px 10px 28px; }
-            .canvas-wrap { height: 250px; }
+            .summary-grid { grid-template-columns: repeat(2, minmax(130px, 1fr)); }
+            .chart-wrap { height: 260px; }
+            .wrap { padding: 13px 9px 24px; }
         }
     </style>
 </head>
@@ -226,16 +265,18 @@
             <a href="/coco">COCO Campaigns</a>
             <a id="experimentLink" href="#">Experiment</a>
         </div>
-        <button id="refreshAll" class="btn-primary">Refresh</button>
+        <button id="refreshAll" class="btn btn-primary">Refresh</button>
     </div>
+
     <h1 id="runTitle" th:text="${run.runId}">run-id</h1>
 
     <section class="card">
-        <div class="summary-grid" id="summaryGrid">
+        <div class="summary-grid">
             <div class="kpi"><div class="k">Status</div><div class="v"><span id="statusBadge" class="status">UNKNOWN</span></div></div>
-            <div class="kpi"><div class="k">Algorithm</div><div class="v mono" id="algorithmValue" th:text="${run.algorithmType}">-</div></div>
-            <div class="kpi"><div class="k">Model</div><div class="v mono" id="modelValue" th:text="${run.modelType}">-</div></div>
-            <div class="kpi"><div class="k">Problem</div><div class="v mono" id="problemValue" th:text="${run.problemType}">-</div></div>
+            <div class="kpi"><div class="k">Algorithm</div><div class="v mono" id="algorithmValue">-</div></div>
+            <div class="kpi"><div class="k">Model</div><div class="v mono" id="modelValue">-</div></div>
+            <div class="kpi"><div class="k">Problem</div><div class="v mono" id="problemValue">-</div></div>
+            <div class="kpi"><div class="k">Representation</div><div class="v mono" id="representationValue">-</div></div>
             <div class="kpi"><div class="k">Best Fitness</div><div class="v" id="bestValue">-</div></div>
             <div class="kpi"><div class="k">Runtime (ms)</div><div class="v" id="runtimeValue">-</div></div>
             <div class="kpi"><div class="k">Iterations</div><div class="v" id="iterationsValue">-</div></div>
@@ -244,163 +285,231 @@
             <div class="kpi"><div class="k">Start</div><div class="v mono" id="startValue">-</div></div>
             <div class="kpi"><div class="k">End</div><div class="v mono" id="endValue">-</div></div>
             <div class="kpi"><div class="k">Config Hash</div><div class="v mono" id="hashValue">-</div></div>
+            <div class="kpi"><div class="k">Latent Family</div><div class="v"><span id="familyPill" class="insight-pill">unknown</span></div></div>
+            <div class="kpi"><div class="k">Adaptive Events</div><div class="v" id="adaptiveCountValue">0</div></div>
         </div>
     </section>
 
     <section class="card">
-        <div class="toolbar">
-            <strong>Iteration Metrics</strong>
-            <span class="muted">best / mean / std</span>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="fitness">Fitness</button>
+            <button class="tab-btn" data-tab="diversity">Diversity</button>
+            <button class="tab-btn" data-tab="drift">Drift</button>
+            <button class="tab-btn" data-tab="insights">Insights</button>
+            <button class="tab-btn" data-tab="iterations">Iterations</button>
+            <button class="tab-btn" data-tab="events">Events</button>
+            <button class="tab-btn" data-tab="config">Configuration</button>
         </div>
-        <div class="canvas-wrap"><canvas id="fitnessChart"></canvas></div>
-    </section>
 
-    <details id="iterationsSection" class="section" open>
-        <summary>Iterations and Checkpoints</summary>
-        <div class="section-body grid-2">
-            <div class="card" style="margin:0; box-shadow:none;">
-                <div class="toolbar">
-                    <strong>Iterations</strong>
-                    <span id="iterationsInfo" class="muted"></span>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th style="width:12%;">Iteration</th>
-                            <th style="width:16%;">Evaluations</th>
-                            <th style="width:14%;">Best</th>
-                            <th style="width:14%;">Mean</th>
-                            <th style="width:14%;">Std</th>
-                            <th style="width:30%;">Created</th>
-                        </tr>
-                        </thead>
-                        <tbody id="iterationsRows">
-                        <tr th:each="row : ${iterations}">
-                            <td th:text="${row.iteration}"></td>
-                            <td th:text="${row.evaluations}"></td>
-                            <td th:text="${row.bestFitness}"></td>
-                            <td th:text="${row.meanFitness}"></td>
-                            <td th:text="${row.stdFitness}"></td>
-                            <td class="mono" th:text="${row.createdAt}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card" style="margin:0; box-shadow:none;">
-                <div class="toolbar">
-                    <strong>Checkpoints</strong>
-                    <span id="checkpointInfo" class="muted"></span>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th style="width:12%;">Iteration</th>
-                            <th style="width:56%;">Path</th>
-                            <th style="width:32%;">Created</th>
-                        </tr>
-                        </thead>
-                        <tbody id="checkpointRows">
-                        <tr th:each="cp : ${checkpoints}">
-                            <td th:text="${cp.iteration}"></td>
-                            <td class="mono" th:text="${cp.checkpointPath}"></td>
-                            <td class="mono" th:text="${cp.createdAt}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div id="panel-fitness" class="panel active">
+            <h2 class="section-title">Fitness Trajectory</h2>
+            <div class="chart-wrap"><canvas id="fitnessChart"></canvas></div>
         </div>
-    </details>
 
-    <details id="eventsSection" class="section" open>
-        <summary>Events</summary>
-        <div class="section-body card" style="margin:0; box-shadow:none;">
+        <div id="panel-diversity" class="panel">
+            <h2 class="section-title">Diversity Signals</h2>
+            <div class="chart-wrap"><canvas id="diversityChart"></canvas></div>
+        </div>
+
+        <div id="panel-drift" class="panel">
+            <h2 class="section-title">Model Drift Signals</h2>
+            <div class="chart-wrap"><canvas id="driftChart"></canvas></div>
+        </div>
+
+        <div id="panel-insights" class="panel">
             <div class="toolbar">
-                <strong>Event Stream</strong>
-                <span class="muted">Large payloads are shown as preview + expand.</span>
+                <h2 class="section-title" style="margin:0;">Representation Insights</h2>
+                <span id="insightFamilyLabel" class="insight-pill">unknown</span>
             </div>
-            <div class="events-controls">
-                <select id="eventType">
-                    <option value="">All event types</option>
-                </select>
-                <input id="eventQuery" placeholder="Search payload..." />
-                <button id="eventApply" class="btn-ghost">Apply</button>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width:22%;">Time</th>
-                        <th style="width:16%;">Type</th>
-                        <th style="width:62%;">Payload</th>
-                    </tr>
-                    </thead>
-                    <tbody id="eventRows">
-                    <tr th:each="ev : ${eventsPage.items}">
-                        <td class="mono" th:text="${ev.createdAt}"></td>
-                        <td class="event-type-cell" th:text="${ev.eventType}"></td>
-                        <td><pre th:text="${ev.payloadJson}"></pre></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="events-pager">
-                <div>
-                    <button id="eventPrev" class="btn-ghost">Previous</button>
-                    <button id="eventNext" class="btn-ghost">Next</button>
+
+            <div id="binaryInsights" class="hidden">
+                <div class="row-2">
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h3 class="section-title">Entropy Heatmap (bit index × generation)</h3>
+                        <div class="chart-wrap"><canvas id="binaryEntropyHeatmap"></canvas></div>
+                    </section>
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h3 class="section-title">Top Changing Bit Probabilities</h3>
+                        <div class="chart-wrap"><canvas id="binaryProbabilityChart"></canvas></div>
+                    </section>
                 </div>
-                <span id="eventPageInfo" class="muted"></span>
+                <div class="row-2" style="margin-top:12px;">
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h3 class="section-title">Fixation Ratio Curve</h3>
+                        <div class="chart-wrap"><canvas id="binaryFixationChart"></canvas></div>
+                    </section>
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <div class="toolbar"><h3 class="section-title" style="margin:0;">Top Dependency Edges</h3></div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>i</th><th>j</th><th>Weight</th><th>Correlation</th></tr></thead>
+                                <tbody id="binaryDependencyRows"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <div id="permutationInsights" class="hidden">
+                <div class="row-2">
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h3 class="section-title">Position Distribution Heatmap (item × position)</h3>
+                        <div class="chart-wrap"><canvas id="permPositionHeatmap"></canvas></div>
+                    </section>
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h3 class="section-title">Consensus Drift (Kendall)</h3>
+                        <div class="chart-wrap"><canvas id="permConsensusChart"></canvas></div>
+                    </section>
+                </div>
+                <section class="card" style="margin:12px 0 0; box-shadow:none;">
+                    <div class="toolbar"><h3 class="section-title" style="margin:0;">Top Adjacency Edges</h3></div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>From</th><th>To</th><th>Frequency</th><th>Trend</th></tr></thead>
+                            <tbody id="permAdjacencyRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="realInsights" class="hidden">
+                <div class="row-2">
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h3 class="section-title">Sigma Heatmap (dimension × generation)</h3>
+                        <div class="chart-wrap"><canvas id="realSigmaHeatmap"></canvas></div>
+                    </section>
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h3 class="section-title">Top Mean Trajectories</h3>
+                        <div class="chart-wrap"><canvas id="realMeanChart"></canvas></div>
+                    </section>
+                </div>
+                <section class="card" style="margin:12px 0 0; box-shadow:none;">
+                    <div class="toolbar"><h3 class="section-title" style="margin:0;">Eigen Spectrum Summary (latest)</h3></div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>#</th><th>Eigenvalue</th></tr></thead>
+                            <tbody id="realEigenRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <section id="genericInsights" class="card hidden" style="margin:12px 0 0; box-shadow:none;">
+                <h3 class="section-title">No representation-specific insight renderer for this run.</h3>
+                <p class="muted">Raw latent telemetry is still available in JSON payloads and run artifacts.</p>
+            </section>
+        </div>
+
+        <div id="panel-iterations" class="panel">
+            <div class="row-2">
+                <section class="card" style="margin:0; box-shadow:none;">
+                    <div class="toolbar">
+                        <h3 class="section-title" style="margin:0;">Iterations</h3>
+                        <span id="iterationsInfo" class="muted"></span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th style="width:10%;">Iter</th>
+                                <th style="width:16%;">Evaluations</th>
+                                <th style="width:12%;">Pop</th>
+                                <th style="width:12%;">Elite</th>
+                                <th style="width:14%;">Best</th>
+                                <th style="width:14%;">Mean</th>
+                                <th style="width:12%;">Std</th>
+                                <th style="width:10%;">Adaptive</th>
+                            </tr>
+                            </thead>
+                            <tbody id="iterationsRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card" style="margin:0; box-shadow:none;">
+                    <div class="toolbar">
+                        <h3 class="section-title" style="margin:0;">Checkpoints</h3>
+                        <span id="checkpointInfo" class="muted"></span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th style="width:14%;">Iteration</th><th style="width:56%;">Path</th><th style="width:30%;">Created</th></tr></thead>
+                            <tbody id="checkpointRows"></tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </div>
-    </details>
 
-    <details id="configSection" class="section" open>
-        <summary>Configuration and Flattened Params</summary>
-        <div class="section-body grid-2">
-            <div class="card" style="margin:0; box-shadow:none;">
+        <div id="panel-events" class="panel">
+            <section class="card" style="margin:0; box-shadow:none;">
                 <div class="toolbar">
-                    <strong>Configuration</strong>
-                    <div class="config-toggle">
-                        <button id="showYaml" class="btn-ghost">YAML</button>
-                        <button id="showJson" class="btn-ghost">JSON</button>
-                    </div>
-                </div>
-                <pre id="yamlView"></pre>
-                <pre id="jsonView" class="hidden"></pre>
-            </div>
-
-            <div class="card" style="margin:0; box-shadow:none;">
-                <div class="toolbar">
-                    <strong>Flattened Params</strong>
-                    <input id="paramSearch" placeholder="Search path or value..." />
+                    <h3 class="section-title" style="margin:0;">Adaptive Timeline</h3>
+                    <span class="muted">Triggered actions and reasons.</span>
                 </div>
                 <div class="table-wrap">
                     <table>
-                        <thead>
-                        <tr>
-                            <th style="width:14%;">Section</th>
-                            <th style="width:42%;">Path</th>
-                            <th style="width:12%;">Type</th>
-                            <th style="width:32%;">Value</th>
-                        </tr>
-                        </thead>
-                        <tbody id="paramRows">
-                        <tr th:each="p : ${params}">
-                            <td th:text="${p.section}"></td>
-                            <td class="mono" th:text="${p.paramPath}"></td>
-                            <td th:text="${p.valueType}"></td>
-                            <td class="mono" th:text="${p.valueText}"></td>
-                        </tr>
-                        </tbody>
+                        <thead><tr><th>Iteration</th><th>Trigger</th><th>Action</th><th>Reason</th></tr></thead>
+                        <tbody id="adaptiveTimelineRows"></tbody>
                     </table>
                 </div>
+            </section>
+
+            <section class="card" style="margin:12px 0 0; box-shadow:none;">
+                <div class="toolbar">
+                    <h3 class="section-title" style="margin:0;">Raw Event Stream</h3>
+                    <span class="muted">Preview + expandable payload for large records.</span>
+                </div>
+                <div class="toolbar">
+                    <select id="eventType"><option value="">All event types</option></select>
+                    <input id="eventQuery" placeholder="Search payload..." />
+                    <button id="eventApply" class="btn">Apply</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th style="width:20%;">Time</th><th style="width:16%;">Type</th><th style="width:64%;">Payload</th></tr></thead>
+                        <tbody id="eventRows"></tbody>
+                    </table>
+                </div>
+                <div class="pager">
+                    <div>
+                        <button id="eventPrev" class="btn">Previous</button>
+                        <button id="eventNext" class="btn">Next</button>
+                    </div>
+                    <span id="eventPageInfo" class="muted"></span>
+                </div>
+            </section>
+        </div>
+
+        <div id="panel-config" class="panel">
+            <div class="row-2">
+                <section class="card" style="margin:0; box-shadow:none;">
+                    <div class="toolbar">
+                        <h3 class="section-title" style="margin:0;">Resolved Configuration</h3>
+                        <div>
+                            <button id="showYaml" class="btn">YAML</button>
+                            <button id="showJson" class="btn">JSON</button>
+                        </div>
+                    </div>
+                    <pre id="yamlView"></pre>
+                    <pre id="jsonView" class="hidden"></pre>
+                </section>
+
+                <section class="card" style="margin:0; box-shadow:none;">
+                    <div class="toolbar">
+                        <h3 class="section-title" style="margin:0;">Flattened Params</h3>
+                        <input id="paramSearch" placeholder="Search path/value..." />
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th style="width:16%;">Section</th><th style="width:40%;">Path</th><th style="width:12%;">Type</th><th style="width:32%;">Value</th></tr></thead>
+                            <tbody id="paramRows"></tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </div>
-    </details>
+    </section>
 </div>
 
 <script th:inline="javascript">
@@ -409,15 +518,17 @@
     const initialIterations = /*[[${iterations}]]*/ [];
     const initialCheckpoints = /*[[${checkpoints}]]*/ [];
     const initialParams = /*[[${params}]]*/ [];
-    const initialEventsPage = /*[[${eventsPage}]]*/ { items: [], page: 0, size: 25, total: 0, totalPages: 0 };
+    const initialEventsPage = /*[[${eventsPage}]]*/ { items: [], page: 0, size: 25, totalPages: 0 };
 
     const state = {
         eventPage: 0,
         eventSize: 25,
         eventType: "",
         eventQuery: "",
+        eventsTotalPages: initialEventsPage.totalPages || 0,
         params: initialParams || [],
-        eventsTotalPages: initialEventsPage.totalPages || 0
+        parsedIterations: [],
+        representationFamily: "unknown"
     };
 
     const els = {
@@ -426,6 +537,7 @@
         algorithmValue: document.getElementById("algorithmValue"),
         modelValue: document.getElementById("modelValue"),
         problemValue: document.getElementById("problemValue"),
+        representationValue: document.getElementById("representationValue"),
         bestValue: document.getElementById("bestValue"),
         runtimeValue: document.getElementById("runtimeValue"),
         iterationsValue: document.getElementById("iterationsValue"),
@@ -434,10 +546,24 @@
         startValue: document.getElementById("startValue"),
         endValue: document.getElementById("endValue"),
         hashValue: document.getElementById("hashValue"),
+        familyPill: document.getElementById("familyPill"),
+        adaptiveCountValue: document.getElementById("adaptiveCountValue"),
+        insightFamilyLabel: document.getElementById("insightFamilyLabel"),
+        binaryInsights: document.getElementById("binaryInsights"),
+        permutationInsights: document.getElementById("permutationInsights"),
+        realInsights: document.getElementById("realInsights"),
+        genericInsights: document.getElementById("genericInsights"),
+
         iterationsRows: document.getElementById("iterationsRows"),
-        checkpointRows: document.getElementById("checkpointRows"),
         iterationsInfo: document.getElementById("iterationsInfo"),
+        checkpointRows: document.getElementById("checkpointRows"),
         checkpointInfo: document.getElementById("checkpointInfo"),
+
+        adaptiveTimelineRows: document.getElementById("adaptiveTimelineRows"),
+        binaryDependencyRows: document.getElementById("binaryDependencyRows"),
+        permAdjacencyRows: document.getElementById("permAdjacencyRows"),
+        realEigenRows: document.getElementById("realEigenRows"),
+
         eventRows: document.getElementById("eventRows"),
         eventType: document.getElementById("eventType"),
         eventQuery: document.getElementById("eventQuery"),
@@ -445,40 +571,75 @@
         eventPrev: document.getElementById("eventPrev"),
         eventNext: document.getElementById("eventNext"),
         eventPageInfo: document.getElementById("eventPageInfo"),
+
         yamlView: document.getElementById("yamlView"),
         jsonView: document.getElementById("jsonView"),
         showYaml: document.getElementById("showYaml"),
         showJson: document.getElementById("showJson"),
         paramRows: document.getElementById("paramRows"),
         paramSearch: document.getElementById("paramSearch"),
+
         refreshAll: document.getElementById("refreshAll"),
-        experimentLink: document.getElementById("experimentLink")
+        experimentLink: document.getElementById("experimentLink"),
+
+        tabs: Array.from(document.querySelectorAll(".tab-btn")),
+        panels: Array.from(document.querySelectorAll(".panel"))
     };
 
-    const chart = new Chart(document.getElementById("fitnessChart"), {
-        type: "line",
-        data: {
-            labels: [],
-            datasets: [
-                { label: "Best", data: [], borderColor: "#0f766e", backgroundColor: "rgba(15,118,110,0.09)", tension: 0.2 },
-                { label: "Mean", data: [], borderColor: "#0b4a6f", backgroundColor: "rgba(11,74,111,0.08)", tension: 0.2 },
-                { label: "Std", data: [], borderColor: "#b45309", backgroundColor: "rgba(180,83,9,0.08)", tension: 0.2 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: "index", intersect: false },
-            scales: { y: { beginAtZero: false } }
-        }
-    });
+    const charts = {
+        fitness: new Chart(document.getElementById("fitnessChart"), {
+            type: "line",
+            data: { labels: [], datasets: [
+                { label: "Best", data: [], borderColor: "#0f766e", tension: .2 },
+                { label: "Mean", data: [], borderColor: "#0b4a6f", tension: .2 },
+                { label: "Std", data: [], borderColor: "#b45309", tension: .2 }
+            ] },
+            options: { responsive: true, maintainAspectRatio: false }
+        }),
+        diversity: new Chart(document.getElementById("diversityChart"), {
+            type: "line",
+            data: { labels: [], datasets: [
+                { label: "Population diversity", data: [], borderColor: "#0f766e", tension: .2 },
+                { label: "Elite diversity", data: [], borderColor: "#1d4ed8", tension: .2 }
+            ] },
+            options: { responsive: true, maintainAspectRatio: false }
+        }),
+        drift: new Chart(document.getElementById("driftChart"), {
+            type: "line",
+            data: { labels: [], datasets: [
+                { label: "Drift signal", data: [], borderColor: "#9333ea", tension: .2 }
+            ] },
+            options: { responsive: true, maintainAspectRatio: false }
+        }),
+        binaryProbability: new Chart(document.getElementById("binaryProbabilityChart"), {
+            type: "line",
+            data: { labels: [], datasets: [] },
+            options: { responsive: true, maintainAspectRatio: false }
+        }),
+        binaryFixation: new Chart(document.getElementById("binaryFixationChart"), {
+            type: "line",
+            data: { labels: [], datasets: [
+                { label: "Fixation ratio", data: [], borderColor: "#0f766e", tension: .2 }
+            ] },
+            options: { responsive: true, maintainAspectRatio: false }
+        }),
+        permConsensus: new Chart(document.getElementById("permConsensusChart"), {
+            type: "line",
+            data: { labels: [], datasets: [
+                { label: "Consensus Kendall drift", data: [], borderColor: "#0b4a6f", tension: .2 }
+            ] },
+            options: { responsive: true, maintainAspectRatio: false }
+        }),
+        realMean: new Chart(document.getElementById("realMeanChart"), {
+            type: "line",
+            data: { labels: [], datasets: [] },
+            options: { responsive: true, maintainAspectRatio: false }
+        })
+    };
 
-    function statusClass(status) {
-        const value = (status || "").toUpperCase();
-        if (value === "RUNNING") return "status status-running";
-        if (value === "COMPLETED") return "status status-completed";
-        if (value === "FAILED") return "status status-failed";
-        return "status status-other";
+    function parseJsonSafe(value, fallback) {
+        if (!value || typeof value !== "string") return fallback;
+        try { return JSON.parse(value); } catch (_) { return fallback; }
     }
 
     function safe(value, fallback = "n/a") {
@@ -494,6 +655,39 @@
             .replace(/'/g, "&#039;");
     }
 
+    function statusClass(status) {
+        const value = (status || "").toUpperCase();
+        if (value === "RUNNING") return "status status-running";
+        if (value === "COMPLETED") return "status status-completed";
+        if (value === "FAILED") return "status status-failed";
+        return "status status-other";
+    }
+
+    function activateTab(name) {
+        els.tabs.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === name));
+        els.panels.forEach(panel => panel.classList.toggle("active", panel.id === `panel-${name}`));
+    }
+
+    els.tabs.forEach(btn => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
+
+    function parseIterationRows(rows) {
+        return (rows || []).map(row => {
+            const metrics = parseJsonSafe(row.metricsJson, {});
+            const diagnostics = parseJsonSafe(row.diagnosticsJson, {});
+            const latent = diagnostics.latentTelemetry || diagnostics.latent || { representationFamily: "unknown", metrics: {}, drift: {}, diversity: {}, insights: {} };
+            const adaptive = diagnostics.adaptiveActions || [];
+            return {
+                ...row,
+                metrics,
+                diagnostics,
+                latent,
+                adaptive,
+                popSize: diagnostics.populationSize ?? null,
+                eliteSize: diagnostics.eliteSize ?? null
+            };
+        });
+    }
+
     function renderRun(detail) {
         if (!detail) return;
         els.runTitle.textContent = detail.runId;
@@ -502,6 +696,7 @@
         els.algorithmValue.textContent = safe(detail.algorithmType);
         els.modelValue.textContent = safe(detail.modelType);
         els.problemValue.textContent = safe(detail.problemType);
+        els.representationValue.textContent = safe(detail.representationType);
         els.bestValue.textContent = detail.bestFitness == null ? "n/a" : Number(detail.bestFitness).toFixed(6);
         els.runtimeValue.textContent = safe(detail.runtimeMillis);
         els.iterationsValue.textContent = safe(detail.iterations);
@@ -510,42 +705,335 @@
         els.startValue.textContent = safe(detail.startTime);
         els.endValue.textContent = safe(detail.endTime);
         els.hashValue.textContent = safe(detail.configHash);
+        if (detail.experimentId) {
+            els.experimentLink.href = `/experiments/${encodeURIComponent(detail.experimentId)}`;
+        }
+
         els.yamlView.textContent = detail.configYaml || "";
         try {
             els.jsonView.textContent = JSON.stringify(JSON.parse(detail.configJson || "{}"), null, 2);
         } catch (_) {
             els.jsonView.textContent = detail.configJson || "";
         }
-        if (detail.experimentId) {
-            els.experimentLink.href = `/experiments/${encodeURIComponent(detail.experimentId)}`;
-        }
     }
 
     function renderIterations(rows) {
-        els.iterationsInfo.textContent = `Rows: ${rows.length}`;
-        if (!rows.length) {
-            els.iterationsRows.innerHTML = `<tr><td colspan="6" class="muted">No iteration rows.</td></tr>`;
-            chart.data.labels = [];
-            chart.data.datasets.forEach(ds => ds.data = []);
-            chart.update();
+        state.parsedIterations = parseIterationRows(rows);
+        const parsed = state.parsedIterations;
+
+        els.iterationsInfo.textContent = `Rows: ${parsed.length}`;
+        if (!parsed.length) {
+            els.iterationsRows.innerHTML = `<tr><td colspan="8" class="muted">No iterations.</td></tr>`;
             return;
         }
-        els.iterationsRows.innerHTML = rows.map(row => `
+
+        els.iterationsRows.innerHTML = parsed.map(row => `
             <tr>
                 <td>${row.iteration}</td>
                 <td>${row.evaluations}</td>
+                <td>${row.popSize == null ? "n/a" : row.popSize}</td>
+                <td>${row.eliteSize == null ? "n/a" : row.eliteSize}</td>
                 <td>${Number(row.bestFitness).toFixed(6)}</td>
                 <td>${Number(row.meanFitness).toFixed(6)}</td>
                 <td>${Number(row.stdFitness).toFixed(6)}</td>
-                <td class="mono">${safe(row.createdAt, "")}</td>
+                <td>${(row.adaptive || []).length}</td>
             </tr>
         `).join("");
 
-        chart.data.labels = rows.map(row => row.iteration);
-        chart.data.datasets[0].data = rows.map(row => row.bestFitness);
-        chart.data.datasets[1].data = rows.map(row => row.meanFitness);
-        chart.data.datasets[2].data = rows.map(row => row.stdFitness);
-        chart.update();
+        const labels = parsed.map(r => r.iteration);
+        charts.fitness.data.labels = labels;
+        charts.fitness.data.datasets[0].data = parsed.map(r => r.bestFitness);
+        charts.fitness.data.datasets[1].data = parsed.map(r => r.meanFitness);
+        charts.fitness.data.datasets[2].data = parsed.map(r => r.stdFitness);
+        charts.fitness.update();
+
+        const family = detectFamily(parsed);
+        state.representationFamily = family;
+        els.familyPill.textContent = family;
+        els.insightFamilyLabel.textContent = family;
+
+        const diversitySeries = parsed.map(r => diversityForFamily(family, r.latent?.diversity || {}));
+        const eliteDiversitySeries = parsed.map(r => eliteDiversityForFamily(family, r.latent?.diversity || {}));
+        charts.diversity.data.labels = labels;
+        charts.diversity.data.datasets[0].data = diversitySeries;
+        charts.diversity.data.datasets[1].data = eliteDiversitySeries;
+        charts.diversity.update();
+
+        const driftSeries = parsed.map(r => driftForFamily(family, r.latent?.drift || {}));
+        charts.drift.data.labels = labels;
+        charts.drift.data.datasets[0].data = driftSeries;
+        charts.drift.update();
+
+        const adaptiveCount = parsed.reduce((acc, row) => acc + ((row.adaptive || []).length), 0);
+        els.adaptiveCountValue.textContent = adaptiveCount;
+        renderAdaptiveTimeline(parsed);
+        renderRepresentationInsights(parsed, family);
+    }
+
+    function detectFamily(parsedRows) {
+        for (const row of parsedRows) {
+            const family = (row.latent && row.latent.representationFamily) || "";
+            if (family) return family;
+        }
+        return "unknown";
+    }
+
+    function diversityForFamily(family, diversity) {
+        if (family === "binary") return Number(diversity.hamming_population || 0);
+        if (family === "permutation") return Number(diversity.kendall_population || 0);
+        if (family === "real") return Number(diversity.euclidean_population || 0);
+        const first = Object.values(diversity || {})[0];
+        return Number(first || 0);
+    }
+
+    function eliteDiversityForFamily(family, diversity) {
+        if (family === "binary") return Number(diversity.hamming_elite || 0);
+        if (family === "permutation") return Number(diversity.kendall_elite || 0);
+        if (family === "real") return Number(diversity.euclidean_elite || 0);
+        const second = Object.values(diversity || {})[1];
+        return Number(second || 0);
+    }
+
+    function driftForFamily(family, drift) {
+        if (family === "binary") return Number(drift.binary_prob_l2 || 0);
+        if (family === "permutation") return Number(drift.consensus_kendall || 0);
+        if (family === "real") return Number(drift.gaussian_kl_diag || 0);
+        const first = Object.values(drift || {})[0];
+        return Number(first || 0);
+    }
+
+    function renderAdaptiveTimeline(parsedRows) {
+        const rows = [];
+        parsedRows.forEach(row => {
+            (row.adaptive || []).forEach(action => {
+                rows.push({
+                    iteration: row.iteration,
+                    trigger: action.trigger || "",
+                    actionType: action.actionType || "",
+                    reason: action.reason || ""
+                });
+            });
+        });
+        if (!rows.length) {
+            els.adaptiveTimelineRows.innerHTML = `<tr><td colspan="4" class="muted">No adaptive events.</td></tr>`;
+            return;
+        }
+        els.adaptiveTimelineRows.innerHTML = rows.map(row => `
+            <tr>
+                <td>${row.iteration}</td>
+                <td>${escapeHtml(row.trigger)}</td>
+                <td>${escapeHtml(row.actionType)}</td>
+                <td>${escapeHtml(row.reason)}</td>
+            </tr>
+        `).join("");
+    }
+
+    function renderRepresentationInsights(parsedRows, family) {
+        els.binaryInsights.classList.add("hidden");
+        els.permutationInsights.classList.add("hidden");
+        els.realInsights.classList.add("hidden");
+        els.genericInsights.classList.add("hidden");
+
+        if (family === "binary") {
+            els.binaryInsights.classList.remove("hidden");
+            renderBinaryInsights(parsedRows);
+            return;
+        }
+        if (family === "permutation") {
+            els.permutationInsights.classList.remove("hidden");
+            renderPermutationInsights(parsedRows);
+            return;
+        }
+        if (family === "real") {
+            els.realInsights.classList.remove("hidden");
+            renderRealInsights(parsedRows);
+            return;
+        }
+
+        els.genericInsights.classList.remove("hidden");
+    }
+
+    function renderBinaryInsights(parsedRows) {
+        const entropySeries = parsedRows.map(r => (r.latent?.insights?.entropyPerBit || []).map(Number));
+        drawHeatmap(document.getElementById("binaryEntropyHeatmap"), transpose(entropySeries), "generation", "bit", "entropy");
+
+        const probSeries = parsedRows.map(r => (r.latent?.insights?.probabilities || []).map(Number));
+        const topBits = topChangingIndexes(probSeries, 6);
+        charts.binaryProbability.data.labels = parsedRows.map(r => r.iteration);
+        charts.binaryProbability.data.datasets = topBits.map((bit, idx) => ({
+            label: `p[${bit}]`,
+            data: parsedRows.map(r => Number((r.latent?.insights?.probabilities || [])[bit] || 0)),
+            borderColor: palette(idx),
+            tension: .18
+        }));
+        charts.binaryProbability.update();
+
+        charts.binaryFixation.data.labels = parsedRows.map(r => r.iteration);
+        charts.binaryFixation.data.datasets[0].data = parsedRows.map(r => Number(r.latent?.metrics?.binary_fixation_ratio || 0));
+        charts.binaryFixation.update();
+
+        const latest = parsedRows[parsedRows.length - 1];
+        const edges = latest?.latent?.insights?.dependencyEdges || [];
+        if (!edges.length) {
+            els.binaryDependencyRows.innerHTML = `<tr><td colspan="4" class="muted">No dependency edges.</td></tr>`;
+        } else {
+            els.binaryDependencyRows.innerHTML = edges.map(edge => `
+                <tr>
+                    <td>${safe(edge.i, "")}</td>
+                    <td>${safe(edge.j, "")}</td>
+                    <td>${Number(edge.weight || 0).toFixed(6)}</td>
+                    <td>${Number(edge.correlation || 0).toFixed(6)}</td>
+                </tr>
+            `).join("");
+        }
+    }
+
+    function renderPermutationInsights(parsedRows) {
+        const latest = parsedRows[parsedRows.length - 1];
+        const matrix = latest?.latent?.insights?.positionDistribution || [];
+        drawHeatmap(document.getElementById("permPositionHeatmap"), matrix, "position", "item", "prob");
+
+        charts.permConsensus.data.labels = parsedRows.map(r => r.iteration);
+        charts.permConsensus.data.datasets[0].data = parsedRows.map(r => Number(r.latent?.drift?.consensus_kendall || 0));
+        charts.permConsensus.update();
+
+        const edges = latest?.latent?.insights?.topAdjacencyEdges || [];
+        if (!edges.length) {
+            els.permAdjacencyRows.innerHTML = `<tr><td colspan="4" class="muted">No adjacency edges.</td></tr>`;
+        } else {
+            els.permAdjacencyRows.innerHTML = edges.map(edge => `
+                <tr>
+                    <td>${safe(edge.from, "")}</td>
+                    <td>${safe(edge.to, "")}</td>
+                    <td>${Number(edge.frequency || 0).toFixed(6)}</td>
+                    <td>${Number(edge.trend || 0).toFixed(6)}</td>
+                </tr>
+            `).join("");
+        }
+    }
+
+    function renderRealInsights(parsedRows) {
+        const sigmaSeries = parsedRows.map(r => (r.latent?.insights?.sigmaVector || []).map(Number));
+        drawHeatmap(document.getElementById("realSigmaHeatmap"), transpose(sigmaSeries), "generation", "dimension", "sigma");
+
+        const meanSeries = parsedRows.map(r => (r.latent?.insights?.meanVector || []).map(Number));
+        const topDims = topChangingIndexes(meanSeries, 6);
+        charts.realMean.data.labels = parsedRows.map(r => r.iteration);
+        charts.realMean.data.datasets = topDims.map((dim, idx) => ({
+            label: `mu[${dim}]`,
+            data: parsedRows.map(r => Number((r.latent?.insights?.meanVector || [])[dim] || 0)),
+            borderColor: palette(idx),
+            tension: .18
+        }));
+        charts.realMean.update();
+
+        const latest = parsedRows[parsedRows.length - 1];
+        const eigen = latest?.latent?.insights?.eigenvalues || [];
+        if (!eigen.length) {
+            els.realEigenRows.innerHTML = `<tr><td colspan="2" class="muted">No eigenvalue summary.</td></tr>`;
+        } else {
+            els.realEigenRows.innerHTML = eigen.map((value, idx) => `
+                <tr><td>${idx + 1}</td><td>${Number(value).toFixed(6)}</td></tr>
+            `).join("");
+        }
+    }
+
+    function transpose(rows) {
+        if (!rows || !rows.length) return [];
+        const maxLen = rows.reduce((m, row) => Math.max(m, row.length), 0);
+        const out = Array.from({ length: maxLen }, () => Array(rows.length).fill(0));
+        for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < maxLen; c++) {
+                out[c][r] = Number(rows[r][c] || 0);
+            }
+        }
+        return out;
+    }
+
+    function topChangingIndexes(series, topK) {
+        if (!series.length) return [];
+        const length = series.reduce((m, row) => Math.max(m, row.length), 0);
+        const scores = [];
+        for (let idx = 0; idx < length; idx++) {
+            const values = series.map(row => Number(row[idx] || 0));
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            scores.push({ idx, range: max - min });
+        }
+        scores.sort((a, b) => b.range - a.range);
+        return scores.slice(0, Math.min(topK, scores.length)).map(s => s.idx);
+    }
+
+    function drawHeatmap(canvas, matrix, xLabel, yLabel, valueLabel) {
+        const ctx = canvas.getContext("2d");
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#f8fbff";
+        ctx.fillRect(0, 0, width, height);
+
+        if (!matrix || !matrix.length || !matrix[0]?.length) {
+            ctx.fillStyle = "#607087";
+            ctx.font = "12px IBM Plex Mono";
+            ctx.fillText("No heatmap data", 12, 20);
+            return;
+        }
+
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        let min = Number.POSITIVE_INFINITY;
+        let max = Number.NEGATIVE_INFINITY;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const v = Number(matrix[r][c] || 0);
+                min = Math.min(min, v);
+                max = Math.max(max, v);
+            }
+        }
+        const span = Math.max(1e-12, max - min);
+
+        const padLeft = 46;
+        const padBottom = 22;
+        const padTop = 10;
+        const plotW = Math.max(10, width - padLeft - 10);
+        const plotH = Math.max(10, height - padTop - padBottom);
+        const cellW = plotW / cols;
+        const cellH = plotH / rows;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const v = Number(matrix[r][c] || 0);
+                const t = (v - min) / span;
+                ctx.fillStyle = heatColor(t);
+                ctx.fillRect(padLeft + c * cellW, padTop + r * cellH, Math.ceil(cellW), Math.ceil(cellH));
+            }
+        }
+
+        ctx.strokeStyle = "#9db1c7";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(padLeft, padTop, plotW, plotH);
+
+        ctx.fillStyle = "#4a5c73";
+        ctx.font = "11px IBM Plex Mono";
+        ctx.fillText(yLabel, 6, padTop + 10);
+        ctx.fillText(xLabel, width - 12 - ctx.measureText(xLabel).width, height - 6);
+        ctx.fillText(`${valueLabel}: ${min.toFixed(3)}..${max.toFixed(3)}`, 6, height - 6);
+    }
+
+    function heatColor(t) {
+        const x = Math.max(0, Math.min(1, t));
+        const r = Math.round(30 + 180 * x);
+        const g = Math.round(80 + 120 * (1 - Math.abs(x - 0.5) * 2));
+        const b = Math.round(180 - 120 * x);
+        return `rgb(${r},${g},${b})`;
+    }
+
+    function palette(index) {
+        const colors = ["#0f766e", "#1d4ed8", "#9333ea", "#b45309", "#be123c", "#0e7490", "#15803d", "#6d28d9"];
+        return colors[index % colors.length];
     }
 
     function renderCheckpoints(rows) {
@@ -563,7 +1051,7 @@
         `).join("");
     }
 
-    function extractValue(row) {
+    function extractParamValue(row) {
         if (row.valueText) return row.valueText;
         if (row.valueNumber != null) return String(row.valueNumber);
         if (row.valueBoolean != null) return row.valueBoolean === 1 ? "true" : "false";
@@ -575,12 +1063,12 @@
         const q = (els.paramSearch.value || "").toLowerCase();
         const filtered = rows.filter(row => {
             if (!q) return true;
-            return (row.paramPath || "").toLowerCase().includes(q)
-                || extractValue(row).toLowerCase().includes(q)
-                || (row.section || "").toLowerCase().includes(q);
+            return (row.section || "").toLowerCase().includes(q)
+                || (row.paramPath || "").toLowerCase().includes(q)
+                || extractParamValue(row).toLowerCase().includes(q);
         });
         if (!filtered.length) {
-            els.paramRows.innerHTML = `<tr><td colspan="4" class="muted">No matching params.</td></tr>`;
+            els.paramRows.innerHTML = `<tr><td colspan="4" class="muted">No params.</td></tr>`;
             return;
         }
         els.paramRows.innerHTML = filtered.map(row => `
@@ -588,7 +1076,7 @@
                 <td>${safe(row.section, "")}</td>
                 <td class="mono">${safe(row.paramPath, "")}</td>
                 <td>${safe(row.valueType, "")}</td>
-                <td class="mono">${escapeHtml(extractValue(row))}</td>
+                <td class="mono">${escapeHtml(extractParamValue(row))}</td>
             </tr>
         `).join("");
     }
@@ -596,12 +1084,8 @@
     function payloadCell(payloadJson) {
         const raw = safe(payloadJson, "");
         let pretty = raw;
-        try {
-            pretty = JSON.stringify(JSON.parse(raw), null, 2);
-        } catch (_) {
-            // keep raw
-        }
-        const preview = pretty.length > 260 ? `${pretty.slice(0, 260)}\n...` : pretty;
+        try { pretty = JSON.stringify(JSON.parse(raw), null, 2); } catch (_) {}
+        const preview = pretty.length > 280 ? `${pretty.slice(0, 280)}\n...` : pretty;
         return `
             <div class="payload-preview">${escapeHtml(preview)}</div>
             <details class="payload-details">
@@ -621,10 +1105,18 @@
             els.eventRows.innerHTML = rows.map(row => `
                 <tr>
                     <td class="mono">${safe(row.createdAt, "")}</td>
-                    <td class="event-type-cell">${safe(row.eventType, "")}</td>
+                    <td>${safe(row.eventType, "")}</td>
                     <td>${payloadCell(row.payloadJson)}</td>
                 </tr>
             `).join("");
+        }
+
+        const types = [...new Set(rows.map(r => r.eventType).filter(Boolean))].sort();
+        const selected = els.eventType.value;
+        els.eventType.innerHTML = `<option value="">All event types</option>`
+            + types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+        if (selected && types.includes(selected)) {
+            els.eventType.value = selected;
         }
 
         const page = pageData.page || 0;
@@ -633,19 +1125,11 @@
             : `Page ${page + 1} / ${state.eventsTotalPages}`;
         els.eventPrev.disabled = page <= 0;
         els.eventNext.disabled = state.eventsTotalPages === 0 || page >= (state.eventsTotalPages - 1);
-
-        const types = [...new Set(rows.map(r => r.eventType).filter(Boolean))].sort();
-        const currentType = els.eventType.value;
-        const preserved = currentType && !types.includes(currentType) ? [currentType, ...types] : types;
-        els.eventType.innerHTML = `<option value="">All event types</option>` + preserved.map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join("");
-        els.eventType.value = currentType || "";
     }
 
     async function fetchJson(url) {
         const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
     }
 
@@ -675,29 +1159,17 @@
         if (state.eventQuery) params.set("q", state.eventQuery);
         params.set("page", String(state.eventPage));
         params.set("size", String(state.eventSize));
-        const pageData = await fetchJson(`/api/runs/${encodeURIComponent(runId)}/events?${params.toString()}`);
-        renderEvents(pageData);
+        const data = await fetchJson(`/api/runs/${encodeURIComponent(runId)}/events?${params.toString()}`);
+        renderEvents(data);
     }
 
     async function refreshAll() {
         try {
             await Promise.all([loadRunDetail(), loadIterations(), loadCheckpoints(), loadParams(), loadEvents()]);
         } catch (error) {
-            console.error("Refresh failed", error);
+            console.error("refresh failed", error);
         }
     }
-
-    els.showYaml.addEventListener("click", () => {
-        els.yamlView.classList.remove("hidden");
-        els.jsonView.classList.add("hidden");
-    });
-
-    els.showJson.addEventListener("click", () => {
-        els.jsonView.classList.remove("hidden");
-        els.yamlView.classList.add("hidden");
-    });
-
-    els.paramSearch.addEventListener("input", () => renderParams(state.params || []));
 
     els.eventApply.addEventListener("click", async () => {
         state.eventType = els.eventType.value;
@@ -705,15 +1177,23 @@
         state.eventPage = 0;
         await loadEvents();
     });
-
     els.eventPrev.addEventListener("click", async () => {
         state.eventPage = Math.max(0, state.eventPage - 1);
         await loadEvents();
     });
-
     els.eventNext.addEventListener("click", async () => {
         state.eventPage = state.eventPage + 1;
         await loadEvents();
+    });
+    els.paramSearch.addEventListener("input", () => renderParams(state.params || []));
+
+    els.showYaml.addEventListener("click", () => {
+        els.yamlView.classList.remove("hidden");
+        els.jsonView.classList.add("hidden");
+    });
+    els.showJson.addEventListener("click", () => {
+        els.jsonView.classList.remove("hidden");
+        els.yamlView.classList.add("hidden");
     });
 
     els.refreshAll.addEventListener("click", refreshAll);

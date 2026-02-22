@@ -5,6 +5,7 @@ import com.knezevic.edaf.v3.persistence.query.RunQuery;
 import com.knezevic.edaf.v3.persistence.query.ExperimentQuery;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoCampaignQuery;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoRepository;
+import com.knezevic.edaf.v3.web.service.RunArtifactService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +23,14 @@ public class DashboardController {
 
     private final RunRepository runRepository;
     private final CocoRepository cocoRepository;
+    private final RunArtifactService runArtifactService;
 
-    public DashboardController(RunRepository runRepository, CocoRepository cocoRepository) {
+    public DashboardController(RunRepository runRepository,
+                               CocoRepository cocoRepository,
+                               RunArtifactService runArtifactService) {
         this.runRepository = runRepository;
         this.cocoRepository = cocoRepository;
+        this.runArtifactService = runArtifactService;
     }
 
     @GetMapping("/experiments")
@@ -72,15 +77,28 @@ public class DashboardController {
     @GetMapping("/runs/{runId}")
     public String run(@PathVariable String runId, Model model) {
         var detail = runRepository.getRunDetail(runId);
+        boolean artifactFallback = false;
+        if (detail == null) {
+            detail = runArtifactService.loadRunDetail(runId).orElse(null);
+            artifactFallback = detail != null;
+        }
         if (detail == null) {
             throw new ResponseStatusException(NOT_FOUND, "Run not found: " + runId);
         }
         model.addAttribute("run", detail);
         model.addAttribute("runId", runId);
-        model.addAttribute("iterations", runRepository.listIterations(runId));
-        model.addAttribute("checkpoints", runRepository.listCheckpoints(runId));
-        model.addAttribute("params", runRepository.listExperimentParams(runId));
-        model.addAttribute("eventsPage", runRepository.listEvents(runId, null, null, 0, 25));
+        model.addAttribute("iterations", artifactFallback
+                ? runArtifactService.loadIterations(runId)
+                : runRepository.listIterations(runId));
+        model.addAttribute("checkpoints", artifactFallback
+                ? runArtifactService.loadCheckpoints(runId)
+                : runRepository.listCheckpoints(runId));
+        model.addAttribute("params", artifactFallback
+                ? runArtifactService.loadParams(runId)
+                : runRepository.listExperimentParams(runId));
+        model.addAttribute("eventsPage", artifactFallback
+                ? runArtifactService.loadEvents(runId, null, null, 0, 25)
+                : runRepository.listEvents(runId, null, null, 0, 25));
         return "run";
     }
 
