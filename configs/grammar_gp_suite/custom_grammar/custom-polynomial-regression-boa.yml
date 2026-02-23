@@ -1,0 +1,63 @@
+schema: '3.0'
+run:
+  id: grammar-custom-polynomial-boa
+  name: Grammar GP Custom Polynomial Regression (BOA)
+  masterSeed: 61001
+  deterministicStreams: true
+  checkpointEveryIterations: 20
+  runCount: 10
+grammar:
+  mode: custom
+  file: grammar_gp_suite/custom_grammar/polynomial-only.bnf
+  variables: [x]
+  max_depth: 7
+  ephemeral_constants: true
+  ephemeral_range: [-3.0, 3.0]
+representation:
+  type: grammar-bitstring
+problem:
+  type: grammar-csv-regression
+  dataset: classpath:datasets/grammar/regression/nguyen_like.csv
+  targetColumn: y
+  metric: mse
+  complexityPenalty: 0.001
+algorithm:
+  type: boa
+  populationSize: 260
+  selectionRatio: 0.3
+  elitism: 1
+model:
+  type: boa-ebna
+selection:
+  type: truncation
+replacement:
+  type: elitist
+stopping:
+  type: max-iterations
+  maxIterations: 150
+  maxEvaluations: 120000
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ''
+    password: ''
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/grammar-gp-events.jsonl
+  logFile: ./edaf-v3.log

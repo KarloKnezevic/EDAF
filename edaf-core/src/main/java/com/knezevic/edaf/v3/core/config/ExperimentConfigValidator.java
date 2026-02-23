@@ -11,7 +11,8 @@ import java.util.Set;
 public final class ExperimentConfigValidator {
 
     private static final Set<String> DISCRETE_REPRESENTATIONS = Set.of(
-            "bitstring", "int-vector", "categorical-vector", "mixed-discrete-vector", "variable-length-vector");
+            "bitstring", "int-vector", "categorical-vector", "mixed-discrete-vector",
+            "variable-length-vector", "grammar-bitstring");
     private static final Set<String> CONTINUOUS_REPRESENTATIONS = Set.of(
             "real-vector", "mixed-real-discrete-vector");
     private static final Set<String> PERMUTATION_REPRESENTATIONS = Set.of("permutation-vector");

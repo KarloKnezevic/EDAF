@@ -13,6 +13,7 @@
 - [Architecture](#architecture)
 - [Module Layout](#module-layout)
 - [Supported Components](#supported-components)
+- [Grammar-Based GP](#grammar-based-gp-symbolic-regression-and-classification)
 - [Getting Started](#getting-started)
 - [CLI Commands](#cli-commands)
 - [Configuration](#configuration)
@@ -161,6 +162,50 @@ Implementation status:
 - `boolean-function-tree`
 - `boolean-function-mo`
 - `mixed-toy`
+
+## Grammar-Based GP (Symbolic Regression and Classification)
+
+EDAF includes a grammar-driven GP pipeline that reuses discrete EDA drivers by mapping derivation choices to fixed-length bitstrings.
+
+What is available now:
+
+- Representation: `grammar-bitstring`
+- Grammar modes:
+  - `grammar.mode: auto`
+  - `grammar.mode: custom` (BNF file)
+- Built-in grammar problems:
+  - `grammar-xor`
+  - `grammar-majority`
+  - `grammar-csv-regression`
+  - `grammar-csv-classification` (binary + multiclass)
+  - `grammar-nguyen-regression`
+- ERC support with deterministic decoding and persisted sampled constants.
+- Web `Tree` panel for grammar runs (AST graph, infix/LaTeX, metrics, export).
+
+Config suite (20 auto configs + 2 custom grammar examples):
+
+- `/Users/karloknezevic/Desktop/EDAF/configs/grammar_gp_suite`
+
+Quick run examples:
+
+```bash
+./edaf run -c configs/grammar_gp_suite/boolean/boolean-xor3-umda.yml
+./edaf run -c configs/grammar_gp_suite/regression/regression-nguyen5-hboa.yml
+./edaf run -c configs/grammar_gp_suite/classification/classification-iris-boa.yml
+./edaf run -c configs/grammar_gp_suite/classification/classification-wine-multiclass-hboa.yml
+./edaf run -c configs/grammar_gp_suite/custom_grammar/custom-polynomial-regression-boa.yml
+```
+
+Each config is preconfigured with:
+
+- `run.runCount: 10` (ten independent runs)
+- DB sink enabled (`jdbc:sqlite:edaf-v3.db`)
+- HTML report generation
+- web-compatible artifacts
+
+Detailed guide:
+
+- `/Users/karloknezevic/Desktop/EDAF/docs/grammar-based-gp.md`
 
 ## Getting Started
 
@@ -369,7 +414,7 @@ logging:
   modes: [console, jsonl, file, db]
   verbosity: normal
   jsonlFile: ./results/demo-umda-events.jsonl
-  logFile: ./edaf-v3.log
+  logFile: ./results/logs/edaf-v3.log
 ```
 
 Compatibility rules are validated semantically (for example, permutation representation cannot use Gaussian continuous models).
@@ -538,7 +583,7 @@ Typical generated artifacts:
 
 - `results/<run-id>.csv`
 - `results/<run-id>.jsonl`
-- `edaf-v3.log`
+- `results/logs/<run-id>.log` (or configured log file path under `results/`)
 - `results/checkpoints/<run-id>-iter-<k>.ckpt.yaml`
 - `reports/report-<run-id>.html` / `.tex`
 
@@ -585,7 +630,7 @@ Use repo-root execution with `-pl edaf-web -am` so sibling modules are available
 Alternative (works if Maven prefix resolution is configured locally):
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
 Stop the server with `Ctrl+C` in that terminal.

@@ -1,0 +1,61 @@
+schema: '3.0'
+run:
+  id: grammar-custom-boolean-hboa
+  name: Grammar GP Custom Boolean XOR (hBOA)
+  masterSeed: 61002
+  deterministicStreams: true
+  checkpointEveryIterations: 20
+  runCount: 10
+grammar:
+  mode: custom
+  file: grammar_gp_suite/custom_grammar/boolean-only.bnf
+  variables: [x0, x1, x2]
+  max_depth: 7
+  ephemeral_constants: false
+representation:
+  type: grammar-bitstring
+problem:
+  type: grammar-xor
+  bits: 3
+  variablePrefix: x
+  complexityPenalty: 0.0005
+algorithm:
+  type: hboa
+  populationSize: 240
+  selectionRatio: 0.33
+  elitism: 1
+model:
+  type: hboa-network
+selection:
+  type: truncation
+replacement:
+  type: elitist
+stopping:
+  type: max-iterations
+  maxIterations: 150
+  maxEvaluations: 120000
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ''
+    password: ''
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/grammar-gp-events.jsonl
+  logFile: ./edaf-v3.log

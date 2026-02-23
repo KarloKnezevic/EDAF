@@ -16,6 +16,7 @@ This documentation set describes the current **v3-only** architecture and runtim
 
 - [Algorithms](./algorithms.md)
 - [Representations](./representations.md)
+- [Grammar-Based GP](./grammar-based-gp.md)
 - [Problem Suites](./problem-suites.md)
 - [Disjunct Matrix Family (DM/RM/ADM)](./disjunct-matrix-problems.md)
 - [ADM Paper Suite Benchmark](./adm-paper-suite.md)

@@ -19,3 +19,8 @@ com.knezevic.edaf.v3.problems.plugins.discrete.BooleanFunctionProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.permutation.BooleanFunctionPermutationProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.tree.BooleanFunctionTreeProblemPlugin
 com.knezevic.edaf.v3.problems.plugins.mo.BooleanFunctionMultiObjectiveProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.grammar.GrammarXorProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.grammar.GrammarMajorityProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.grammar.GrammarCsvRegressionProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.grammar.GrammarCsvClassificationProblemPlugin
+com.knezevic.edaf.v3.problems.plugins.grammar.GrammarNguyenRegressionProblemPlugin

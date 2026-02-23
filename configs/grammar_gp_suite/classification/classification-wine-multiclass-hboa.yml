@@ -1,0 +1,71 @@
+schema: '3.0'
+run:
+  id: grammar-classification-wine-multiclass-hboa
+  name: Grammar GP Wine Recognition Multiclass (hboa)
+  masterSeed: 52000
+  deterministicStreams: true
+  checkpointEveryIterations: 20
+  runCount: 10
+grammar:
+  mode: auto
+  variables: [alcohol, malic_acid, ash, alcalinity_of_ash, magnesium, total_phenols, flavanoids, nonflavanoid_phenols, proanthocyanins, color_intensity, hue, od280_od315, proline]
+  binary_ops: [+, '-', '*', /, min, max]
+  unary_ops: [abs, neg]
+  ternary_ops: [if_then_else]
+  allow_constants: true
+  constants: [0.0, 1.0, 2.0]
+  ephemeral_constants: true
+  ephemeral_range: [-2.0, 2.0]
+  max_depth: 4
+  typed: false
+  boolean_mode: false
+representation:
+  type: grammar-bitstring
+problem:
+  type: grammar-csv-classification
+  dataset: classpath:datasets/grammar/classification/wine_recognition_multiclass.csv
+  targetColumn: label
+  score: macro_f1
+  complexityPenalty: 0.001
+  classificationMode: multiclass
+  classValues: [0, 1, 2]
+algorithm:
+  type: hboa
+  populationSize: 90
+  selectionRatio: 0.4
+  elitism: 1
+model:
+  type: hboa-network
+selection:
+  type: truncation
+replacement:
+  type: elitist
+stopping:
+  type: max-iterations
+  maxIterations: 140
+  maxEvaluations: 120000
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ''
+    password: ''
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/grammar-gp-events.jsonl
+  logFile: ./edaf-v3.log

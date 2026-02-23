@@ -25,6 +25,7 @@ import com.knezevic.edaf.v3.persistence.query.coco.CocoCampaignQuery;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoOptimizerConfigRow;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoRepository;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoTrialMetric;
+import com.knezevic.edaf.v3.web.service.GrammarTreeViewService;
 import com.knezevic.edaf.v3.web.service.RunArtifactService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,13 +54,16 @@ public class ApiController {
     private final RunRepository runRepository;
     private final CocoRepository cocoRepository;
     private final RunArtifactService runArtifactService;
+    private final GrammarTreeViewService grammarTreeViewService;
 
     public ApiController(RunRepository runRepository,
                          CocoRepository cocoRepository,
-                         RunArtifactService runArtifactService) {
+                         RunArtifactService runArtifactService,
+                         GrammarTreeViewService grammarTreeViewService) {
         this.runRepository = runRepository;
         this.cocoRepository = cocoRepository;
         this.runArtifactService = runArtifactService;
+        this.grammarTreeViewService = grammarTreeViewService;
     }
 
     @GetMapping("/experiments")
@@ -112,6 +116,22 @@ public class ApiController {
             throw new ResponseStatusException(NOT_FOUND, "Run not found: " + runId);
         }
         return detail;
+    }
+
+    @GetMapping("/runs/{runId}/tree")
+    public GrammarTreeViewService.GrammarTreeView getRunTree(@PathVariable String runId) {
+        RunDetail detail = runRepository.getRunDetail(runId);
+        if (detail == null) {
+            detail = runArtifactService.loadRunDetail(runId).orElse(null);
+        }
+        if (detail == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Run not found: " + runId);
+        }
+        return grammarTreeViewService.view(detail)
+                .orElseThrow(() -> new ResponseStatusException(
+                        NOT_FOUND,
+                        "No grammar tree visualization payload available for run: " + runId
+                ));
     }
 
     @GetMapping("/runs/{runId}/iterations")

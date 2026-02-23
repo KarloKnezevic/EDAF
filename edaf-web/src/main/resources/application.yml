@@ -5,5 +5,14 @@ spring:
   datasource:
     url: ${EDAF_DB_URL:jdbc:sqlite:edaf-v3.db}
     driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 1
+      minimum-idle: 1
+      connection-timeout: 30000
+      data-source-properties:
+        busy_timeout: 10000
+        journal_mode: WAL
+        synchronous: NORMAL
+        foreign_keys: on
   thymeleaf:
     cache: false

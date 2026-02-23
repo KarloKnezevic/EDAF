@@ -1,0 +1,71 @@
+schema: '3.0'
+run:
+  id: grammar-regression-nguyen5-chow-liu-eda
+  name: Grammar GP Nguyen-5 (chow-liu-eda)
+  masterSeed: 41000
+  deterministicStreams: true
+  checkpointEveryIterations: 20
+  runCount: 10
+grammar:
+  mode: auto
+  variables: [x]
+  binary_ops: [+, '-', '*', /, pow, min, max]
+  unary_ops: [sin, cos, exp, log, sqrt, abs, neg]
+  ternary_ops: [if_then_else]
+  allow_constants: true
+  constants: [-1.0, 0.0, 1.0]
+  ephemeral_constants: true
+  ephemeral_range: [-4.0, 4.0]
+  max_depth: 7
+  typed: false
+  boolean_mode: false
+representation:
+  type: grammar-bitstring
+problem:
+  type: grammar-nguyen-regression
+  variant: 5
+  sampleCount: 60
+  minX: -1.0
+  maxX: 1.0
+  variable: x
+  complexityPenalty: 0.001
+algorithm:
+  type: chow-liu-eda
+  populationSize: 260
+  selectionRatio: 0.3
+  elitism: 1
+model:
+  type: mimic-chow-liu
+selection:
+  type: truncation
+replacement:
+  type: elitist
+stopping:
+  type: max-iterations
+  maxIterations: 140
+  maxEvaluations: 120000
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ''
+    password: ''
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/grammar-gp-events.jsonl
+  logFile: ./edaf-v3.log

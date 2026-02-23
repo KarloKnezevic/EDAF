@@ -1,0 +1,66 @@
+schema: '3.0'
+run:
+  id: grammar-boolean-xor3-boa
+  name: Grammar GP XOR-3 (boa)
+  masterSeed: 31000
+  deterministicStreams: true
+  checkpointEveryIterations: 20
+  runCount: 10
+grammar:
+  mode: auto
+  variables: [x0, x1, x2]
+  binary_ops: [and, or, xor, nand, nor]
+  unary_ops: [not]
+  ternary_ops: [if]
+  allow_constants: false
+  ephemeral_constants: false
+  max_depth: 7
+  typed: false
+  boolean_mode: true
+representation:
+  type: grammar-bitstring
+problem:
+  type: grammar-xor
+  bits: 3
+  variablePrefix: x
+  complexityPenalty: 0.0005
+algorithm:
+  type: boa
+  populationSize: 220
+  selectionRatio: 0.35
+  elitism: 1
+model:
+  type: boa-ebna
+selection:
+  type: truncation
+replacement:
+  type: elitist
+stopping:
+  type: max-iterations
+  maxIterations: 140
+  maxEvaluations: 120000
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ''
+    password: ''
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/grammar-gp-events.jsonl
+  logFile: ./edaf-v3.log

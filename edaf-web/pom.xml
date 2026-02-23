@@ -28,6 +28,11 @@
         </dependency>
         <dependency>
             <groupId>com.knezevic.edaf</groupId>
+            <artifactId>edaf-representations</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.knezevic.edaf</groupId>
             <artifactId>edaf-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>

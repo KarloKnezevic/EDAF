@@ -6,3 +6,4 @@ com.knezevic.edaf.v3.repr.plugins.continuous.RealVectorRepresentationPlugin
 com.knezevic.edaf.v3.repr.plugins.continuous.MixedRealDiscreteVectorRepresentationPlugin
 com.knezevic.edaf.v3.repr.plugins.permutation.PermutationVectorRepresentationPlugin
 com.knezevic.edaf.v3.repr.plugins.structured.VariableLengthVectorRepresentationPlugin
+com.knezevic.edaf.v3.repr.plugins.structured.GrammarBitStringRepresentationPlugin

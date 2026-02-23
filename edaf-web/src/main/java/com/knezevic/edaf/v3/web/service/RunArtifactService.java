@@ -65,7 +65,26 @@ public final class RunArtifactService {
 
                 String runDetailId = asString(summary.get("runId"), runId);
                 String configHash = sha256(configJson);
-                String artifactsJson = mapper.writeValueAsString(summary.getOrDefault("artifactPaths", Map.of()));
+                Map<String, Object> artifactsPayload = new LinkedHashMap<>();
+                Object artifactPaths = summary.get("artifactPaths");
+                if (artifactPaths instanceof Map<?, ?> map) {
+                    map.forEach((key, value) -> {
+                        if (key != null) {
+                            artifactsPayload.put(String.valueOf(key), value);
+                        }
+                    });
+                }
+                copyIfPresent(summary, artifactsPayload, "bestGenotype");
+                copyIfPresent(summary, artifactsPayload, "bestSummary");
+                copyIfPresent(summary, artifactsPayload, "bestExpressionInfix");
+                copyIfPresent(summary, artifactsPayload, "bestExpressionPrefix");
+                copyIfPresent(summary, artifactsPayload, "bestExpressionLatex");
+                copyIfPresent(summary, artifactsPayload, "bestExpressionDot");
+                copyIfPresent(summary, artifactsPayload, "bestAstJson");
+                copyIfPresent(summary, artifactsPayload, "bestTreeMetrics");
+                copyIfPresent(summary, artifactsPayload, "decisionVector");
+                copyIfPresent(summary, artifactsPayload, "ercValues");
+                String artifactsJson = mapper.writeValueAsString(artifactsPayload);
 
                 return Optional.of(new RunDetail(
                         runDetailId,
@@ -340,6 +359,14 @@ public final class RunArtifactService {
             return true;
         } catch (IOException e) {
             return false;
+        }
+    }
+
+    private static void copyIfPresent(Map<String, Object> source,
+                                      Map<String, Object> target,
+                                      String key) {
+        if (source.containsKey(key) && source.get(key) != null) {
+            target.put(key, source.get(key));
         }
     }
 

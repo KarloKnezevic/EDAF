@@ -410,7 +410,7 @@ public final class ExperimentRunner {
                     artifacts.put("jsonl", jsonl.toString());
                 }
                 case "file" -> {
-                    Path file = Path.of(config.getLogging().getLogFile());
+                    Path file = resolveFileLogPath(config, outputDir);
                     sinks.add(asyncSink("rotating-file", new RotatingFileEventSink(file, 10_000_000L), config.getRun().getId()));
                     artifacts.put("log", file.toString());
                 }
@@ -513,6 +513,10 @@ public final class ExperimentRunner {
                 BitString value = (BitString) genotype;
                 return mapper.valueToTree(value.genes());
             }
+            case "grammar-bitstring" -> {
+                BitString value = (BitString) genotype;
+                return mapper.valueToTree(value.genes());
+            }
             case "real-vector" -> {
                 RealVector value = (RealVector) genotype;
                 return mapper.valueToTree(value.values());
@@ -554,6 +558,7 @@ public final class ExperimentRunner {
         String type = normalize(representationType);
         return switch (type) {
             case "bitstring" -> new BitString(mapper.convertValue(node, boolean[].class));
+            case "grammar-bitstring" -> new BitString(mapper.convertValue(node, boolean[].class));
             case "real-vector" -> new RealVector(mapper.convertValue(node, double[].class));
             case "permutation-vector" -> new PermutationVector(mapper.convertValue(node, int[].class));
             case "int-vector" -> new IntVector(mapper.convertValue(node, int[].class));
@@ -671,14 +676,23 @@ public final class ExperimentRunner {
         if (stopControl == null || stopControl.store() == null) {
             return false;
         }
-        return stopControl.store().isStopRequested(runId, stopControl.experimentId());
+        try {
+            return stopControl.store().isStopRequested(runId, stopControl.experimentId());
+        } catch (RuntimeException ignored) {
+            // Stop polling is best-effort; transient DB failures must not terminate optimization.
+            return false;
+        }
     }
 
     private static void acknowledgeStop(StopControl stopControl, String runId) {
         if (stopControl == null || stopControl.store() == null) {
             return;
         }
-        stopControl.store().acknowledgeStopRequests(runId, stopControl.experimentId(), Instant.now());
+        try {
+            stopControl.store().acknowledgeStopRequests(runId, stopControl.experimentId(), Instant.now());
+        } catch (RuntimeException ignored) {
+            // Acknowledgement is best-effort and should not fail run completion path.
+        }
     }
 
     private void publishRunStopped(EventBus eventBus,
@@ -783,6 +797,46 @@ public final class ExperimentRunner {
 
     private static String normalize(String value) {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Resolves rotating file log destination while keeping legacy configs tidy.
+     * Relative paths that do not already target {@code ./results/...} are anchored under
+     * {@code persistence.outputDirectory/logs} so repository root is not polluted by run logs.
+     */
+    private static Path resolveFileLogPath(ExperimentConfig config, Path outputDir) {
+        String configured = config.getLogging() == null ? null : config.getLogging().getLogFile();
+        String fallbackName = hasText(config.getRun().getId()) ? config.getRun().getId() + ".log" : "edaf-v3.log";
+        return resolveManagedPath(configured, outputDir, "logs", fallbackName);
+    }
+
+    private static Path resolveManagedPath(String configuredPath,
+                                           Path outputDir,
+                                           String managedSubdirectory,
+                                           String fallbackFileName) {
+        Path managedDirectory = outputDir.resolve(managedSubdirectory);
+        if (!hasText(configuredPath)) {
+            return managedDirectory.resolve(fallbackFileName).normalize();
+        }
+
+        Path configured = Path.of(configuredPath).normalize();
+        if (configured.isAbsolute()) {
+            return configured;
+        }
+
+        String unixLike = configuredPath.replace('\\', '/').trim();
+        if (unixLike.startsWith("./results/") || unixLike.startsWith("results/")) {
+            return configured;
+        }
+
+        if (configured.getParent() == null) {
+            return managedDirectory.resolve(configured.getFileName()).normalize();
+        }
+        return outputDir.resolve(configured).normalize();
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     private record SinkSetup(List<EventSink> sinks, Map<String, String> artifacts, DataSource databaseDataSource) {

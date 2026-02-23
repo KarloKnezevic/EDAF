@@ -10,6 +10,13 @@ mvn -q clean test
 ./edaf --help
 ```
 
+Optional one-time cleanup of legacy root logs:
+
+```bash
+mkdir -p results/logs/legacy-root
+mv edaf-v3.log edaf-v3.log.* edaf.log results/logs/legacy-root/ 2>/dev/null || true
+```
+
 ## 2) Core Run Recipes
 
 ### Recipe A: Discrete baseline (UMDA + OneMax)
@@ -182,6 +189,13 @@ Each run now creates:
 - `results/.../runs/<runId>/metrics.csv`
 - `results/.../runs/<runId>/summary.json`
 - `results/.../runs/<runId>/report.html`
+- `results/.../logs/*.log` (when `logging.modes` contains `file`)
+
+Notes about logs:
+
+- file logs are optional; disable by removing `file` from `logging.modes`
+- JSONL/CSV/DB are usually enough for large campaigns
+- relative file-log paths are automatically normalized under `persistence.outputDirectory` so project root stays clean
 
 Open static report directly:
 
@@ -252,6 +266,47 @@ Recommended workflow:
    - `Events` tab with `eventType=adaptive_action`
    - `Configuration` tab to confirm threshold params used in that run
 6. Tune YAML thresholds and rerun with same `masterSeed` for reproducible A/B comparisons.
+
+## 2.5) Grammar-Based GP Suite (Symbolic Regression/Classification)
+
+Grammar GP suite location:
+
+- `configs/grammar_gp_suite/`
+
+Included:
+
+- `boolean/` (5 configs: `umda`, `chow-liu-eda`, `boa`, `hboa`, `ebna`)
+- `regression/` (5 configs with Nguyen regression)
+- `classification/`:
+  - 5 configs with Iris multiclass classification (`classValues: [0,1,2]`)
+  - 5 configs with Wine Recognition multiclass classification (13 features, 3 classes)
+- `custom_grammar/` (2 custom BNF examples + runnable configs)
+
+All suite configs are pre-set with:
+
+- `run.runCount: 10`
+- DB persistence (`jdbc:sqlite:edaf-v3.db`)
+- CSV/JSONL telemetry
+- HTML report output
+
+Run examples:
+
+```bash
+./edaf run -c configs/grammar_gp_suite/boolean/boolean-xor3-umda.yml
+./edaf run -c configs/grammar_gp_suite/regression/regression-nguyen5-boa.yml
+./edaf run -c configs/grammar_gp_suite/classification/classification-iris-hboa.yml
+./edaf run -c configs/grammar_gp_suite/classification/classification-wine-multiclass-hboa.yml
+./edaf run -c configs/grammar_gp_suite/custom_grammar/custom-polynomial-regression-boa.yml
+```
+
+Custom grammar examples:
+
+- `configs/grammar_gp_suite/custom_grammar/polynomial-only.bnf`
+- `configs/grammar_gp_suite/custom_grammar/boolean-only.bnf`
+
+Detailed grammar documentation:
+
+- `docs/grammar-based-gp.md`
 
 ## 3) COCO/BBOB Recipes
 
@@ -360,7 +415,7 @@ EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springfr
 Alternative (works only if spring-boot plugin prefix is resolvable in your local Maven setup):
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
 `-pl edaf-web -am` is important because the web module depends on sibling modules; running from repo root ensures all required classes are on classpath.

@@ -26,6 +26,10 @@ public class ExperimentConfig {
     private RunSection run = new RunSection();
 
     @Valid
+    @NotNull(message = "grammar section is required")
+    private GrammarSection grammar = new GrammarSection();
+
+    @Valid
     @NotNull(message = "representation section is required")
     private TypedSection representation = new TypedSection();
 
@@ -103,6 +107,14 @@ public class ExperimentConfig {
 
     public void setRun(RunSection run) {
         this.run = run;
+    }
+
+    public GrammarSection getGrammar() {
+        return grammar;
+    }
+
+    public void setGrammar(GrammarSection grammar) {
+        this.grammar = grammar;
     }
 
     public TypedSection getRepresentation() {
@@ -280,6 +292,8 @@ public class ExperimentConfig {
         private boolean deterministicStreams = true;
         @Min(value = 0, message = "run.checkpointEveryIterations must be >= 0")
         private int checkpointEveryIterations = 0;
+        @Min(value = 1, message = "run.runCount must be >= 1")
+        private int runCount = 1;
 
         public String getId() {
             return id;
@@ -319,6 +333,31 @@ public class ExperimentConfig {
 
         public void setCheckpointEveryIterations(int checkpointEveryIterations) {
             this.checkpointEveryIterations = checkpointEveryIterations;
+        }
+
+        public int getRunCount() {
+            return runCount;
+        }
+
+        public void setRunCount(int runCount) {
+            this.runCount = runCount;
+        }
+    }
+
+    /**
+     * Optional top-level grammar section injected into representation/problem params.
+     */
+    @JsonIgnoreProperties(ignoreUnknown = false)
+    public static class GrammarSection {
+        private final Map<String, Object> options = new LinkedHashMap<>();
+
+        @JsonAnySetter
+        public void addOption(String key, Object value) {
+            options.put(key, value);
+        }
+
+        public Map<String, Object> getOptions() {
+            return options;
         }
     }
 
@@ -568,7 +607,7 @@ public class ExperimentConfig {
         @NotBlank(message = "logging.verbosity is required")
         private String verbosity = "normal";
         private String jsonlFile = "./results/run-events.jsonl";
-        private String logFile = "./edaf-v3.log";
+        private String logFile = "./results/logs/edaf-v3.log";
 
         public List<String> getModes() {
             return modes;

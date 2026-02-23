@@ -163,7 +163,7 @@ By default web uses SQLite DB at `jdbc:sqlite:edaf-v3.db`.
 Run this from a terminal in `/Users/karloknezevic/Desktop/EDAF`:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
 Stop the server with `Ctrl+C` in that terminal.
@@ -175,7 +175,7 @@ Open:
 Alternative command if Maven prefix resolution fails:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
 ## 11) Run COCO Smoke Campaign

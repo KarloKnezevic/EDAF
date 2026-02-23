@@ -1,0 +1,8 @@
+# Polynomial-only grammar (real-valued symbolic regression)
+<Expr> ::= + <Expr> <Expr>
+         | - <Expr> <Expr>
+         | * <Expr> <Expr>
+         | x
+         | 1.0
+         | -1.0
+         | erc

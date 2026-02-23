@@ -348,7 +348,7 @@ Current CLI report formats:
 | `modes` | string[] | `[console]` | logging output modes |
 | `verbosity` | enum | `normal` | `quiet`, `normal`, `verbose`, `debug` |
 | `jsonlFile` | string | `./results/run-events.jsonl` | JSONL log path |
-| `logFile` | string | `./edaf-v3.log` | rotating file log path |
+| `logFile` | string | `./results/logs/edaf-v3.log` | rotating file log path |
 
 ## 10) Family Compatibility Rules
 

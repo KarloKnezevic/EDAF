@@ -11,6 +11,8 @@ import com.knezevic.edaf.v3.core.events.RunEvent;
 import com.knezevic.edaf.v3.core.events.RunFailedEvent;
 import com.knezevic.edaf.v3.core.events.RunStartedEvent;
 import com.knezevic.edaf.v3.core.events.RunStoppedEvent;
+import com.knezevic.edaf.v3.repr.grammar.GrammarTreeEngine;
+import com.knezevic.edaf.v3.repr.types.BitString;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +37,10 @@ public final class RunArtifactBundleSink implements EventSink {
     private final Path summaryJson;
     private final Path reportHtml;
     private final Path bestMatrixTxt;
+    private final Path bestAstJson;
+    private final Path bestExpressionTxt;
+    private final Path bestExpressionLatex;
+    private final Path bestExpressionDot;
     private final Path configYaml;
     private final Path configJson;
 
@@ -63,6 +69,10 @@ public final class RunArtifactBundleSink implements EventSink {
         this.summaryJson = runDirectory.resolve("summary.json");
         this.reportHtml = runDirectory.resolve("report.html");
         this.bestMatrixTxt = runDirectory.resolve("best-matrix.txt");
+        this.bestAstJson = runDirectory.resolve("best-ast.json");
+        this.bestExpressionTxt = runDirectory.resolve("best-expression.txt");
+        this.bestExpressionLatex = runDirectory.resolve("best-expression.tex");
+        this.bestExpressionDot = runDirectory.resolve("best-expression.dot");
         this.configYaml = runDirectory.resolve("config-resolved.yaml");
         this.configJson = runDirectory.resolve("config-resolved.json");
         this.resolvedYaml = resolvedYaml;
@@ -256,6 +266,7 @@ public final class RunArtifactBundleSink implements EventSink {
     private void writeSummaryAndReport() {
         try {
             writeBestMatrixIfApplicable();
+            writeBestExpressionIfApplicable();
             Map<String, Object> summary = buildSummary();
             Files.writeString(summaryJson,
                     mapper.writerWithDefaultPrettyPrinter().writeValueAsString(summary),
@@ -285,32 +296,69 @@ public final class RunArtifactBundleSink implements EventSink {
         summary.put("problem", startedEvent == null ? null : startedEvent.problem());
         summary.put("masterSeed", startedEvent == null ? null : startedEvent.masterSeed());
         summary.put("startedAt", startedEvent == null ? null : startedEvent.timestamp().toString());
-        summary.put("endedAt", completedEvent != null ? completedEvent.timestamp().toString()
-                : (stoppedEvent != null
-                ? stoppedEvent.timestamp().toString()
-                : (failedEvent != null ? failedEvent.timestamp().toString() : null)));
-        summary.put("runtimeMillis", completedEvent != null
-                ? completedEvent.runtimeMillis()
-                : (stoppedEvent != null ? stoppedEvent.runtimeMillis() : null));
-        summary.put("iterations", completedEvent != null
-                ? completedEvent.iterations()
-                : (stoppedEvent != null ? stoppedEvent.iterations() : iterations.size()));
-        summary.put("evaluations", completedEvent != null
-                ? completedEvent.evaluations()
-                : (stoppedEvent != null
-                ? stoppedEvent.evaluations()
-                : (iterations.isEmpty() ? null : iterations.get(iterations.size() - 1).evaluations())));
-        summary.put("bestFitness", completedEvent != null
-                ? completedEvent.bestFitness()
-                : (stoppedEvent != null
-                ? stoppedEvent.bestFitness()
-                : (iterations.isEmpty() ? null : iterations.get(iterations.size() - 1).bestFitness())));
-        summary.put("bestSummary", completedEvent != null
-                ? completedEvent.bestSummary()
-                : (stoppedEvent != null ? stoppedEvent.bestSummary() : null));
-        summary.put("bestGenotype", completedEvent != null
-                ? completedEvent.bestGenotype()
-                : (stoppedEvent != null ? stoppedEvent.bestGenotype() : null));
+        String endedAt = null;
+        if (completedEvent != null) {
+            endedAt = completedEvent.timestamp().toString();
+        } else if (stoppedEvent != null) {
+            endedAt = stoppedEvent.timestamp().toString();
+        } else if (failedEvent != null) {
+            endedAt = failedEvent.timestamp().toString();
+        }
+        summary.put("endedAt", endedAt);
+
+        Long runtimeMillis = null;
+        if (completedEvent != null) {
+            runtimeMillis = completedEvent.runtimeMillis();
+        } else if (stoppedEvent != null) {
+            runtimeMillis = stoppedEvent.runtimeMillis();
+        }
+        summary.put("runtimeMillis", runtimeMillis);
+
+        Integer totalIterations = null;
+        if (completedEvent != null) {
+            totalIterations = completedEvent.iterations();
+        } else if (stoppedEvent != null) {
+            totalIterations = stoppedEvent.iterations();
+        } else {
+            totalIterations = iterations.size();
+        }
+        summary.put("iterations", totalIterations);
+
+        Long evaluations = null;
+        if (completedEvent != null) {
+            evaluations = completedEvent.evaluations();
+        } else if (stoppedEvent != null) {
+            evaluations = stoppedEvent.evaluations();
+        } else if (!iterations.isEmpty()) {
+            evaluations = iterations.get(iterations.size() - 1).evaluations();
+        }
+        summary.put("evaluations", evaluations);
+
+        Double bestFitness = null;
+        if (completedEvent != null) {
+            bestFitness = completedEvent.bestFitness();
+        } else if (stoppedEvent != null) {
+            bestFitness = stoppedEvent.bestFitness();
+        } else if (!iterations.isEmpty()) {
+            bestFitness = iterations.get(iterations.size() - 1).bestFitness();
+        }
+        summary.put("bestFitness", bestFitness);
+
+        String bestSummary = null;
+        if (completedEvent != null) {
+            bestSummary = completedEvent.bestSummary();
+        } else if (stoppedEvent != null) {
+            bestSummary = stoppedEvent.bestSummary();
+        }
+        summary.put("bestSummary", bestSummary);
+
+        String bestGenotype = null;
+        if (completedEvent != null) {
+            bestGenotype = completedEvent.bestGenotype();
+        } else if (stoppedEvent != null) {
+            bestGenotype = stoppedEvent.bestGenotype();
+        }
+        summary.put("bestGenotype", bestGenotype);
         summary.put("errorMessage", failedEvent == null ? null : failedEvent.errorMessage());
         summary.put("stopReason", stoppedEvent == null ? null : stoppedEvent.reason());
 
@@ -386,6 +434,53 @@ public final class RunArtifactBundleSink implements EventSink {
         }
     }
 
+    private void writeBestExpressionIfApplicable() {
+        if ((completedEvent == null && stoppedEvent == null) || startedEvent == null) {
+            return;
+        }
+        String genotype = completedEvent != null ? completedEvent.bestGenotype() : stoppedEvent.bestGenotype();
+        if (genotype == null || genotype.isBlank() || !genotype.chars().allMatch(ch -> ch == '0' || ch == '1')) {
+            return;
+        }
+
+        try {
+            Map<String, Object> configRoot = mapper.readValue(resolvedJson, Map.class);
+            Object representationType = path(configRoot, "representation.type");
+            if (!"grammar-bitstring".equalsIgnoreCase(String.valueOf(representationType))) {
+                // Fallback check: if grammar config exists, still try to derive expression artifacts.
+                Object grammar = configRoot.get("grammar");
+                if (!(grammar instanceof Map<?, ?>)) {
+                    return;
+                }
+            }
+
+            Map<String, Object> problemParams = pathAsMap(configRoot, "problem.params");
+            Map<String, Object> params = new LinkedHashMap<>(problemParams);
+            Map<String, Object> grammarOptions = pathAsMap(configRoot, "grammar");
+            if (!grammarOptions.isEmpty()) {
+                params.put("grammar", grammarOptions);
+            }
+
+            GrammarTreeEngine engine = new GrammarTreeEngine(params);
+            boolean[] genes = new boolean[genotype.length()];
+            for (int i = 0; i < genotype.length(); i++) {
+                genes[i] = genotype.charAt(i) == '1';
+            }
+            GrammarTreeEngine.TreeInspection inspection = engine.inspect(new BitString(genes));
+
+            Files.writeString(bestExpressionTxt, inspection.infix(),
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(bestExpressionLatex, inspection.latex(),
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(bestExpressionDot, inspection.dot(),
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(bestAstJson, inspection.astJson(),
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (Exception ignored) {
+            // Grammar expression artifacts are best-effort and must not fail run persistence.
+        }
+    }
+
     private int readProblemInteger(String key, int defaultValue) {
         try {
             var root = mapper.readTree(resolvedJson);
@@ -401,6 +496,33 @@ public final class RunArtifactBundleSink implements EventSink {
         } catch (Exception e) {
             return defaultValue;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> pathAsMap(Map<String, Object> root, String dotted) {
+        Object value = path(root, dotted);
+        if (value instanceof Map<?, ?> map) {
+            Map<String, Object> copy = new LinkedHashMap<>();
+            map.forEach((k, v) -> {
+                if (k != null) {
+                    copy.put(String.valueOf(k), v);
+                }
+            });
+            return copy;
+        }
+        return Map.of();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object path(Map<String, Object> root, String dotted) {
+        Object current = root;
+        for (String part : dotted.split("\\.")) {
+            if (!(current instanceof Map<?, ?> map)) {
+                return null;
+            }
+            current = map.get(part);
+        }
+        return current;
     }
 
     private Map<String, Object> latentHighlights(LatentTelemetry telemetry) {

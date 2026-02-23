@@ -16,6 +16,8 @@ import com.knezevic.edaf.v3.core.events.RunFailedEvent;
 import com.knezevic.edaf.v3.core.events.RunResumedEvent;
 import com.knezevic.edaf.v3.core.events.RunStartedEvent;
 import com.knezevic.edaf.v3.core.events.RunStoppedEvent;
+import com.knezevic.edaf.v3.repr.grammar.GrammarTreeEngine;
+import com.knezevic.edaf.v3.repr.types.BitString;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -390,14 +392,16 @@ public final class JdbcEventSink implements EventSink {
                 WHERE run_id = ?
                 """;
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            Map<String, Object> enrichedArtifacts = enrichRunArtifacts(event.bestGenotype(), event.artifacts());
+            String bestSummary = enrichedBestSummary(event.bestSummary(), enrichedArtifacts);
             statement.setString(1, "COMPLETED");
             statement.setString(2, event.timestamp().toString());
             statement.setInt(3, event.iterations());
             statement.setLong(4, event.evaluations());
             statement.setDouble(5, event.bestFitness());
-            statement.setString(6, event.bestSummary());
+            statement.setString(6, bestSummary);
             statement.setLong(7, event.runtimeMillis());
-            statement.setString(8, eventMapper.writeValueAsString(event.artifacts()));
+            statement.setString(8, eventMapper.writeValueAsString(enrichedArtifacts));
             statement.setString(9, event.runId());
             statement.executeUpdate();
         } catch (Exception e) {
@@ -429,6 +433,8 @@ public final class JdbcEventSink implements EventSink {
                     error_message = excluded.error_message
                 """;
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            Map<String, Object> enrichedArtifacts = enrichRunArtifacts(event.bestGenotype(), event.artifacts());
+            String bestSummary = enrichedBestSummary(event.bestSummary(), enrichedArtifacts);
             statement.setString(1, event.runId());
             statement.setString(2, experimentId);
             statement.setLong(3, event.masterSeed());
@@ -438,9 +444,9 @@ public final class JdbcEventSink implements EventSink {
             statement.setInt(7, event.iterations());
             statement.setLong(8, event.evaluations());
             statement.setDouble(9, event.bestFitness());
-            statement.setString(10, event.bestSummary());
+            statement.setString(10, bestSummary);
             statement.setLong(11, event.runtimeMillis());
-            statement.setString(12, eventMapper.writeValueAsString(event.artifacts()));
+            statement.setString(12, eventMapper.writeValueAsString(enrichedArtifacts));
             statement.setString(13, event.resumedFrom());
             statement.setString(14, event.reason());
             statement.executeUpdate();
@@ -500,6 +506,81 @@ public final class JdbcEventSink implements EventSink {
                 statement.addBatch();
             }
             statement.executeBatch();
+        }
+    }
+
+    private Map<String, Object> enrichRunArtifacts(String bestGenotype, Map<String, String> artifacts) {
+        Map<String, Object> enriched = new LinkedHashMap<>();
+        if (artifacts != null) {
+            enriched.putAll(artifacts);
+        }
+        if (bestGenotype != null && !bestGenotype.isBlank()) {
+            enriched.putIfAbsent("bestGenotype", bestGenotype);
+        }
+
+        if (!isGrammarRun()) {
+            return enriched;
+        }
+
+        Map<String, Object> grammarPayload = grammarPayload(bestGenotype);
+        if (!grammarPayload.isEmpty()) {
+            enriched.putAll(grammarPayload);
+        }
+        return enriched;
+    }
+
+    private String enrichedBestSummary(String fallbackSummary, Map<String, Object> artifacts) {
+        Object infix = artifacts.get("bestExpressionInfix");
+        if (infix != null && !String.valueOf(infix).isBlank()) {
+            return String.valueOf(infix);
+        }
+        return fallbackSummary;
+    }
+
+    private boolean isGrammarRun() {
+        String representationType = config.getRepresentation() == null ? "" : config.getRepresentation().getType();
+        if ("grammar-bitstring".equalsIgnoreCase(representationType)) {
+            return true;
+        }
+        return config.getGrammar() != null && !config.getGrammar().getOptions().isEmpty();
+    }
+
+    private Map<String, Object> grammarPayload(String bestGenotype) {
+        if (bestGenotype == null || bestGenotype.isBlank()) {
+            return Map.of();
+        }
+        if (!bestGenotype.chars().allMatch(ch -> ch == '0' || ch == '1')) {
+            return Map.of();
+        }
+
+        try {
+            Map<String, Object> params = new LinkedHashMap<>();
+            if (config.getProblem() != null && config.getProblem().getParams() != null) {
+                params.putAll(config.getProblem().getParams());
+            }
+            if (config.getGrammar() != null && !config.getGrammar().getOptions().isEmpty()) {
+                params.put("grammar", new LinkedHashMap<>(config.getGrammar().getOptions()));
+            }
+
+            GrammarTreeEngine engine = new GrammarTreeEngine(params);
+            boolean[] genes = new boolean[bestGenotype.length()];
+            for (int i = 0; i < bestGenotype.length(); i++) {
+                genes[i] = bestGenotype.charAt(i) == '1';
+            }
+            GrammarTreeEngine.TreeInspection inspection = engine.inspect(new BitString(genes));
+
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("bestExpressionInfix", inspection.infix());
+            payload.put("bestExpressionPrefix", inspection.prefix());
+            payload.put("bestExpressionLatex", inspection.latex());
+            payload.put("bestExpressionDot", inspection.dot());
+            payload.put("bestAstJson", inspection.astJson());
+            payload.put("bestTreeMetrics", inspection.metrics());
+            payload.put("decisionVector", inspection.decisionVector());
+            payload.put("ercValues", inspection.ercValues());
+            return payload;
+        } catch (Exception e) {
+            return Map.of("bestExpressionError", "Failed deriving grammar AST: " + e.getMessage());
         }
     }
 

@@ -1,0 +1,11 @@
+# Boolean-only grammar (symbolic classification)
+<BoolExpr> ::= and <BoolExpr> <BoolExpr>
+             | or <BoolExpr> <BoolExpr>
+             | xor <BoolExpr> <BoolExpr>
+             | not <BoolExpr>
+             | if <BoolExpr> <BoolExpr> <BoolExpr>
+             | x0
+             | x1
+             | x2
+             | true
+             | false

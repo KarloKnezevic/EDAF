@@ -155,7 +155,7 @@ logging:
   modes: [console, jsonl, file, db]
   verbosity: verbose
   jsonlFile: ./results/experiment-events.jsonl
-  logFile: ./edaf-v3.log
+  logFile: ./results/logs/edaf-v3.log
 ```
 
 ## 7) Operational Patterns

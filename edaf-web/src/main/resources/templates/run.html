@@ -480,6 +480,7 @@
             <button class="tab-btn" data-tab="diversity">Diversity</button>
             <button class="tab-btn" data-tab="drift">Drift</button>
             <button class="tab-btn" data-tab="insights">Insights</button>
+            <button class="tab-btn" data-tab="tree">Tree</button>
             <button class="tab-btn" data-tab="iterations">Iterations</button>
             <button class="tab-btn" data-tab="events">Events</button>
             <button class="tab-btn" data-tab="config">Configuration</button>
@@ -650,6 +651,42 @@
             </section>
         </div>
 
+        <div id="panel-tree" class="panel">
+            <section class="card" style="margin:0; box-shadow:none;">
+                <div class="toolbar">
+                    <h3 class="section-title" style="margin:0;">Best Program Tree</h3>
+                    <div class="export-actions">
+                        <button id="downloadTreeAst" class="btn">AST JSON</button>
+                        <button id="downloadTreeInfix" class="btn">Infix</button>
+                        <button id="downloadTreeDot" class="btn">DOT</button>
+                        <button id="downloadTreeLatex" class="btn">LaTeX</button>
+                    </div>
+                </div>
+                <div class="row-2">
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h4 class="section-title">Expression (Infix)</h4>
+                        <pre id="treeInfixView" class="mono"></pre>
+                        <h4 class="section-title" style="margin-top:12px;">Expression (LaTeX)</h4>
+                        <pre id="treeLatexView" class="mono"></pre>
+                    </section>
+                    <section class="card" style="margin:0; box-shadow:none;">
+                        <h4 class="section-title">Tree Metrics</h4>
+                        <div class="table-wrap">
+                            <table>
+                                <tbody id="treeMetricsRows"></tbody>
+                            </table>
+                        </div>
+                        <h4 class="section-title" style="margin-top:12px;">Decision Vector (first 64)</h4>
+                        <pre id="treeDecisionView" class="mono"></pre>
+                    </section>
+                </div>
+                <section class="card" style="margin:12px 0 0; box-shadow:none;">
+                    <h4 class="section-title">Tree Graph</h4>
+                    <div id="treeSvgContainer" class="table-wrap" style="padding:8px; min-height:220px; background:#f8fbff;"></div>
+                </section>
+            </section>
+        </div>
+
         <div id="panel-iterations" class="panel">
             <div class="row-2">
                 <section class="card" style="margin:0; box-shadow:none;">
@@ -809,6 +846,7 @@
         params: initialParams || [],
         checkpoints: initialCheckpoints || [],
         parsedIterations: [],
+        treeView: null,
         representationFamily: "unknown",
         tableSort: {
             iterations: { key: "iteration", dir: "asc" },
@@ -883,6 +921,15 @@
         showJson: document.getElementById("showJson"),
         paramRows: document.getElementById("paramRows"),
         paramSearch: document.getElementById("paramSearch"),
+        treeInfixView: document.getElementById("treeInfixView"),
+        treeLatexView: document.getElementById("treeLatexView"),
+        treeMetricsRows: document.getElementById("treeMetricsRows"),
+        treeDecisionView: document.getElementById("treeDecisionView"),
+        treeSvgContainer: document.getElementById("treeSvgContainer"),
+        downloadTreeAst: document.getElementById("downloadTreeAst"),
+        downloadTreeInfix: document.getElementById("downloadTreeInfix"),
+        downloadTreeDot: document.getElementById("downloadTreeDot"),
+        downloadTreeLatex: document.getElementById("downloadTreeLatex"),
 
         stopRun: document.getElementById("stopRun"),
         refreshAll: document.getElementById("refreshAll"),
@@ -1602,6 +1649,230 @@
         }
     }
 
+    function stringifyTreeAst(ast) {
+        try {
+            return JSON.stringify(ast || {}, null, 2);
+        } catch (_) {
+            return "{}";
+        }
+    }
+
+    function astChildren(node) {
+        if (!node || !Array.isArray(node.children)) {
+            return [];
+        }
+        return node.children.filter(child => child && typeof child === "object");
+    }
+
+    function astNodeLabel(node) {
+        if (!node || typeof node !== "object") {
+            return "node";
+        }
+        if (node.kind === "terminal") {
+            const sampled = node.sampledValue == null ? "" : `=${formatMetric(node.sampledValue)}`;
+            return `${node.symbol || "terminal"}${sampled}`;
+        }
+        if (node.operator) {
+            return `${node.operator}`;
+        }
+        if (node.nonTerminal) {
+            return `<${node.nonTerminal}>`;
+        }
+        return node.kind || "rule";
+    }
+
+    function flattenAst(root) {
+        const nodes = [];
+        const edges = [];
+        let nextId = 1;
+        function visit(node, depth, parentId) {
+            const id = nextId++;
+            const children = astChildren(node);
+            nodes.push({
+                id,
+                depth,
+                label: astNodeLabel(node),
+                kind: node?.kind || "node",
+                terminalType: node?.terminalType || ""
+            });
+            if (parentId != null) {
+                edges.push({ from: parentId, to: id });
+            }
+            children.forEach(child => visit(child, depth + 1, id));
+        }
+        visit(root, 0, null);
+        return { nodes, edges };
+    }
+
+    function wrapSvgText(label, maxCharsPerLine) {
+        const words = String(label || "").split(/\s+/).filter(Boolean);
+        if (!words.length) {
+            return [""];
+        }
+        const lines = [];
+        let current = "";
+        words.forEach(word => {
+            if (!current) {
+                current = word;
+                return;
+            }
+            if ((current.length + 1 + word.length) <= maxCharsPerLine) {
+                current += ` ${word}`;
+            } else {
+                lines.push(current);
+                current = word;
+            }
+        });
+        if (current) {
+            lines.push(current);
+        }
+        return lines.slice(0, 3);
+    }
+
+    function nodeFillColor(node) {
+        if (node.kind === "terminal") {
+            if ((node.terminalType || "").toLowerCase().includes("ephemeral")) {
+                return "#fff8db";
+            }
+            return "#e8f8f3";
+        }
+        return "#e8f1ff";
+    }
+
+    function renderTreeSvg(ast) {
+        if (!ast || typeof ast !== "object" || !Object.keys(ast).length) {
+            els.treeSvgContainer.innerHTML = `<div class="muted" style="padding:8px;">Tree AST is not available.</div>`;
+            return;
+        }
+
+        const flat = flattenAst(ast);
+        if (!flat.nodes.length) {
+            els.treeSvgContainer.innerHTML = `<div class="muted" style="padding:8px;">Tree AST is empty.</div>`;
+            return;
+        }
+
+        const byDepth = new Map();
+        let maxDepth = 0;
+        flat.nodes.forEach(node => {
+            maxDepth = Math.max(maxDepth, node.depth);
+            if (!byDepth.has(node.depth)) {
+                byDepth.set(node.depth, []);
+            }
+            byDepth.get(node.depth).push(node);
+        });
+
+        const nodeW = 150;
+        const nodeH = 52;
+        const levelGap = 92;
+        const pad = 24;
+        const widestLevel = Math.max(...Array.from(byDepth.values()).map(level => level.length));
+        const width = Math.max(880, widestLevel * (nodeW + 24) + pad * 2);
+        const height = (maxDepth + 1) * levelGap + pad * 2;
+
+        byDepth.forEach(level => {
+            const spacing = width / (level.length + 1);
+            level.forEach((node, index) => {
+                node.x = (index + 1) * spacing;
+                node.y = pad + node.depth * levelGap;
+            });
+        });
+
+        const nodeById = new Map(flat.nodes.map(node => [node.id, node]));
+        const edgeLines = flat.edges.map(edge => {
+            const from = nodeById.get(edge.from);
+            const to = nodeById.get(edge.to);
+            if (!from || !to) {
+                return "";
+            }
+            const x1 = from.x;
+            const y1 = from.y + nodeH / 2;
+            const x2 = to.x;
+            const y2 = to.y - nodeH / 2;
+            return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#99afc8" stroke-width="1.3" />`;
+        }).join("");
+
+        const nodeRects = flat.nodes.map(node => {
+            const x = node.x - nodeW / 2;
+            const y = node.y - nodeH / 2;
+            const lines = wrapSvgText(node.label, 16);
+            const text = lines.map((line, idx) => {
+                const dy = 18 + idx * 13;
+                return `<tspan x="${node.x}" y="${y + dy}">${escapeHtml(line)}</tspan>`;
+            }).join("");
+            return `
+                <g>
+                    <rect x="${x}" y="${y}" width="${nodeW}" height="${nodeH}" rx="10" ry="10"
+                          fill="${nodeFillColor(node)}" stroke="#7d95b0" stroke-width="1.2" />
+                    <text text-anchor="middle" font-size="11" fill="#243447" font-family="IBM Plex Mono, monospace">${text}</text>
+                </g>
+            `;
+        }).join("");
+
+        const svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Program tree">
+                <rect x="0" y="0" width="${width}" height="${height}" fill="#f8fbff"></rect>
+                ${edgeLines}
+                ${nodeRects}
+            </svg>
+        `;
+        els.treeSvgContainer.innerHTML = svg;
+    }
+
+    function renderTreeMetrics(metrics) {
+        const entries = Object.entries(metrics || {});
+        if (!entries.length) {
+            els.treeMetricsRows.innerHTML = `<tr><td class="muted">No tree metrics available.</td></tr>`;
+            return;
+        }
+        entries.sort((left, right) => String(left[0]).localeCompare(String(right[0]), undefined, { sensitivity: "base" }));
+        els.treeMetricsRows.innerHTML = entries.map(([key, value]) => `
+            <tr>
+                <th style="width:44%;">${escapeHtml(key)}</th>
+                <td class="mono">${escapeHtml(typeof value === "number" ? formatMetric(value) : String(value))}</td>
+            </tr>
+        `).join("");
+    }
+
+    function renderTreeUnavailable(message) {
+        state.treeView = null;
+        els.treeInfixView.textContent = message || "Tree view is unavailable for this run.";
+        els.treeLatexView.textContent = "";
+        els.treeDecisionView.textContent = "";
+        els.treeSvgContainer.innerHTML = `<div class="muted" style="padding:8px;">${escapeHtml(message || "Tree view is unavailable for this run.")}</div>`;
+        renderTreeMetrics({});
+    }
+
+    function renderTreeView(view) {
+        if (!view || !view.ast) {
+            renderTreeUnavailable("Tree view is unavailable for this run.");
+            return;
+        }
+        state.treeView = view;
+        const source = view.source ? `\n\nsource=${view.source}` : "";
+        els.treeInfixView.textContent = (view.infix || "n/a") + source;
+        els.treeLatexView.textContent = view.latex || "n/a";
+        const vector = Array.isArray(view.decisionVector) ? view.decisionVector : [];
+        const vectorPreview = vector.slice(0, 64).join(", ");
+        const erc = Array.isArray(view.ercValues) ? view.ercValues : [];
+        const ercText = erc.length
+            ? `\nERC values (${erc.length}): ${erc.map(value => formatMetric(value)).join(", ")}`
+            : "";
+        els.treeDecisionView.textContent = vector.length
+            ? `[${vectorPreview}]${vector.length > 64 ? " ..." : ""}${ercText}`
+            : `No decision vector available.${ercText}`;
+        renderTreeMetrics(view.metrics || {});
+        renderTreeSvg(view.ast);
+    }
+
+    async function loadTreeView() {
+        try {
+            const data = await fetchJson(`/api/runs/${encodeURIComponent(runId)}/tree`);
+            renderTreeView(data);
+        } catch (_) {
+            renderTreeUnavailable("Tree view is available only for grammar-bitstring runs with saved best genotype.");
+        }
+    }
+
     function renderIterations(rows) {
         state.parsedIterations = parseIterationRows(rows);
         const parsed = state.parsedIterations;
@@ -2106,7 +2377,10 @@
 
     async function fetchJson(url) {
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`HTTP ${response.status}${text ? `: ${text}` : ""}`);
+        }
         return response.json();
     }
 
@@ -2142,7 +2416,7 @@
 
     async function refreshAll() {
         try {
-            await Promise.all([loadRunDetail(), loadIterations(), loadCheckpoints(), loadParams(), loadEvents()]);
+            await Promise.all([loadRunDetail(), loadIterations(), loadCheckpoints(), loadParams(), loadEvents(), loadTreeView()]);
         } catch (error) {
             console.error("refresh failed", error);
         }
@@ -2212,6 +2486,32 @@
             els.stopRun.disabled = false;
         }
     });
+
+    els.downloadTreeAst.addEventListener("click", () => {
+        if (!state.treeView || !state.treeView.ast) {
+            return;
+        }
+        downloadText(stringifyTreeAst(state.treeView.ast), `${runId}-ast.json`, "application/json;charset=utf-8");
+    });
+    els.downloadTreeInfix.addEventListener("click", () => {
+        if (!state.treeView) {
+            return;
+        }
+        downloadText(state.treeView.infix || "", `${runId}-expression.txt`);
+    });
+    els.downloadTreeDot.addEventListener("click", () => {
+        if (!state.treeView) {
+            return;
+        }
+        downloadText(state.treeView.dot || "", `${runId}-tree.dot`);
+    });
+    els.downloadTreeLatex.addEventListener("click", () => {
+        if (!state.treeView) {
+            return;
+        }
+        downloadText(state.treeView.latex || "", `${runId}-expression.tex`);
+    });
+
     els.refreshAll.addEventListener("click", refreshAll);
     initializeSortableHeaders();
     initializePanelExports();
@@ -2221,6 +2521,7 @@
     renderCheckpoints(initialCheckpoints || []);
     renderParams(initialParams || []);
     renderEvents(initialEventsPage || { items: [], page: 0, totalPages: 0 });
+    renderTreeUnavailable("Tree view is available only for grammar-bitstring runs with saved best genotype.");
 
     refreshAll();
     setInterval(refreshAll, 5000);

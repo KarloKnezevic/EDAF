@@ -9,7 +9,9 @@ import com.knezevic.edaf.v3.core.plugins.AlgorithmDependencies;
 import com.knezevic.edaf.v3.core.plugins.Plugin;
 import com.knezevic.edaf.v3.core.plugins.PluginRegistry;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Runtime component catalog backed by ServiceLoader-discovered plugins.
@@ -25,25 +27,25 @@ public final class ComponentCatalog {
     @SuppressWarnings("unchecked")
     public <G> Representation<G> createRepresentation(ExperimentConfig config) {
         var plugin = registry.<G>representation(config.getRepresentation().getType());
-        return plugin.create(config.getRepresentation().getParams());
+        return plugin.create(paramsWithGrammar(config, config.getRepresentation().getParams()));
     }
 
     @SuppressWarnings("unchecked")
     public <G> Problem<G> createProblem(ExperimentConfig config) {
         var plugin = registry.<G>problem(config.getProblem().getType());
-        return plugin.create(config.getProblem().getParams());
+        return plugin.create(paramsWithGrammar(config, config.getProblem().getParams()));
     }
 
     @SuppressWarnings("unchecked")
     public <G> Model<G> createModel(ExperimentConfig config) {
         var plugin = registry.<G>model(config.getModel().getType());
-        return plugin.create(config.getModel().getParams());
+        return plugin.create(paramsWithGrammar(config, config.getModel().getParams()));
     }
 
     @SuppressWarnings("unchecked")
     public <G> Algorithm<G> createAlgorithm(ExperimentConfig config, AlgorithmDependencies<G> dependencies) {
         var plugin = registry.<G>algorithm(config.getAlgorithm().getType());
-        return plugin.create(dependencies, config.getAlgorithm().getParams());
+        return plugin.create(dependencies, paramsWithGrammar(config, config.getAlgorithm().getParams()));
     }
 
     public List<Plugin> listAlgorithms() {
@@ -60,5 +62,19 @@ public final class ComponentCatalog {
 
     public List<Plugin> listRepresentations() {
         return registry.listRepresentations();
+    }
+
+    private static Map<String, Object> paramsWithGrammar(ExperimentConfig config, Map<String, Object> sectionParams) {
+        Map<String, Object> merged = new LinkedHashMap<>();
+        if (sectionParams != null) {
+            merged.putAll(sectionParams);
+        }
+        if (!merged.containsKey("grammar")
+                && config != null
+                && config.getGrammar() != null
+                && !config.getGrammar().getOptions().isEmpty()) {
+            merged.put("grammar", new LinkedHashMap<>(config.getGrammar().getOptions()));
+        }
+        return merged;
     }
 }

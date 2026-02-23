@@ -1,0 +1,71 @@
+schema: '3.0'
+run:
+  id: grammar-classification-iris-boa
+  name: Grammar GP Iris Multiclass (boa)
+  masterSeed: 51000
+  deterministicStreams: true
+  checkpointEveryIterations: 20
+  runCount: 10
+grammar:
+  mode: auto
+  variables: [sepal_length, sepal_width, petal_length, petal_width]
+  binary_ops: [+, '-', '*', /, min, max]
+  unary_ops: [abs, neg]
+  ternary_ops: [if_then_else]
+  allow_constants: true
+  constants: [0.0, 1.0, 2.0]
+  ephemeral_constants: true
+  ephemeral_range: [-2.0, 2.0]
+  max_depth: 6
+  typed: false
+  boolean_mode: false
+representation:
+  type: grammar-bitstring
+problem:
+  type: grammar-csv-classification
+  dataset: classpath:datasets/grammar/classification/iris_multiclass.csv
+  targetColumn: label
+  score: macro_f1
+  complexityPenalty: 0.0007
+  classificationMode: multiclass
+  classValues: [0, 1, 2]
+algorithm:
+  type: boa
+  populationSize: 240
+  selectionRatio: 0.33
+  elitism: 1
+model:
+  type: boa-ebna
+selection:
+  type: truncation
+replacement:
+  type: elitist
+stopping:
+  type: max-iterations
+  maxIterations: 140
+  maxEvaluations: 120000
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-v3.db
+    user: ''
+    password: ''
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/grammar-gp-events.jsonl
+  logFile: ./edaf-v3.log
