@@ -108,6 +108,7 @@
         .status-running { background: #dcfce7; color: var(--good); }
         .status-completed { background: #e0f2fe; color: #075985; }
         .status-failed { background: #fee2e2; color: var(--bad); }
+        .status-stopped { background: #fef3c7; color: var(--warn); }
         .status-other { background: #fef3c7; color: var(--warn); }
         .tabs {
             display: flex;
@@ -445,7 +446,10 @@
             <a href="/coco">COCO Campaigns</a>
             <a id="experimentLink" href="#">Experiment</a>
         </div>
-        <button id="refreshAll" class="btn btn-primary">Refresh</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <button id="stopRun" class="btn">Stop run</button>
+            <button id="refreshAll" class="btn btn-primary">Refresh</button>
+        </div>
     </div>
 
     <h1 id="runTitle" th:text="${run.runId}">run-id</h1>
@@ -880,6 +884,7 @@
         paramRows: document.getElementById("paramRows"),
         paramSearch: document.getElementById("paramSearch"),
 
+        stopRun: document.getElementById("stopRun"),
         refreshAll: document.getElementById("refreshAll"),
         experimentLink: document.getElementById("experimentLink"),
         infoButtons: Array.from(document.querySelectorAll(".info-btn")),
@@ -1288,6 +1293,7 @@
         if (value === "RUNNING") return "status status-running";
         if (value === "COMPLETED") return "status status-completed";
         if (value === "FAILED") return "status status-failed";
+        if (value === "STOPPED") return "status status-stopped";
         return "status status-other";
     }
 
@@ -1571,6 +1577,7 @@
         els.runTitle.textContent = detail.runId;
         els.statusBadge.className = statusClass(detail.status);
         els.statusBadge.textContent = safe(detail.status, "UNKNOWN");
+        els.stopRun.disabled = (detail.status || "").toUpperCase() !== "RUNNING";
         els.algorithmValue.textContent = safe(detail.algorithmType);
         els.modelValue.textContent = safe(detail.modelType);
         els.problemValue.textContent = safe(detail.problemType);
@@ -2141,6 +2148,34 @@
         }
     }
 
+    async function stopCurrentRun() {
+        const confirmed = window.confirm(`Request safe stop for run '${runId}'?`);
+        if (!confirmed) {
+            return;
+        }
+        const response = await fetch(`/api/runs/${encodeURIComponent(runId)}/stop`, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ reason: "Stopped from run detail page" })
+        });
+        if (!response.ok) {
+            let message = `Stop request failed (HTTP ${response.status})`;
+            try {
+                const payload = await response.json();
+                if (payload) {
+                    message = payload.message || payload.detail || payload.error || message;
+                }
+            } catch (ignored) {
+                // keep default message
+            }
+            throw new Error(message);
+        }
+        await refreshAll();
+    }
+
     els.eventApply.addEventListener("click", async () => {
         state.eventType = els.eventType.value;
         state.eventQuery = (els.eventQuery.value || "").trim();
@@ -2166,6 +2201,17 @@
         els.yamlView.classList.add("hidden");
     });
 
+    els.stopRun.addEventListener("click", async () => {
+        els.stopRun.disabled = true;
+        try {
+            await stopCurrentRun();
+        } catch (error) {
+            console.error("Stop run failed", error);
+            window.alert(error.message || "Stop request failed");
+        } finally {
+            els.stopRun.disabled = false;
+        }
+    });
     els.refreshAll.addEventListener("click", refreshAll);
     initializeSortableHeaders();
     initializePanelExports();

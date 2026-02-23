@@ -2,6 +2,7 @@ package com.knezevic.edaf.v3.web.controller;
 
 import com.knezevic.edaf.v3.persistence.query.CheckpointRow;
 import com.knezevic.edaf.v3.persistence.query.ExperimentAnalytics;
+import com.knezevic.edaf.v3.persistence.query.ExperimentDeletionResult;
 import com.knezevic.edaf.v3.persistence.query.ExperimentDetail;
 import com.knezevic.edaf.v3.persistence.query.ExperimentListItem;
 import com.knezevic.edaf.v3.persistence.query.ExperimentQuery;
@@ -16,6 +17,7 @@ import com.knezevic.edaf.v3.persistence.query.RunDetail;
 import com.knezevic.edaf.v3.persistence.query.RunListItem;
 import com.knezevic.edaf.v3.persistence.query.RunQuery;
 import com.knezevic.edaf.v3.persistence.query.RunRepository;
+import com.knezevic.edaf.v3.persistence.query.StopRequestResult;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoAggregateMetric;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoCampaignDetail;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoCampaignListItem;
@@ -24,8 +26,11 @@ import com.knezevic.edaf.v3.persistence.query.coco.CocoOptimizerConfigRow;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoRepository;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoTrialMetric;
 import com.knezevic.edaf.v3.web.service.RunArtifactService;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +40,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
@@ -162,6 +168,99 @@ public class ApiController {
             throw new ResponseStatusException(NOT_FOUND, "Experiment not found: " + experimentId);
         }
         return detail;
+    }
+
+    @DeleteMapping("/experiments/{experimentId}")
+    public DeleteExperimentResponse deleteExperiment(@PathVariable String experimentId) {
+        ExperimentDetail detail = runRepository.getExperimentDetail(experimentId);
+        if (detail == null) {
+            throw new ResponseStatusException(NOT_FOUND, "Experiment not found: " + experimentId);
+        }
+        if (detail.runningRuns() > 0) {
+            throw new ResponseStatusException(CONFLICT,
+                    "Experiment has RUNNING runs. Stop/resume completion before deletion: " + experimentId);
+        }
+
+        List<String> runIds = runRepository.listRunIdsForExperiment(experimentId);
+        ExperimentDeletionResult deleted = runRepository.deleteExperiment(experimentId);
+        if (!deleted.deleted()) {
+            throw new ResponseStatusException(NOT_FOUND, "Experiment not found: " + experimentId);
+        }
+        int artifactDirectoriesDeleted = runArtifactService.deleteRunArtifacts(runIds);
+        return new DeleteExperimentResponse(
+                deleted.experimentId(),
+                deleted.deleted(),
+                deleted.runsDeleted(),
+                deleted.runObjectivesDeleted(),
+                deleted.iterationsDeleted(),
+                deleted.checkpointsDeleted(),
+                deleted.eventsDeleted(),
+                deleted.paramsDeleted(),
+                artifactDirectoriesDeleted
+        );
+    }
+
+    @PostMapping("/experiments/delete-bulk")
+    public BulkDeleteResponse deleteExperimentsBulk(@RequestBody BulkDeleteRequest request) {
+        if (request == null || request.experimentIds() == null || request.experimentIds().isEmpty()) {
+            return new BulkDeleteResponse(List.of(), 0, 0, 0);
+        }
+
+        List<BulkDeleteItemResult> results = request.experimentIds().stream()
+                .map(experimentId -> {
+                    try {
+                        ExperimentDetail detail = runRepository.getExperimentDetail(experimentId);
+                        if (detail == null) {
+                            return new BulkDeleteItemResult(experimentId, false, "NOT_FOUND");
+                        }
+                        if (detail.runningRuns() > 0) {
+                            return new BulkDeleteItemResult(experimentId, false, "RUNNING");
+                        }
+                        List<String> runIds = runRepository.listRunIdsForExperiment(experimentId);
+                        ExperimentDeletionResult deleted = runRepository.deleteExperiment(experimentId);
+                        if (!deleted.deleted()) {
+                            return new BulkDeleteItemResult(experimentId, false, "NOT_FOUND");
+                        }
+                        runArtifactService.deleteRunArtifacts(runIds);
+                        return new BulkDeleteItemResult(experimentId, true, "DELETED");
+                    } catch (Exception e) {
+                        return new BulkDeleteItemResult(experimentId, false, "ERROR");
+                    }
+                })
+                .toList();
+
+        int deletedCount = (int) results.stream().filter(BulkDeleteItemResult::deleted).count();
+        int blockedCount = (int) results.stream().filter(r -> !r.deleted() && "RUNNING".equals(r.reason())).count();
+        int missingCount = (int) results.stream().filter(r -> !r.deleted() && "NOT_FOUND".equals(r.reason())).count();
+        return new BulkDeleteResponse(results, deletedCount, blockedCount, missingCount);
+    }
+
+    @PostMapping("/runs/{runId}/stop")
+    public StopResponse stopRun(@PathVariable String runId,
+                                @RequestBody(required = false) StopRequestBody body) {
+        String reason = body == null ? null : body.reason();
+        StopRequestResult result = runRepository.requestRunStop(runId, "web-ui", reason);
+        if (!result.found()) {
+            throw new ResponseStatusException(NOT_FOUND, result.message());
+        }
+        if (!result.accepted()) {
+            throw new ResponseStatusException(CONFLICT, result.message());
+        }
+        return new StopResponse(result.scope(), result.targetId(), result.accepted(), result.affectedRuns(), result.message());
+    }
+
+    @PostMapping("/experiments/{experimentId}/stop")
+    public StopResponse stopExperiment(@PathVariable String experimentId,
+                                       @RequestBody(required = false) StopRequestBody body) {
+        String reason = body == null ? null : body.reason();
+        StopRequestResult result = runRepository.requestExperimentStop(experimentId, "web-ui", reason);
+        if (!result.found()) {
+            throw new ResponseStatusException(NOT_FOUND, result.message());
+        }
+        if (!result.accepted()) {
+            throw new ResponseStatusException(CONFLICT, result.message());
+        }
+        return new StopResponse(result.scope(), result.targetId(), result.accepted(), result.affectedRuns(), result.message());
     }
 
     @GetMapping("/experiments/{experimentId}/runs")
@@ -353,5 +452,66 @@ public class ApiController {
             return "n/a";
         }
         return String.format(java.util.Locale.ROOT, "%.6f", value);
+    }
+
+    /**
+     * API payload for one hard-delete experiment operation.
+     */
+    public record DeleteExperimentResponse(
+            String experimentId,
+            boolean deleted,
+            int runsDeleted,
+            int runObjectivesDeleted,
+            int iterationsDeleted,
+            int checkpointsDeleted,
+            int eventsDeleted,
+            int paramsDeleted,
+            int artifactDirectoriesDeleted
+    ) {
+    }
+
+    /**
+     * API payload for cooperative stop requests.
+     */
+    public record StopRequestBody(String reason) {
+    }
+
+    /**
+     * API payload for stop request result.
+     */
+    public record StopResponse(
+            String scope,
+            String targetId,
+            boolean accepted,
+            int affectedRuns,
+            String message
+    ) {
+    }
+
+    /**
+     * API payload for bulk delete request.
+     */
+    public record BulkDeleteRequest(List<String> experimentIds) {
+    }
+
+    /**
+     * API payload for one bulk delete item.
+     */
+    public record BulkDeleteItemResult(
+            String experimentId,
+            boolean deleted,
+            String reason
+    ) {
+    }
+
+    /**
+     * API payload for bulk delete summary.
+     */
+    public record BulkDeleteResponse(
+            List<BulkDeleteItemResult> items,
+            int deletedCount,
+            int blockedCount,
+            int missingCount
+    ) {
     }
 }

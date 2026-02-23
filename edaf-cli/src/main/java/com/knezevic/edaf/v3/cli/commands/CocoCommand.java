@@ -3,6 +3,7 @@ package com.knezevic.edaf.v3.cli.commands;
 import com.knezevic.edaf.v3.cli.logging.LoggingConfigurator;
 import com.knezevic.edaf.v3.cli.ui.Verbosity;
 import com.knezevic.edaf.v3.coco.runner.CocoCampaignRunner;
+import com.knezevic.edaf.v3.core.runtime.ExecutionParallelism;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -50,6 +51,8 @@ public final class CocoCommand implements Runnable {
             LoggingConfigurator.apply(effectiveVerbosity);
 
             CocoCampaignRunner runner = new CocoCampaignRunner();
+            System.out.println("COCO run-level parallelism (auto): " + ExecutionParallelism.suggestedRunParallelism()
+                    + " | visible CPUs: " + ExecutionParallelism.availableProcessors());
             var result = runner.run(configPath, List.of());
 
             System.out.println("COCO campaign completed: " + result.campaignId());

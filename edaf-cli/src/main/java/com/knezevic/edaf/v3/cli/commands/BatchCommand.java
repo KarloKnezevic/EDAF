@@ -2,6 +2,7 @@ package com.knezevic.edaf.v3.cli.commands;
 
 import com.knezevic.edaf.v3.cli.logging.LoggingConfigurator;
 import com.knezevic.edaf.v3.cli.ui.Verbosity;
+import com.knezevic.edaf.v3.core.runtime.ExecutionParallelism;
 import com.knezevic.edaf.v3.experiments.runner.BatchRunner;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -30,6 +31,8 @@ public final class BatchCommand implements Callable<Integer> {
         LoggingConfigurator.apply(effectiveVerbosity);
 
         BatchRunner runner = new BatchRunner();
+        System.out.println("Batch run-level parallelism (auto): " + ExecutionParallelism.suggestedRunParallelism()
+                + " | visible CPUs: " + ExecutionParallelism.availableProcessors());
         var results = runner.runBatch(batchConfig, List.of());
         System.out.println("Completed batch runs: " + results.size());
         for (var result : results) {

@@ -7,6 +7,7 @@ import com.knezevic.edaf.v3.core.events.RunStartedEvent;
 import com.knezevic.edaf.v3.core.metrics.LatentKnowledgeAnalyzer;
 import com.knezevic.edaf.v3.core.metrics.PopulationMetrics;
 import com.knezevic.edaf.v3.core.rng.RngStream;
+import com.knezevic.edaf.v3.core.runtime.ExecutionParallelism;
 import com.knezevic.edaf.v3.core.util.Params;
 
 import java.lang.reflect.Method;
@@ -31,10 +32,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
 
     /**
-     * Fitness evaluations are CPU-bound and independent per candidate, so the default strategy
-     * is to use all available processors without extra configuration flags.
+     * Shared global pool used by per-run evaluators.
+     *
+     * <p>The number of worker tasks per run is decided dynamically from
+     * {@link ExecutionParallelism#suggestedFitnessWorkersPerRun()}.</p>
      */
-    private static final int FITNESS_EVALUATION_WORKERS = Math.max(1, Runtime.getRuntime().availableProcessors());
+    private static final int FITNESS_EVALUATION_WORKERS = ExecutionParallelism.availableProcessors();
     private static final ExecutorService FITNESS_EVALUATION_POOL = newFixedFitnessPool();
 
     private AlgorithmState<G> state;
@@ -256,7 +259,11 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
             return List.of();
         }
 
-        if (FITNESS_EVALUATION_WORKERS <= 1 || feasibleGenotypes.size() <= 1) {
+        int workerBudget = Math.max(
+                1,
+                Math.min(feasibleGenotypes.size(), ExecutionParallelism.suggestedFitnessWorkersPerRun())
+        );
+        if (workerBudget <= 1 || feasibleGenotypes.size() <= 1) {
             List<Fitness> serial = new ArrayList<>(feasibleGenotypes.size());
             for (int i = 0; i < feasibleGenotypes.size(); i++) {
                 serial.add(evaluateGenotype(
@@ -268,23 +275,24 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
             return serial;
         }
 
-        List<CompletableFuture<Fitness>> futures = new ArrayList<>(feasibleGenotypes.size());
-        for (int i = 0; i < feasibleGenotypes.size(); i++) {
-            final int index = i;
-            futures.add(CompletableFuture.supplyAsync(
-                    () -> evaluateGenotype(
+        Fitness[] evaluated = new Fitness[feasibleGenotypes.size()];
+        List<CompletableFuture<Void>> futures = new ArrayList<>(workerBudget);
+        for (int workerIndex = 0; workerIndex < workerBudget; workerIndex++) {
+            final int lane = workerIndex;
+            futures.add(CompletableFuture.runAsync(() -> {
+                for (int index = lane; index < feasibleGenotypes.size(); index += workerBudget) {
+                    evaluated[index] = evaluateGenotype(
                             context,
                             feasibleGenotypes.get(index),
                             evaluationStream(context, phase, iteration, index)
-                    ),
-                    FITNESS_EVALUATION_POOL
-            ));
+                    );
+                }
+            }, FITNESS_EVALUATION_POOL));
         }
 
-        List<Fitness> evaluated = new ArrayList<>(feasibleGenotypes.size());
-        for (CompletableFuture<Fitness> future : futures) {
+        for (CompletableFuture<Void> future : futures) {
             try {
-                evaluated.add(future.join());
+                future.join();
             } catch (CompletionException e) {
                 if (e.getCause() instanceof RuntimeException runtime) {
                     throw runtime;
@@ -292,7 +300,11 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
                 throw new RuntimeException("Parallel fitness evaluation failed", e.getCause());
             }
         }
-        return evaluated;
+        List<Fitness> result = new ArrayList<>(feasibleGenotypes.size());
+        for (Fitness fitness : evaluated) {
+            result.add(fitness);
+        }
+        return result;
     }
 
     private RngStream evaluationStream(AlgorithmContext<G> context, String phase, int iteration, int candidateIndex) {

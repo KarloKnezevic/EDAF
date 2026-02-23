@@ -151,6 +151,7 @@
         .status-running { background: #dcfce7; color: var(--ok); }
         .status-completed { background: #e0f2fe; color: #075985; }
         .status-failed { background: #fee2e2; color: var(--bad); }
+        .status-stopped { background: #fef3c7; color: var(--warn); }
         .status-other { background: #fef3c7; color: var(--warn); }
         .mono { font-family: "IBM Plex Mono", monospace; }
         .pager {
@@ -274,6 +275,7 @@
                     <th>Iterations</th>
                     <th>Evaluations</th>
                     <th class="sortable-th" data-sort-key="start_time" data-default-dir="desc">Start Time</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody id="rows">
@@ -289,6 +291,9 @@
                     <td th:text="${run.iterations}"></td>
                     <td th:text="${run.evaluations}"></td>
                     <td class="mono" th:text="${run.startTime}"></td>
+                    <td>
+                        <button type="button" class="btn-ghost stop-run-btn" th:attr="data-run-id=${run.runId}" th:disabled="${run.status != 'RUNNING'}">Stop</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -346,6 +351,7 @@
         if (value === "RUNNING") return "status status-running";
         if (value === "COMPLETED") return "status status-completed";
         if (value === "FAILED") return "status status-failed";
+        if (value === "STOPPED") return "status status-stopped";
         return "status status-other";
     }
 
@@ -464,7 +470,7 @@
 
     function renderRows(items) {
         if (!items || items.length === 0) {
-            els.rows.innerHTML = `<tr><td colspan="11" class="muted">No runs match current filters.</td></tr>`;
+            els.rows.innerHTML = `<tr><td colspan="12" class="muted">No runs match current filters.</td></tr>`;
             return;
         }
         els.rows.innerHTML = items.map(row => `
@@ -480,6 +486,7 @@
                 <td>${row.iterations == null ? "n/a" : row.iterations}</td>
                 <td>${row.evaluations == null ? "n/a" : row.evaluations}</td>
                 <td class="mono">${row.startTime || ""}</td>
+                <td><button type="button" class="btn-ghost stop-run-btn" data-run-id="${row.runId}" ${(row.status || "").toUpperCase() === "RUNNING" ? "" : "disabled"}>Stop</button></td>
             </tr>
         `).join("");
         updateSortIndicators();
@@ -517,12 +524,35 @@
         const query = buildApiQuery();
         const response = await fetch(`/api/runs?${query}`);
         if (!response.ok) {
-            els.rows.innerHTML = `<tr><td colspan="11">Failed to load runs (${response.status}).</td></tr>`;
+            els.rows.innerHTML = `<tr><td colspan="12">Failed to load runs (${response.status}).</td></tr>`;
             return;
         }
         const pageData = await response.json();
         renderRows(pageData.items || []);
         renderPaging(pageData);
+    }
+
+    async function requestRunStop(runId) {
+        const response = await fetch(`/api/runs/${encodeURIComponent(runId)}/stop`, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ reason: "Stopped from run explorer page" })
+        });
+        if (!response.ok) {
+            let message = `Stop request failed (HTTP ${response.status})`;
+            try {
+                const payload = await response.json();
+                if (payload) {
+                    message = payload.message || payload.detail || payload.error || message;
+                }
+            } catch (ignored) {
+                // keep default
+            }
+            throw new Error(message);
+        }
     }
 
     els.form.addEventListener("submit", async (event) => {
@@ -540,6 +570,21 @@
     els.nextPage.addEventListener("click", async () => {
         state.page = Number(state.page || 0) + 1;
         await loadRuns();
+    });
+
+    els.rows.addEventListener("click", async event => {
+        const stopButton = event.target.closest(".stop-run-btn");
+        if (!stopButton) {
+            return;
+        }
+        stopButton.disabled = true;
+        try {
+            await requestRunStop(stopButton.dataset.runId);
+            await loadRuns();
+        } catch (error) {
+            window.alert(error.message || "Stop request failed");
+            stopButton.disabled = false;
+        }
     });
 
     els.resetBtn.addEventListener("click", async () => {

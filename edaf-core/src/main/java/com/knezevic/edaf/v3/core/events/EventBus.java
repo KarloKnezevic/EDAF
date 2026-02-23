@@ -35,12 +35,20 @@ public final class EventBus implements AutoCloseable {
 
     @Override
     public void close() {
+        RuntimeException failure = null;
         for (EventSink sink : sinks) {
             try {
                 sink.close();
-            } catch (Exception ignored) {
-                // sink shutdown errors are isolated to preserve full shutdown sequence
+            } catch (Exception e) {
+                if (failure == null) {
+                    failure = new RuntimeException("One or more event sinks failed during shutdown", e);
+                } else {
+                    failure.addSuppressed(e);
+                }
             }
+        }
+        if (failure != null) {
+            throw failure;
         }
     }
 }

@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -104,7 +105,7 @@ public final class JdbcRunRepository implements RunRepository {
                     COALESCE(MAX(r.start_time), e.created_at) AS latest_run_time,
                     COUNT(r.run_id) AS total_runs,
                     SUM(CASE WHEN LOWER(COALESCE(r.status, '')) = 'completed' THEN 1 ELSE 0 END) AS completed_runs,
-                    SUM(CASE WHEN LOWER(COALESCE(r.status, '')) = 'failed' THEN 1 ELSE 0 END) AS failed_runs,
+                    SUM(CASE WHEN LOWER(COALESCE(r.status, '')) IN ('failed', 'stopped') THEN 1 ELSE 0 END) AS failed_runs,
                     SUM(CASE WHEN LOWER(COALESCE(r.status, '')) = 'running' THEN 1 ELSE 0 END) AS running_runs,
                     MAX(r.best_fitness) AS best_fitness
                 """
@@ -523,7 +524,7 @@ public final class JdbcRunRepository implements RunRepository {
                     e.created_at,
                     COUNT(r.run_id) AS total_runs,
                     COALESCE(SUM(CASE WHEN r.status = 'COMPLETED' THEN 1 ELSE 0 END), 0) AS completed_runs,
-                    COALESCE(SUM(CASE WHEN r.status = 'FAILED' THEN 1 ELSE 0 END), 0) AS failed_runs,
+                    COALESCE(SUM(CASE WHEN r.status IN ('FAILED', 'STOPPED') THEN 1 ELSE 0 END), 0) AS failed_runs,
                     COALESCE(SUM(CASE WHEN r.status = 'RUNNING' THEN 1 ELSE 0 END), 0) AS running_runs
                 FROM experiments e
                 LEFT JOIN runs r ON r.experiment_id = e.experiment_id
@@ -830,6 +831,167 @@ public final class JdbcRunRepository implements RunRepository {
                 dataProfiles,
                 performanceProfiles
         );
+    }
+
+    @Override
+    public List<String> listRunIdsForExperiment(String experimentId) {
+        if (!hasText(experimentId)) {
+            return List.of();
+        }
+        String sql = """
+                SELECT run_id
+                FROM runs
+                WHERE experiment_id = ?
+                ORDER BY start_time ASC, run_id ASC
+                """;
+        List<String> runIds = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, experimentId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    runIds.add(rs.getString("run_id"));
+                }
+            }
+            return runIds;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed listing run ids for experiment " + experimentId, e);
+        }
+    }
+
+    @Override
+    public ExperimentDeletionResult deleteExperiment(String experimentId) {
+        if (!hasText(experimentId)) {
+            return new ExperimentDeletionResult(
+                    experimentId,
+                    false,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+            );
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                int runObjectivesDeleted = executeDelete(connection, """
+                        DELETE FROM run_objectives
+                        WHERE run_id IN (SELECT run_id FROM runs WHERE experiment_id = ?)
+                        """, experimentId);
+                int iterationsDeleted = executeDelete(connection, """
+                        DELETE FROM iterations
+                        WHERE run_id IN (SELECT run_id FROM runs WHERE experiment_id = ?)
+                        """, experimentId);
+                int checkpointsDeleted = executeDelete(connection, """
+                        DELETE FROM checkpoints
+                        WHERE run_id IN (SELECT run_id FROM runs WHERE experiment_id = ?)
+                        """, experimentId);
+                int eventsDeleted = executeDelete(connection, """
+                        DELETE FROM events
+                        WHERE run_id IN (SELECT run_id FROM runs WHERE experiment_id = ?)
+                        """, experimentId);
+                executeDelete(connection, """
+                        DELETE FROM control_requests
+                        WHERE (scope = 'run' AND target_id IN (SELECT run_id FROM runs WHERE experiment_id = ?))
+                           OR (scope = 'experiment' AND target_id = ?)
+                        """, experimentId, experimentId);
+                int runsDeleted = executeDelete(connection, """
+                        DELETE FROM runs
+                        WHERE experiment_id = ?
+                        """, experimentId);
+                int paramsDeleted = executeDelete(connection, """
+                        DELETE FROM experiment_params
+                        WHERE experiment_id = ?
+                        """, experimentId);
+                int experimentsDeleted = executeDelete(connection, """
+                        DELETE FROM experiments
+                        WHERE experiment_id = ?
+                        """, experimentId);
+
+                connection.commit();
+                return new ExperimentDeletionResult(
+                        experimentId,
+                        experimentsDeleted > 0,
+                        runsDeleted,
+                        runObjectivesDeleted,
+                        iterationsDeleted,
+                        checkpointsDeleted,
+                        eventsDeleted,
+                        paramsDeleted
+                );
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed deleting experiment " + experimentId, e);
+        }
+    }
+
+    @Override
+    public StopRequestResult requestRunStop(String runId, String requestedBy, String reason) {
+        String normalizedRunId = trimToNull(runId);
+        if (!hasText(normalizedRunId)) {
+            return new StopRequestResult("run", runId, false, false, 0, "Run id is required.");
+        }
+
+        String runSql = """
+                SELECT run_id, status
+                FROM runs
+                WHERE run_id = ?
+                """;
+        try (Connection connection = dataSource.getConnection()) {
+            String status = null;
+            try (PreparedStatement statement = connection.prepareStatement(runSql)) {
+                statement.setString(1, normalizedRunId);
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (!rs.next()) {
+                        return new StopRequestResult("run", normalizedRunId, false, false, 0,
+                                "Run not found: " + normalizedRunId);
+                    }
+                    status = rs.getString("status");
+                }
+            }
+
+            if (!"RUNNING".equalsIgnoreCase(status)) {
+                return new StopRequestResult("run", normalizedRunId, true, false, 0,
+                        "Run is not RUNNING (status=" + safeStatus(status) + ").");
+            }
+
+            upsertStopRequest(connection, "run", normalizedRunId, requestedBy, reason);
+            return new StopRequestResult("run", normalizedRunId, true, true, 1,
+                    "Stop requested for run " + normalizedRunId + ".");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed requesting run stop for " + normalizedRunId, e);
+        }
+    }
+
+    @Override
+    public StopRequestResult requestExperimentStop(String experimentId, String requestedBy, String reason) {
+        String normalizedExperimentId = trimToNull(experimentId);
+        if (!hasText(normalizedExperimentId)) {
+            return new StopRequestResult("experiment", experimentId, false, false, 0, "Experiment id is required.");
+        }
+
+        try (Connection connection = dataSource.getConnection()) {
+            if (!exists(connection, "SELECT 1 FROM experiments WHERE experiment_id = ?", normalizedExperimentId)) {
+                return new StopRequestResult("experiment", normalizedExperimentId, false, false, 0,
+                        "Experiment not found: " + normalizedExperimentId);
+            }
+
+            upsertStopRequest(connection, "experiment", normalizedExperimentId, requestedBy, reason);
+            int running = upsertRunStopRequestsForExperiment(connection, normalizedExperimentId, requestedBy, reason);
+            String message = running > 0
+                    ? "Stop requested for experiment " + normalizedExperimentId + " (" + running + " running runs)."
+                    : "Stop request recorded for experiment " + normalizedExperimentId + " (no currently running runs).";
+            return new StopRequestResult("experiment", normalizedExperimentId, true, true, running, message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed requesting experiment stop for " + normalizedExperimentId, e);
+        }
     }
 
     private List<RunValueRow> loadRunValuesForExperiment(String experimentId) {
@@ -1523,6 +1685,82 @@ public final class JdbcRunRepository implements RunRepository {
         return results;
     }
 
+    private static int executeDelete(Connection connection, String sql, Object... params) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindParams(statement, java.util.Arrays.asList(params));
+            return statement.executeUpdate();
+        }
+    }
+
+    private static void upsertStopRequest(Connection connection,
+                                          String scope,
+                                          String targetId,
+                                          String requestedBy,
+                                          String reason) throws Exception {
+        String sql = """
+                INSERT INTO control_requests(
+                    scope, target_id, action, requested_at, requested_by, reason, status, acknowledged_at, acknowledged_by_run_id
+                )
+                VALUES (?, ?, 'STOP', ?, ?, ?, 'PENDING', NULL, NULL)
+                ON CONFLICT(scope, target_id, action) DO UPDATE SET
+                    requested_at = excluded.requested_at,
+                    requested_by = excluded.requested_by,
+                    reason = excluded.reason,
+                    status = 'PENDING',
+                    acknowledged_at = NULL,
+                    acknowledged_by_run_id = NULL
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, scope);
+            statement.setString(2, targetId);
+            statement.setString(3, Instant.now().toString());
+            statement.setString(4, trimToNull(requestedBy) == null ? "web-ui" : trimToNull(requestedBy));
+            statement.setString(5, trimToNull(reason));
+            statement.executeUpdate();
+        }
+    }
+
+    private static int upsertRunStopRequestsForExperiment(Connection connection,
+                                                          String experimentId,
+                                                          String requestedBy,
+                                                          String reason) throws Exception {
+        List<String> runningRunIds = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement("""
+                SELECT run_id
+                FROM runs
+                WHERE experiment_id = ?
+                  AND UPPER(COALESCE(status, '')) = 'RUNNING'
+                """)) {
+            statement.setString(1, experimentId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    runningRunIds.add(rs.getString("run_id"));
+                }
+            }
+        }
+
+        for (String runId : runningRunIds) {
+            upsertStopRequest(connection, "run", runId, requestedBy, reason);
+        }
+        return runningRunIds.size();
+    }
+
+    private static boolean exists(Connection connection, String sql, Object... params) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindParams(statement, java.util.Arrays.asList(params));
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    private static String safeStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "UNKNOWN";
+        }
+        return status;
+    }
+
     private static FriedmanTestResult buildFriedman(Map<String, List<RunValueRow>> byAlgorithm, boolean minimize) {
         if (byAlgorithm.size() < 2) {
             return new FriedmanTestResult(0, byAlgorithm.size(), null, null, List.of());
@@ -1820,7 +2058,7 @@ public final class JdbcRunRepository implements RunRepository {
                             SELECT 1
                             FROM runs rs
                             WHERE rs.experiment_id = e.experiment_id
-                              AND LOWER(COALESCE(rs.status, '')) <> 'failed'
+                              AND LOWER(COALESCE(rs.status, '')) NOT IN ('failed', 'stopped')
                         )
                         """);
                 case "PARTIAL" -> sql.append("""
@@ -1844,7 +2082,7 @@ public final class JdbcRunRepository implements RunRepository {
                             SELECT 1
                             FROM runs rs
                             WHERE rs.experiment_id = e.experiment_id
-                              AND LOWER(COALESCE(rs.status, '')) <> 'failed'
+                              AND LOWER(COALESCE(rs.status, '')) NOT IN ('failed', 'stopped')
                         )
                         """);
                 default -> {

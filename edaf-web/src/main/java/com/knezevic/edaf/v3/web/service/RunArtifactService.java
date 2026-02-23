@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Reads completed-run artifacts from filesystem for UI/API fallback when DB entries are unavailable.
@@ -186,6 +187,31 @@ public final class RunArtifactService {
                 .orElseGet(List::of);
     }
 
+    /**
+     * Deletes filesystem run artifacts for provided run ids.
+     *
+     * <p>This is a best-effort cleanup used after experiment deletion from DB.</p>
+     */
+    public int deleteRunArtifacts(List<String> runIds) {
+        if (runIds == null || runIds.isEmpty()) {
+            return 0;
+        }
+        int deleted = 0;
+        for (String runId : runIds) {
+            if (runId == null || runId.isBlank()) {
+                continue;
+            }
+            Optional<Path> runDir = locateRunDirectory(runId);
+            if (runDir.isEmpty()) {
+                continue;
+            }
+            if (deleteDirectoryRecursively(runDir.get())) {
+                deleted++;
+            }
+        }
+        return deleted;
+    }
+
     private List<ExperimentParamRow> flattenConfig(Map<String, Object> config) {
         List<ExperimentParamRow> rows = new ArrayList<>();
         if (config == null || config.isEmpty()) {
@@ -296,6 +322,24 @@ public final class RunArtifactService {
             return paths.findFirst();
         } catch (IOException e) {
             return Optional.empty();
+        }
+    }
+
+    private boolean deleteDirectoryRecursively(Path root) {
+        if (root == null || !Files.exists(root)) {
+            return false;
+        }
+        try (Stream<Path> stream = Files.walk(root)) {
+            stream.sorted(Comparator.reverseOrder()).forEach(path -> {
+                try {
+                    Files.deleteIfExists(path);
+                } catch (IOException ignored) {
+                    // best-effort cleanup
+                }
+            });
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 

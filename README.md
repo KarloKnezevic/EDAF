@@ -221,6 +221,15 @@ Top-level help:
 `configs/batch-stat-sample-v3.yml` demonstrates experiment-level repetition orchestration for statistical significance
 with deterministic seed streams and auto-suffixed run ids.
 
+Batch execution is auto-parallelized at run level and coordinated with in-run fitness parallelism:
+
+- run-level concurrency hint: `availableProcessors / 2`
+- in-run fitness workers: dynamic `availableProcessors / activeRuns`
+- optional env overrides:
+  - `EDAF_BATCH_PARALLELISM`
+  - `EDAF_MAX_FITNESS_WORKERS`
+  - `EDAF_ASYNC_SINK_QUEUE` (per-sink queue capacity for async persistence writers)
+
 ### 3) Resume from Checkpoint
 
 ```bash
@@ -557,6 +566,8 @@ Key behaviors:
 - Canonical `config_json` is hashed (`config_hash`) and used as stable `experiment_id`.
 - Nested YAML is flattened into path rows (e.g. `problem.genotype.maxDepth`, `problem.criteria[0]`).
 - Legacy schema is auto-detected and reset only when truly legacy (no unnecessary wipe).
+- Event persistence sinks run through bounded async wrappers (ordered, backpressured, flush-on-close).
+- Experiment hard-delete removes dependent run rows (`run_objectives`, `iterations`, `checkpoints`, `events`, `control_requests`, `runs`, `experiment_params`).
 
 For full schema and query details, see [`docs/database-schema.md`](docs/database-schema.md).
 
@@ -566,15 +577,15 @@ Run web app locally:
 From a terminal opened at `/Users/karloknezevic/Desktop/EDAF`:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
 Use repo-root execution with `-pl edaf-web -am` so sibling modules are available on classpath.
 
-If Maven reports `No plugin found for prefix 'spring-boot'`, run the fully-qualified goal:
+Alternative (works if Maven prefix resolution is configured locally):
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
 ```
 
 Stop the server with `Ctrl+C` in that terminal.
@@ -591,6 +602,15 @@ Core UI pages:
 - `/experiments/{experimentId}` experiment-level analytics (box-plot, profiles, significance tables)
 - `/coco` COCO campaign explorer
 
+Experiment deletion:
+
+- `/experiments` provides per-row **Stop**/**Delete** and bulk **Stop selected**/**Delete selected** actions.
+- `/experiments/{experimentId}` provides toolbar **Stop experiment** and **Delete experiment** actions.
+- `/runs/{runId}` provides a **Stop run** action.
+- Delete removes DB rows and best-effort filesystem run artifact directories.
+- Delete is rejected with `409 CONFLICT` while experiment has `RUNNING` runs.
+- Stop is cooperative: run finishes safely, flushes sinks, and persists final status as `STOPPED`.
+
 REST API:
 
 - `GET /api/experiments`
@@ -602,9 +622,13 @@ REST API:
 - `GET /api/runs/{runId}/params`
 - `GET /api/facets`
 - `GET /api/experiments/{experimentId}`
+- `DELETE /api/experiments/{experimentId}`
+- `POST /api/experiments/{experimentId}/stop`
+- `POST /api/experiments/delete-bulk`
 - `GET /api/experiments/{experimentId}/runs`
 - `GET /api/experiments/{experimentId}/analysis`
 - `GET /api/experiments/{experimentId}/latex`
+- `POST /api/runs/{runId}/stop`
 - `GET /api/analysis/problem/{problemType}`
 - `GET /api/analysis/problem/{problemType}/latex`
 - `GET /api/coco/campaigns`

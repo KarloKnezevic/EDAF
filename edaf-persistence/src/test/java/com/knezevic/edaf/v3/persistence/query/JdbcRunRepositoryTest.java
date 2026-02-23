@@ -10,9 +10,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -21,11 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class JdbcRunRepositoryTest {
 
     private JdbcRunRepository repository;
+    private DataSource dataSource;
 
     @BeforeEach
     void setUp() throws Exception {
         Path db = Files.createTempFile("edaf-v3-repo", ".db");
         DataSource ds = DataSourceFactory.create("jdbc:sqlite:" + db, "", "");
+        dataSource = ds;
         initializeSchema(ds);
         repository = new JdbcRunRepository(ds);
 
@@ -218,5 +223,80 @@ class JdbcRunRepositoryTest {
         assertNotNull(report.friedman());
         assertTrue(report.dataProfiles().size() >= 2);
         assertTrue(report.performanceProfiles().size() >= 2);
+    }
+
+    @Test
+    void deleteExperimentRemovesAllDependentRows() throws Exception {
+        List<String> runIds = repository.listRunIdsForExperiment("exp-1");
+        assertEquals(3, runIds.size());
+
+        ExperimentDeletionResult deleted = repository.deleteExperiment("exp-1");
+        assertTrue(deleted.deleted());
+        assertEquals(3, deleted.runsDeleted());
+        assertTrue(deleted.iterationsDeleted() >= 2);
+        assertTrue(deleted.eventsDeleted() >= 2);
+        assertEquals(2, deleted.paramsDeleted());
+
+        assertEquals(0, repository.listRunIdsForExperiment("exp-1").size());
+        assertNull(repository.getExperimentDetail("exp-1"));
+
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            assertEquals(0, scalar(statement, "SELECT COUNT(*) FROM experiments WHERE experiment_id = 'exp-1'"));
+            assertEquals(0, scalar(statement, "SELECT COUNT(*) FROM runs WHERE experiment_id = 'exp-1'"));
+            assertEquals(0, scalar(statement, "SELECT COUNT(*) FROM iterations WHERE run_id IN ('run-1','run-3','run-4')"));
+            assertEquals(0, scalar(statement, "SELECT COUNT(*) FROM checkpoints WHERE run_id IN ('run-1','run-3','run-4')"));
+            assertEquals(0, scalar(statement, "SELECT COUNT(*) FROM events WHERE run_id IN ('run-1','run-3','run-4')"));
+            assertEquals(0, scalar(statement, "SELECT COUNT(*) FROM experiment_params WHERE experiment_id = 'exp-1'"));
+        }
+
+        ExperimentDeletionResult missing = repository.deleteExperiment("missing-exp");
+        assertFalse(missing.deleted());
+    }
+
+    @Test
+    void requestRunStopAcceptsOnlyRunningRuns() throws Exception {
+        StopRequestResult accepted = repository.requestRunStop("run-8", "test", "stop running");
+        assertTrue(accepted.found());
+        assertTrue(accepted.accepted());
+        assertEquals(1, accepted.affectedRuns());
+
+        StopRequestResult completedRejected = repository.requestRunStop("run-1", "test", "stop completed");
+        assertTrue(completedRejected.found());
+        assertFalse(completedRejected.accepted());
+        assertEquals(0, completedRejected.affectedRuns());
+
+        StopRequestResult missing = repository.requestRunStop("run-404", "test", "missing");
+        assertFalse(missing.found());
+        assertFalse(missing.accepted());
+
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            assertEquals(1, scalar(statement,
+                    "SELECT COUNT(*) FROM control_requests WHERE scope='run' AND target_id='run-8' AND status='PENDING'"));
+        }
+    }
+
+    @Test
+    void requestExperimentStopCreatesExperimentAndRunningRunRequests() throws Exception {
+        StopRequestResult result = repository.requestExperimentStop("exp-4", "test", "stop experiment");
+        assertTrue(result.found());
+        assertTrue(result.accepted());
+        assertEquals(1, result.affectedRuns());
+
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            assertEquals(1, scalar(statement,
+                    "SELECT COUNT(*) FROM control_requests WHERE scope='experiment' AND target_id='exp-4' AND status='PENDING'"));
+            assertEquals(1, scalar(statement,
+                    "SELECT COUNT(*) FROM control_requests WHERE scope='run' AND target_id='run-8' AND status='PENDING'"));
+        }
+    }
+
+    private static int scalar(Statement statement, String sql) throws Exception {
+        try (var rs = statement.executeQuery(sql)) {
+            rs.next();
+            return rs.getInt(1);
+        }
     }
 }

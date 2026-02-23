@@ -19,17 +19,21 @@ import com.knezevic.edaf.v3.core.api.Population;
 import com.knezevic.edaf.v3.core.api.Problem;
 import com.knezevic.edaf.v3.core.api.Representation;
 import com.knezevic.edaf.v3.core.api.ScalarFitness;
+import com.knezevic.edaf.v3.core.api.RunResult;
 import com.knezevic.edaf.v3.core.config.ExperimentConfig;
 import com.knezevic.edaf.v3.core.events.CheckpointSavedEvent;
 import com.knezevic.edaf.v3.core.events.EventBus;
 import com.knezevic.edaf.v3.core.events.EventSink;
+import com.knezevic.edaf.v3.core.events.AsyncEventSink;
 import com.knezevic.edaf.v3.core.events.RunFailedEvent;
 import com.knezevic.edaf.v3.core.events.RunResumedEvent;
+import com.knezevic.edaf.v3.core.events.RunStoppedEvent;
 import com.knezevic.edaf.v3.core.metrics.DefaultMetricCollector;
 import com.knezevic.edaf.v3.core.plugins.AlgorithmDependencies;
 import com.knezevic.edaf.v3.core.plugins.Plugin;
 import com.knezevic.edaf.v3.core.rng.RngManager;
 import com.knezevic.edaf.v3.core.rng.RngSnapshot;
+import com.knezevic.edaf.v3.core.runtime.ExecutionParallelism;
 import com.knezevic.edaf.v3.experiments.factory.ComponentCatalog;
 import com.knezevic.edaf.v3.experiments.factory.PolicyFactory;
 import com.knezevic.edaf.v3.models.continuous.CmaEsStrategyModel;
@@ -41,8 +45,10 @@ import com.knezevic.edaf.v3.models.discrete.HierarchicalBoaModel;
 import com.knezevic.edaf.v3.models.permutation.EdgeHistogramModel;
 import com.knezevic.edaf.v3.persistence.checkpoint.CheckpointStore;
 import com.knezevic.edaf.v3.persistence.jdbc.DataSourceFactory;
+import com.knezevic.edaf.v3.persistence.jdbc.ExperimentIdentity;
 import com.knezevic.edaf.v3.persistence.jdbc.JdbcEventSink;
 import com.knezevic.edaf.v3.persistence.jdbc.SchemaInitializer;
+import com.knezevic.edaf.v3.persistence.jdbc.StopRequestStore;
 import com.knezevic.edaf.v3.persistence.sink.CsvMetricsSink;
 import com.knezevic.edaf.v3.persistence.sink.JsonLinesEventSink;
 import com.knezevic.edaf.v3.persistence.sink.RotatingFileEventSink;
@@ -57,12 +63,14 @@ import com.knezevic.edaf.v3.repr.types.RealVector;
 import com.knezevic.edaf.v3.repr.types.VariableLengthVector;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import javax.sql.DataSource;
 
 /**
  * High-level experiment runner with checkpoint/resume support.
@@ -105,27 +113,52 @@ public final class ExperimentRunner {
         sinkSetup.sinks().forEach(eventBus::register);
 
         RngManager rng = new RngManager(config.getRun().getMasterSeed());
+        StopControl stopControl = createStopControl(config, sinkSetup.databaseDataSource());
+        RuntimeException runFailure = null;
 
-        try {
-            RuntimeBundle bundle = createBundle(config, eventBus, rng);
-            Algorithm<Object> algorithm = bundle.algorithm();
-            AlgorithmContext<Object> context = bundle.context();
+        try (ExecutionParallelism.RunLease ignored = ExecutionParallelism.enterRun()) {
+            Algorithm<Object> algorithm = null;
+            AlgorithmContext<Object> context = null;
+            Path lastCheckpoint = null;
+            try {
+                RuntimeBundle bundle = createBundle(config, eventBus, rng);
+                algorithm = bundle.algorithm();
+                context = bundle.context();
 
-            algorithm.initialize(context);
-            Path lastCheckpoint = runIterationsWithCheckpointing(config, algorithm, context, bundle.model(), rng, false);
+                algorithm.initialize(context);
+                lastCheckpoint = runIterationsWithCheckpointing(
+                        config,
+                        algorithm,
+                        context,
+                        bundle.model(),
+                        rng,
+                        false,
+                        stopControl
+                );
 
-            Map<String, String> artifacts = new LinkedHashMap<>(sinkSetup.artifacts());
-            if (lastCheckpoint != null) {
-                artifacts.put("checkpoint", lastCheckpoint.toString());
+                Map<String, String> artifacts = new LinkedHashMap<>(sinkSetup.artifacts());
+                if (lastCheckpoint != null) {
+                    artifacts.put("checkpoint", lastCheckpoint.toString());
+                }
+
+                RunExecution execution = finalizeExecution(algorithm, context, artifacts, List.of());
+                return execution;
+            } catch (RuntimeException e) {
+                if (e instanceof RunStopRequestedException stop && algorithm != null && context != null && algorithm.state() != null) {
+                    Map<String, String> artifacts = new LinkedHashMap<>(sinkSetup.artifacts());
+                    if (lastCheckpoint != null) {
+                        artifacts.put("checkpoint", lastCheckpoint.toString());
+                    }
+                    publishRunStopped(eventBus, config, null, algorithm, context, artifacts, stop.reason());
+                    acknowledgeStop(stopControl, config.getRun().getId());
+                    return finalizeStoppedExecution(algorithm, context, artifacts, stop.reason());
+                }
+                runFailure = e;
+                publishRunFailed(eventBus, config, null, e);
+                throw e;
+            } finally {
+                closeEventBus(eventBus, runFailure);
             }
-
-            RunExecution execution = finalizeExecution(algorithm, context, artifacts, List.of());
-            return execution;
-        } catch (RuntimeException e) {
-            publishRunFailed(eventBus, config, null, e);
-            throw e;
-        } finally {
-            eventBus.close();
         }
     }
 
@@ -143,57 +176,94 @@ public final class ExperimentRunner {
         sinkSetup.sinks().forEach(eventBus::register);
 
         RngManager rng = new RngManager(payload.path("rng").path("masterSeed").asLong(config.getRun().getMasterSeed()));
+        StopControl stopControl = createStopControl(config, sinkSetup.databaseDataSource());
+        RuntimeException runFailure = null;
 
-        try {
-            RuntimeBundle bundle = createBundle(config, eventBus, rng);
-            restoreModelState(bundle.model(), payload.path("modelState"));
-            restoreRng(rng, payload.path("rng"));
+        try (ExecutionParallelism.RunLease ignored = ExecutionParallelism.enterRun()) {
+            RuntimeBundle bundle = null;
+            Path lastCheckpoint = null;
+            try {
+                bundle = createBundle(config, eventBus, rng);
+                restoreModelState(bundle.model(), payload.path("modelState"));
+                restoreRng(rng, payload.path("rng"));
 
-            Population<Object> population = deserializePopulation(
-                    payload.path("population"),
-                    config.getRepresentation().getType(),
-                    bundle.problem().objectiveSense()
-            );
-            population.sortByFitness();
+                Population<Object> population = deserializePopulation(
+                        payload.path("population"),
+                        config.getRepresentation().getType(),
+                        bundle.problem().objectiveSense()
+                );
+                population.sortByFitness();
 
-            AlgorithmState<Object> restoredState = new AlgorithmState<>(
-                    payload.path("runId").asText(config.getRun().getId()),
-                    bundle.algorithm().id(),
-                    payload.path("iteration").asInt(0),
-                    payload.path("evaluations").asLong(population.size()),
-                    Instant.parse(payload.path("startedAt").asText(Instant.now().toString())),
-                    population,
-                    population.best()
-            );
+                AlgorithmState<Object> restoredState = new AlgorithmState<>(
+                        payload.path("runId").asText(config.getRun().getId()),
+                        bundle.algorithm().id(),
+                        payload.path("iteration").asInt(0),
+                        payload.path("evaluations").asLong(population.size()),
+                        Instant.parse(payload.path("startedAt").asText(Instant.now().toString())),
+                        population,
+                        population.best()
+                );
 
-            if (bundle.algorithm() instanceof AbstractEdaAlgorithm<Object> resumable) {
-                resumable.restoreState(restoredState);
-            } else {
-                throw new IllegalStateException("Algorithm does not support resume: " + bundle.algorithm().id());
+                if (bundle.algorithm() instanceof AbstractEdaAlgorithm<Object> resumable) {
+                    resumable.restoreState(restoredState);
+                } else {
+                    throw new IllegalStateException("Algorithm does not support resume: " + bundle.algorithm().id());
+                }
+
+                eventBus.publish(new RunResumedEvent(
+                        restoredState.runId(),
+                        Instant.now(),
+                        restoredState.iteration(),
+                        checkpointPath.toString()
+                ));
+
+                lastCheckpoint = runIterationsWithCheckpointing(
+                        config,
+                        bundle.algorithm(),
+                        bundle.context(),
+                        bundle.model(),
+                        rng,
+                        true,
+                        stopControl
+                );
+
+                Map<String, String> artifacts = new LinkedHashMap<>(sinkSetup.artifacts());
+                artifacts.put("resumedFrom", checkpointPath.toString());
+                if (lastCheckpoint != null) {
+                    artifacts.put("checkpoint", lastCheckpoint.toString());
+                }
+
+                return finalizeExecution(bundle.algorithm(), bundle.context(), artifacts,
+                        List.of("Run resumed from checkpoint: " + checkpointPath));
+            } catch (RuntimeException e) {
+                if (e instanceof RunStopRequestedException stop
+                        && bundle != null
+                        && bundle.algorithm() != null
+                        && bundle.context() != null
+                        && bundle.algorithm().state() != null) {
+                    Map<String, String> artifacts = new LinkedHashMap<>(sinkSetup.artifacts());
+                    artifacts.put("resumedFrom", checkpointPath.toString());
+                    if (lastCheckpoint != null) {
+                        artifacts.put("checkpoint", lastCheckpoint.toString());
+                    }
+                    publishRunStopped(
+                            eventBus,
+                            config,
+                            checkpointPath.toString(),
+                            bundle.algorithm(),
+                            bundle.context(),
+                            artifacts,
+                            stop.reason()
+                    );
+                    acknowledgeStop(stopControl, config.getRun().getId());
+                    return finalizeStoppedExecution(bundle.algorithm(), bundle.context(), artifacts, stop.reason());
+                }
+                runFailure = e;
+                publishRunFailed(eventBus, config, checkpointPath.toString(), e);
+                throw e;
+            } finally {
+                closeEventBus(eventBus, runFailure);
             }
-
-            eventBus.publish(new RunResumedEvent(
-                    restoredState.runId(),
-                    Instant.now(),
-                    restoredState.iteration(),
-                    checkpointPath.toString()
-            ));
-
-            Path lastCheckpoint = runIterationsWithCheckpointing(config, bundle.algorithm(), bundle.context(), bundle.model(), rng, true);
-
-            Map<String, String> artifacts = new LinkedHashMap<>(sinkSetup.artifacts());
-            artifacts.put("resumedFrom", checkpointPath.toString());
-            if (lastCheckpoint != null) {
-                artifacts.put("checkpoint", lastCheckpoint.toString());
-            }
-
-            return finalizeExecution(bundle.algorithm(), bundle.context(), artifacts,
-                    List.of("Run resumed from checkpoint: " + checkpointPath));
-        } catch (RuntimeException e) {
-            publishRunFailed(eventBus, config, checkpointPath.toString(), e);
-            throw e;
-        } finally {
-            eventBus.close();
         }
     }
 
@@ -254,11 +324,15 @@ public final class ExperimentRunner {
                                                 AlgorithmContext<Object> context,
                                                 Model<?> model,
                                                 RngManager rng,
-                                                boolean resumed) {
+                                                boolean resumed,
+                                                StopControl stopControl) {
         Path lastCheckpoint = null;
         int checkpointEvery = config.getRun().getCheckpointEveryIterations();
 
         while (!context.stoppingCondition().shouldStop(algorithm.state())) {
+            if (shouldStopRequested(stopControl, config.getRun().getId())) {
+                throw new RunStopRequestedException("Stop requested from dashboard controls");
+            }
             algorithm.iterate(context);
             if (checkpointEvery > 0 && algorithm.state().iteration() > 0
                     && algorithm.state().iteration() % checkpointEvery == 0) {
@@ -288,6 +362,7 @@ public final class ExperimentRunner {
     private SinkSetup buildSinks(ExperimentConfig config, List<EventSink> additionalSinks) {
         List<EventSink> sinks = new ArrayList<>();
         Map<String, String> artifacts = new LinkedHashMap<>();
+        DataSource databaseDataSource = null;
         String canonicalJson = toCanonicalJson(config);
         String canonicalYaml = toCanonicalYaml(config);
 
@@ -303,7 +378,7 @@ public final class ExperimentRunner {
                     canonicalYaml,
                     canonicalJson
             );
-            sinks.add(bundleSink);
+            sinks.add(asyncSink("bundle-artifact", bundleSink, config.getRun().getId()));
             artifacts.put("run_dir", bundleSink.runDirectory().toString());
             artifacts.put("telemetry", bundleSink.telemetryJsonl().toString());
             artifacts.put("events_jsonl", bundleSink.eventsJsonl().toString());
@@ -326,28 +401,34 @@ public final class ExperimentRunner {
             switch (sinkName) {
                 case "csv" -> {
                     Path csv = outputDir.resolve(config.getRun().getId() + ".csv");
-                    sinks.add(new CsvMetricsSink(csv));
+                    sinks.add(asyncSink("csv", new CsvMetricsSink(csv), config.getRun().getId()));
                     artifacts.put("csv", csv.toString());
                 }
                 case "jsonl" -> {
                     Path jsonl = outputDir.resolve(config.getRun().getId() + ".jsonl");
-                    sinks.add(new JsonLinesEventSink(jsonl));
+                    sinks.add(asyncSink("jsonl", new JsonLinesEventSink(jsonl), config.getRun().getId()));
                     artifacts.put("jsonl", jsonl.toString());
                 }
                 case "file" -> {
                     Path file = Path.of(config.getLogging().getLogFile());
-                    sinks.add(new RotatingFileEventSink(file, 10_000_000L));
+                    sinks.add(asyncSink("rotating-file", new RotatingFileEventSink(file, 10_000_000L), config.getRun().getId()));
                     artifacts.put("log", file.toString());
                 }
                 case "db" -> {
                     if (config.getPersistence().getDatabase().isEnabled()) {
-                        var ds = DataSourceFactory.create(
-                                config.getPersistence().getDatabase().getUrl(),
-                                config.getPersistence().getDatabase().getUser(),
-                                config.getPersistence().getDatabase().getPassword()
-                        );
-                        SchemaInitializer.initialize(ds);
-                        sinks.add(new JdbcEventSink(ds, config, canonicalYaml, canonicalJson));
+                        if (databaseDataSource == null) {
+                            databaseDataSource = DataSourceFactory.create(
+                                    config.getPersistence().getDatabase().getUrl(),
+                                    config.getPersistence().getDatabase().getUser(),
+                                    config.getPersistence().getDatabase().getPassword()
+                            );
+                            SchemaInitializer.initialize(databaseDataSource);
+                        }
+                        sinks.add(asyncSink(
+                                "jdbc",
+                                new JdbcEventSink(databaseDataSource, config, canonicalYaml, canonicalJson),
+                                config.getRun().getId()
+                        ));
                         artifacts.put("database", config.getPersistence().getDatabase().getUrl());
                     }
                 }
@@ -357,7 +438,37 @@ public final class ExperimentRunner {
             }
         }
 
-        return new SinkSetup(sinks, artifacts);
+        return new SinkSetup(sinks, artifacts, databaseDataSource);
+    }
+
+    private static EventSink asyncSink(String sinkType, EventSink delegate, String runId) {
+        int queueCapacity = asyncQueueCapacity();
+        String workerName = "edaf-" + sinkType + "-" + runId;
+        return new AsyncEventSink(delegate, workerName, queueCapacity);
+    }
+
+    private static int asyncQueueCapacity() {
+        String raw = System.getenv("EDAF_ASYNC_SINK_QUEUE");
+        if (raw == null || raw.isBlank()) {
+            return 16_384;
+        }
+        try {
+            return Math.max(256, Integer.parseInt(raw.trim()));
+        } catch (NumberFormatException ignored) {
+            return 16_384;
+        }
+    }
+
+    private static void closeEventBus(EventBus eventBus, RuntimeException runFailure) {
+        try {
+            eventBus.close();
+        } catch (RuntimeException closeFailure) {
+            if (runFailure != null) {
+                runFailure.addSuppressed(closeFailure);
+            } else {
+                throw closeFailure;
+            }
+        }
     }
 
     private Path checkpointPath(ExperimentConfig config, AlgorithmState<Object> state) {
@@ -547,6 +658,76 @@ public final class ExperimentRunner {
         rng.restore(snapshot);
     }
 
+    private StopControl createStopControl(ExperimentConfig config, DataSource databaseDataSource) {
+        if (databaseDataSource == null) {
+            return null;
+        }
+        String canonicalJson = toCanonicalJson(config);
+        String experimentId = ExperimentIdentity.fromCanonicalJson(canonicalJson).experimentId();
+        return new StopControl(new StopRequestStore(databaseDataSource), experimentId);
+    }
+
+    private static boolean shouldStopRequested(StopControl stopControl, String runId) {
+        if (stopControl == null || stopControl.store() == null) {
+            return false;
+        }
+        return stopControl.store().isStopRequested(runId, stopControl.experimentId());
+    }
+
+    private static void acknowledgeStop(StopControl stopControl, String runId) {
+        if (stopControl == null || stopControl.store() == null) {
+            return;
+        }
+        stopControl.store().acknowledgeStopRequests(runId, stopControl.experimentId(), Instant.now());
+    }
+
+    private void publishRunStopped(EventBus eventBus,
+                                   ExperimentConfig config,
+                                   String resumedFrom,
+                                   Algorithm<Object> algorithm,
+                                   AlgorithmContext<Object> context,
+                                   Map<String, String> artifacts,
+                                   String reason) {
+        AlgorithmState<Object> state = algorithm.state();
+        long runtimeMillis = Duration.between(state.startedAt(), Instant.now()).toMillis();
+        eventBus.publish(new RunStoppedEvent(
+                state.runId(),
+                Instant.now(),
+                config.getAlgorithm().getType(),
+                config.getModel().getType(),
+                config.getProblem().getType(),
+                config.getRun().getMasterSeed(),
+                state.iteration(),
+                state.evaluations(),
+                runtimeMillis,
+                state.best().fitness().scalar(),
+                context.representation().summarize(state.best().genotype()),
+                String.valueOf(state.best().genotype()),
+                artifacts,
+                reason,
+                resumedFrom
+        ));
+    }
+
+    private RunExecution finalizeStoppedExecution(Algorithm<Object> algorithm,
+                                                  AlgorithmContext<Object> context,
+                                                  Map<String, String> artifacts,
+                                                  String reason) {
+        AlgorithmState<Object> state = algorithm.state();
+        Duration runtime = Duration.between(state.startedAt(), Instant.now());
+        RunResult<Object> result = new RunResult<>(
+                state.runId(),
+                algorithm.id(),
+                context.problem().name(),
+                state.best(),
+                state.iteration(),
+                state.evaluations(),
+                runtime,
+                artifacts
+        );
+        return new RunExecution(result, artifacts, List.of("Run stopped: " + reason));
+    }
+
     private void publishRunFailed(EventBus eventBus,
                                   ExperimentConfig config,
                                   String resumedFrom,
@@ -604,7 +785,7 @@ public final class ExperimentRunner {
         return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 
-    private record SinkSetup(List<EventSink> sinks, Map<String, String> artifacts) {
+    private record SinkSetup(List<EventSink> sinks, Map<String, String> artifacts, DataSource databaseDataSource) {
     }
 
     private record RuntimeBundle(Representation<Object> representation,
@@ -612,5 +793,18 @@ public final class ExperimentRunner {
                                  Model<Object> model,
                                  Algorithm<Object> algorithm,
                                  AlgorithmContext<Object> context) {
+    }
+
+    private record StopControl(StopRequestStore store, String experimentId) {
+    }
+
+    private static final class RunStopRequestedException extends RuntimeException {
+        private RunStopRequestedException(String reason) {
+            super(reason);
+        }
+
+        private String reason() {
+            return getMessage();
+        }
     }
 }

@@ -20,6 +20,8 @@ erDiagram
     runs ||--o{ iterations : "has"
     runs ||--o{ checkpoints : "has"
     runs ||--o{ events : "emits"
+    runs ||--o{ control_requests : "run stop requests"
+    experiments ||--o{ control_requests : "experiment stop requests"
 
     coco_campaigns ||--o{ coco_optimizer_configs : "has"
     coco_campaigns ||--o{ coco_trials : "has"
@@ -59,6 +61,18 @@ erDiagram
       text artifacts_json
       text resumed_from
       text error_message
+    }
+
+    control_requests {
+      text scope PK
+      text target_id PK
+      text action PK
+      text requested_at
+      text requested_by
+      text reason
+      text status
+      text acknowledged_at
+      text acknowledged_by_run_id
     }
 
     coco_campaigns {
@@ -111,7 +125,7 @@ One row per execution, linked to one experiment.
 Status lifecycle:
 
 - starts as `RUNNING`
-- transitions to `COMPLETED` or `FAILED`
+- transitions to `COMPLETED`, `FAILED`, or `STOPPED`
 
 ### `run_objectives`
 
@@ -128,6 +142,16 @@ Checkpoint metadata table (run, iteration, path, timestamp).
 ### `events`
 
 Raw event stream table with type and JSON payload.
+
+### `control_requests`
+
+Cooperative stop-control table used by web/API stop actions.
+
+- `scope`: `run` or `experiment`
+- `target_id`: run id / experiment id
+- `action`: currently `STOP`
+- `status`: `PENDING` or `ACKNOWLEDGED`
+- consumed requests are acknowledged with timestamp and consuming `run_id`
 
 ## 3) COCO Campaign Tables
 
@@ -179,6 +203,7 @@ Core indexes:
 - `iterations(run_id, iteration)`
 - `events(run_id, event_type, created_at)`
 - `checkpoints(run_id, iteration)`
+- `control_requests(status, scope, target_id, action)`
 
 COCO indexes:
 
@@ -227,6 +252,8 @@ Run read repository (`JdbcRunRepository`) provides:
 - run details
 - iterations/events/checkpoints/params
 - filter facets
+- cooperative stop requests (`requestRunStop`, `requestExperimentStop`)
+- experiment hard-delete (`deleteExperiment`) with dependency-safe table cleanup
 
 COCO read repository (`JdbcCocoRepository`) provides:
 
@@ -245,3 +272,27 @@ Security-relevant guards in read repositories:
 - normalized `sortDir` (`asc|desc`)
 
 This applies to both run and COCO dashboard query endpoints.
+
+## 9) Experiment Hard-Delete Semantics
+
+`DELETE /api/experiments/{experimentId}` executes a transactional hard-delete:
+
+1. `run_objectives` for experiment runs
+2. `iterations` for experiment runs
+3. `checkpoints` for experiment runs
+4. `events` for experiment runs
+5. `control_requests` for run + experiment scope
+6. `runs`
+7. `experiment_params`
+8. `experiments`
+
+Additionally, web layer performs best-effort filesystem cleanup of run artifact directories.
+
+Guardrail: delete is blocked (`409 CONFLICT`) while experiment has `RUNNING` runs.
+
+## 10) Safe Stop Semantics
+
+- `POST /api/runs/{runId}/stop` writes/updates `control_requests(scope='run', target_id=runId, action='STOP', status='PENDING')`
+- `POST /api/experiments/{experimentId}/stop` writes experiment-scope request and run-scope requests for currently running runs
+- runner polls stop requests cooperatively and persists final run state as `STOPPED`
+- consumed requests are marked as `ACKNOWLEDGED`

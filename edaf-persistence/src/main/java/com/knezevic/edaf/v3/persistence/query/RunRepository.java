@@ -72,6 +72,26 @@ public interface RunRepository {
                                                        List<String> algorithms);
 
     /**
+     * Lists run ids belonging to one experiment.
+     */
+    List<String> listRunIdsForExperiment(String experimentId);
+
+    /**
+     * Hard-deletes one experiment and all dependent run data.
+     */
+    ExperimentDeletionResult deleteExperiment(String experimentId);
+
+    /**
+     * Requests cooperative stop for one run.
+     */
+    StopRequestResult requestRunStop(String runId, String requestedBy, String reason);
+
+    /**
+     * Requests cooperative stop for all running runs in one experiment.
+     */
+    StopRequestResult requestExperimentStop(String experimentId, String requestedBy, String reason);
+
+    /**
      * Legacy convenience listing used by reporting and older callers.
      */
     default List<RunSummary> listRuns(int limit) {

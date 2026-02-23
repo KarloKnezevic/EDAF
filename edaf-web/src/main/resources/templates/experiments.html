@@ -95,10 +95,37 @@
         button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15, 118, 110, .16); }
         .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
         .btn-ghost { background: #fff; color: var(--ink); }
+        .btn-danger {
+            background: #fee2e2;
+            color: var(--bad);
+            border-color: #fecaca;
+        }
+        .btn-danger:hover {
+            box-shadow: 0 6px 16px rgba(153, 27, 27, .16);
+        }
         .actions {
             display: flex;
             align-items: end;
             gap: 8px;
+        }
+        .bulk-actions {
+            margin: 10px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .bulk-select {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: .84rem;
+            color: var(--muted);
+        }
+        .bulk-select input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
         }
         .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
         table { width: 100%; border-collapse: collapse; min-width: 1080px; table-layout: fixed; }
@@ -263,10 +290,21 @@
             </div>
         </form>
 
+        <div class="bulk-actions">
+            <label class="bulk-select" for="selectAllVisible">
+                <input id="selectAllVisible" type="checkbox" />
+                Select all visible
+            </label>
+            <button type="button" id="stopSelectedBtn" class="btn-ghost">Stop selected</button>
+            <button type="button" id="deleteSelectedBtn" class="btn-danger">Delete selected</button>
+            <span id="selectionInfo" class="muted">Selected: 0</span>
+        </div>
+
         <div class="table-wrap">
             <table>
                 <thead>
                 <tr>
+                    <th style="width: 4%;">Sel</th>
                     <th>Experiment ID</th>
                     <th class="sortable-th" data-sort-key="algorithm_type" data-default-dir="asc">Algorithm</th>
                     <th class="sortable-th" data-sort-key="model_type" data-default-dir="asc">Model</th>
@@ -279,10 +317,14 @@
                     <th class="sortable-th" data-sort-key="best_fitness" data-default-dir="desc">Best Fitness</th>
                     <th class="sortable-th" data-sort-key="latest_run_time" data-default-dir="desc">Latest Run</th>
                     <th class="sortable-th" data-sort-key="created_at" data-default-dir="desc">Created</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody id="rows">
                 <tr th:each="item : ${initialPage.items}">
+                    <td>
+                        <input type="checkbox" class="select-exp" th:attr="data-exp-id=${item.experimentId}" />
+                    </td>
                     <td class="mono"><a class="link" th:href="@{'/experiments/' + ${item.experimentId}}" th:text="${item.experimentId}"></a></td>
                     <td th:text="${item.algorithmType}"></td>
                     <td th:text="${item.modelType}"></td>
@@ -295,6 +337,10 @@
                     <td th:text="${item.bestFitness}"></td>
                     <td class="mono" th:text="${item.latestRunTime}"></td>
                     <td class="mono" th:text="${item.createdAt}"></td>
+                    <td>
+                        <button type="button" class="btn-ghost stop-exp-btn" th:attr="data-exp-id=${item.experimentId}">Stop</button>
+                        <button type="button" class="btn-danger delete-exp-btn" th:attr="data-exp-id=${item.experimentId}">Delete</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -330,6 +376,7 @@
         sortBy: "latest_run_time",
         sortDir: "desc"
     };
+    const selectedExperimentIds = new Set();
 
     const els = {
         filterForm: document.getElementById("filterForm"),
@@ -349,7 +396,11 @@
         prevBtn: document.getElementById("prevBtn"),
         nextBtn: document.getElementById("nextBtn"),
         resetBtn: document.getElementById("resetBtn"),
-        sortableHeaders: Array.from(document.querySelectorAll("th.sortable-th"))
+        sortableHeaders: Array.from(document.querySelectorAll("th.sortable-th")),
+        selectAllVisible: document.getElementById("selectAllVisible"),
+        stopSelectedBtn: document.getElementById("stopSelectedBtn"),
+        deleteSelectedBtn: document.getElementById("deleteSelectedBtn"),
+        selectionInfo: document.getElementById("selectionInfo")
     };
 
     function safe(value, fallback = "n/a") {
@@ -360,6 +411,7 @@
         const value = (status || "").toUpperCase();
         if (value === "RUNNING") return '<span class="kpi kpi-ok">RUNNING</span>';
         if (value === "COMPLETED") return '<span class="kpi kpi-info">COMPLETED</span>';
+        if (value === "STOPPED") return '<span class="kpi kpi-warn">STOPPED</span>';
         if (value === "PARTIAL" || value === "PARTIAL_FAILED") return '<span class="kpi kpi-warn">' + value + '</span>';
         if (value === "FAILED") return '<span class="kpi kpi-bad">FAILED</span>';
         return '<span class="kpi kpi-warn">' + safe(value, "UNKNOWN") + '</span>';
@@ -484,10 +536,11 @@
     function renderPage(pageData) {
         const items = pageData.items || [];
         if (!items.length) {
-            els.rows.innerHTML = '<tr><td colspan="12" class="muted">No experiments found.</td></tr>';
+            els.rows.innerHTML = '<tr><td colspan="14" class="muted">No experiments found.</td></tr>';
         } else {
             els.rows.innerHTML = items.map(item => `
                 <tr>
+                    <td><input type="checkbox" class="select-exp" data-exp-id="${item.experimentId}" ${selectedExperimentIds.has(item.experimentId) ? "checked" : ""} /></td>
                     <td class="mono"><a class="link" href="/experiments/${encodeURIComponent(item.experimentId)}">${item.experimentId}</a></td>
                     <td>${safe(item.algorithmType)}</td>
                     <td>${safe(item.modelType)}</td>
@@ -500,6 +553,10 @@
                     <td>${item.bestFitness == null ? "n/a" : Number(item.bestFitness).toFixed(6)}</td>
                     <td class="mono">${safe(item.latestRunTime, "")}</td>
                     <td class="mono">${safe(item.createdAt, "")}</td>
+                    <td>
+                        <button type="button" class="btn-ghost stop-exp-btn" data-exp-id="${item.experimentId}" ${Number(item.runningRuns || 0) > 0 ? "" : "disabled"}>Stop</button>
+                        <button type="button" class="btn-danger delete-exp-btn" data-exp-id="${item.experimentId}">Delete</button>
+                    </td>
                 </tr>
             `).join("");
         }
@@ -511,7 +568,29 @@
         els.totalInfo.textContent = `Total experiments: ${total}`;
         els.prevBtn.disabled = page <= 0;
         els.nextBtn.disabled = totalPages === 0 || page >= totalPages - 1;
+        syncVisibleSelectionToggle();
+        updateSelectionInfo();
         updateSortIndicators();
+    }
+
+    function syncVisibleSelectionToggle() {
+        const checkboxes = Array.from(els.rows.querySelectorAll(".select-exp"));
+        if (!checkboxes.length) {
+            els.selectAllVisible.checked = false;
+            els.selectAllVisible.indeterminate = false;
+            return;
+        }
+        const checked = checkboxes.filter(box => box.checked).length;
+        els.selectAllVisible.checked = checked === checkboxes.length;
+        els.selectAllVisible.indeterminate = checked > 0 && checked < checkboxes.length;
+    }
+
+    function updateSelectionInfo() {
+        const selectedCount = selectedExperimentIds.size;
+        els.selectionInfo.textContent = `Selected: ${selectedCount}`;
+        const hasSelection = selectedCount > 0;
+        els.deleteSelectedBtn.disabled = !hasSelection;
+        els.stopSelectedBtn.disabled = !hasSelection;
     }
 
     async function fetchPage() {
@@ -538,6 +617,126 @@
         pushUrlState();
     }
 
+    async function deleteExperiment(experimentId) {
+        if (!experimentId) {
+            return;
+        }
+        const confirmed = window.confirm(
+            `Delete experiment '${experimentId}' and all related runs, iterations, checkpoints, events, and artifacts?`
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        const response = await fetch(`/api/experiments/${encodeURIComponent(experimentId)}`, {
+            method: "DELETE",
+            headers: { "Accept": "application/json" }
+        });
+        if (!response.ok) {
+            let message = `Delete failed (HTTP ${response.status})`;
+            try {
+                const payload = await response.json();
+                if (payload) {
+                    message = payload.message || payload.detail || payload.error || message;
+                }
+            } catch (ignored) {
+                // keep default message
+            }
+            window.alert(message);
+            return;
+        }
+
+        const currentRows = (Number(els.rows.querySelectorAll("tr").length) || 0);
+        if (currentRows <= 1 && state.page > 0) {
+            state.page -= 1;
+        }
+        await fetchPage();
+    }
+
+    async function requestStopExperiment(experimentId) {
+        if (!experimentId) {
+            return;
+        }
+        const response = await fetch(`/api/experiments/${encodeURIComponent(experimentId)}/stop`, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ reason: "Stopped from experiments dashboard" })
+        });
+        if (!response.ok) {
+            let message = `Stop failed (HTTP ${response.status})`;
+            try {
+                const payload = await response.json();
+                if (payload) {
+                    message = payload.message || payload.detail || payload.error || message;
+                }
+            } catch (ignored) {
+                // keep default message
+            }
+            throw new Error(message);
+        }
+    }
+
+    async function bulkDeleteSelected() {
+        const experimentIds = Array.from(selectedExperimentIds);
+        if (!experimentIds.length) {
+            return;
+        }
+        const confirmed = window.confirm(
+            `Delete ${experimentIds.length} selected experiments and all related run data/artifacts?`
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        const response = await fetch("/api/experiments/delete-bulk", {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ experimentIds })
+        });
+        if (!response.ok) {
+            throw new Error(`Bulk delete failed (HTTP ${response.status})`);
+        }
+        const payload = await response.json();
+        (payload.items || []).forEach(item => {
+            if (item.deleted) {
+                selectedExperimentIds.delete(item.experimentId);
+            }
+        });
+        await fetchPage();
+        window.alert(`Bulk delete: deleted=${payload.deletedCount || 0}, blocked_running=${payload.blockedCount || 0}, missing=${payload.missingCount || 0}`);
+    }
+
+    async function bulkStopSelected() {
+        const experimentIds = Array.from(selectedExperimentIds);
+        if (!experimentIds.length) {
+            return;
+        }
+        const confirmed = window.confirm(`Request safe stop for ${experimentIds.length} selected experiments?`);
+        if (!confirmed) {
+            return;
+        }
+
+        let accepted = 0;
+        let rejected = 0;
+        for (const experimentId of experimentIds) {
+            try {
+                await requestStopExperiment(experimentId);
+                accepted++;
+            } catch (error) {
+                console.warn(`Stop request rejected for ${experimentId}`, error);
+                rejected++;
+            }
+        }
+        await fetchPage();
+        window.alert(`Stop requests sent: accepted=${accepted}, rejected=${rejected}`);
+    }
+
     els.filterForm.addEventListener("submit", async event => {
         event.preventDefault();
         readStateFromForm();
@@ -555,6 +754,91 @@
         await fetchPage();
     });
 
+    els.rows.addEventListener("click", async event => {
+        const stopButton = event.target.closest(".stop-exp-btn");
+        if (stopButton) {
+            stopButton.disabled = true;
+            try {
+                await requestStopExperiment(stopButton.dataset.expId);
+                await fetchPage();
+            } catch (error) {
+                window.alert(error.message || "Stop request failed");
+            } finally {
+                stopButton.disabled = false;
+            }
+            return;
+        }
+
+        const button = event.target.closest(".delete-exp-btn");
+        if (!button) {
+            return;
+        }
+        button.disabled = true;
+        try {
+            await deleteExperiment(button.dataset.expId);
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    els.rows.addEventListener("change", event => {
+        const checkbox = event.target.closest(".select-exp");
+        if (!checkbox) {
+            return;
+        }
+        const experimentId = checkbox.dataset.expId;
+        if (!experimentId) {
+            return;
+        }
+        if (checkbox.checked) {
+            selectedExperimentIds.add(experimentId);
+        } else {
+            selectedExperimentIds.delete(experimentId);
+        }
+        syncVisibleSelectionToggle();
+        updateSelectionInfo();
+    });
+
+    els.selectAllVisible.addEventListener("change", () => {
+        const checkboxes = Array.from(els.rows.querySelectorAll(".select-exp"));
+        checkboxes.forEach(box => {
+            box.checked = els.selectAllVisible.checked;
+            const experimentId = box.dataset.expId;
+            if (!experimentId) {
+                return;
+            }
+            if (els.selectAllVisible.checked) {
+                selectedExperimentIds.add(experimentId);
+            } else {
+                selectedExperimentIds.delete(experimentId);
+            }
+        });
+        syncVisibleSelectionToggle();
+        updateSelectionInfo();
+    });
+
+    els.deleteSelectedBtn.addEventListener("click", async () => {
+        els.deleteSelectedBtn.disabled = true;
+        try {
+            await bulkDeleteSelected();
+        } catch (error) {
+            window.alert(error.message || "Bulk delete failed");
+        } finally {
+            updateSelectionInfo();
+        }
+    });
+
+    els.stopSelectedBtn.addEventListener("click", async () => {
+        els.stopSelectedBtn.disabled = true;
+        try {
+            await bulkStopSelected();
+        } catch (error) {
+            window.alert(error.message || "Bulk stop failed");
+        } finally {
+            updateSelectionInfo();
+        }
+    });
+
     els.resetBtn.addEventListener("click", async () => {
         state.q = "";
         state.algorithm = "";
@@ -567,6 +851,7 @@
         state.size = 25;
         state.sortBy = "latest_run_time";
         state.sortDir = "desc";
+        selectedExperimentIds.clear();
         writeStateToForm();
         await fetchPage();
     });
@@ -589,6 +874,7 @@
     writeStateToForm();
     updateSortIndicators();
     renderPage(initialPage || { items: [], page: 0, totalPages: 0, total: 0 });
+    updateSelectionInfo();
     fetchPage().catch(error => {
         console.error("Failed loading experiments", error);
     });

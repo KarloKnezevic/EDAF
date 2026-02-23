@@ -67,6 +67,20 @@ Batch entry fields:
 - `seedStart`: starting seed for deterministic repetition stream (`seedStart + repetitionIndex`)
 - `runIdPrefix`: base run-id prefix; repetitions are auto-suffixed as `-r01`, `-r02`, ...
 
+### Runtime environment overrides (parallelism + async sinks)
+
+These are optional process-level knobs (not YAML keys):
+
+- `EDAF_BATCH_PARALLELISM`:
+  - run-level parallelism for batch/campaign orchestrators
+  - default hint: `availableProcessors / 2`
+- `EDAF_MAX_FITNESS_WORKERS`:
+  - upper bound for per-run fitness evaluator worker budget
+  - actual workers are dynamically reduced to `availableProcessors / activeRuns`
+- `EDAF_ASYNC_SINK_QUEUE`:
+  - bounded queue capacity for async persistence sinks (`csv/jsonl/file/db/bundle`)
+  - default: `16384`
+
 ## 2) `run` Section
 
 | Field | Type | Default | Description |
@@ -299,6 +313,12 @@ Supported sink values:
 - `db`
 
 Validation rule: if `db` sink is requested, `database.enabled` must be `true`.
+
+Persistence sink execution model:
+
+- file/DB sinks are wrapped in per-sink async writers with ordered delivery
+- backpressure is applied when queue is full (no silent event dropping)
+- all pending events are flushed on shutdown/close
 
 ## 7) `reporting` Section
 

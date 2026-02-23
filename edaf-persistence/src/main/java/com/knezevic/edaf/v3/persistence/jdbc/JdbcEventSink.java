@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.knezevic.edaf.v3.core.config.ExperimentConfig;
 import com.knezevic.edaf.v3.core.events.CheckpointSavedEvent;
@@ -16,10 +15,9 @@ import com.knezevic.edaf.v3.core.events.RunEvent;
 import com.knezevic.edaf.v3.core.events.RunFailedEvent;
 import com.knezevic.edaf.v3.core.events.RunResumedEvent;
 import com.knezevic.edaf.v3.core.events.RunStartedEvent;
+import com.knezevic.edaf.v3.core.events.RunStoppedEvent;
 
 import javax.sql.DataSource;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -29,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,15 +61,12 @@ public final class JdbcEventSink implements EventSink {
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         try {
-            JsonNode parsed = canonicalMapper.readTree(canonicalJson);
-            this.experimentConfigNode = normalizeForExperimentFingerprint(parsed);
-            this.experimentCanonicalJson = canonicalMapper.writeValueAsString(this.experimentConfigNode);
-            ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory())
-                    .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
-                    .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-            this.experimentCanonicalYaml = yamlMapper.writeValueAsString(this.experimentConfigNode);
-            this.configHash = sha256(experimentCanonicalJson);
-            this.experimentId = this.configHash;
+            ExperimentIdentity identity = ExperimentIdentity.fromCanonicalJson(canonicalJson);
+            this.experimentConfigNode = identity.normalizedConfig();
+            this.experimentCanonicalJson = identity.canonicalJson();
+            this.experimentCanonicalYaml = identity.canonicalYaml();
+            this.configHash = identity.configHash();
+            this.experimentId = identity.experimentId();
             this.experimentCreatedAt = Instant.now().toString();
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid canonical JSON configuration", e);
@@ -99,6 +93,8 @@ public final class JdbcEventSink implements EventSink {
                     upsertIteration(connection, iteration);
                 } else if (event instanceof RunCompletedEvent completed) {
                     upsertRunCompleted(connection, completed);
+                } else if (event instanceof RunStoppedEvent stopped) {
+                    upsertRunStopped(connection, stopped);
                 } else if (event instanceof RunFailedEvent failed) {
                     upsertRunFailed(connection, failed);
                 } else if (event instanceof CheckpointSavedEvent checkpoint) {
@@ -412,6 +408,50 @@ public final class JdbcEventSink implements EventSink {
         upsertRunObjectives(connection, event.runId(), objectiveValues);
     }
 
+    private void upsertRunStopped(Connection connection, RunStoppedEvent event) throws SQLException {
+        String sql = """
+                INSERT INTO runs(
+                    run_id, experiment_id, seed, status, start_time, end_time,
+                    iterations, evaluations, best_fitness, best_summary, runtime_millis, artifacts_json,
+                    resumed_from, error_message
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(run_id) DO UPDATE SET
+                    status = excluded.status,
+                    end_time = excluded.end_time,
+                    iterations = excluded.iterations,
+                    evaluations = excluded.evaluations,
+                    best_fitness = excluded.best_fitness,
+                    best_summary = excluded.best_summary,
+                    runtime_millis = excluded.runtime_millis,
+                    artifacts_json = excluded.artifacts_json,
+                    resumed_from = COALESCE(excluded.resumed_from, runs.resumed_from),
+                    error_message = excluded.error_message
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, event.runId());
+            statement.setString(2, experimentId);
+            statement.setLong(3, event.masterSeed());
+            statement.setString(4, "STOPPED");
+            statement.setString(5, event.timestamp().toString());
+            statement.setString(6, event.timestamp().toString());
+            statement.setInt(7, event.iterations());
+            statement.setLong(8, event.evaluations());
+            statement.setDouble(9, event.bestFitness());
+            statement.setString(10, event.bestSummary());
+            statement.setLong(11, event.runtimeMillis());
+            statement.setString(12, eventMapper.writeValueAsString(event.artifacts()));
+            statement.setString(13, event.resumedFrom());
+            statement.setString(14, event.reason());
+            statement.executeUpdate();
+        } catch (Exception e) {
+            throw new SQLException("Failed serializing run stop payload", e);
+        }
+
+        Map<String, Double> objectiveValues = latestMetricsByRun.remove(event.runId());
+        upsertRunObjectives(connection, event.runId(), objectiveValues);
+    }
+
     private void upsertRunFailed(Connection connection, RunFailedEvent event) throws SQLException {
         String sql = """
                 INSERT INTO runs(
@@ -508,20 +548,6 @@ public final class JdbcEventSink implements EventSink {
         return path;
     }
 
-    private static String sha256(String value) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
-            StringBuilder out = new StringBuilder(hash.length * 2);
-            for (byte b : hash) {
-                out.append(String.format(Locale.ROOT, "%02x", b));
-            }
-            return out.toString();
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed computing config hash", e);
-        }
-    }
-
     private static boolean isTypedSectionPath(String path) {
         return "representation".equals(path)
                 || "problem".equals(path)
@@ -533,24 +559,6 @@ public final class JdbcEventSink implements EventSink {
                 || "localSearch".equals(path)
                 || "restart".equals(path)
                 || "niching".equals(path);
-    }
-
-    private JsonNode normalizeForExperimentFingerprint(JsonNode parsed) {
-        JsonNode deepCopy = parsed.deepCopy();
-        if (!(deepCopy instanceof ObjectNode root)) {
-            return deepCopy;
-        }
-        JsonNode runNode = root.path("run");
-        if (runNode instanceof ObjectNode runObject) {
-            runObject.remove("id");
-            runObject.remove("masterSeed");
-        }
-        JsonNode loggingNode = root.path("logging");
-        if (loggingNode instanceof ObjectNode loggingObject) {
-            loggingObject.remove("jsonlFile");
-            loggingObject.remove("logFile");
-        }
-        return root;
     }
 
     private record FlattenedParam(

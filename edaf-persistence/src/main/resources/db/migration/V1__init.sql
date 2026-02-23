@@ -90,6 +90,19 @@ CREATE TABLE IF NOT EXISTS events (
     created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS control_requests (
+    scope TEXT NOT NULL CHECK(scope IN ('run', 'experiment')),
+    target_id TEXT NOT NULL,
+    action TEXT NOT NULL CHECK(action IN ('STOP')),
+    requested_at TEXT NOT NULL,
+    requested_by TEXT,
+    reason TEXT,
+    status TEXT NOT NULL CHECK(status IN ('PENDING', 'ACKNOWLEDGED')),
+    acknowledged_at TEXT,
+    acknowledged_by_run_id TEXT,
+    PRIMARY KEY(scope, target_id, action)
+);
+
 CREATE TABLE IF NOT EXISTS coco_campaigns (
     campaign_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -181,6 +194,7 @@ CREATE INDEX IF NOT EXISTS idx_experiment_params_value_text ON experiment_params
 CREATE INDEX IF NOT EXISTS idx_iterations_run_iteration ON iterations(run_id, iteration);
 CREATE INDEX IF NOT EXISTS idx_events_run_type_created ON events(run_id, event_type, created_at);
 CREATE INDEX IF NOT EXISTS idx_checkpoints_run_iteration ON checkpoints(run_id, iteration);
+CREATE INDEX IF NOT EXISTS idx_control_requests_lookup ON control_requests(status, scope, target_id, action);
 CREATE INDEX IF NOT EXISTS idx_coco_campaign_status ON coco_campaigns(status);
 CREATE INDEX IF NOT EXISTS idx_coco_trials_campaign ON coco_trials(campaign_id, optimizer_id, dimension, function_id);
 CREATE INDEX IF NOT EXISTS idx_coco_trials_run_id ON coco_trials(run_id);

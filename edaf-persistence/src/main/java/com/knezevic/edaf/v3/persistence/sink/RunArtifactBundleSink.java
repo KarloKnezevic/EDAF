@@ -10,6 +10,7 @@ import com.knezevic.edaf.v3.core.events.RunCompletedEvent;
 import com.knezevic.edaf.v3.core.events.RunEvent;
 import com.knezevic.edaf.v3.core.events.RunFailedEvent;
 import com.knezevic.edaf.v3.core.events.RunStartedEvent;
+import com.knezevic.edaf.v3.core.events.RunStoppedEvent;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -48,6 +49,7 @@ public final class RunArtifactBundleSink implements EventSink {
     private RunStartedEvent startedEvent;
     private RunCompletedEvent completedEvent;
     private RunFailedEvent failedEvent;
+    private RunStoppedEvent stoppedEvent;
     private boolean csvHeaderWritten;
 
     public RunArtifactBundleSink(Path outputDirectory,
@@ -90,6 +92,12 @@ public final class RunArtifactBundleSink implements EventSink {
 
         if (event instanceof RunFailedEvent failed) {
             this.failedEvent = failed;
+            writeSummaryAndReport();
+            return;
+        }
+
+        if (event instanceof RunStoppedEvent stopped) {
+            this.stoppedEvent = stopped;
             writeSummaryAndReport();
         }
     }
@@ -264,7 +272,9 @@ public final class RunArtifactBundleSink implements EventSink {
 
     private Map<String, Object> buildSummary() {
         Map<String, Object> summary = new LinkedHashMap<>();
-        String status = failedEvent != null ? "FAILED" : (completedEvent != null ? "COMPLETED" : "RUNNING");
+        String status = failedEvent != null
+                ? "FAILED"
+                : (stoppedEvent != null ? "STOPPED" : (completedEvent != null ? "COMPLETED" : "RUNNING"));
 
         summary.put("runId", startedEvent == null
                 ? (completedEvent != null ? completedEvent.runId() : "unknown")
@@ -276,18 +286,33 @@ public final class RunArtifactBundleSink implements EventSink {
         summary.put("masterSeed", startedEvent == null ? null : startedEvent.masterSeed());
         summary.put("startedAt", startedEvent == null ? null : startedEvent.timestamp().toString());
         summary.put("endedAt", completedEvent != null ? completedEvent.timestamp().toString()
-                : (failedEvent != null ? failedEvent.timestamp().toString() : null));
-        summary.put("runtimeMillis", completedEvent == null ? null : completedEvent.runtimeMillis());
-        summary.put("iterations", completedEvent == null ? iterations.size() : completedEvent.iterations());
-        summary.put("evaluations", completedEvent == null
-                ? (iterations.isEmpty() ? null : iterations.get(iterations.size() - 1).evaluations())
-                : completedEvent.evaluations());
-        summary.put("bestFitness", completedEvent == null
-                ? (iterations.isEmpty() ? null : iterations.get(iterations.size() - 1).bestFitness())
-                : completedEvent.bestFitness());
-        summary.put("bestSummary", completedEvent == null ? null : completedEvent.bestSummary());
-        summary.put("bestGenotype", completedEvent == null ? null : completedEvent.bestGenotype());
+                : (stoppedEvent != null
+                ? stoppedEvent.timestamp().toString()
+                : (failedEvent != null ? failedEvent.timestamp().toString() : null)));
+        summary.put("runtimeMillis", completedEvent != null
+                ? completedEvent.runtimeMillis()
+                : (stoppedEvent != null ? stoppedEvent.runtimeMillis() : null));
+        summary.put("iterations", completedEvent != null
+                ? completedEvent.iterations()
+                : (stoppedEvent != null ? stoppedEvent.iterations() : iterations.size()));
+        summary.put("evaluations", completedEvent != null
+                ? completedEvent.evaluations()
+                : (stoppedEvent != null
+                ? stoppedEvent.evaluations()
+                : (iterations.isEmpty() ? null : iterations.get(iterations.size() - 1).evaluations())));
+        summary.put("bestFitness", completedEvent != null
+                ? completedEvent.bestFitness()
+                : (stoppedEvent != null
+                ? stoppedEvent.bestFitness()
+                : (iterations.isEmpty() ? null : iterations.get(iterations.size() - 1).bestFitness())));
+        summary.put("bestSummary", completedEvent != null
+                ? completedEvent.bestSummary()
+                : (stoppedEvent != null ? stoppedEvent.bestSummary() : null));
+        summary.put("bestGenotype", completedEvent != null
+                ? completedEvent.bestGenotype()
+                : (stoppedEvent != null ? stoppedEvent.bestGenotype() : null));
         summary.put("errorMessage", failedEvent == null ? null : failedEvent.errorMessage());
+        summary.put("stopReason", stoppedEvent == null ? null : stoppedEvent.reason());
 
         summary.put("artifactPaths", Map.of(
                 "runDirectory", runDirectory.toString(),
@@ -319,7 +344,7 @@ public final class RunArtifactBundleSink implements EventSink {
     }
 
     private void writeBestMatrixIfApplicable() {
-        if (completedEvent == null || startedEvent == null) {
+        if ((completedEvent == null && stoppedEvent == null) || startedEvent == null) {
             return;
         }
         String problem = startedEvent.problem();
@@ -332,7 +357,7 @@ public final class RunArtifactBundleSink implements EventSink {
                 && !normalized.equals("almost-disjunct-matrix")) {
             return;
         }
-        String genotype = completedEvent.bestGenotype();
+        String genotype = completedEvent != null ? completedEvent.bestGenotype() : stoppedEvent.bestGenotype();
         if (genotype == null || genotype.isBlank() || !genotype.chars().allMatch(ch -> ch == '0' || ch == '1')) {
             return;
         }

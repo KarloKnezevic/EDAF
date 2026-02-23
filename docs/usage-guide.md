@@ -42,6 +42,15 @@ Resume from checkpoint:
 ./edaf batch -c configs/batch-v3.yml
 ```
 
+Batch/Campaign parallelism is now automatic and coordinated with in-run fitness parallelism.
+
+- run-level parallelism hint: `availableProcessors / 2`
+- per-run fitness workers: dynamic `availableProcessors / activeRuns`
+- optional environment overrides:
+  - `EDAF_BATCH_PARALLELISM`
+  - `EDAF_MAX_FITNESS_WORKERS`
+  - `EDAF_ASYNC_SINK_QUEUE` (async persistence sink queue capacity)
+
 ### Recipe D2: 30-run statistical batch per experiment
 
 ```bash
@@ -235,7 +244,7 @@ Recommended workflow:
 2. Open static report:
    - `results/latent-insights/runs/latent-adaptive-showcase-onemax/report.html`
 3. Start web app:
-   - `EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run`
+   - `EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run`
 4. Open:
    - `http://localhost:7070/runs/latent-adaptive-showcase-onemax`
 5. Inspect:
@@ -345,13 +354,13 @@ Multiple formats:
 Open a terminal in `/Users/karloknezevic/Desktop/EDAF` and run from repo root:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
-If plugin prefix resolution fails, use fully-qualified goal:
+Alternative (works only if spring-boot plugin prefix is resolvable in your local Maven setup):
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
 ```
 
 `-pl edaf-web -am` is important because the web module depends on sibling modules; running from repo root ensures all required classes are on classpath.
@@ -370,6 +379,15 @@ UI pages:
 - `/experiments/{experimentId}` experiment detail (multi-run analytics)
 - `/coco` campaign explorer
 - `/coco/{campaignId}` campaign detail
+
+Experiment deletion:
+
+- `/experiments`: each row has **Stop** and **Delete**, plus bulk **Stop selected** / **Delete selected**
+- `/experiments/{experimentId}`: top toolbar has **Stop experiment** and **Delete experiment**
+- `/runs/{runId}`: top bar has **Stop run**
+- delete removes DB rows (`experiments`, `runs`, `iterations`, `checkpoints`, `events`, `experiment_params`, `run_objectives`) and best-effort run artifact directories
+- delete is blocked with `409 CONFLICT` when the experiment still has `RUNNING` runs
+- stop is cooperative/safe: running jobs finish current iteration and persist `STOPPED` status with final telemetry snapshot
 
 ### Run detail (`/runs/{runId}`) deep-dive
 
@@ -407,6 +425,7 @@ Visual status colors are consistent across pages:
 - `RUNNING`: green badge
 - `COMPLETED`: blue badge
 - `FAILED`: red badge
+- `STOPPED`: amber badge
 - fallback/other states: amber badge
 
 ### Experiment detail (`/experiments/{experimentId}`) analytics
@@ -503,6 +522,10 @@ curl "http://localhost:7070/api/runs/umda-onemax-v3/events?eventType=iteration_c
 
 ```bash
 curl "http://localhost:7070/api/experiments/<experimentId>"
+curl -X DELETE "http://localhost:7070/api/experiments/<experimentId>"
+curl -X POST "http://localhost:7070/api/experiments/<experimentId>/stop" -H "Content-Type: application/json" -d '{"reason":"manual stop"}'
+curl -X POST "http://localhost:7070/api/runs/<runId>/stop" -H "Content-Type: application/json" -d '{"reason":"manual stop"}'
+curl -X POST "http://localhost:7070/api/experiments/delete-bulk" -H "Content-Type: application/json" -d '{"experimentIds":["exp-1","exp-2"]}'
 curl "http://localhost:7070/api/experiments/<experimentId>/runs?page=0&size=50&sortBy=start_time&sortDir=desc"
 curl "http://localhost:7070/api/experiments/<experimentId>/analysis?direction=max&target=60"
 curl "http://localhost:7070/api/experiments/<experimentId>/latex?direction=max&target=60"

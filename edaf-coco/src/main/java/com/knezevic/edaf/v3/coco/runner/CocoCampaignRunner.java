@@ -13,6 +13,7 @@ import com.knezevic.edaf.v3.coco.report.CocoHtmlReportGenerator;
 import com.knezevic.edaf.v3.core.config.ConfigLoader;
 import com.knezevic.edaf.v3.core.config.ExperimentConfig;
 import com.knezevic.edaf.v3.core.events.EventSink;
+import com.knezevic.edaf.v3.core.runtime.ExecutionParallelism;
 import com.knezevic.edaf.v3.experiments.runner.ExperimentRunner;
 import com.knezevic.edaf.v3.experiments.runner.RunExecution;
 import com.knezevic.edaf.v3.persistence.jdbc.DataSourceFactory;
@@ -25,6 +26,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Runs a COCO/BBOB campaign by expanding one config into many EDAF runs.
@@ -33,14 +39,12 @@ public final class CocoCampaignRunner {
 
     private final CocoConfigLoader cocoConfigLoader;
     private final ConfigLoader experimentConfigLoader;
-    private final ExperimentRunner experimentRunner;
     private final ObjectMapper mapper;
     private final ObjectMapper canonicalYamlMapper;
 
     public CocoCampaignRunner() {
         this.cocoConfigLoader = new CocoConfigLoader();
         this.experimentConfigLoader = new ConfigLoader();
-        this.experimentRunner = new ExperimentRunner();
         this.mapper = new ObjectMapper();
         this.canonicalYamlMapper = new ObjectMapper(new YAMLFactory())
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
@@ -66,6 +70,11 @@ public final class CocoCampaignRunner {
         int totalTrials = 0;
         int successfulTrials = 0;
         int failedTrials = 0;
+        int parallelism = resolveParallelism(additionalSinks);
+        ExecutorService executor = parallelism <= 1
+                ? null
+                : Executors.newFixedThreadPool(parallelism, campaignWorkerFactory());
+        List<Future<TrialResult>> futures = new java.util.ArrayList<>();
 
         try {
             for (CocoCampaignConfig.OptimizerSection optimizer : campaignConfig.getOptimizers()) {
@@ -101,60 +110,53 @@ public final class CocoCampaignRunner {
                                         budgetEvals
                                 );
 
-                                try {
-                                    RunExecution execution = experimentRunner.run(trialConfig, additionalSinks);
-                                    Double best = execution.result().best().fitness().scalar();
-                                    Long evalsToTarget = store.findEvaluationsToTarget(runId, campaign.getTargetFitness());
-                                    boolean reachedTarget = best != null && best <= campaign.getTargetFitness();
-                                    if (reachedTarget && evalsToTarget == null) {
-                                        evalsToTarget = execution.result().evaluations();
-                                    }
-
-                                    if (reachedTarget) {
-                                        successfulTrials++;
-                                    }
-
-                                    store.upsertTrial(new CocoTrialOutcome(
-                                            campaign.getId(),
-                                            optimizer.getId(),
-                                            runId,
+                                if (executor == null) {
+                                    TrialResult trial = executeTrial(
+                                            trialConfig,
+                                            store,
+                                            campaign,
+                                            optimizer,
                                             functionId,
                                             instanceId,
                                             dimension,
                                             repetition,
                                             budgetEvals,
-                                            execution.result().evaluations(),
-                                            best,
-                                            execution.result().runtime().toMillis(),
-                                            "COMPLETED",
-                                            reachedTarget,
-                                            evalsToTarget,
-                                            campaign.getTargetFitness()
-                                    ));
-                                } catch (RuntimeException e) {
-                                    failedTrials++;
-                                    store.upsertTrial(new CocoTrialOutcome(
-                                            campaign.getId(),
-                                            optimizer.getId(),
                                             runId,
-                                            functionId,
-                                            instanceId,
-                                            dimension,
-                                            repetition,
-                                            budgetEvals,
-                                            null,
-                                            null,
-                                            null,
-                                            "FAILED",
-                                            false,
-                                            null,
-                                            campaign.getTargetFitness()
-                                    ));
+                                            additionalSinks
+                                    );
+                                    successfulTrials += trial.reachedTarget() ? 1 : 0;
+                                    failedTrials += trial.failed() ? 1 : 0;
+                                } else {
+                                    final int functionIdValue = functionId;
+                                    final int instanceIdValue = instanceId;
+                                    final int dimensionValue = dimension;
+                                    final int repetitionValue = repetition;
+                                    final long budgetEvalsValue = budgetEvals;
+                                    final String runIdValue = runId;
+                                    futures.add(executor.submit(() -> executeTrial(
+                                            trialConfig,
+                                            store,
+                                            campaign,
+                                            optimizer,
+                                            functionIdValue,
+                                            instanceIdValue,
+                                            dimensionValue,
+                                            repetitionValue,
+                                            budgetEvalsValue,
+                                            runIdValue,
+                                            additionalSinks
+                                    )));
                                 }
                             }
                         }
                     }
                 }
+            }
+
+            for (Future<TrialResult> future : futures) {
+                TrialResult trial = future.get();
+                successfulTrials += trial.reachedTarget() ? 1 : 0;
+                failedTrials += trial.failed() ? 1 : 0;
             }
 
             store.rebuildAggregates(
@@ -187,9 +189,16 @@ public final class CocoCampaignRunner {
                     report,
                     artifacts
             );
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             store.updateCampaignStatus(campaign.getId(), "FAILED", e.getMessage());
-            throw e;
+            if (e instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new RuntimeException("COCO campaign execution failed", e);
+        } finally {
+            if (executor != null) {
+                executor.shutdownNow();
+            }
         }
     }
 
@@ -243,6 +252,67 @@ public final class CocoCampaignRunner {
         return mapper.convertValue(config, ExperimentConfig.class);
     }
 
+    private TrialResult executeTrial(ExperimentConfig trialConfig,
+                                     CocoJdbcStore store,
+                                     CocoCampaignConfig.CampaignSection campaign,
+                                     CocoCampaignConfig.OptimizerSection optimizer,
+                                     int functionId,
+                                     int instanceId,
+                                     int dimension,
+                                     int repetition,
+                                     long budgetEvals,
+                                     String runId,
+                                     List<EventSink> additionalSinks) {
+        try {
+            ExperimentRunner experimentRunner = new ExperimentRunner();
+            RunExecution execution = experimentRunner.run(trialConfig, additionalSinks);
+            Double best = execution.result().best().fitness().scalar();
+            Long evalsToTarget = store.findEvaluationsToTarget(runId, campaign.getTargetFitness());
+            boolean reachedTarget = best != null && best <= campaign.getTargetFitness();
+            if (reachedTarget && evalsToTarget == null) {
+                evalsToTarget = execution.result().evaluations();
+            }
+
+            store.upsertTrial(new CocoTrialOutcome(
+                    campaign.getId(),
+                    optimizer.getId(),
+                    runId,
+                    functionId,
+                    instanceId,
+                    dimension,
+                    repetition,
+                    budgetEvals,
+                    execution.result().evaluations(),
+                    best,
+                    execution.result().runtime().toMillis(),
+                    "COMPLETED",
+                    reachedTarget,
+                    evalsToTarget,
+                    campaign.getTargetFitness()
+            ));
+            return new TrialResult(reachedTarget, false);
+        } catch (RuntimeException e) {
+            store.upsertTrial(new CocoTrialOutcome(
+                    campaign.getId(),
+                    optimizer.getId(),
+                    runId,
+                    functionId,
+                    instanceId,
+                    dimension,
+                    repetition,
+                    budgetEvals,
+                    null,
+                    null,
+                    null,
+                    "FAILED",
+                    false,
+                    null,
+                    campaign.getTargetFitness()
+            ));
+            return new TrialResult(false, true);
+        }
+    }
+
     private static void applyCocoOverrides(ExperimentConfig config,
                                            CocoCampaignConfig.CampaignSection campaign,
                                            CocoCampaignConfig.OptimizerSection optimizer,
@@ -294,7 +364,7 @@ public final class CocoCampaignRunner {
         ensureToken(config.getLogging().getModes(), "jsonl");
         ensureToken(config.getLogging().getModes(), "db");
         config.getLogging().setJsonlFile(outputDir.resolve(runId + "-events.jsonl").toString());
-        config.getLogging().setLogFile(Path.of(campaign.getOutputDirectory(), campaign.getId(), "campaign.log").toString());
+        config.getLogging().setLogFile(outputDir.resolve(runId + ".log").toString());
         if (config.getLogging().getVerbosity() == null || config.getLogging().getVerbosity().isBlank()) {
             config.getLogging().setVerbosity("normal");
         }
@@ -427,5 +497,25 @@ public final class CocoCampaignRunner {
         z = (z ^ (z >>> 33)) * 0xc4ceb9fe1a85ec53l;
         z = z ^ (z >>> 33);
         return z;
+    }
+
+    private static int resolveParallelism(List<EventSink> additionalSinks) {
+        if (additionalSinks != null && !additionalSinks.isEmpty()) {
+            return 1;
+        }
+        return Math.max(1, ExecutionParallelism.suggestedRunParallelism());
+    }
+
+    private static ThreadFactory campaignWorkerFactory() {
+        AtomicInteger counter = new AtomicInteger(1);
+        return runnable -> {
+            Thread thread = new Thread(runnable);
+            thread.setName("edaf-coco-worker-" + counter.getAndIncrement());
+            thread.setDaemon(true);
+            return thread;
+        };
+    }
+
+    private record TrialResult(boolean reachedTarget, boolean failed) {
     }
 }

@@ -27,6 +27,7 @@ public final class SchemaInitializer {
             "iterations",
             "checkpoints",
             "events",
+            "control_requests",
             "experiment_params",
             "runs",
             "experiments"

@@ -7,13 +7,13 @@
 From `/Users/karloknezevic/Desktop/EDAF` run:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
-If Maven cannot resolve `spring-boot` prefix, use fully-qualified goal:
+Alternative (works when plugin prefix resolution is available in local Maven setup):
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am spring-boot:run
 ```
 
 Use `-pl edaf-web -am` from repo root to ensure sibling modules are on classpath.
@@ -40,6 +40,7 @@ Features:
 - sorting: `start_time`, `best_fitness`, `runtime_millis`, `status`
 - pagination and page size control
 - URL query-state persistence
+- per-row safe stop action for `RUNNING` runs
 - link to COCO campaign explorer
 
 ### `/runs/{runId}` Run Detail
@@ -65,7 +66,7 @@ Features:
 - YAML/JSON config toggle + flattened params search
 - responsive layout with overflow-safe containers
 - adaptive timeline table from `adaptive_action` events
-- consistent status colors (`RUNNING` green, `COMPLETED` blue, `FAILED` red)
+- consistent status colors (`RUNNING` green, `COMPLETED` blue, `FAILED` red, `STOPPED` amber)
 
 ### `/experiments` Experiment Explorer
 
@@ -75,6 +76,11 @@ Features:
 - search over experiment ids, run ids, config hash, and flattened params
 - filters: algorithm/model/problem/date range
 - sorting + pagination for large benchmark campaigns
+- per-row safe stop action
+- per-row hard-delete action (with confirmation; blocked while run status is `RUNNING`)
+- bulk selection with:
+  - `Stop selected`
+  - `Delete selected`
 
 ### `/experiments/{experimentId}` Experiment Detail
 
@@ -97,6 +103,8 @@ Features:
   - Friedman omnibus ranking
 - one-click LaTeX export buttons
 - flattened params table with client-side filtering
+- `Stop experiment` toolbar action (cooperative stop request)
+- toolbar hard-delete action for full experiment cleanup (blocked while run status is `RUNNING`)
 
 ### `/coco` COCO Campaign Explorer
 
@@ -129,11 +137,27 @@ Features:
 - `GET /api/runs/{runId}/params`
 - `GET /api/facets`
 - `GET /api/experiments/{experimentId}`
+- `DELETE /api/experiments/{experimentId}`
+- `POST /api/experiments/{experimentId}/stop`
+- `POST /api/experiments/delete-bulk`
 - `GET /api/experiments/{experimentId}/runs`
 - `GET /api/experiments/{experimentId}/analysis`
 - `GET /api/experiments/{experimentId}/latex`
+- `POST /api/runs/{runId}/stop`
 - `GET /api/analysis/problem/{problemType}`
 - `GET /api/analysis/problem/{problemType}/latex`
+
+`DELETE /api/experiments/{experimentId}` returns:
+
+- `200` with deleted row counters
+- `404` when experiment does not exist
+- `409` when at least one run in the experiment is still `RUNNING`
+
+`POST /api/runs/{runId}/stop` and `POST /api/experiments/{experimentId}/stop` return:
+
+- `200` when stop request is accepted
+- `404` when run/experiment does not exist
+- `409` when target exists but is not in a stoppable state
 
 Analysis query params:
 
@@ -223,6 +247,10 @@ curl "http://localhost:7070/api/runs?q=problem.genotype.maxDepth"
 curl "http://localhost:7070/api/runs/umda-onemax-v3/events?eventType=iteration_completed&q=entropy&page=0&size=20"
 curl "http://localhost:7070/api/runs/latent-adaptive-showcase-onemax/events?eventType=adaptive_action&page=0&size=20"
 curl "http://localhost:7070/api/facets"
+curl -X DELETE "http://localhost:7070/api/experiments/<experimentId>"
+curl -X POST "http://localhost:7070/api/runs/<runId>/stop" -H "Content-Type: application/json" -d '{"reason":"manual stop"}'
+curl -X POST "http://localhost:7070/api/experiments/<experimentId>/stop" -H "Content-Type: application/json" -d '{"reason":"manual stop"}'
+curl -X POST "http://localhost:7070/api/experiments/delete-bulk" -H "Content-Type: application/json" -d '{"experimentIds":["exp-1","exp-2"]}'
 curl "http://localhost:7070/api/experiments/<experimentId>/analysis?direction=max&target=60"
 curl "http://localhost:7070/api/analysis/problem/onemax?direction=max&target=60"
 curl "http://localhost:7070/api/analysis/problem/onemax/latex?direction=max&target=60"

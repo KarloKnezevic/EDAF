@@ -140,6 +140,11 @@
         .btn-ghost {
             background: #fff;
         }
+        .btn-danger {
+            background: #fee2e2;
+            color: var(--bad);
+            border-color: #fecaca;
+        }
         .control-row {
             display: flex;
             gap: 8px;
@@ -243,6 +248,7 @@
         .status-running { background: #dcfce7; color: var(--good); }
         .status-completed { background: #e0f2fe; color: #075985; }
         .status-failed { background: #fee2e2; color: var(--bad); }
+        .status-stopped { background: #fef3c7; color: var(--warn); }
         .status-other { background: #fef3c7; color: var(--warn); }
         @media (max-width: 1200px) {
             .summary-grid { grid-template-columns: repeat(3, minmax(130px, 1fr)); }
@@ -267,6 +273,8 @@
             <button id="refreshAll" class="btn-primary">Refresh</button>
             <a id="latexExperimentLink" class="btn-ghost" style="text-decoration:none; display:inline-flex; align-items:center;" href="#">Export experiment LaTeX</a>
             <a id="latexProblemLink" class="btn-ghost" style="text-decoration:none; display:inline-flex; align-items:center;" href="#">Export problem LaTeX</a>
+            <button id="stopExperiment" class="btn-ghost">Stop experiment</button>
+            <button id="deleteExperiment" class="btn-danger">Delete experiment</button>
         </div>
     </div>
 
@@ -569,6 +577,8 @@
         friedmanInfo: document.getElementById("friedmanInfo"),
         latexExperimentLink: document.getElementById("latexExperimentLink"),
         latexProblemLink: document.getElementById("latexProblemLink"),
+        stopExperiment: document.getElementById("stopExperiment"),
+        deleteExperiment: document.getElementById("deleteExperiment"),
         sortableHeaders: Array.from(document.querySelectorAll("th.sortable-th"))
     };
 
@@ -713,6 +723,7 @@
         if (value === "RUNNING") return "status status-running";
         if (value === "COMPLETED") return "status status-completed";
         if (value === "FAILED") return "status status-failed";
+        if (value === "STOPPED") return "status status-stopped";
         return "status status-other";
     }
 
@@ -1133,6 +1144,60 @@
         }
     }
 
+    async function deleteCurrentExperiment() {
+        const confirmed = window.confirm(
+            `Delete experiment '${experimentId}' and all related runs, telemetry, checkpoints, and events?`
+        );
+        if (!confirmed) {
+            return;
+        }
+        const response = await fetch(`/api/experiments/${encodeURIComponent(experimentId)}`, {
+            method: "DELETE",
+            headers: { "Accept": "application/json" }
+        });
+        if (!response.ok) {
+            let message = `Delete failed (HTTP ${response.status})`;
+            try {
+                const payload = await response.json();
+                if (payload) {
+                    message = payload.message || payload.detail || payload.error || message;
+                }
+            } catch (ignored) {
+                // keep default message
+            }
+            throw new Error(message);
+        }
+        window.location.href = "/experiments";
+    }
+
+    async function stopCurrentExperiment() {
+        const confirmed = window.confirm(`Request safe stop for experiment '${experimentId}'?`);
+        if (!confirmed) {
+            return;
+        }
+        const response = await fetch(`/api/experiments/${encodeURIComponent(experimentId)}/stop`, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ reason: "Stopped from experiment detail page" })
+        });
+        if (!response.ok) {
+            let message = `Stop request failed (HTTP ${response.status})`;
+            try {
+                const payload = await response.json();
+                if (payload) {
+                    message = payload.message || payload.detail || payload.error || message;
+                }
+            } catch (ignored) {
+                // keep default message
+            }
+            throw new Error(message);
+        }
+        await refreshAll();
+    }
+
     els.applyAnalysis.addEventListener("click", async () => {
         state.direction = els.direction.value;
         state.target = els.target.value;
@@ -1180,6 +1245,27 @@
     });
 
     els.refreshAll.addEventListener("click", refreshAll);
+    els.stopExperiment.addEventListener("click", async () => {
+        els.stopExperiment.disabled = true;
+        try {
+            await stopCurrentExperiment();
+        } catch (error) {
+            console.error("Stop experiment failed", error);
+            window.alert(error.message || "Stop request failed");
+        } finally {
+            els.stopExperiment.disabled = false;
+        }
+    });
+    els.deleteExperiment.addEventListener("click", async () => {
+        els.deleteExperiment.disabled = true;
+        try {
+            await deleteCurrentExperiment();
+        } catch (error) {
+            console.error("Delete experiment failed", error);
+            window.alert(error.message || "Delete experiment failed");
+            els.deleteExperiment.disabled = false;
+        }
+    });
 
     if (initialAnalysis && initialAnalysis.objectiveDirection) {
         state.direction = initialAnalysis.objectiveDirection;
