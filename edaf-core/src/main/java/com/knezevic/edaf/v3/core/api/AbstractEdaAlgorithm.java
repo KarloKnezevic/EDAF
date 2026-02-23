@@ -18,11 +18,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Template-method base implementation for model-based algorithms.
  */
 public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
+
+    /**
+     * Fitness evaluations are CPU-bound and independent per candidate, so the default strategy
+     * is to use all available processors without extra configuration flags.
+     */
+    private static final int FITNESS_EVALUATION_WORKERS = Math.max(1, Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService FITNESS_EVALUATION_POOL = newFixedFitnessPool();
 
     private AlgorithmState<G> state;
     private RunResult<G> result;
@@ -67,12 +80,17 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
     public void initialize(AlgorithmContext<G> context) {
         Population<G> population = new Population<>(context.problem().objectiveSense());
         RngStream initRng = context.rngManager().stream("init");
+        List<G> initialGenotypes = new ArrayList<>(context.populationSize());
 
         for (int i = 0; i < context.populationSize(); i++) {
             G genotype = context.representation().random(initRng);
             genotype = context.constraintHandling().enforce(genotype, context.representation(), context.problem(), initRng);
-            Fitness fitness = context.problem().evaluate(genotype);
-            population.add(new Individual<>(genotype, fitness));
+            initialGenotypes.add(genotype);
+        }
+
+        List<Fitness> initialFitness = evaluateFitnessBatch(context, initialGenotypes, 0, "init");
+        for (int i = 0; i < initialGenotypes.size(); i++) {
+            population.add(new Individual<>(initialGenotypes.get(i), initialFitness.get(i)));
         }
 
         population.sortByFitness();
@@ -164,7 +182,7 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
 
         sampled = applyAdaptiveSamplingControls(context, sampled, telemetry, adaptivePlan);
 
-        List<Individual<G>> offspring = new ArrayList<>(sampled.size());
+        List<G> feasibleSamples = new ArrayList<>(sampled.size());
         for (G genotype : sampled) {
             G feasible = context.constraintHandling().enforce(
                     genotype,
@@ -172,8 +190,14 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
                     context.problem(),
                     context.rngManager().stream("constraint")
             );
-            Fitness fitness = evaluateGenotype(context, feasible, context.rngManager().stream("evaluation"));
-            Individual<G> individual = new Individual<>(feasible, fitness);
+            feasibleSamples.add(feasible);
+        }
+
+        List<Fitness> fitnesses = evaluateFitnessBatch(context, feasibleSamples, state.iteration() + 1, "iterate");
+
+        List<Individual<G>> offspring = new ArrayList<>(feasibleSamples.size());
+        for (int i = 0; i < feasibleSamples.size(); i++) {
+            Individual<G> individual = new Individual<>(feasibleSamples.get(i), fitnesses.get(i));
             offspring.add(context.localSearch().refine(
                     individual,
                     context.problem(),
@@ -222,6 +246,58 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
         this.previousTelemetry = telemetry;
 
         publishIterationEvent(context, newState, telemetry, adaptivePlan.actions(), elite.size());
+    }
+
+    private List<Fitness> evaluateFitnessBatch(AlgorithmContext<G> context,
+                                               List<G> feasibleGenotypes,
+                                               int iteration,
+                                               String phase) {
+        if (feasibleGenotypes.isEmpty()) {
+            return List.of();
+        }
+
+        if (FITNESS_EVALUATION_WORKERS <= 1 || feasibleGenotypes.size() <= 1) {
+            List<Fitness> serial = new ArrayList<>(feasibleGenotypes.size());
+            for (int i = 0; i < feasibleGenotypes.size(); i++) {
+                serial.add(evaluateGenotype(
+                        context,
+                        feasibleGenotypes.get(i),
+                        evaluationStream(context, phase, iteration, i)
+                ));
+            }
+            return serial;
+        }
+
+        List<CompletableFuture<Fitness>> futures = new ArrayList<>(feasibleGenotypes.size());
+        for (int i = 0; i < feasibleGenotypes.size(); i++) {
+            final int index = i;
+            futures.add(CompletableFuture.supplyAsync(
+                    () -> evaluateGenotype(
+                            context,
+                            feasibleGenotypes.get(index),
+                            evaluationStream(context, phase, iteration, index)
+                    ),
+                    FITNESS_EVALUATION_POOL
+            ));
+        }
+
+        List<Fitness> evaluated = new ArrayList<>(feasibleGenotypes.size());
+        for (CompletableFuture<Fitness> future : futures) {
+            try {
+                evaluated.add(future.join());
+            } catch (CompletionException e) {
+                if (e.getCause() instanceof RuntimeException runtime) {
+                    throw runtime;
+                }
+                throw new RuntimeException("Parallel fitness evaluation failed", e.getCause());
+            }
+        }
+        return evaluated;
+    }
+
+    private RngStream evaluationStream(AlgorithmContext<G> context, String phase, int iteration, int candidateIndex) {
+        String streamName = "evaluation/" + phase + "/iter-" + iteration + "/idx-" + candidateIndex;
+        return context.rngManager().ephemeralStream(streamName);
     }
 
     @Override
@@ -614,6 +690,17 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
 
     private static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
+    }
+
+    private static ExecutorService newFixedFitnessPool() {
+        AtomicInteger counter = new AtomicInteger(1);
+        ThreadFactory threadFactory = runnable -> {
+            Thread thread = new Thread(runnable);
+            thread.setName("edaf-fitness-worker-" + counter.getAndIncrement());
+            thread.setDaemon(true);
+            return thread;
+        };
+        return Executors.newFixedThreadPool(FITNESS_EVALUATION_WORKERS, threadFactory);
     }
 
     /**

@@ -181,6 +181,34 @@
             color: var(--muted);
             font-family: "IBM Plex Mono", monospace;
         }
+        th.sortable-th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 22px;
+            transition: background-color .12s ease;
+        }
+        th.sortable-th:hover {
+            background: #edf5ff;
+        }
+        th.sortable-th::after {
+            content: "";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            font-size: .72rem;
+            color: var(--accent);
+        }
+        th.sortable-th.sort-active.sort-asc::after {
+            content: "▲";
+            opacity: 1;
+        }
+        th.sortable-th.sort-active.sort-desc::after {
+            content: "▼";
+            opacity: 1;
+        }
         .pager {
             margin-top: 8px;
             display: flex;
@@ -304,6 +332,40 @@
     <section class="grid-2">
         <div class="card">
             <div class="toolbar">
+                <strong>Mean Convergence with 95% CI</strong>
+                <span class="muted">Best fitness over evaluations, aggregated across runs</span>
+            </div>
+            <div class="chart-wrap"><canvas id="convergenceChart"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="toolbar">
+                <strong>Success-vs-Budget Curve</strong>
+                <span class="muted" id="successCurveCaption">Solved fraction by evaluation budget</span>
+            </div>
+            <div class="chart-wrap"><canvas id="successBudgetChart"></canvas></div>
+        </div>
+    </section>
+
+    <section class="grid-2">
+        <div class="card">
+            <div class="toolbar">
+                <strong>Time-to-Target Histogram</strong>
+                <span class="muted" id="timeToTargetCaption">Successful runs only</span>
+            </div>
+            <div class="chart-wrap"><canvas id="timeToTargetChart"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="toolbar">
+                <strong>ECDF of Evaluations-to-Target</strong>
+                <span class="muted">Total-normalized and successful-only modes</span>
+            </div>
+            <div class="chart-wrap"><canvas id="ecdfChart"></canvas></div>
+        </div>
+    </section>
+
+    <section class="grid-2">
+        <div class="card">
+            <div class="toolbar">
                 <strong>Data Profile</strong>
                 <span class="muted">Solved fraction vs evaluation budget</span>
             </div>
@@ -328,13 +390,13 @@
                 <thead>
                 <tr>
                     <th style="width: 20%;">Run ID</th>
-                    <th style="width: 9%;">Seed</th>
-                    <th style="width: 10%;">Status</th>
-                    <th style="width: 10%;">Best</th>
-                    <th style="width: 10%;">Runtime</th>
+                    <th class="sortable-th" data-table-id="runs" data-sort-key="seed" data-default-dir="asc" style="width: 9%;">Seed</th>
+                    <th class="sortable-th" data-table-id="runs" data-sort-key="status" data-default-dir="asc" style="width: 10%;">Status</th>
+                    <th class="sortable-th" data-table-id="runs" data-sort-key="best_fitness" data-default-dir="desc" style="width: 10%;">Best</th>
+                    <th class="sortable-th" data-table-id="runs" data-sort-key="runtime_millis" data-default-dir="desc" style="width: 10%;">Runtime</th>
                     <th style="width: 10%;">Evals</th>
                     <th style="width: 10%;">Iterations</th>
-                    <th style="width: 21%;">Start</th>
+                    <th class="sortable-th" data-table-id="runs" data-sort-key="start_time" data-default-dir="desc" style="width: 21%;">Start</th>
                 </tr>
                 </thead>
                 <tbody id="runsRows">
@@ -398,13 +460,13 @@
                     <table>
                         <thead>
                         <tr>
-                            <th>Algorithm</th>
-                            <th>Runs</th>
-                            <th>Success</th>
-                            <th>Mean best</th>
-                            <th>Median best</th>
-                            <th>ERT</th>
-                            <th>SP1</th>
+                            <th class="sortable-th" data-table-id="algoSummary" data-sort-key="algorithm" data-default-dir="asc">Algorithm</th>
+                            <th class="sortable-th" data-table-id="algoSummary" data-sort-key="totalRuns" data-default-dir="desc">Runs</th>
+                            <th class="sortable-th" data-table-id="algoSummary" data-sort-key="successRate" data-default-dir="desc">Success</th>
+                            <th class="sortable-th" data-table-id="algoSummary" data-sort-key="meanBest" data-default-dir="desc">Mean best</th>
+                            <th class="sortable-th" data-table-id="algoSummary" data-sort-key="medianBest" data-default-dir="desc">Median best</th>
+                            <th class="sortable-th" data-table-id="algoSummary" data-sort-key="ert" data-default-dir="asc">ERT</th>
+                            <th class="sortable-th" data-table-id="algoSummary" data-sort-key="sp1" data-default-dir="asc">SP1</th>
                         </tr>
                         </thead>
                         <tbody id="algoSummaryRows">
@@ -427,12 +489,12 @@
                     <table>
                         <thead>
                         <tr>
-                            <th>A</th>
-                            <th>B</th>
-                            <th>p</th>
-                            <th>p<sub>Holm</sub></th>
-                            <th>Better</th>
-                            <th>sig(0.05)</th>
+                            <th class="sortable-th" data-table-id="pairwise" data-sort-key="algorithmA" data-default-dir="asc">A</th>
+                            <th class="sortable-th" data-table-id="pairwise" data-sort-key="algorithmB" data-default-dir="asc">B</th>
+                            <th class="sortable-th" data-table-id="pairwise" data-sort-key="pValue" data-default-dir="asc">p</th>
+                            <th class="sortable-th" data-table-id="pairwise" data-sort-key="holmAdjustedPValue" data-default-dir="asc">p<sub>Holm</sub></th>
+                            <th class="sortable-th" data-table-id="pairwise" data-sort-key="betterAlgorithm" data-default-dir="asc">Better</th>
+                            <th class="sortable-th" data-table-id="pairwise" data-sort-key="significantAt05" data-default-dir="desc">sig(0.05)</th>
                         </tr>
                         </thead>
                         <tbody id="pairwiseRows">
@@ -465,7 +527,12 @@
         runsSortBy: "start_time",
         runsSortDir: "desc",
         direction: (initialAnalysis && initialAnalysis.objectiveDirection) ? initialAnalysis.objectiveDirection : "min",
-        target: (initialAnalysis && initialAnalysis.targetFitness != null) ? String(initialAnalysis.targetFitness) : ""
+        target: (initialAnalysis && initialAnalysis.targetFitness != null) ? String(initialAnalysis.targetFitness) : "",
+        problemComparison: initialProblemComparison || { algorithms: [], pairwiseWilcoxon: [], friedman: {} },
+        tableSort: {
+            algoSummary: { key: "successRate", dir: "desc" },
+            pairwise: { key: "holmAdjustedPValue", dir: "asc" }
+        }
     };
 
     const els = {
@@ -495,29 +562,139 @@
         runsPageInfo: document.getElementById("runsPageInfo"),
         boxPlotSvg: document.getElementById("boxPlotSvg"),
         boxSummary: document.getElementById("boxSummary"),
+        successCurveCaption: document.getElementById("successCurveCaption"),
+        timeToTargetCaption: document.getElementById("timeToTargetCaption"),
         algoSummaryRows: document.getElementById("algoSummaryRows"),
         pairwiseRows: document.getElementById("pairwiseRows"),
         friedmanInfo: document.getElementById("friedmanInfo"),
         latexExperimentLink: document.getElementById("latexExperimentLink"),
-        latexProblemLink: document.getElementById("latexProblemLink")
+        latexProblemLink: document.getElementById("latexProblemLink"),
+        sortableHeaders: Array.from(document.querySelectorAll("th.sortable-th"))
     };
+
+    function lineChartOptions(xLabel, yLabel, yMin = null, yMax = null) {
+        const yAxis = {
+            title: { display: true, text: yLabel, color: "#4a5c73", font: { size: 12, family: "IBM Plex Mono" } },
+            grid: { color: "rgba(214, 223, 235, 0.65)" },
+            ticks: { color: "#4a5c73", maxTicksLimit: 8 }
+        };
+        if (yMin != null) {
+            yAxis.min = yMin;
+        }
+        if (yMax != null) {
+            yAxis.max = yMax;
+        }
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 6, right: 8, bottom: 6, left: 4 } },
+            interaction: { mode: "index", intersect: false },
+            hover: { mode: "index", intersect: false },
+            elements: {
+                line: { borderWidth: 2.1 },
+                point: { radius: 0, hitRadius: 10, hoverRadius: 4 }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "#243447",
+                        usePointStyle: true,
+                        pointStyle: "line",
+                        boxWidth: 14,
+                        filter: item => item.text !== "__ci_lower__"
+                    }
+                },
+                tooltip: {
+                    mode: "index",
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: xLabel, color: "#4a5c73", font: { size: 12, family: "IBM Plex Mono" } },
+                    grid: { color: "rgba(214, 223, 235, 0.42)" },
+                    ticks: { color: "#4a5c73", maxTicksLimit: 10 }
+                },
+                y: yAxis
+            }
+        };
+    }
+
+    function barChartOptions(xLabel, yLabel) {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            scales: {
+                x: {
+                    title: { display: true, text: xLabel, color: "#4a5c73", font: { size: 12, family: "IBM Plex Mono" } },
+                    ticks: { color: "#4a5c73", maxRotation: 45, minRotation: 0 },
+                    grid: { color: "rgba(214, 223, 235, 0.35)" }
+                },
+                y: {
+                    title: { display: true, text: yLabel, color: "#4a5c73", font: { size: 12, family: "IBM Plex Mono" } },
+                    beginAtZero: true,
+                    ticks: { color: "#4a5c73" },
+                    grid: { color: "rgba(214, 223, 235, 0.65)" }
+                }
+            }
+        };
+    }
 
     const histChart = new Chart(document.getElementById("histChart"), {
         type: "bar",
         data: { labels: [], datasets: [{ label: "Runs", data: [], backgroundColor: "rgba(15, 118, 110, 0.45)", borderColor: "#0f766e", borderWidth: 1 }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        options: barChartOptions("Final best fitness bin", "Runs")
+    });
+
+    const convergenceChart = new Chart(document.getElementById("convergenceChart"), {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [
+                { label: "__ci_lower__", data: [], borderColor: "rgba(15, 118, 110, 0)", backgroundColor: "rgba(0,0,0,0)", pointRadius: 0, tension: 0.2 },
+                { label: "95% CI", data: [], borderColor: "rgba(15, 118, 110, 0)", backgroundColor: "rgba(15, 118, 110, 0.20)", fill: "-1", pointRadius: 0, tension: 0.2 },
+                { label: "Mean", data: [], borderColor: "#0f766e", backgroundColor: "rgba(15, 118, 110, 0.14)", tension: 0.2 },
+                { label: "Median", data: [], borderColor: "#1d4ed8", borderDash: [6, 4], backgroundColor: "rgba(29, 78, 216, 0.10)", tension: 0.2 }
+            ]
+        },
+        options: lineChartOptions("Evaluations", "Best fitness")
+    });
+
+    const successBudgetChart = new Chart(document.getElementById("successBudgetChart"), {
+        type: "line",
+        data: { labels: [], datasets: [{ label: "Success by budget", data: [], borderColor: "#155e75", backgroundColor: "rgba(21, 94, 117, 0.15)", tension: 0.2 }] },
+        options: lineChartOptions("Evaluation budget", "Success fraction", 0, 1)
+    });
+
+    const timeToTargetChart = new Chart(document.getElementById("timeToTargetChart"), {
+        type: "bar",
+        data: { labels: [], datasets: [{ label: "Successful runs", data: [], backgroundColor: "rgba(194, 65, 12, 0.38)", borderColor: "#c2410c", borderWidth: 1 }] },
+        options: barChartOptions("Evaluations-to-target bin", "Successful runs")
+    });
+
+    const ecdfChart = new Chart(document.getElementById("ecdfChart"), {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [
+                { label: "ECDF (total-runs normalized)", data: [], borderColor: "#0f766e", backgroundColor: "rgba(15, 118, 110, 0.13)", tension: 0.2 },
+                { label: "ECDF (successful-only)", data: [], borderColor: "#9333ea", backgroundColor: "rgba(147, 51, 234, 0.10)", borderDash: [6, 4], tension: 0.2 }
+            ]
+        },
+        options: lineChartOptions("Evaluations", "Cumulative success fraction", 0, 1)
     });
 
     const dataProfileChart = new Chart(document.getElementById("dataProfileChart"), {
         type: "line",
         data: { labels: [], datasets: [{ label: "Data profile", data: [], borderColor: "#155e75", backgroundColor: "rgba(21, 94, 117, 0.13)", tension: 0.2 }] },
-        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false } }
+        options: lineChartOptions("Evaluation budget", "Solved fraction", 0, 1)
     });
 
     const performanceProfileChart = new Chart(document.getElementById("performanceProfileChart"), {
         type: "line",
         data: { labels: [], datasets: [{ label: "Performance profile", data: [], borderColor: "#a16207", backgroundColor: "rgba(161, 98, 7, 0.13)", tension: 0.2 }] },
-        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false } }
+        options: lineChartOptions("τ ratio", "Fraction within τ of best", 0, 1)
     });
 
     function safe(value, fallback = "n/a") {
@@ -544,6 +721,97 @@
             return "";
         }
         return String(value);
+    }
+
+    function normalizeSortValue(value) {
+        if (value === null || value === undefined) return "";
+        if (typeof value === "number") return value;
+        const asNumber = Number(value);
+        if (Number.isFinite(asNumber) && String(value).trim() !== "") return asNumber;
+        const asDate = Date.parse(String(value));
+        if (!Number.isNaN(asDate)) return asDate;
+        return String(value).toLowerCase();
+    }
+
+    function compareSortValues(left, right, dir) {
+        const a = normalizeSortValue(left);
+        const b = normalizeSortValue(right);
+        let result;
+        if (typeof a === "number" && typeof b === "number") {
+            result = a - b;
+        } else {
+            result = String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
+        }
+        return dir === "desc" ? -result : result;
+    }
+
+    function sortRows(rows, key, dir) {
+        return [...(rows || [])].sort((left, right) => compareSortValues(left?.[key], right?.[key], dir));
+    }
+
+    function updateSortIndicators(tableId) {
+        if (tableId === "runs") {
+            els.sortableHeaders
+                .filter(header => header.dataset.tableId === "runs")
+                .forEach(header => {
+                    const active = header.dataset.sortKey === state.runsSortBy;
+                    header.classList.toggle("sort-active", active);
+                    header.classList.toggle("sort-asc", active && state.runsSortDir === "asc");
+                    header.classList.toggle("sort-desc", active && state.runsSortDir === "desc");
+                });
+            return;
+        }
+        const tableSort = state.tableSort[tableId];
+        els.sortableHeaders
+            .filter(header => header.dataset.tableId === tableId)
+            .forEach(header => {
+                const active = header.dataset.sortKey === tableSort?.key;
+                header.classList.toggle("sort-active", active);
+                header.classList.toggle("sort-asc", active && tableSort?.dir === "asc");
+                header.classList.toggle("sort-desc", active && tableSort?.dir === "desc");
+            });
+    }
+
+    function initHeaderSorting() {
+        els.sortableHeaders.forEach(header => {
+            header.addEventListener("click", async () => {
+                const tableId = header.dataset.tableId;
+                const key = header.dataset.sortKey;
+                const defaultDir = (header.dataset.defaultDir || "asc").toLowerCase() === "desc" ? "desc" : "asc";
+                if (!tableId || !key) return;
+
+                if (tableId === "runs") {
+                    if (state.runsSortBy === key) {
+                        state.runsSortDir = state.runsSortDir === "asc" ? "desc" : "asc";
+                    } else {
+                        state.runsSortBy = key;
+                        state.runsSortDir = defaultDir;
+                    }
+                    state.runsPage = 0;
+                    els.runsSortBy.value = state.runsSortBy;
+                    els.runsSortDir.value = state.runsSortDir;
+                    updateSortIndicators("runs");
+                    await loadRuns();
+                    return;
+                }
+
+                const current = state.tableSort[tableId] || { key, dir: defaultDir };
+                if (current.key === key) {
+                    current.dir = current.dir === "asc" ? "desc" : "asc";
+                } else {
+                    current.key = key;
+                    current.dir = defaultDir;
+                }
+                state.tableSort[tableId] = current;
+                updateSortIndicators(tableId);
+                if (tableId === "algoSummary" || tableId === "pairwise") {
+                    renderProblemComparison(state.problemComparison || { algorithms: [], pairwiseWilcoxon: [], friedman: {} });
+                }
+            });
+        });
+        updateSortIndicators("runs");
+        updateSortIndicators("algoSummary");
+        updateSortIndicators("pairwise");
     }
 
     function analysisQuery() {
@@ -600,6 +868,7 @@
 
         els.runsPrev.disabled = page <= 0;
         els.runsNext.disabled = totalPages === 0 || page >= (totalPages - 1);
+        updateSortIndicators("runs");
     }
 
     function renderBoxPlot(box) {
@@ -709,6 +978,45 @@
         histChart.data.datasets[0].data = histogram.counts;
         histChart.update();
 
+        const convergence = analysis.convergence95Ci || [];
+        convergenceChart.data.labels = convergence.map(point => point.x);
+        convergenceChart.data.datasets[0].data = convergence.map(point => point.ciLower);
+        convergenceChart.data.datasets[1].data = convergence.map(point => point.ciUpper);
+        convergenceChart.data.datasets[2].data = convergence.map(point => point.mean);
+        convergenceChart.data.datasets[3].data = convergence.map(point => point.median == null ? null : point.median);
+        convergenceChart.update();
+
+        const successBudget = analysis.successVsBudget || [];
+        successBudgetChart.data.labels = successBudget.map(point => point.x);
+        successBudgetChart.data.datasets[0].data = successBudget.map(point => point.y);
+        successBudgetChart.update();
+
+        const timeBins = analysis.timeToTargetHistogram || [];
+        timeToTargetChart.data.labels = timeBins.map(bin => `${fmt(bin.startInclusive)}..${fmt(bin.endExclusive)}`);
+        timeToTargetChart.data.datasets[0].data = timeBins.map(bin => bin.count);
+        timeToTargetChart.update();
+
+        const ecdfTotal = analysis.ecdfTotalRuns || [];
+        const ecdfSuccessful = analysis.ecdfSuccessfulRuns || [];
+        const ecdfX = Array.from(new Set([
+            ...ecdfTotal.map(point => Number(point.x)),
+            ...ecdfSuccessful.map(point => Number(point.x))
+        ])).sort((left, right) => left - right);
+        const toSeries = (source) => {
+            const map = new Map((source || []).map(point => [Number(point.x), Number(point.y)]));
+            let last = 0;
+            return ecdfX.map(x => {
+                if (map.has(x)) {
+                    last = map.get(x);
+                }
+                return last;
+            });
+        };
+        ecdfChart.data.labels = ecdfX;
+        ecdfChart.data.datasets[0].data = toSeries(ecdfTotal);
+        ecdfChart.data.datasets[1].data = toSeries(ecdfSuccessful);
+        ecdfChart.update();
+
         const dataPoints = analysis.dataProfile || [];
         dataProfileChart.data.labels = dataPoints.map(p => p.x);
         dataProfileChart.data.datasets[0].data = dataPoints.map(p => p.y);
@@ -718,10 +1026,17 @@
         performanceProfileChart.data.labels = perfPoints.map(p => p.x);
         performanceProfileChart.data.datasets[0].data = perfPoints.map(p => p.y);
         performanceProfileChart.update();
+
+        const targetText = analysis.targetFitness == null ? "target: not configured" : `target: ${fmt(analysis.targetFitness)} (${safe(analysis.targetSource, "unknown source")})`;
+        els.successCurveCaption.textContent = `${targetText} · successes: ${safe(analysis.successfulRuns, 0)} / ${safe(analysis.totalRuns, 0)}`;
+        els.timeToTargetCaption.textContent = `successful runs: ${safe(analysis.successfulRuns, 0)} · failed/non-success: ${Math.max(0, (analysis.totalRuns || 0) - (analysis.successfulRuns || 0))}`;
     }
 
     function renderProblemComparison(report) {
-        const rows = report.algorithms || [];
+        state.problemComparison = report || { algorithms: [], pairwiseWilcoxon: [], friedman: {} };
+
+        const algoSort = state.tableSort.algoSummary || { key: "successRate", dir: "desc" };
+        const rows = sortRows(report.algorithms || [], algoSort.key, algoSort.dir);
         if (!rows.length) {
             els.algoSummaryRows.innerHTML = `<tr><td colspan="7" class="muted">No comparable runs on this problem.</td></tr>`;
         } else {
@@ -738,7 +1053,8 @@
             `).join("");
         }
 
-        const pairwise = report.pairwiseWilcoxon || [];
+        const pairSort = state.tableSort.pairwise || { key: "holmAdjustedPValue", dir: "asc" };
+        const pairwise = sortRows(report.pairwiseWilcoxon || [], pairSort.key, pairSort.dir);
         if (!pairwise.length) {
             els.pairwiseRows.innerHTML = `<tr><td colspan="6" class="muted">No pairwise statistics available.</td></tr>`;
         } else {
@@ -753,6 +1069,8 @@
                 </tr>
             `).join("");
         }
+        updateSortIndicators("algoSummary");
+        updateSortIndicators("pairwise");
 
         const friedman = report.friedman || {};
         if (friedman.statistic == null) {
@@ -846,6 +1164,7 @@
     els.runsSortBy.addEventListener("change", async () => {
         state.runsSortBy = els.runsSortBy.value;
         state.runsPage = 0;
+        updateSortIndicators("runs");
         await loadRuns();
         const analysis = await loadAnalysis();
         renderAnalysis(analysis);
@@ -854,6 +1173,7 @@
     els.runsSortDir.addEventListener("change", async () => {
         state.runsSortDir = els.runsSortDir.value;
         state.runsPage = 0;
+        updateSortIndicators("runs");
         await loadRuns();
         const analysis = await loadAnalysis();
         renderAnalysis(analysis);
@@ -873,6 +1193,7 @@
         state.runsSize = initialRunsPage.size;
         els.runsSize.value = String(state.runsSize);
     }
+    initHeaderSorting();
 
     renderExperiment(initialExperiment || {});
     renderRuns(initialRunsPage || { items: [], page: 0, totalPages: 0 });

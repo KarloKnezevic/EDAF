@@ -116,6 +116,34 @@
             background: #f8fafc;
             font-weight: 600;
         }
+        th.sortable-th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 22px;
+            transition: background-color .12s ease;
+        }
+        th.sortable-th:hover {
+            background: #edf5ff;
+        }
+        th.sortable-th::after {
+            content: "";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            font-size: .72rem;
+            color: var(--accent);
+        }
+        th.sortable-th.sort-active.sort-asc::after {
+            content: "▲";
+            opacity: 1;
+        }
+        th.sortable-th.sort-active.sort-desc::after {
+            content: "▼";
+            opacity: 1;
+        }
         tr:hover td { background: #f8fffd; }
         .mono { font-family: "IBM Plex Mono", monospace; }
         a.link { color: var(--accent); text-decoration: none; font-weight: 700; }
@@ -127,6 +155,7 @@
             font-size: .74rem;
         }
         .kpi-ok { background: #dcfce7; color: var(--ok); }
+        .kpi-info { background: #e0f2fe; color: #075985; }
         .kpi-warn { background: #fef3c7; color: var(--warn); }
         .kpi-bad { background: #fee2e2; color: var(--bad); }
         .pager {
@@ -181,6 +210,16 @@
                 <label for="problem">Problem</label>
                 <select id="problem"><option value="">All</option></select>
             </div>
+            <div class="f">
+                <label for="status">Experiment status</label>
+                <select id="status">
+                    <option value="">All</option>
+                    <option value="RUNNING">RUNNING</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="FAILED">FAILED</option>
+                    <option value="PARTIAL">PARTIAL</option>
+                </select>
+            </div>
 
             <div class="f">
                 <label for="from">From</label>
@@ -193,6 +232,7 @@
             <div class="f">
                 <label for="sortBy">Sort by</label>
                 <select id="sortBy">
+                    <option value="latest_run_time" selected>latest_run_time</option>
                     <option value="created_at">created_at</option>
                     <option value="total_runs">total_runs</option>
                     <option value="best_fitness">best_fitness</option>
@@ -228,15 +268,17 @@
                 <thead>
                 <tr>
                     <th>Experiment ID</th>
-                    <th>Algorithm</th>
-                    <th>Model</th>
-                    <th>Problem</th>
-                    <th>Total Runs</th>
+                    <th class="sortable-th" data-sort-key="algorithm_type" data-default-dir="asc">Algorithm</th>
+                    <th class="sortable-th" data-sort-key="model_type" data-default-dir="asc">Model</th>
+                    <th class="sortable-th" data-sort-key="problem_type" data-default-dir="asc">Problem</th>
+                    <th class="sortable-th" data-sort-key="total_runs" data-default-dir="desc">Total Runs</th>
                     <th>Completed</th>
                     <th>Failed</th>
-                    <th>Best Fitness</th>
-                    <th>Latest Run</th>
-                    <th>Created</th>
+                    <th>Running</th>
+                    <th>Status</th>
+                    <th class="sortable-th" data-sort-key="best_fitness" data-default-dir="desc">Best Fitness</th>
+                    <th class="sortable-th" data-sort-key="latest_run_time" data-default-dir="desc">Latest Run</th>
+                    <th class="sortable-th" data-sort-key="created_at" data-default-dir="desc">Created</th>
                 </tr>
                 </thead>
                 <tbody id="rows">
@@ -248,6 +290,8 @@
                     <td th:text="${item.totalRuns}"></td>
                     <td th:text="${item.completedRuns}"></td>
                     <td th:text="${item.failedRuns}"></td>
+                    <td th:text="${item.runningRuns}"></td>
+                    <td th:text="${item.status}"></td>
                     <td th:text="${item.bestFitness}"></td>
                     <td class="mono" th:text="${item.latestRunTime}"></td>
                     <td class="mono" th:text="${item.createdAt}"></td>
@@ -278,11 +322,12 @@
         algorithm: "",
         model: "",
         problem: "",
+        status: "",
         from: "",
         to: "",
         page: 0,
         size: 25,
-        sortBy: "created_at",
+        sortBy: "latest_run_time",
         sortDir: "desc"
     };
 
@@ -292,6 +337,7 @@
         algorithm: document.getElementById("algorithm"),
         model: document.getElementById("model"),
         problem: document.getElementById("problem"),
+        status: document.getElementById("status"),
         from: document.getElementById("from"),
         to: document.getElementById("to"),
         sortBy: document.getElementById("sortBy"),
@@ -302,20 +348,21 @@
         totalInfo: document.getElementById("totalInfo"),
         prevBtn: document.getElementById("prevBtn"),
         nextBtn: document.getElementById("nextBtn"),
-        resetBtn: document.getElementById("resetBtn")
+        resetBtn: document.getElementById("resetBtn"),
+        sortableHeaders: Array.from(document.querySelectorAll("th.sortable-th"))
     };
 
     function safe(value, fallback = "n/a") {
         return value === null || value === undefined || value === "" ? fallback : value;
     }
 
-    function statusBadge(completed, total) {
-        const c = Number(completed || 0);
-        const t = Number(total || 0);
-        if (t === 0) return '<span class="kpi kpi-warn">EMPTY</span>';
-        if (c === t) return '<span class="kpi kpi-ok">COMPLETE</span>';
-        if (c > 0) return '<span class="kpi kpi-warn">PARTIAL</span>';
-        return '<span class="kpi kpi-bad">NONE</span>';
+    function statusBadge(status) {
+        const value = (status || "").toUpperCase();
+        if (value === "RUNNING") return '<span class="kpi kpi-ok">RUNNING</span>';
+        if (value === "COMPLETED") return '<span class="kpi kpi-info">COMPLETED</span>';
+        if (value === "PARTIAL" || value === "PARTIAL_FAILED") return '<span class="kpi kpi-warn">' + value + '</span>';
+        if (value === "FAILED") return '<span class="kpi kpi-bad">FAILED</span>';
+        return '<span class="kpi kpi-warn">' + safe(value, "UNKNOWN") + '</span>';
     }
 
     function populateSelect(select, values) {
@@ -352,10 +399,11 @@
         state.algorithm = els.algorithm.value || "";
         state.model = els.model.value || "";
         state.problem = els.problem.value || "";
+        state.status = els.status.value || "";
         state.from = toIso(els.from.value);
         state.to = toIso(els.to.value);
         state.size = Number(els.size.value || 25);
-        state.sortBy = els.sortBy.value || "created_at";
+        state.sortBy = els.sortBy.value || "latest_run_time";
         state.sortDir = els.sortDir.value || "desc";
     }
 
@@ -364,6 +412,7 @@
         els.algorithm.value = state.algorithm || "";
         els.model.value = state.model || "";
         els.problem.value = state.problem || "";
+        els.status.value = state.status || "";
         els.from.value = toDateTimeLocal(state.from);
         els.to.value = toDateTimeLocal(state.to);
         els.size.value = String(state.size);
@@ -377,11 +426,12 @@
         state.algorithm = params.get("algorithm") || "";
         state.model = params.get("model") || "";
         state.problem = params.get("problem") || "";
+        state.status = params.get("status") || "";
         state.from = params.get("from") || "";
         state.to = params.get("to") || "";
         state.page = Number(params.get("page") || 0);
         state.size = Number(params.get("size") || 25);
-        state.sortBy = params.get("sortBy") || "created_at";
+        state.sortBy = params.get("sortBy") || "latest_run_time";
         state.sortDir = params.get("sortDir") || "desc";
     }
 
@@ -391,6 +441,7 @@
         if (state.algorithm) params.set("algorithm", state.algorithm);
         if (state.model) params.set("model", state.model);
         if (state.problem) params.set("problem", state.problem);
+        if (state.status) params.set("status", state.status);
         if (state.from) params.set("from", state.from);
         if (state.to) params.set("to", state.to);
         params.set("page", String(state.page));
@@ -401,10 +452,39 @@
         window.history.replaceState({}, "", next);
     }
 
+    function updateSortIndicators() {
+        els.sortableHeaders.forEach(header => {
+            const active = header.dataset.sortKey === state.sortBy;
+            header.classList.toggle("sort-active", active);
+            header.classList.toggle("sort-asc", active && state.sortDir === "asc");
+            header.classList.toggle("sort-desc", active && state.sortDir === "desc");
+        });
+    }
+
+    function initHeaderSorting() {
+        els.sortableHeaders.forEach(header => {
+            header.addEventListener("click", async () => {
+                const key = header.dataset.sortKey;
+                const defaultDir = (header.dataset.defaultDir || "asc").toLowerCase() === "desc" ? "desc" : "asc";
+                if (!key) return;
+                if (state.sortBy === key) {
+                    state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+                } else {
+                    state.sortBy = key;
+                    state.sortDir = defaultDir;
+                }
+                state.page = 0;
+                writeStateToForm();
+                updateSortIndicators();
+                await fetchPage();
+            });
+        });
+    }
+
     function renderPage(pageData) {
         const items = pageData.items || [];
         if (!items.length) {
-            els.rows.innerHTML = '<tr><td colspan="10" class="muted">No experiments found.</td></tr>';
+            els.rows.innerHTML = '<tr><td colspan="12" class="muted">No experiments found.</td></tr>';
         } else {
             els.rows.innerHTML = items.map(item => `
                 <tr>
@@ -415,9 +495,11 @@
                     <td>${safe(item.totalRuns, 0)}</td>
                     <td>${safe(item.completedRuns, 0)}</td>
                     <td>${safe(item.failedRuns, 0)}</td>
+                    <td>${safe(item.runningRuns, 0)}</td>
+                    <td>${statusBadge(item.status)}</td>
                     <td>${item.bestFitness == null ? "n/a" : Number(item.bestFitness).toFixed(6)}</td>
                     <td class="mono">${safe(item.latestRunTime, "")}</td>
-                    <td class="mono">${safe(item.createdAt, "")} ${statusBadge(item.completedRuns, item.totalRuns)}</td>
+                    <td class="mono">${safe(item.createdAt, "")}</td>
                 </tr>
             `).join("");
         }
@@ -429,6 +511,7 @@
         els.totalInfo.textContent = `Total experiments: ${total}`;
         els.prevBtn.disabled = page <= 0;
         els.nextBtn.disabled = totalPages === 0 || page >= totalPages - 1;
+        updateSortIndicators();
     }
 
     async function fetchPage() {
@@ -437,6 +520,7 @@
         if (state.algorithm) params.set("algorithm", state.algorithm);
         if (state.model) params.set("model", state.model);
         if (state.problem) params.set("problem", state.problem);
+        if (state.status) params.set("status", state.status);
         if (state.from) params.set("from", state.from);
         if (state.to) params.set("to", state.to);
         params.set("page", String(state.page));
@@ -444,7 +528,10 @@
         params.set("sortBy", state.sortBy);
         params.set("sortDir", state.sortDir);
 
-        const response = await fetch(`/api/experiments?${params.toString()}`);
+        const response = await fetch(`/api/experiments?${params.toString()}`, {
+            cache: "no-store",
+            headers: { "Cache-Control": "no-cache" }
+        });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const pageData = await response.json();
         renderPage(pageData);
@@ -473,14 +560,24 @@
         state.algorithm = "";
         state.model = "";
         state.problem = "";
+        state.status = "";
         state.from = "";
         state.to = "";
         state.page = 0;
         state.size = 25;
-        state.sortBy = "created_at";
+        state.sortBy = "latest_run_time";
         state.sortDir = "desc";
         writeStateToForm();
         await fetchPage();
+    });
+
+    els.sortBy.addEventListener("change", () => {
+        state.sortBy = els.sortBy.value || "latest_run_time";
+        updateSortIndicators();
+    });
+    els.sortDir.addEventListener("change", () => {
+        state.sortDir = els.sortDir.value || "desc";
+        updateSortIndicators();
     });
 
     populateSelect(els.algorithm, facets.algorithms || []);
@@ -488,11 +585,22 @@
     populateSelect(els.problem, facets.problems || []);
 
     syncStateFromUrl();
+    initHeaderSorting();
     writeStateToForm();
+    updateSortIndicators();
     renderPage(initialPage || { items: [], page: 0, totalPages: 0, total: 0 });
     fetchPage().catch(error => {
         console.error("Failed loading experiments", error);
     });
+
+    setInterval(() => {
+        if (document.visibilityState !== "visible") {
+            return;
+        }
+        fetchPage().catch(error => {
+            console.error("Failed refreshing experiments", error);
+        });
+    }, 8000);
 </script>
 </body>
 </html>

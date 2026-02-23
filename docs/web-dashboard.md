@@ -59,11 +59,13 @@ Features:
   - binary: entropy heatmap, probability trajectories, fixation curve, dependency edges
   - permutation: item-position heatmap, consensus drift, adjacency trends
   - real: sigma heatmap, mean trajectories, eigen summary
-- collapsible iteration/checkpoint section
-- collapsible events section with large payload preview + expand view
-- collapsible configuration section (YAML/JSON + flattened params)
+- heatmap focus mode (zoom, color range, pinned tooltip, Esc-to-close)
+- sortable iteration/checkpoint/event/config tables
+- large payload-safe event preview with expandable details
+- YAML/JSON config toggle + flattened params search
 - responsive layout with overflow-safe containers
 - adaptive timeline table from `adaptive_action` events
+- consistent status colors (`RUNNING` green, `COMPLETED` blue, `FAILED` red)
 
 ### `/experiments` Experiment Explorer
 
@@ -80,6 +82,12 @@ Features:
 
 - experiment metadata and run counters
 - run table for all repetitions in one experiment
+- mean convergence with 95% CI over evaluation budgets
+- success-vs-budget curve (target-aware)
+- time-to-target histogram (successful runs)
+- ECDF of evaluations-to-target:
+  - total-runs normalized mode
+  - successful-only mode
 - run-level box-plot and histogram (best fitness distribution)
 - data profile and performance profile charts
 - success rate, ERT, SP1 summary
@@ -133,6 +141,15 @@ Analysis query params:
 - `target` (optional success threshold)
 - `algorithm` (repeatable; optional subset for problem comparison)
 
+Experiment analysis payload additionally includes:
+
+- `targetFitness`, `targetSource`
+- `convergence95Ci[]` (`x`, `mean`, `ciLower`, `ciUpper`, `median`, `samples`)
+- `successVsBudget[]`
+- `timeToTargetHistogram[]`
+- `ecdfTotalRuns[]`
+- `ecdfSuccessfulRuns[]`
+
 `GET /api/runs` query params:
 
 - `q`
@@ -162,6 +179,7 @@ Analysis query params:
 - `algorithm`
 - `model`
 - `problem`
+- `status` (`RUNNING|COMPLETED|FAILED|PARTIAL`)
 - `from`
 - `to`
 - `page`

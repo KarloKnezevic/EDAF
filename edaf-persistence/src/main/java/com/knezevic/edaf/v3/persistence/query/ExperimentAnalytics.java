@@ -9,6 +9,7 @@ public record ExperimentAnalytics(
         String experimentId,
         String objectiveDirection,
         Double targetFitness,
+        String targetSource,
         long totalRuns,
         long completedRuns,
         long successfulRuns,
@@ -19,6 +20,11 @@ public record ExperimentAnalytics(
         List<Double> bestFitnessValues,
         BoxPlotStats runtimeMillisBox,
         BoxPlotStats evaluationsBox,
+        List<ConfidenceBandPoint> convergence95Ci,
+        List<ProfilePoint> successVsBudget,
+        List<HistogramBin> timeToTargetHistogram,
+        List<ProfilePoint> ecdfTotalRuns,
+        List<ProfilePoint> ecdfSuccessfulRuns,
         List<ProfilePoint> dataProfile,
         List<ProfilePoint> performanceProfile
 ) {

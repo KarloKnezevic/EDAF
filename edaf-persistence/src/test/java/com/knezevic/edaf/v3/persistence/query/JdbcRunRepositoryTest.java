@@ -1,11 +1,11 @@
 package com.knezevic.edaf.v3.persistence.query;
 
 import com.knezevic.edaf.v3.persistence.jdbc.DataSourceFactory;
-import com.knezevic.edaf.v3.persistence.jdbc.SchemaInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -26,7 +26,7 @@ class JdbcRunRepositoryTest {
     void setUp() throws Exception {
         Path db = Files.createTempFile("edaf-v3-repo", ".db");
         DataSource ds = DataSourceFactory.create("jdbc:sqlite:" + db, "", "");
-        SchemaInitializer.initialize(ds);
+        initializeSchema(ds);
         repository = new JdbcRunRepository(ds);
 
         try (Connection connection = ds.getConnection();
@@ -37,9 +37,10 @@ class JdbcRunRepositoryTest {
                         problem_type, representation_type, selection_type, replacement_type, stopping_type,
                         max_iterations, config_yaml, config_json, created_at
                     ) VALUES
-                    ('exp-1', 'hash-aaa', '3.0', 'Exp A', 'umda', 'umda-bernoulli', 'onemax', 'bitstring', 'truncation', 'elitist', 'max-iterations', 80, 'yaml-a', '{"problem":{"type":"onemax"}}', '2026-02-01T10:00:00Z'),
+                    ('exp-1', 'hash-aaa', '3.0', 'Exp A', 'umda', 'umda-bernoulli', 'onemax', 'bitstring', 'truncation', 'elitist', 'max-iterations', 80, 'yaml-a', '{"problem":{"type":"onemax"},"stopping":{"type":"budget-or-target","targetFitness":60.0}}', '2026-02-01T10:00:00Z'),
                     ('exp-2', 'hash-bbb', '3.0', 'Exp B', 'gaussian-eda', 'gaussian-diag', 'sphere', 'real-vector', 'truncation', 'elitist', 'max-iterations', 90, 'yaml-b', '{"problem":{"type":"sphere"}}', '2026-02-02T10:00:00Z'),
-                    ('exp-3', 'hash-ccc', '3.0', 'Exp C', 'pbil', 'pbil-frequency', 'onemax', 'bitstring', 'truncation', 'elitist', 'max-iterations', 80, 'yaml-c', '{"problem":{"type":"onemax"}}', '2026-02-03T10:00:00Z')
+                    ('exp-3', 'hash-ccc', '3.0', 'Exp C', 'pbil', 'pbil-frequency', 'onemax', 'bitstring', 'truncation', 'elitist', 'max-iterations', 80, 'yaml-c', '{"problem":{"type":"onemax"}}', '2026-02-03T10:00:00Z'),
+                    ('exp-4', 'hash-ddd', '3.0', 'Exp D', 'bmda', 'dependency-tree', 'maxsat', 'bitstring', 'truncation', 'elitist', 'max-iterations', 120, 'yaml-d', '{"problem":{"type":"maxsat"}}', '2026-02-04T10:00:00Z')
                     """);
 
             statement.execute("""
@@ -60,7 +61,8 @@ class JdbcRunRepositoryTest {
                     ('run-4', 'exp-1', 13, 'FAILED', '2026-02-10T11:00:00Z', '2026-02-10T11:01:00Z', 12, 1500, 44.0, '0001', 60000),
                     ('run-5', 'exp-3', 11, 'COMPLETED', '2026-02-12T09:00:00Z', '2026-02-12T09:01:50Z', 80, 9900, 59.0, '0111', 110000),
                     ('run-6', 'exp-3', 12, 'COMPLETED', '2026-02-12T10:00:00Z', '2026-02-12T10:01:55Z', 80, 9400, 57.5, '0011', 115000),
-                    ('run-7', 'exp-3', 13, 'COMPLETED', '2026-02-12T11:00:00Z', '2026-02-12T11:02:15Z', 80, 9800, 60.0, '0010', 135000)
+                    ('run-7', 'exp-3', 13, 'COMPLETED', '2026-02-12T11:00:00Z', '2026-02-12T11:02:15Z', 80, 9800, 60.0, '0010', 135000),
+                    ('run-8', 'exp-4', 44, 'RUNNING', '2026-02-12T12:00:00Z', NULL, NULL, 420, NULL, NULL, NULL)
                     """);
 
             statement.execute("""
@@ -84,6 +86,28 @@ class JdbcRunRepositoryTest {
         }
     }
 
+    private static void initializeSchema(DataSource dataSource) throws Exception {
+        String sql;
+        try (var stream = JdbcRunRepositoryTest.class.getResourceAsStream("/db/migration/V1__init.sql")) {
+            if (stream == null) {
+                throw new IllegalStateException("Migration resource not found: /db/migration/V1__init.sql");
+            }
+            sql = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
+            connection.setAutoCommit(false);
+            statement.execute("PRAGMA foreign_keys = ON");
+            for (String fragment : sql.split(";")) {
+                String trimmed = fragment.trim();
+                if (!trimmed.isEmpty()) {
+                    statement.execute(trimmed);
+                }
+            }
+            connection.commit();
+        }
+    }
+
     @Test
     void listRunsSupportsFilterSearchSortAndPaging() {
         PageResult<RunListItem> page = repository.listRuns(new RunQuery(
@@ -99,13 +123,42 @@ class JdbcRunRepositoryTest {
     @Test
     void listExperimentsSupportsFilterSearchSortAndPaging() {
         PageResult<ExperimentListItem> page = repository.listExperiments(new ExperimentQuery(
-                "maxDepth", "umda", null, null, null, null, 0, 10, "created_at", "asc"
+                "maxDepth", "umda", null, null, "PARTIAL", null, null, 0, 10, "created_at", "asc"
         ));
 
         assertEquals(1, page.items().size());
         assertEquals("exp-1", page.items().getFirst().experimentId());
         assertEquals(3, page.items().getFirst().totalRuns());
         assertEquals(2, page.items().getFirst().completedRuns());
+        assertEquals("PARTIAL", page.items().getFirst().status());
+    }
+
+    @Test
+    void listExperimentsSupportsStatusFilter() {
+        PageResult<ExperimentListItem> running = repository.listExperiments(new ExperimentQuery(
+                null, null, null, null, "RUNNING", null, null, 0, 10, "created_at", "asc"
+        ));
+        assertEquals(1, running.items().size());
+        assertEquals("exp-4", running.items().getFirst().experimentId());
+        assertEquals("RUNNING", running.items().getFirst().status());
+
+        PageResult<ExperimentListItem> completed = repository.listExperiments(new ExperimentQuery(
+                null, null, null, null, "COMPLETED", null, null, 0, 10, "created_at", "asc"
+        ));
+        assertEquals(1, completed.items().size());
+        assertEquals("exp-3", completed.items().getFirst().experimentId());
+
+        PageResult<ExperimentListItem> failed = repository.listExperiments(new ExperimentQuery(
+                null, null, null, null, "FAILED", null, null, 0, 10, "created_at", "asc"
+        ));
+        assertEquals(1, failed.items().size());
+        assertEquals("exp-2", failed.items().getFirst().experimentId());
+
+        PageResult<ExperimentListItem> partial = repository.listExperiments(new ExperimentQuery(
+                null, null, null, null, "PARTIAL", null, null, 0, 10, "created_at", "asc"
+        ));
+        assertEquals(1, partial.items().size());
+        assertEquals("exp-1", partial.items().getFirst().experimentId());
     }
 
     @Test
@@ -143,11 +196,17 @@ class JdbcRunRepositoryTest {
         assertEquals(3, page.items().size());
         assertEquals("run-1", page.items().get(0).runId());
 
-        ExperimentAnalytics analytics = repository.analyzeExperiment("exp-1", "max", 60.0);
+        ExperimentAnalytics analytics = repository.analyzeExperiment("exp-1", "max", null);
         assertEquals(3, analytics.totalRuns());
         assertEquals(2, analytics.successfulRuns());
         assertTrue(analytics.successRate() > 0.6);
+        assertEquals(60.0, analytics.targetFitness());
+        assertEquals("config", analytics.targetSource());
         assertNotNull(analytics.bestFitnessBox().median());
+        assertTrue(analytics.convergence95Ci().size() > 5);
+        assertTrue(analytics.successVsBudget().size() > 3);
+        assertTrue(analytics.ecdfTotalRuns().size() > 1);
+        assertTrue(analytics.timeToTargetHistogram().size() >= 1);
     }
 
     @Test

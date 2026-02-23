@@ -39,15 +39,16 @@ public class DashboardController {
                               @RequestParam(required = false) String algorithm,
                               @RequestParam(name = "model", required = false) String modelFilter,
                               @RequestParam(required = false) String problem,
+                              @RequestParam(required = false) String status,
                               @RequestParam(required = false) String from,
                               @RequestParam(required = false) String to,
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "25") int size,
-                              @RequestParam(defaultValue = "created_at") String sortBy,
+                              @RequestParam(defaultValue = "latest_run_time") String sortBy,
                               @RequestParam(defaultValue = "desc") String sortDir) {
         model.addAttribute("facets", runRepository.listFacets());
         model.addAttribute("initialPage", runRepository.listExperiments(new ExperimentQuery(
-                q, algorithm, modelFilter, problem, from, to, page, size, sortBy, sortDir
+                q, algorithm, modelFilter, problem, status, from, to, page, size, sortBy, sortDir
         )));
         return "experiments";
     }

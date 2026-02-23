@@ -28,6 +28,17 @@ public final class RngManager {
     }
 
     /**
+     * Returns a deterministic but detached stream that is not tracked in checkpoints.
+     *
+     * <p>This is useful for per-item parallel tasks where each task can derive a stable
+     * stream name (for example generation/index), avoiding shared mutable RNG state.</p>
+     */
+    public RngStream ephemeralStream(String component) {
+        Objects.requireNonNull(component, "component must not be null");
+        return new RngStream(component, new StatefulRandom(deriveSeed(masterSeed, component)));
+    }
+
+    /**
      * Captures complete RNG state for checkpoint/resume.
      */
     public RngSnapshot snapshot() {

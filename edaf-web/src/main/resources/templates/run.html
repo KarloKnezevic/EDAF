@@ -148,6 +148,70 @@
             margin: 0 0 8px;
             font-size: 1rem;
         }
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .title-row .section-title {
+            margin: 0;
+        }
+        .info-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--accent-2);
+            font-weight: 700;
+            font-size: .8rem;
+            cursor: pointer;
+            transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .info-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(11, 74, 111, .2);
+            background: #f0f7ff;
+        }
+        .info-btn.active {
+            background: var(--accent-2);
+            color: #fff;
+            border-color: var(--accent-2);
+        }
+        .info-popover {
+            border: 1px solid #bad0ea;
+            background: linear-gradient(180deg, #f2f9ff 0%, #f8fbff 100%);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 22px rgba(11, 74, 111, .09);
+        }
+        .info-popover h4 {
+            margin: 0 0 6px;
+            font-size: .86rem;
+            color: var(--accent-2);
+        }
+        .info-popover p {
+            margin: 0 0 8px;
+            color: #35506b;
+            font-size: .83rem;
+            line-height: 1.42;
+        }
+        .info-popover p:last-child {
+            margin-bottom: 0;
+        }
+        .info-popover code {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: .77rem;
+            background: rgba(15, 118, 110, .12);
+            padding: 1px 4px;
+            border-radius: 6px;
+        }
         .mono { font-family: "IBM Plex Mono", monospace; }
         .muted { color: var(--muted); font-size: .83rem; }
 
@@ -174,6 +238,34 @@
             font-family: "IBM Plex Mono", monospace;
             color: var(--muted);
             background: #f8fbff;
+        }
+        th.sortable-th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 22px;
+            transition: background-color .12s ease;
+        }
+        th.sortable-th:hover {
+            background: #edf5ff;
+        }
+        th.sortable-th::after {
+            content: "";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            font-size: .72rem;
+            color: var(--accent-2);
+        }
+        th.sortable-th.sort-active.sort-asc::after {
+            content: "▲";
+            opacity: 1;
+        }
+        th.sortable-th.sort-active.sort-desc::after {
+            content: "▼";
+            opacity: 1;
         }
 
         .payload-preview {
@@ -244,6 +336,94 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+        .export-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .export-actions .btn {
+            padding: 6px 10px;
+            font-size: .8rem;
+            border-radius: 999px;
+        }
+        .heatmap-hover {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            background: rgba(27, 40, 55, .95);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: .76rem;
+            line-height: 1.25;
+            font-family: "IBM Plex Mono", monospace;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .24);
+            max-width: 320px;
+        }
+        .heatmap-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 11000;
+            background: rgba(21, 33, 48, .58);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        .heatmap-modal.hidden {
+            display: none !important;
+        }
+        .heatmap-modal-card {
+            width: min(96vw, 1400px);
+            max-height: 94vh;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 18px 44px rgba(21, 33, 48, .28);
+            padding: 12px;
+        }
+        .focus-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .focus-controls label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: .8rem;
+            font-family: "IBM Plex Mono", monospace;
+        }
+        .focus-controls input[type="number"] {
+            width: 110px;
+        }
+        .focus-controls input[type="range"] {
+            width: 160px;
+        }
+        .focus-canvas-wrap {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: auto;
+            background: #f8fbff;
+            min-height: 380px;
+            max-height: 66vh;
+            padding: 8px;
+        }
+        .focus-pinned {
+            border: 1px solid #d4e4f7;
+            background: #f2f8ff;
+            border-radius: 999px;
+            padding: 5px 9px;
+            font-size: .78rem;
+            color: #2b4b6d;
+            font-family: "IBM Plex Mono", monospace;
+        }
 
         @media (max-width: 1250px) {
             .summary-grid { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
@@ -302,30 +482,90 @@
         </div>
 
         <div id="panel-fitness" class="panel active">
-            <h2 class="section-title">Fitness Trajectory</h2>
+            <div class="toolbar">
+                <div class="title-row" style="margin:0;">
+                    <h2 class="section-title">Fitness Trajectory</h2>
+                </div>
+                <div class="export-actions">
+                    <button class="btn export-btn" data-export-panel="fitness" data-export-format="png">PNG</button>
+                    <button class="btn export-btn" data-export-panel="fitness" data-export-format="csv">CSV</button>
+                    <button class="btn export-btn" data-export-panel="fitness" data-export-format="latex">LaTeX</button>
+                </div>
+            </div>
             <div class="chart-wrap"><canvas id="fitnessChart"></canvas></div>
         </div>
 
         <div id="panel-diversity" class="panel">
-            <h2 class="section-title">Diversity Signals</h2>
+            <div class="toolbar">
+                <div class="title-row" style="margin:0;">
+                    <h2 class="section-title">Diversity Signals</h2>
+                    <button type="button" class="info-btn" data-info-target="diversityInfo" aria-expanded="false" aria-controls="diversityInfo" title="How to read diversity signals">i</button>
+                </div>
+                <div class="export-actions">
+                    <button class="btn export-btn" data-export-panel="diversity" data-export-format="png">PNG</button>
+                    <button class="btn export-btn" data-export-panel="diversity" data-export-format="csv">CSV</button>
+                    <button class="btn export-btn" data-export-panel="diversity" data-export-format="latex">LaTeX</button>
+                </div>
+            </div>
+            <div id="diversityInfo" class="info-popover hidden">
+                <h4>How to read Diversity panel</h4>
+                <p><strong>Population diversity</strong> measures spread among all sampled solutions in one generation. Higher values usually mean broader exploration, lower values mean stronger concentration.</p>
+                <p><strong>Elite diversity</strong> measures spread only among selected elite candidates. A rapid drop can indicate exploitation pressure and potential premature convergence.</p>
+                <p>Interpretation pattern: if both curves collapse early and the best fitness stalls, you likely need stronger exploration or restart settings.</p>
+            </div>
             <div class="chart-wrap"><canvas id="diversityChart"></canvas></div>
         </div>
 
         <div id="panel-drift" class="panel">
-            <h2 class="section-title">Model Drift Signals</h2>
+            <div class="toolbar">
+                <div class="title-row" style="margin:0;">
+                    <h2 class="section-title">Model Drift Signals</h2>
+                    <button type="button" class="info-btn" data-info-target="driftInfo" aria-expanded="false" aria-controls="driftInfo" title="How to read drift signals">i</button>
+                </div>
+                <div class="export-actions">
+                    <button class="btn export-btn" data-export-panel="drift" data-export-format="png">PNG</button>
+                    <button class="btn export-btn" data-export-panel="drift" data-export-format="csv">CSV</button>
+                    <button class="btn export-btn" data-export-panel="drift" data-export-format="latex">LaTeX</button>
+                </div>
+            </div>
+            <div id="driftInfo" class="info-popover hidden">
+                <h4>How to read Drift panel</h4>
+                <p><strong>Drift</strong> quantifies model change between consecutive generations (e.g., binary probability-vector distance, permutation consensus shift, or Gaussian KL-like change).</p>
+                <p>High drift means aggressive distribution updates; very low drift across many generations with no fitness gain can indicate stagnation.</p>
+                <p>Useful rule: combine drift with diversity. Low drift + low diversity + flat fitness is a strong stagnation signature.</p>
+            </div>
             <div class="chart-wrap"><canvas id="driftChart"></canvas></div>
         </div>
 
         <div id="panel-insights" class="panel">
             <div class="toolbar">
-                <h2 class="section-title" style="margin:0;">Representation Insights</h2>
-                <span id="insightFamilyLabel" class="insight-pill">unknown</span>
+                <div class="title-row" style="margin:0;">
+                    <h2 class="section-title" style="margin:0;">Representation Insights</h2>
+                    <button type="button" class="info-btn" data-info-target="insightsInfo" aria-expanded="false" aria-controls="insightsInfo" title="How to interpret representation insights">i</button>
+                </div>
+                <div class="export-actions">
+                    <span id="insightFamilyLabel" class="insight-pill">unknown</span>
+                    <button class="btn export-btn" data-export-panel="insights" data-export-format="png">PNG</button>
+                    <button class="btn export-btn" data-export-panel="insights" data-export-format="csv">CSV</button>
+                    <button class="btn export-btn" data-export-panel="insights" data-export-format="latex">LaTeX</button>
+                </div>
+            </div>
+            <div id="insightsInfo" class="info-popover hidden">
+                <h4>How to read Insights panel</h4>
+                <p><strong>Heatmaps</strong> show probability/uncertainty structure by generation. Horizontal bands indicate dimensions/bits/items that remain stable, while strong color transitions indicate active learning.</p>
+                <p><strong>Top Changing Bit Probabilities</strong> tracks bits with largest probability movement over time. Curves near <code>0</code> or <code>1</code> indicate fixation; oscillation around <code>0.5</code> indicates uncertainty.</p>
+                <p><strong>Fixation Ratio Curve</strong> is the fraction of near-decided variables. Fast growth early in the run can be healthy exploitation, but if fitness does not improve it may signal premature convergence.</p>
+                <p><strong>Permutation consensus drift</strong> shows how fast the consensus ordering changes. Falling drift with stable fitness means consolidation; high drift with poor fitness can indicate unstable model updates.</p>
+                <p><strong>Real-valued sigma/mean views</strong> show uncertainty and center movement per dimension. Shrinking sigma with weak fitness gains usually calls for exploration boosts or restart logic.</p>
             </div>
 
             <div id="binaryInsights" class="hidden">
                 <div class="row-2">
                     <section class="card" style="margin:0; box-shadow:none;">
-                        <h3 class="section-title">Entropy Heatmap (bit index × generation)</h3>
+                        <div class="toolbar">
+                            <h3 class="section-title" style="margin:0;">Entropy Heatmap (bit index × generation)</h3>
+                            <button class="btn heatmap-focus-btn" data-heatmap-canvas="binaryEntropyHeatmap" data-heatmap-title="Binary Entropy Heatmap">Focus</button>
+                        </div>
                         <div class="chart-wrap"><canvas id="binaryEntropyHeatmap"></canvas></div>
                     </section>
                     <section class="card" style="margin:0; box-shadow:none;">
@@ -342,7 +582,7 @@
                         <div class="toolbar"><h3 class="section-title" style="margin:0;">Top Dependency Edges</h3></div>
                         <div class="table-wrap">
                             <table>
-                                <thead><tr><th>i</th><th>j</th><th>Weight</th><th>Correlation</th></tr></thead>
+                                <thead><tr><th class="sortable-th" data-table-id="binaryDependencies" data-sort-key="i" data-default-dir="asc">i</th><th class="sortable-th" data-table-id="binaryDependencies" data-sort-key="j" data-default-dir="asc">j</th><th class="sortable-th" data-table-id="binaryDependencies" data-sort-key="weight" data-default-dir="desc">Weight</th><th class="sortable-th" data-table-id="binaryDependencies" data-sort-key="correlation" data-default-dir="desc">Correlation</th></tr></thead>
                                 <tbody id="binaryDependencyRows"></tbody>
                             </table>
                         </div>
@@ -353,7 +593,10 @@
             <div id="permutationInsights" class="hidden">
                 <div class="row-2">
                     <section class="card" style="margin:0; box-shadow:none;">
-                        <h3 class="section-title">Position Distribution Heatmap (item × position)</h3>
+                        <div class="toolbar">
+                            <h3 class="section-title" style="margin:0;">Position Distribution Heatmap (item × position)</h3>
+                            <button class="btn heatmap-focus-btn" data-heatmap-canvas="permPositionHeatmap" data-heatmap-title="Permutation Position Heatmap">Focus</button>
+                        </div>
                         <div class="chart-wrap"><canvas id="permPositionHeatmap"></canvas></div>
                     </section>
                     <section class="card" style="margin:0; box-shadow:none;">
@@ -365,7 +608,7 @@
                     <div class="toolbar"><h3 class="section-title" style="margin:0;">Top Adjacency Edges</h3></div>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>From</th><th>To</th><th>Frequency</th><th>Trend</th></tr></thead>
+                            <thead><tr><th class="sortable-th" data-table-id="permAdjacency" data-sort-key="from" data-default-dir="asc">From</th><th class="sortable-th" data-table-id="permAdjacency" data-sort-key="to" data-default-dir="asc">To</th><th class="sortable-th" data-table-id="permAdjacency" data-sort-key="frequency" data-default-dir="desc">Frequency</th><th class="sortable-th" data-table-id="permAdjacency" data-sort-key="trend" data-default-dir="desc">Trend</th></tr></thead>
                             <tbody id="permAdjacencyRows"></tbody>
                         </table>
                     </div>
@@ -375,7 +618,10 @@
             <div id="realInsights" class="hidden">
                 <div class="row-2">
                     <section class="card" style="margin:0; box-shadow:none;">
-                        <h3 class="section-title">Sigma Heatmap (dimension × generation)</h3>
+                        <div class="toolbar">
+                            <h3 class="section-title" style="margin:0;">Sigma Heatmap (dimension × generation)</h3>
+                            <button class="btn heatmap-focus-btn" data-heatmap-canvas="realSigmaHeatmap" data-heatmap-title="Real Sigma Heatmap">Focus</button>
+                        </div>
                         <div class="chart-wrap"><canvas id="realSigmaHeatmap"></canvas></div>
                     </section>
                     <section class="card" style="margin:0; box-shadow:none;">
@@ -387,7 +633,7 @@
                     <div class="toolbar"><h3 class="section-title" style="margin:0;">Eigen Spectrum Summary (latest)</h3></div>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>#</th><th>Eigenvalue</th></tr></thead>
+                            <thead><tr><th class="sortable-th" data-table-id="realEigen" data-sort-key="index" data-default-dir="asc">#</th><th class="sortable-th" data-table-id="realEigen" data-sort-key="eigenvalue" data-default-dir="desc">Eigenvalue</th></tr></thead>
                             <tbody id="realEigenRows"></tbody>
                         </table>
                     </div>
@@ -411,14 +657,14 @@
                         <table>
                             <thead>
                             <tr>
-                                <th style="width:10%;">Iter</th>
-                                <th style="width:16%;">Evaluations</th>
-                                <th style="width:12%;">Pop</th>
-                                <th style="width:12%;">Elite</th>
-                                <th style="width:14%;">Best</th>
-                                <th style="width:14%;">Mean</th>
-                                <th style="width:12%;">Std</th>
-                                <th style="width:10%;">Adaptive</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="iteration" data-default-dir="asc" style="width:10%;">Iter</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="evaluations" data-default-dir="asc" style="width:16%;">Evaluations</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="popSize" data-default-dir="desc" style="width:12%;">Pop</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="eliteSize" data-default-dir="desc" style="width:12%;">Elite</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="bestFitness" data-default-dir="desc" style="width:14%;">Best</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="meanFitness" data-default-dir="desc" style="width:14%;">Mean</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="stdFitness" data-default-dir="desc" style="width:12%;">Std</th>
+                                <th class="sortable-th" data-table-id="iterations" data-sort-key="adaptiveCount" data-default-dir="desc" style="width:10%;">Adaptive</th>
                             </tr>
                             </thead>
                             <tbody id="iterationsRows"></tbody>
@@ -433,7 +679,7 @@
                     </div>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th style="width:14%;">Iteration</th><th style="width:56%;">Path</th><th style="width:30%;">Created</th></tr></thead>
+                            <thead><tr><th class="sortable-th" data-table-id="checkpoints" data-sort-key="iteration" data-default-dir="asc" style="width:14%;">Iteration</th><th class="sortable-th" data-table-id="checkpoints" data-sort-key="checkpointPath" data-default-dir="asc" style="width:56%;">Path</th><th class="sortable-th" data-table-id="checkpoints" data-sort-key="createdAt" data-default-dir="desc" style="width:30%;">Created</th></tr></thead>
                             <tbody id="checkpointRows"></tbody>
                         </table>
                     </div>
@@ -449,7 +695,7 @@
                 </div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Iteration</th><th>Trigger</th><th>Action</th><th>Reason</th></tr></thead>
+                        <thead><tr><th class="sortable-th" data-table-id="adaptiveTimeline" data-sort-key="iteration" data-default-dir="asc">Iteration</th><th class="sortable-th" data-table-id="adaptiveTimeline" data-sort-key="trigger" data-default-dir="asc">Trigger</th><th class="sortable-th" data-table-id="adaptiveTimeline" data-sort-key="actionType" data-default-dir="asc">Action</th><th class="sortable-th" data-table-id="adaptiveTimeline" data-sort-key="reason" data-default-dir="asc">Reason</th></tr></thead>
                         <tbody id="adaptiveTimelineRows"></tbody>
                     </table>
                 </div>
@@ -467,7 +713,7 @@
                 </div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th style="width:20%;">Time</th><th style="width:16%;">Type</th><th style="width:64%;">Payload</th></tr></thead>
+                        <thead><tr><th class="sortable-th" data-table-id="events" data-sort-key="createdAt" data-default-dir="desc" style="width:20%;">Time</th><th class="sortable-th" data-table-id="events" data-sort-key="eventType" data-default-dir="asc" style="width:16%;">Type</th><th class="sortable-th" data-table-id="events" data-sort-key="payloadJson" data-default-dir="asc" style="width:64%;">Payload</th></tr></thead>
                         <tbody id="eventRows"></tbody>
                     </table>
                 </div>
@@ -502,7 +748,7 @@
                     </div>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th style="width:16%;">Section</th><th style="width:40%;">Path</th><th style="width:12%;">Type</th><th style="width:32%;">Value</th></tr></thead>
+                            <thead><tr><th class="sortable-th" data-table-id="params" data-sort-key="section" data-default-dir="asc" style="width:16%;">Section</th><th class="sortable-th" data-table-id="params" data-sort-key="paramPath" data-default-dir="asc" style="width:40%;">Path</th><th class="sortable-th" data-table-id="params" data-sort-key="valueType" data-default-dir="asc" style="width:12%;">Type</th><th class="sortable-th" data-table-id="params" data-sort-key="value" data-default-dir="asc" style="width:32%;">Value</th></tr></thead>
                             <tbody id="paramRows"></tbody>
                         </table>
                     </div>
@@ -510,6 +756,35 @@
             </div>
         </div>
     </section>
+</div>
+
+<div id="heatmapFocusModal" class="heatmap-modal hidden" aria-hidden="true">
+    <div class="heatmap-modal-card">
+        <div class="toolbar">
+            <div>
+                <h3 id="focusTitle" class="section-title" style="margin:0;">Heatmap Focus</h3>
+                <p id="focusSubtitle" class="muted" style="margin:4px 0 0;">Inspect single cells with zoomed view and pinned tooltip.</p>
+            </div>
+            <button id="focusClose" class="btn btn-primary">Close</button>
+        </div>
+        <div class="focus-controls">
+            <label>Zoom
+                <input id="focusZoom" type="range" min="1" max="6" step="0.25" value="1.75" />
+            </label>
+            <label>Color Min
+                <input id="focusMin" type="number" step="any" />
+            </label>
+            <label>Color Max
+                <input id="focusMax" type="number" step="any" />
+            </label>
+            <button id="focusResetRange" class="btn">Reset Range</button>
+            <button id="focusUnpin" class="btn">Unpin Tooltip</button>
+            <span id="focusPinnedLabel" class="focus-pinned">Pinned: none</span>
+        </div>
+        <div class="focus-canvas-wrap">
+            <canvas id="heatmapFocusCanvas"></canvas>
+        </div>
+    </div>
 </div>
 
 <script th:inline="javascript">
@@ -526,9 +801,35 @@
         eventType: "",
         eventQuery: "",
         eventsTotalPages: initialEventsPage.totalPages || 0,
+        currentEventsPage: initialEventsPage || { items: [], page: 0, totalPages: 0 },
         params: initialParams || [],
+        checkpoints: initialCheckpoints || [],
         parsedIterations: [],
-        representationFamily: "unknown"
+        representationFamily: "unknown",
+        tableSort: {
+            iterations: { key: "iteration", dir: "asc" },
+            checkpoints: { key: "iteration", dir: "asc" },
+            adaptiveTimeline: { key: "iteration", dir: "asc" },
+            events: { key: "createdAt", dir: "desc" },
+            params: { key: "paramPath", dir: "asc" },
+            binaryDependencies: { key: "weight", dir: "desc" },
+            permAdjacency: { key: "frequency", dir: "desc" },
+            realEigen: { key: "index", dir: "asc" }
+        },
+        focusHeatmap: {
+            sourceCanvasId: null,
+            title: "",
+            xLabel: "",
+            yLabel: "",
+            valueLabel: "",
+            matrix: [],
+            baseMin: 0,
+            baseMax: 1,
+            colorMin: 0,
+            colorMax: 1,
+            zoom: 1.75,
+            pinnedCell: null
+        }
     };
 
     const els = {
@@ -581,10 +882,108 @@
 
         refreshAll: document.getElementById("refreshAll"),
         experimentLink: document.getElementById("experimentLink"),
+        infoButtons: Array.from(document.querySelectorAll(".info-btn")),
+        infoPopovers: Array.from(document.querySelectorAll(".info-popover")),
+        sortableHeaders: Array.from(document.querySelectorAll("th.sortable-th")),
+        exportButtons: Array.from(document.querySelectorAll(".export-btn")),
+        heatmapFocusButtons: Array.from(document.querySelectorAll(".heatmap-focus-btn")),
+        focusModal: document.getElementById("heatmapFocusModal"),
+        focusTitle: document.getElementById("focusTitle"),
+        focusSubtitle: document.getElementById("focusSubtitle"),
+        focusClose: document.getElementById("focusClose"),
+        focusZoom: document.getElementById("focusZoom"),
+        focusMin: document.getElementById("focusMin"),
+        focusMax: document.getElementById("focusMax"),
+        focusResetRange: document.getElementById("focusResetRange"),
+        focusUnpin: document.getElementById("focusUnpin"),
+        focusPinnedLabel: document.getElementById("focusPinnedLabel"),
+        heatmapFocusCanvas: document.getElementById("heatmapFocusCanvas"),
 
         tabs: Array.from(document.querySelectorAll(".tab-btn")),
         panels: Array.from(document.querySelectorAll(".panel"))
     };
+
+    const hoverGuidePlugin = {
+        id: "hoverGuide",
+        afterDraw(chart) {
+            const active = chart.tooltip?.getActiveElements?.() || [];
+            if (!active.length) return;
+            const x = active[0].element?.x;
+            const area = chart.chartArea;
+            if (!area || x == null) return;
+            const ctx = chart.ctx;
+            ctx.save();
+            ctx.strokeStyle = "rgba(96, 112, 135, 0.35)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, area.top);
+            ctx.lineTo(x, area.bottom);
+            ctx.stroke();
+            ctx.restore();
+        }
+    };
+    Chart.register(hoverGuidePlugin);
+
+    function formatMetric(value) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+            return "n/a";
+        }
+        const abs = Math.abs(numeric);
+        if (abs === 0) {
+            return "0";
+        }
+        if (abs >= 1e4 || abs < 1e-4) {
+            return numeric.toExponential(3);
+        }
+        return numeric.toFixed(6);
+    }
+
+    function lineChartOptions(xLabel, yLabel, yMin = null, yMax = null) {
+        const yAxis = {
+            title: { display: true, text: yLabel, color: "#4a5c73", font: { size: 12, family: "IBM Plex Mono" } },
+            grid: { color: "rgba(214, 223, 235, 0.65)" },
+            ticks: { color: "#4a5c73", maxTicksLimit: 8 }
+        };
+        if (yMin != null) {
+            yAxis.min = yMin;
+        }
+        if (yMax != null) {
+            yAxis.max = yMax;
+        }
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 6, right: 8, bottom: 6, left: 4 } },
+            interaction: { mode: "index", intersect: false },
+            hover: { mode: "index", intersect: false },
+            elements: {
+                line: { borderWidth: 2.2 },
+                point: { radius: 0, hitRadius: 10, hoverRadius: 4, hoverBorderWidth: 2 }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: "#243447", usePointStyle: true, pointStyle: "line", boxWidth: 16 }
+                },
+                tooltip: {
+                    mode: "index",
+                    intersect: false,
+                    callbacks: {
+                        title: items => `Iteration ${items?.[0]?.label ?? "n/a"}`,
+                        label: item => `${item.dataset.label}: ${formatMetric(item.parsed.y)}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: xLabel, color: "#4a5c73", font: { size: 12, family: "IBM Plex Mono" } },
+                    grid: { color: "rgba(214, 223, 235, 0.42)" },
+                    ticks: { color: "#4a5c73", maxTicksLimit: 12 }
+                },
+                y: yAxis
+            }
+        };
+    }
 
     const charts = {
         fitness: new Chart(document.getElementById("fitnessChart"), {
@@ -594,7 +993,7 @@
                 { label: "Mean", data: [], borderColor: "#0b4a6f", tension: .2 },
                 { label: "Std", data: [], borderColor: "#b45309", tension: .2 }
             ] },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: lineChartOptions("Iteration", "Fitness")
         }),
         diversity: new Chart(document.getElementById("diversityChart"), {
             type: "line",
@@ -602,40 +1001,269 @@
                 { label: "Population diversity", data: [], borderColor: "#0f766e", tension: .2 },
                 { label: "Elite diversity", data: [], borderColor: "#1d4ed8", tension: .2 }
             ] },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: lineChartOptions("Iteration", "Diversity score")
         }),
         drift: new Chart(document.getElementById("driftChart"), {
             type: "line",
             data: { labels: [], datasets: [
                 { label: "Drift signal", data: [], borderColor: "#9333ea", tension: .2 }
             ] },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: lineChartOptions("Iteration", "Drift signal")
         }),
         binaryProbability: new Chart(document.getElementById("binaryProbabilityChart"), {
             type: "line",
             data: { labels: [], datasets: [] },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: lineChartOptions("Iteration", "P(bit = 1)", 0, 1)
         }),
         binaryFixation: new Chart(document.getElementById("binaryFixationChart"), {
             type: "line",
             data: { labels: [], datasets: [
                 { label: "Fixation ratio", data: [], borderColor: "#0f766e", tension: .2 }
             ] },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: lineChartOptions("Iteration", "Fixation ratio", 0, 1)
         }),
         permConsensus: new Chart(document.getElementById("permConsensusChart"), {
             type: "line",
             data: { labels: [], datasets: [
                 { label: "Consensus Kendall drift", data: [], borderColor: "#0b4a6f", tension: .2 }
             ] },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: lineChartOptions("Iteration", "Kendall distance")
         }),
         realMean: new Chart(document.getElementById("realMeanChart"), {
             type: "line",
             data: { labels: [], datasets: [] },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: lineChartOptions("Iteration", "Mean value")
         })
     };
+
+    const heatmapMeta = new Map();
+    const heatmapTooltip = document.createElement("div");
+    heatmapTooltip.className = "heatmap-hover hidden";
+    document.body.appendChild(heatmapTooltip);
+
+    function hideHeatmapTooltip() {
+        heatmapTooltip.classList.add("hidden");
+    }
+
+    function showHeatmapTooltip(text, x, y) {
+        heatmapTooltip.textContent = text;
+        heatmapTooltip.classList.remove("hidden");
+        heatmapTooltip.style.left = `${x + 12}px`;
+        heatmapTooltip.style.top = `${y + 12}px`;
+    }
+
+    function heatmapCellAtClientPosition(meta, clientX, clientY) {
+        if (!meta) return null;
+        const rect = meta.canvas.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        const insideX = x >= meta.padLeft && x <= (meta.padLeft + meta.plotW);
+        const insideY = y >= meta.padTop && y <= (meta.padTop + meta.plotH);
+        if (!insideX || !insideY) {
+            return null;
+        }
+        const col = Math.min(meta.cols - 1, Math.max(0, Math.floor((x - meta.padLeft) / meta.cellW)));
+        const row = Math.min(meta.rows - 1, Math.max(0, Math.floor((y - meta.padTop) / meta.cellH)));
+        const value = Number((meta.matrix[row] || [])[col] || 0);
+        return { row, col, value };
+    }
+
+    function bindHeatmapHover(canvas) {
+        if (!canvas || canvas.dataset.hoverBound === "1") {
+            return;
+        }
+        canvas.dataset.hoverBound = "1";
+        canvas.addEventListener("mousemove", event => {
+            const meta = heatmapMeta.get(canvas.id);
+            if (!meta || meta.disableHover) {
+                hideHeatmapTooltip();
+                return;
+            }
+            const cell = heatmapCellAtClientPosition(meta, event.clientX, event.clientY);
+            if (!cell) {
+                hideHeatmapTooltip();
+                return;
+            }
+            const text = `${meta.yLabel}[${cell.row}]  ${meta.xLabel}[${cell.col}]  ${meta.valueLabel}=${formatMetric(cell.value)}`;
+            showHeatmapTooltip(text, event.clientX, event.clientY);
+        });
+        canvas.addEventListener("mouseleave", hideHeatmapTooltip);
+    }
+
+    function updateFocusPinnedLabel() {
+        const pinned = state.focusHeatmap.pinnedCell;
+        if (!pinned) {
+            els.focusPinnedLabel.textContent = "Pinned: none";
+            return;
+        }
+        els.focusPinnedLabel.textContent = `Pinned: ${state.focusHeatmap.yLabel}[${pinned.row}], ${state.focusHeatmap.xLabel}[${pinned.col}] = ${formatMetric(pinned.value)}`;
+    }
+
+    function closeHeatmapFocus() {
+        els.focusModal.classList.add("hidden");
+        els.focusModal.setAttribute("aria-hidden", "true");
+        state.focusHeatmap.sourceCanvasId = null;
+        state.focusHeatmap.pinnedCell = null;
+        hideHeatmapTooltip();
+        updateFocusPinnedLabel();
+    }
+
+    function renderFocusHeatmap() {
+        if (!state.focusHeatmap.sourceCanvasId) {
+            return;
+        }
+        const zoom = Math.max(1, Number(state.focusHeatmap.zoom || 1.75));
+        const width = Math.round(860 * zoom);
+        const height = Math.round(520 * zoom);
+        els.heatmapFocusCanvas.style.width = `${width}px`;
+        els.heatmapFocusCanvas.style.height = `${height}px`;
+        drawHeatmap(
+                els.heatmapFocusCanvas,
+                state.focusHeatmap.matrix,
+                state.focusHeatmap.xLabel,
+                state.focusHeatmap.yLabel,
+                state.focusHeatmap.valueLabel,
+                {
+                    minOverride: Number(state.focusHeatmap.colorMin),
+                    maxOverride: Number(state.focusHeatmap.colorMax),
+                    metaKey: "heatmapFocusCanvas",
+                    disableHover: true
+                }
+        );
+    }
+
+    function openHeatmapFocus(sourceCanvasId, fallbackTitle) {
+        const sourceMeta = heatmapMeta.get(sourceCanvasId);
+        if (!sourceMeta || !sourceMeta.matrix?.length) {
+            return;
+        }
+        const title = fallbackTitle || sourceMeta.valueLabel || "Heatmap";
+        state.focusHeatmap.sourceCanvasId = sourceCanvasId;
+        state.focusHeatmap.title = title;
+        state.focusHeatmap.xLabel = sourceMeta.xLabel;
+        state.focusHeatmap.yLabel = sourceMeta.yLabel;
+        state.focusHeatmap.valueLabel = sourceMeta.valueLabel;
+        state.focusHeatmap.matrix = sourceMeta.matrix;
+        state.focusHeatmap.baseMin = sourceMeta.baseMin;
+        state.focusHeatmap.baseMax = sourceMeta.baseMax;
+        state.focusHeatmap.colorMin = sourceMeta.baseMin;
+        state.focusHeatmap.colorMax = sourceMeta.baseMax;
+        state.focusHeatmap.zoom = Number(els.focusZoom.value || 1.75);
+        state.focusHeatmap.pinnedCell = null;
+
+        els.focusTitle.textContent = `${title} (Focus Mode)`;
+        els.focusSubtitle.textContent = `Source: ${sourceCanvasId} · ${sourceMeta.yLabel} x ${sourceMeta.xLabel} · click cell to pin`;
+        els.focusMin.value = String(sourceMeta.baseMin);
+        els.focusMax.value = String(sourceMeta.baseMax);
+        updateFocusPinnedLabel();
+        els.focusModal.classList.remove("hidden");
+        els.focusModal.setAttribute("aria-hidden", "false");
+        renderFocusHeatmap();
+    }
+
+    els.heatmapFocusButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            openHeatmapFocus(button.dataset.heatmapCanvas, button.dataset.heatmapTitle);
+        });
+    });
+
+    els.focusClose.addEventListener("click", closeHeatmapFocus);
+    els.focusModal.addEventListener("click", event => {
+        if (event.target === els.focusModal) {
+            closeHeatmapFocus();
+        }
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !els.focusModal.classList.contains("hidden")) {
+            closeHeatmapFocus();
+        }
+    });
+    els.focusZoom.addEventListener("input", () => {
+        state.focusHeatmap.zoom = Number(els.focusZoom.value || 1.75);
+        renderFocusHeatmap();
+    });
+    els.focusMin.addEventListener("change", () => {
+        const candidate = Number(els.focusMin.value);
+        state.focusHeatmap.colorMin = Number.isFinite(candidate) ? candidate : state.focusHeatmap.baseMin;
+        if (state.focusHeatmap.colorMin > state.focusHeatmap.colorMax) {
+            state.focusHeatmap.colorMax = state.focusHeatmap.colorMin;
+            els.focusMax.value = String(state.focusHeatmap.colorMax);
+        }
+        renderFocusHeatmap();
+    });
+    els.focusMax.addEventListener("change", () => {
+        const candidate = Number(els.focusMax.value);
+        state.focusHeatmap.colorMax = Number.isFinite(candidate) ? candidate : state.focusHeatmap.baseMax;
+        if (state.focusHeatmap.colorMax < state.focusHeatmap.colorMin) {
+            state.focusHeatmap.colorMin = state.focusHeatmap.colorMax;
+            els.focusMin.value = String(state.focusHeatmap.colorMin);
+        }
+        renderFocusHeatmap();
+    });
+    els.focusResetRange.addEventListener("click", () => {
+        state.focusHeatmap.colorMin = state.focusHeatmap.baseMin;
+        state.focusHeatmap.colorMax = state.focusHeatmap.baseMax;
+        els.focusMin.value = String(state.focusHeatmap.baseMin);
+        els.focusMax.value = String(state.focusHeatmap.baseMax);
+        renderFocusHeatmap();
+    });
+    els.focusUnpin.addEventListener("click", () => {
+        state.focusHeatmap.pinnedCell = null;
+        updateFocusPinnedLabel();
+        hideHeatmapTooltip();
+    });
+
+    // Defensive reset: ensure focus modal never starts open due stale DOM state.
+    closeHeatmapFocus();
+
+    els.heatmapFocusCanvas.addEventListener("mousemove", event => {
+        const meta = heatmapMeta.get("heatmapFocusCanvas");
+        if (!meta) {
+            hideHeatmapTooltip();
+            return;
+        }
+        if (state.focusHeatmap.pinnedCell) {
+            return;
+        }
+        const cell = heatmapCellAtClientPosition(meta, event.clientX, event.clientY);
+        if (!cell) {
+            hideHeatmapTooltip();
+            return;
+        }
+        showHeatmapTooltip(
+                `${meta.yLabel}[${cell.row}]  ${meta.xLabel}[${cell.col}]  ${meta.valueLabel}=${formatMetric(cell.value)}`,
+                event.clientX,
+                event.clientY
+        );
+    });
+    els.heatmapFocusCanvas.addEventListener("mouseleave", () => {
+        if (!state.focusHeatmap.pinnedCell) {
+            hideHeatmapTooltip();
+        }
+    });
+    els.heatmapFocusCanvas.addEventListener("click", event => {
+        const meta = heatmapMeta.get("heatmapFocusCanvas");
+        if (!meta) {
+            return;
+        }
+        const cell = heatmapCellAtClientPosition(meta, event.clientX, event.clientY);
+        if (!cell) {
+            return;
+        }
+        const pinned = state.focusHeatmap.pinnedCell;
+        if (pinned && pinned.row === cell.row && pinned.col === cell.col) {
+            state.focusHeatmap.pinnedCell = null;
+            hideHeatmapTooltip();
+        } else {
+            state.focusHeatmap.pinnedCell = cell;
+            showHeatmapTooltip(
+                    `${meta.yLabel}[${cell.row}]  ${meta.xLabel}[${cell.col}]  ${meta.valueLabel}=${formatMetric(cell.value)} (pinned)`,
+                    event.clientX,
+                    event.clientY
+            );
+        }
+        updateFocusPinnedLabel();
+    });
 
     function parseJsonSafe(value, fallback) {
         if (!value || typeof value !== "string") return fallback;
@@ -666,9 +1294,259 @@
     function activateTab(name) {
         els.tabs.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === name));
         els.panels.forEach(panel => panel.classList.toggle("active", panel.id === `panel-${name}`));
+        closeAllInfoPopovers(null);
     }
 
     els.tabs.forEach(btn => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
+
+    function closeAllInfoPopovers(exceptTargetId = null) {
+        els.infoPopovers.forEach(popover => {
+            const keep = exceptTargetId && popover.id === exceptTargetId;
+            popover.classList.toggle("hidden", !keep);
+        });
+        els.infoButtons.forEach(button => {
+            const targetId = button.dataset.infoTarget;
+            const expanded = !!exceptTargetId && targetId === exceptTargetId;
+            button.classList.toggle("active", expanded);
+            button.setAttribute("aria-expanded", String(expanded));
+        });
+    }
+
+    els.infoButtons.forEach(button => {
+        button.addEventListener("click", event => {
+            event.stopPropagation();
+            const targetId = button.dataset.infoTarget;
+            const target = targetId ? document.getElementById(targetId) : null;
+            if (!target) {
+                return;
+            }
+            const willOpen = target.classList.contains("hidden");
+            closeAllInfoPopovers(willOpen ? targetId : null);
+        });
+    });
+
+    document.addEventListener("click", event => {
+        if (event.target.closest(".info-popover") || event.target.closest(".info-btn")) {
+            return;
+        }
+        closeAllInfoPopovers(null);
+    });
+
+    function normalizeSortValue(value) {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        if (typeof value === "number") {
+            return value;
+        }
+        const asNumber = Number(value);
+        if (Number.isFinite(asNumber) && String(value).trim() !== "") {
+            return asNumber;
+        }
+        const asDate = Date.parse(String(value));
+        if (!Number.isNaN(asDate)) {
+            return asDate;
+        }
+        return String(value).toLowerCase();
+    }
+
+    function compareSortValues(left, right, dir) {
+        const a = normalizeSortValue(left);
+        const b = normalizeSortValue(right);
+        let result;
+        if (typeof a === "number" && typeof b === "number") {
+            result = a - b;
+        } else {
+            result = String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
+        }
+        return dir === "desc" ? -result : result;
+    }
+
+    function sortRows(tableId, rows, accessors = {}) {
+        const sortState = state.tableSort[tableId];
+        if (!sortState || !Array.isArray(rows)) {
+            return rows || [];
+        }
+        const accessor = accessors[sortState.key] || (row => row?.[sortState.key]);
+        return [...rows].sort((left, right) => compareSortValues(accessor(left), accessor(right), sortState.dir));
+    }
+
+    function updateSortIndicators(tableId) {
+        const sortState = state.tableSort[tableId];
+        els.sortableHeaders
+            .filter(header => header.dataset.tableId === tableId)
+            .forEach(header => {
+                const active = header.dataset.sortKey === sortState?.key;
+                header.classList.toggle("sort-active", active);
+                header.classList.toggle("sort-asc", active && sortState.dir === "asc");
+                header.classList.toggle("sort-desc", active && sortState.dir === "desc");
+            });
+    }
+
+    function refreshSortedView(tableId) {
+        switch (tableId) {
+            case "iterations":
+                renderIterations(state.parsedIterations || []);
+                break;
+            case "checkpoints":
+                renderCheckpoints(state.checkpoints || []);
+                break;
+            case "adaptiveTimeline":
+                renderAdaptiveTimeline(state.parsedIterations || []);
+                break;
+            case "events":
+                renderEvents(state.currentEventsPage || { items: [], page: 0, totalPages: 0 });
+                break;
+            case "params":
+                renderParams(state.params || []);
+                break;
+            case "binaryDependencies":
+            case "permAdjacency":
+            case "realEigen":
+                renderRepresentationInsights(state.parsedIterations || [], state.representationFamily || "unknown");
+                break;
+            default:
+                break;
+        }
+    }
+
+    function initializeSortableHeaders() {
+        els.sortableHeaders.forEach(header => {
+            header.addEventListener("click", () => {
+                const tableId = header.dataset.tableId;
+                const key = header.dataset.sortKey;
+                const defaultDir = (header.dataset.defaultDir || "asc").toLowerCase() === "desc" ? "desc" : "asc";
+                if (!tableId || !key) {
+                    return;
+                }
+                const tableState = state.tableSort[tableId] || { key, dir: defaultDir };
+                if (tableState.key === key) {
+                    tableState.dir = tableState.dir === "asc" ? "desc" : "asc";
+                } else {
+                    tableState.key = key;
+                    tableState.dir = defaultDir;
+                }
+                state.tableSort[tableId] = tableState;
+                updateSortIndicators(tableId);
+                refreshSortedView(tableId);
+            });
+        });
+        Object.keys(state.tableSort).forEach(updateSortIndicators);
+    }
+
+    function escapeCsv(value) {
+        const text = value === null || value === undefined ? "" : String(value);
+        if (text.includes(",") || text.includes("\"") || text.includes("\n")) {
+            return `"${text.replace(/"/g, "\"\"")}"`;
+        }
+        return text;
+    }
+
+    function escapeLatex(value) {
+        return String(value === null || value === undefined ? "" : value)
+            .replace(/\\/g, "\\textbackslash{}")
+            .replace(/([&_{}$#%])/g, "\\$1")
+            .replace(/\^/g, "\\textasciicircum{}")
+            .replace(/~/g, "\\textasciitilde{}");
+    }
+
+    function visibleDatasets(chart) {
+        return chart.data.datasets
+            .map((dataset, index) => ({ dataset, index }))
+            .filter(item => chart.isDatasetVisible(item.index));
+    }
+
+    function chartForPanel(panelId) {
+        if (panelId === "fitness") return charts.fitness;
+        if (panelId === "diversity") return charts.diversity;
+        if (panelId === "drift") return charts.drift;
+        if (panelId === "insights") {
+            if (state.representationFamily === "binary") return charts.binaryProbability;
+            if (state.representationFamily === "permutation") return charts.permConsensus;
+            if (state.representationFamily === "real") return charts.realMean;
+            return null;
+        }
+        return null;
+    }
+
+    function downloadText(content, filename, mimeType = "text/plain;charset=utf-8") {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = filename;
+        anchor.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function exportChartCsv(panelId, chart) {
+        const datasets = visibleDatasets(chart);
+        if (!datasets.length) return;
+        const header = ["iteration", ...datasets.map(item => item.dataset.label || `series_${item.index + 1}`)];
+        const labels = chart.data.labels || [];
+        const lines = [header.map(escapeCsv).join(",")];
+        for (let rowIndex = 0; rowIndex < labels.length; rowIndex++) {
+            const row = [labels[rowIndex], ...datasets.map(item => item.dataset.data?.[rowIndex] ?? "")];
+            lines.push(row.map(escapeCsv).join(","));
+        }
+        downloadText(lines.join("\n"), `${runId}-${panelId}.csv`, "text/csv;charset=utf-8");
+    }
+
+    function exportChartLatex(panelId, chart) {
+        const datasets = visibleDatasets(chart);
+        if (!datasets.length) return;
+        const labels = chart.data.labels || [];
+        const columns = ["Iteration", ...datasets.map(item => item.dataset.label || `Series ${item.index + 1}`)];
+        const align = "r".repeat(columns.length);
+        const lines = [
+            `\\begin{tabular}{${align}}`,
+            "\\hline",
+            `${columns.map(escapeLatex).join(" & ")} \\\\`,
+            "\\hline"
+        ];
+        for (let rowIndex = 0; rowIndex < labels.length; rowIndex++) {
+            const row = [
+                labels[rowIndex],
+                ...datasets.map(item => item.dataset.data?.[rowIndex] ?? "")
+            ];
+            const formatted = row.map((value, idx) => idx === 0 ? escapeLatex(value) : escapeLatex(formatMetric(value)));
+            lines.push(`${formatted.join(" & ")} \\\\`);
+        }
+        lines.push("\\hline", "\\end{tabular}");
+        downloadText(lines.join("\n"), `${runId}-${panelId}.tex`, "text/plain;charset=utf-8");
+    }
+
+    function exportChartPng(panelId, chart) {
+        const url = chart.toBase64Image("image/png", 1);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${runId}-${panelId}.png`;
+        anchor.click();
+    }
+
+    function initializePanelExports() {
+        els.exportButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const panelId = button.dataset.exportPanel;
+                const format = button.dataset.exportFormat;
+                const chart = chartForPanel(panelId);
+                if (!chart || !chart.data?.labels?.length) {
+                    return;
+                }
+                if (format === "png") {
+                    exportChartPng(panelId, chart);
+                    return;
+                }
+                if (format === "csv") {
+                    exportChartCsv(panelId, chart);
+                    return;
+                }
+                if (format === "latex") {
+                    exportChartLatex(panelId, chart);
+                }
+            });
+        });
+    }
 
     function parseIterationRows(rows) {
         return (rows || []).map(row => {
@@ -724,10 +1602,21 @@
         els.iterationsInfo.textContent = `Rows: ${parsed.length}`;
         if (!parsed.length) {
             els.iterationsRows.innerHTML = `<tr><td colspan="8" class="muted">No iterations.</td></tr>`;
+            updateSortIndicators("iterations");
             return;
         }
 
-        els.iterationsRows.innerHTML = parsed.map(row => `
+        const tableRows = sortRows("iterations", parsed, {
+            iteration: row => row.iteration,
+            evaluations: row => row.evaluations,
+            popSize: row => row.popSize ?? Number.NEGATIVE_INFINITY,
+            eliteSize: row => row.eliteSize ?? Number.NEGATIVE_INFINITY,
+            bestFitness: row => row.bestFitness,
+            meanFitness: row => row.meanFitness,
+            stdFitness: row => row.stdFitness,
+            adaptiveCount: row => (row.adaptive || []).length
+        });
+        els.iterationsRows.innerHTML = tableRows.map(row => `
             <tr>
                 <td>${row.iteration}</td>
                 <td>${row.evaluations}</td>
@@ -739,6 +1628,7 @@
                 <td>${(row.adaptive || []).length}</td>
             </tr>
         `).join("");
+        updateSortIndicators("iterations");
 
         const labels = parsed.map(r => r.iteration);
         charts.fitness.data.labels = labels;
@@ -816,9 +1706,16 @@
         });
         if (!rows.length) {
             els.adaptiveTimelineRows.innerHTML = `<tr><td colspan="4" class="muted">No adaptive events.</td></tr>`;
+            updateSortIndicators("adaptiveTimeline");
             return;
         }
-        els.adaptiveTimelineRows.innerHTML = rows.map(row => `
+        const sortedRows = sortRows("adaptiveTimeline", rows, {
+            iteration: row => row.iteration,
+            trigger: row => row.trigger,
+            actionType: row => row.actionType,
+            reason: row => row.reason
+        });
+        els.adaptiveTimelineRows.innerHTML = sortedRows.map(row => `
             <tr>
                 <td>${row.iteration}</td>
                 <td>${escapeHtml(row.trigger)}</td>
@@ -826,6 +1723,7 @@
                 <td>${escapeHtml(row.reason)}</td>
             </tr>
         `).join("");
+        updateSortIndicators("adaptiveTimeline");
     }
 
     function renderRepresentationInsights(parsedRows, family) {
@@ -877,7 +1775,13 @@
         if (!edges.length) {
             els.binaryDependencyRows.innerHTML = `<tr><td colspan="4" class="muted">No dependency edges.</td></tr>`;
         } else {
-            els.binaryDependencyRows.innerHTML = edges.map(edge => `
+            const sortedEdges = sortRows("binaryDependencies", edges, {
+                i: edge => edge.i,
+                j: edge => edge.j,
+                weight: edge => edge.weight,
+                correlation: edge => edge.correlation
+            });
+            els.binaryDependencyRows.innerHTML = sortedEdges.map(edge => `
                 <tr>
                     <td>${safe(edge.i, "")}</td>
                     <td>${safe(edge.j, "")}</td>
@@ -886,6 +1790,7 @@
                 </tr>
             `).join("");
         }
+        updateSortIndicators("binaryDependencies");
     }
 
     function renderPermutationInsights(parsedRows) {
@@ -901,7 +1806,13 @@
         if (!edges.length) {
             els.permAdjacencyRows.innerHTML = `<tr><td colspan="4" class="muted">No adjacency edges.</td></tr>`;
         } else {
-            els.permAdjacencyRows.innerHTML = edges.map(edge => `
+            const sortedEdges = sortRows("permAdjacency", edges, {
+                from: edge => edge.from,
+                to: edge => edge.to,
+                frequency: edge => edge.frequency,
+                trend: edge => edge.trend
+            });
+            els.permAdjacencyRows.innerHTML = sortedEdges.map(edge => `
                 <tr>
                     <td>${safe(edge.from, "")}</td>
                     <td>${safe(edge.to, "")}</td>
@@ -910,6 +1821,7 @@
                 </tr>
             `).join("");
         }
+        updateSortIndicators("permAdjacency");
     }
 
     function renderRealInsights(parsedRows) {
@@ -932,10 +1844,16 @@
         if (!eigen.length) {
             els.realEigenRows.innerHTML = `<tr><td colspan="2" class="muted">No eigenvalue summary.</td></tr>`;
         } else {
-            els.realEigenRows.innerHTML = eigen.map((value, idx) => `
-                <tr><td>${idx + 1}</td><td>${Number(value).toFixed(6)}</td></tr>
+            const rows = eigen.map((value, idx) => ({ index: idx + 1, eigenvalue: Number(value) }));
+            const sortedRows = sortRows("realEigen", rows, {
+                index: row => row.index,
+                eigenvalue: row => row.eigenvalue
+            });
+            els.realEigenRows.innerHTML = sortedRows.map(row => `
+                <tr><td>${row.index}</td><td>${Number(row.eigenvalue).toFixed(6)}</td></tr>
             `).join("");
         }
+        updateSortIndicators("realEigen");
     }
 
     function transpose(rows) {
@@ -964,12 +1882,15 @@
         return scores.slice(0, Math.min(topK, scores.length)).map(s => s.idx);
     }
 
-    function drawHeatmap(canvas, matrix, xLabel, yLabel, valueLabel) {
+    function drawHeatmap(canvas, matrix, xLabel, yLabel, valueLabel, options = {}) {
         const ctx = canvas.getContext("2d");
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
         canvas.width = width;
         canvas.height = height;
+        if (!options.disableHover) {
+            bindHeatmapHover(canvas);
+        }
 
         ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = "#f8fbff";
@@ -979,6 +1900,7 @@
             ctx.fillStyle = "#607087";
             ctx.font = "12px IBM Plex Mono";
             ctx.fillText("No heatmap data", 12, 20);
+            heatmapMeta.delete(options.metaKey || canvas.id);
             return;
         }
 
@@ -993,7 +1915,10 @@
                 max = Math.max(max, v);
             }
         }
-        const span = Math.max(1e-12, max - min);
+        const colorMin = Number.isFinite(options.minOverride) ? Number(options.minOverride) : min;
+        const colorMaxRaw = Number.isFinite(options.maxOverride) ? Number(options.maxOverride) : max;
+        const colorMax = colorMaxRaw < colorMin ? colorMin : colorMaxRaw;
+        const span = Math.max(1e-12, colorMax - colorMin);
 
         const padLeft = 46;
         const padBottom = 22;
@@ -1006,7 +1931,7 @@
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 const v = Number(matrix[r][c] || 0);
-                const t = (v - min) / span;
+                const t = (v - colorMin) / span;
                 ctx.fillStyle = heatColor(t);
                 ctx.fillRect(padLeft + c * cellW, padTop + r * cellH, Math.ceil(cellW), Math.ceil(cellH));
             }
@@ -1018,9 +1943,30 @@
 
         ctx.fillStyle = "#4a5c73";
         ctx.font = "11px IBM Plex Mono";
-        ctx.fillText(yLabel, 6, padTop + 10);
-        ctx.fillText(xLabel, width - 12 - ctx.measureText(xLabel).width, height - 6);
-        ctx.fillText(`${valueLabel}: ${min.toFixed(3)}..${max.toFixed(3)}`, 6, height - 6);
+        ctx.fillText(`${yLabel} index`, 6, padTop + 10);
+        ctx.fillText(`${xLabel} index`, width - 12 - ctx.measureText(`${xLabel} index`).width, height - 6);
+        ctx.fillText(`${valueLabel}: ${colorMin.toFixed(3)}..${colorMax.toFixed(3)} (raw ${min.toFixed(3)}..${max.toFixed(3)})`, 6, height - 6);
+
+        heatmapMeta.set(options.metaKey || canvas.id, {
+            matrix,
+            xLabel,
+            yLabel,
+            valueLabel,
+            baseMin: min,
+            baseMax: max,
+            colorMin,
+            colorMax,
+            padLeft,
+            padTop,
+            plotW,
+            plotH,
+            cellW,
+            cellH,
+            rows,
+            cols,
+            canvas,
+            disableHover: !!options.disableHover
+        });
     }
 
     function heatColor(t) {
@@ -1037,18 +1983,26 @@
     }
 
     function renderCheckpoints(rows) {
+        state.checkpoints = rows || [];
         els.checkpointInfo.textContent = `Rows: ${rows.length}`;
         if (!rows.length) {
             els.checkpointRows.innerHTML = `<tr><td colspan="3" class="muted">No checkpoints.</td></tr>`;
+            updateSortIndicators("checkpoints");
             return;
         }
-        els.checkpointRows.innerHTML = rows.map(row => `
+        const sortedRows = sortRows("checkpoints", rows, {
+            iteration: row => row.iteration,
+            checkpointPath: row => row.checkpointPath,
+            createdAt: row => row.createdAt
+        });
+        els.checkpointRows.innerHTML = sortedRows.map(row => `
             <tr>
                 <td>${row.iteration}</td>
                 <td class="mono">${safe(row.checkpointPath, "")}</td>
                 <td class="mono">${safe(row.createdAt, "")}</td>
             </tr>
         `).join("");
+        updateSortIndicators("checkpoints");
     }
 
     function extractParamValue(row) {
@@ -1069,9 +2023,16 @@
         });
         if (!filtered.length) {
             els.paramRows.innerHTML = `<tr><td colspan="4" class="muted">No params.</td></tr>`;
+            updateSortIndicators("params");
             return;
         }
-        els.paramRows.innerHTML = filtered.map(row => `
+        const sortedRows = sortRows("params", filtered, {
+            section: row => row.section,
+            paramPath: row => row.paramPath,
+            valueType: row => row.valueType,
+            value: row => extractParamValue(row)
+        });
+        els.paramRows.innerHTML = sortedRows.map(row => `
             <tr>
                 <td>${safe(row.section, "")}</td>
                 <td class="mono">${safe(row.paramPath, "")}</td>
@@ -1079,6 +2040,7 @@
                 <td class="mono">${escapeHtml(extractParamValue(row))}</td>
             </tr>
         `).join("");
+        updateSortIndicators("params");
     }
 
     function payloadCell(payloadJson) {
@@ -1096,13 +2058,20 @@
     }
 
     function renderEvents(pageData) {
+        state.currentEventsPage = pageData || { items: [], page: 0, totalPages: 0 };
         const rows = pageData.items || [];
         state.eventsTotalPages = pageData.totalPages || 0;
 
-        if (!rows.length) {
+        const sortedRows = sortRows("events", rows, {
+            createdAt: row => row.createdAt,
+            eventType: row => row.eventType,
+            payloadJson: row => row.payloadJson
+        });
+
+        if (!sortedRows.length) {
             els.eventRows.innerHTML = `<tr><td colspan="3" class="muted">No events.</td></tr>`;
         } else {
-            els.eventRows.innerHTML = rows.map(row => `
+            els.eventRows.innerHTML = sortedRows.map(row => `
                 <tr>
                     <td class="mono">${safe(row.createdAt, "")}</td>
                     <td>${safe(row.eventType, "")}</td>
@@ -1125,6 +2094,7 @@
             : `Page ${page + 1} / ${state.eventsTotalPages}`;
         els.eventPrev.disabled = page <= 0;
         els.eventNext.disabled = state.eventsTotalPages === 0 || page >= (state.eventsTotalPages - 1);
+        updateSortIndicators("events");
     }
 
     async function fetchJson(url) {
@@ -1197,6 +2167,8 @@
     });
 
     els.refreshAll.addEventListener("click", refreshAll);
+    initializeSortableHeaders();
+    initializePanelExports();
 
     renderRun(initialRun);
     renderIterations(initialIterations || []);

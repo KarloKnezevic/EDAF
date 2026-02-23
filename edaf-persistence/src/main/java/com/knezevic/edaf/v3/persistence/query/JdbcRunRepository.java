@@ -1,5 +1,8 @@
 package com.knezevic.edaf.v3.persistence.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,6 +24,8 @@ import java.util.function.Predicate;
  */
 public final class JdbcRunRepository implements RunRepository {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private static final Map<String, String> SORT_COLUMNS = new LinkedHashMap<>();
     private static final Map<String, String> EXPERIMENT_SORT_COLUMNS = new LinkedHashMap<>();
     private static final Map<String, String> EXPERIMENT_RUN_SORT_COLUMNS = new LinkedHashMap<>();
@@ -30,6 +36,7 @@ public final class JdbcRunRepository implements RunRepository {
         SORT_COLUMNS.put("runtime_millis", "r.runtime_millis");
         SORT_COLUMNS.put("status", "r.status");
 
+        EXPERIMENT_SORT_COLUMNS.put("latest_run_time", "latest_run_time");
         EXPERIMENT_SORT_COLUMNS.put("created_at", "e.created_at");
         EXPERIMENT_SORT_COLUMNS.put("algorithm_type", "e.algorithm_type");
         EXPERIMENT_SORT_COLUMNS.put("model_type", "e.model_type");
@@ -70,7 +77,10 @@ public final class JdbcRunRepository implements RunRepository {
     public PageResult<ExperimentListItem> listExperiments(ExperimentQuery query) {
         ExperimentQuery effective = normalize(query);
         WhereClause filters = buildExperimentFilters(effective);
-        String sortColumn = EXPERIMENT_SORT_COLUMNS.getOrDefault(effective.sortBy(), "e.created_at");
+        String sortColumn = EXPERIMENT_SORT_COLUMNS.getOrDefault(
+                effective.sortBy(),
+                EXPERIMENT_SORT_COLUMNS.get("latest_run_time")
+        );
         String sortDir = "asc".equalsIgnoreCase(effective.sortDir()) ? "ASC" : "DESC";
 
         String fromSql = """
@@ -91,10 +101,11 @@ public final class JdbcRunRepository implements RunRepository {
                     e.representation_type,
                     e.config_hash,
                     e.created_at,
-                    MAX(r.start_time) AS latest_run_time,
+                    COALESCE(MAX(r.start_time), e.created_at) AS latest_run_time,
                     COUNT(r.run_id) AS total_runs,
                     SUM(CASE WHEN LOWER(COALESCE(r.status, '')) = 'completed' THEN 1 ELSE 0 END) AS completed_runs,
                     SUM(CASE WHEN LOWER(COALESCE(r.status, '')) = 'failed' THEN 1 ELSE 0 END) AS failed_runs,
+                    SUM(CASE WHEN LOWER(COALESCE(r.status, '')) = 'running' THEN 1 ELSE 0 END) AS running_runs,
                     MAX(r.best_fitness) AS best_fitness
                 """
                 + whereSql
@@ -125,6 +136,10 @@ public final class JdbcRunRepository implements RunRepository {
                 bindParams(statement, dataParams);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
+                        Long totalRuns = getNullableLong(rs, "total_runs");
+                        Long completedRuns = getNullableLong(rs, "completed_runs");
+                        Long failedRuns = getNullableLong(rs, "failed_runs");
+                        Long runningRuns = getNullableLong(rs, "running_runs");
                         items.add(new ExperimentListItem(
                                 rs.getString("experiment_id"),
                                 rs.getString("run_name"),
@@ -135,9 +150,11 @@ public final class JdbcRunRepository implements RunRepository {
                                 rs.getString("config_hash"),
                                 rs.getString("created_at"),
                                 rs.getString("latest_run_time"),
-                                getNullableLong(rs, "total_runs"),
-                                getNullableLong(rs, "completed_runs"),
-                                getNullableLong(rs, "failed_runs"),
+                                totalRuns,
+                                completedRuns,
+                                failedRuns,
+                                runningRuns,
+                                deriveExperimentStatus(totalRuns, completedRuns, failedRuns, runningRuns),
                                 getNullableDouble(rs, "best_fitness")
                         ));
                     }
@@ -638,6 +655,7 @@ public final class JdbcRunRepository implements RunRepository {
                     experimentId,
                     resolveDirectionLabel(objectiveDirection, null),
                     targetFitness,
+                    targetFitness == null ? "none" : "query",
                     0,
                     0,
                     0,
@@ -649,39 +667,76 @@ public final class JdbcRunRepository implements RunRepository {
                     new BoxPlotStats(null, null, null, null, null, null, null),
                     new BoxPlotStats(null, null, null, null, null, null, null),
                     List.of(),
+                    List.of(),
+                    List.of(),
+                    List.of(),
+                    List.of(),
+                    List.of(),
                     List.of()
             );
         }
 
+        ResolvedTarget resolvedTarget = resolveTargetFitness(detail.configJson(), targetFitness);
+        Double effectiveTarget = resolvedTarget.value();
         List<RunValueRow> rows = loadRunValuesForExperiment(experimentId);
+        Map<String, List<IterationPoint>> tracesByRun = loadRunTracesForExperiment(experimentId);
         boolean minimize = isMinimize(objectiveDirection, detail.problemType());
-        Predicate<RunValueRow> success = row -> isSuccessful(row, minimize, targetFitness);
+        List<RunOutcome> outcomes = new ArrayList<>(rows.size());
+        for (RunValueRow row : rows) {
+            List<IterationPoint> trace = tracesByRun.getOrDefault(row.runId(), List.of());
+            Long evalToTarget = firstTargetHitEvaluation(trace, row, minimize, effectiveTarget);
+            long evaluationBudget = resolveEvaluationBudget(row, trace);
+            if (evalToTarget == null && effectiveTarget == null && "COMPLETED".equalsIgnoreCase(row.status()) && evaluationBudget > 0L) {
+                // Legacy fallback: without explicit target, treat completed runs as successful at final budget.
+                evalToTarget = evaluationBudget;
+            }
+            boolean success = effectiveTarget == null
+                    ? "COMPLETED".equalsIgnoreCase(row.status())
+                    : evalToTarget != null;
+            outcomes.add(new RunOutcome(
+                    row.runId(),
+                    row.status(),
+                    row.bestFitness(),
+                    row.runtimeMillis(),
+                    evaluationBudget,
+                    evalToTarget,
+                    success
+            ));
+        }
 
-        long totalRuns = rows.size();
-        long completedRuns = rows.stream().filter(r -> "COMPLETED".equalsIgnoreCase(r.status())).count();
-        long successfulRuns = rows.stream().filter(success).count();
+        long totalRuns = outcomes.size();
+        long completedRuns = outcomes.stream().filter(r -> "COMPLETED".equalsIgnoreCase(r.status())).count();
+        long successfulRuns = outcomes.stream().filter(RunOutcome::successful).count();
         double successRate = totalRuns == 0 ? 0.0 : successfulRuns / (double) totalRuns;
 
-        List<Double> bestValues = rows.stream()
+        List<Double> bestValues = outcomes.stream()
                 .filter(r -> "COMPLETED".equalsIgnoreCase(r.status()) && r.bestFitness() != null)
-                .map(RunValueRow::bestFitness)
+                .map(RunOutcome::bestFitness)
                 .toList();
-        List<Double> runtimeValues = rows.stream()
+        List<Double> runtimeValues = outcomes.stream()
                 .filter(r -> r.runtimeMillis() != null)
                 .map(r -> r.runtimeMillis().doubleValue())
                 .toList();
-        List<Double> evaluationValues = rows.stream()
-                .filter(r -> r.evaluations() != null)
-                .map(r -> r.evaluations().doubleValue())
+        List<Double> evaluationValues = outcomes.stream()
+                .filter(r -> r.evaluationBudget() > 0L)
+                .map(r -> (double) r.evaluationBudget())
                 .toList();
 
-        Double ert = computeErt(rows, successfulRuns);
-        Double sp1 = computeSp1(rows, success, successRate);
+        Double ert = computeErtFromOutcomes(outcomes, successfulRuns);
+        Double sp1 = computeSp1FromOutcomes(outcomes, successRate);
+        List<ProfilePoint> successVsBudget = buildSuccessVsBudget(outcomes);
+        List<ProfilePoint> ecdfTotal = buildEcdfTotal(outcomes);
+        List<ProfilePoint> ecdfSuccessful = buildEcdfSuccessful(outcomes);
+        List<HistogramBin> timeToTargetHistogram = buildTimeToTargetHistogram(outcomes);
+        List<ConfidenceBandPoint> convergence95Ci = buildConvergenceWithCi(outcomes, tracesByRun);
+        List<ProfilePoint> dataProfile = successVsBudget;
+        List<ProfilePoint> performanceProfile = buildSinglePerformanceProfileFromOutcomes(outcomes);
 
         return new ExperimentAnalytics(
                 experimentId,
                 minimize ? "min" : "max",
-                targetFitness,
+                effectiveTarget,
+                resolvedTarget.source(),
                 totalRuns,
                 completedRuns,
                 successfulRuns,
@@ -692,8 +747,13 @@ public final class JdbcRunRepository implements RunRepository {
                 bestValues,
                 StatisticsUtils.boxPlot(runtimeValues),
                 StatisticsUtils.boxPlot(evaluationValues),
-                buildSingleDataProfile(rows, success),
-                buildSinglePerformanceProfile(rows, success)
+                convergence95Ci,
+                successVsBudget,
+                timeToTargetHistogram,
+                ecdfTotal,
+                ecdfSuccessful,
+                dataProfile,
+                performanceProfile
         );
     }
 
@@ -810,6 +870,392 @@ public final class JdbcRunRepository implements RunRepository {
         } catch (Exception e) {
             throw new RuntimeException("Failed loading run values for experiment " + experimentId, e);
         }
+    }
+
+    private Map<String, List<IterationPoint>> loadRunTracesForExperiment(String experimentId) {
+        String sql = """
+                SELECT
+                    r.run_id,
+                    i.evaluations,
+                    i.best_fitness
+                FROM runs r
+                LEFT JOIN iterations i ON i.run_id = r.run_id
+                WHERE r.experiment_id = ?
+                ORDER BY r.run_id ASC, i.evaluations ASC, i.iteration ASC
+                """;
+        Map<String, List<IterationPoint>> traces = new LinkedHashMap<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, experimentId);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    String runId = rs.getString("run_id");
+                    traces.computeIfAbsent(runId, ignored -> new ArrayList<>());
+                    long evaluations = rs.getLong("evaluations");
+                    boolean hasPoint = !rs.wasNull();
+                    if (hasPoint) {
+                        traces.get(runId).add(new IterationPoint(
+                                evaluations,
+                                rs.getDouble("best_fitness")
+                        ));
+                    }
+                }
+            }
+            return traces;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed loading run traces for experiment " + experimentId, e);
+        }
+    }
+
+    private static ResolvedTarget resolveTargetFitness(String configJson, Double requestedTarget) {
+        if (requestedTarget != null && Double.isFinite(requestedTarget)) {
+            return new ResolvedTarget(requestedTarget, "query");
+        }
+        if (!hasText(configJson)) {
+            return new ResolvedTarget(null, "none");
+        }
+        try {
+            JsonNode root = OBJECT_MAPPER.readTree(configJson);
+            Double value = findNumeric(root, "stopping", "targetFitness");
+            if (value == null) {
+                value = findNumeric(root, "stopping", "target");
+            }
+            if (value == null) {
+                value = findNumeric(root, "targetFitness");
+            }
+            if (value == null) {
+                value = findNumeric(root, "target");
+            }
+            if (value == null) {
+                value = findNumericRecursive(root, Set.of("targetFitness", "target"));
+            }
+            if (value != null && Double.isFinite(value)) {
+                return new ResolvedTarget(value, "config");
+            }
+        } catch (Exception ignored) {
+            // If config JSON is malformed we silently fall back to legacy behavior.
+        }
+        return new ResolvedTarget(null, "none");
+    }
+
+    private static Double findNumeric(JsonNode root, String... path) {
+        if (root == null || path == null || path.length == 0) {
+            return null;
+        }
+        JsonNode cursor = root;
+        for (String segment : path) {
+            if (cursor == null) {
+                return null;
+            }
+            cursor = cursor.get(segment);
+        }
+        if (cursor == null) {
+            return null;
+        }
+        if (cursor.isNumber()) {
+            return cursor.doubleValue();
+        }
+        if (cursor.isTextual()) {
+            try {
+                return Double.parseDouble(cursor.textValue());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private static Double findNumericRecursive(JsonNode node, Set<String> keys) {
+        if (node == null || keys == null || keys.isEmpty()) {
+            return null;
+        }
+        if (node.isObject()) {
+            for (String key : keys) {
+                JsonNode child = node.get(key);
+                if (child != null) {
+                    Double candidate = parseNumericNode(child);
+                    if (candidate != null) {
+                        return candidate;
+                    }
+                }
+            }
+            var fields = node.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                Double nested = findNumericRecursive(entry.getValue(), keys);
+                if (nested != null) {
+                    return nested;
+                }
+            }
+            return null;
+        }
+        if (node.isArray()) {
+            for (JsonNode child : node) {
+                Double nested = findNumericRecursive(child, keys);
+                if (nested != null) {
+                    return nested;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Double parseNumericNode(JsonNode node) {
+        if (node == null) {
+            return null;
+        }
+        if (node.isNumber()) {
+            return node.doubleValue();
+        }
+        if (node.isTextual()) {
+            try {
+                return Double.parseDouble(node.textValue());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private static long resolveEvaluationBudget(RunValueRow row, List<IterationPoint> trace) {
+        if (row.evaluations() != null && row.evaluations() > 0L) {
+            return row.evaluations();
+        }
+        if (trace == null || trace.isEmpty()) {
+            return 0L;
+        }
+        return trace.getLast().evaluations();
+    }
+
+    private static Long firstTargetHitEvaluation(List<IterationPoint> trace,
+                                                 RunValueRow row,
+                                                 boolean minimize,
+                                                 Double targetFitness) {
+        if (targetFitness == null) {
+            return null;
+        }
+        if (trace != null) {
+            for (IterationPoint point : trace) {
+                if (targetReached(point.bestFitness(), minimize, targetFitness)) {
+                    return point.evaluations();
+                }
+            }
+        }
+        if ("COMPLETED".equalsIgnoreCase(row.status())
+                && row.bestFitness() != null
+                && row.evaluations() != null
+                && targetReached(row.bestFitness(), minimize, targetFitness)) {
+            return row.evaluations();
+        }
+        return null;
+    }
+
+    private static boolean targetReached(double fitness, boolean minimize, double targetFitness) {
+        return minimize ? fitness <= targetFitness : fitness >= targetFitness;
+    }
+
+    private static List<ProfilePoint> buildSuccessVsBudget(List<RunOutcome> outcomes) {
+        if (outcomes == null || outcomes.isEmpty()) {
+            return List.of();
+        }
+        long maxBudget = outcomes.stream().mapToLong(RunOutcome::evaluationBudget).max().orElse(0L);
+        if (maxBudget <= 0L) {
+            return List.of();
+        }
+        List<Long> budgets = logarithmicBudgets(1L, maxBudget, 28);
+        List<ProfilePoint> points = new ArrayList<>(budgets.size());
+        for (long budget : budgets) {
+            long solved = outcomes.stream()
+                    .filter(outcome -> outcome.evaluationToTarget() != null && outcome.evaluationToTarget() <= budget)
+                    .count();
+            points.add(new ProfilePoint(budget, solved / (double) outcomes.size()));
+        }
+        return points;
+    }
+
+    private static List<ProfilePoint> buildEcdfTotal(List<RunOutcome> outcomes) {
+        if (outcomes == null || outcomes.isEmpty()) {
+            return List.of();
+        }
+        List<Long> successful = outcomes.stream()
+                .map(RunOutcome::evaluationToTarget)
+                .filter(value -> value != null && value > 0L)
+                .sorted()
+                .toList();
+        if (successful.isEmpty()) {
+            return List.of();
+        }
+        List<ProfilePoint> points = new ArrayList<>();
+        long solved = 0L;
+        long previous = Long.MIN_VALUE;
+        for (Long evaluation : successful) {
+            solved++;
+            if (evaluation != previous) {
+                points.add(new ProfilePoint(evaluation, solved / (double) outcomes.size()));
+                previous = evaluation;
+            } else {
+                points.set(points.size() - 1, new ProfilePoint(evaluation, solved / (double) outcomes.size()));
+            }
+        }
+        return points;
+    }
+
+    private static List<ProfilePoint> buildEcdfSuccessful(List<RunOutcome> outcomes) {
+        if (outcomes == null || outcomes.isEmpty()) {
+            return List.of();
+        }
+        List<Long> successful = outcomes.stream()
+                .map(RunOutcome::evaluationToTarget)
+                .filter(value -> value != null && value > 0L)
+                .sorted()
+                .toList();
+        if (successful.isEmpty()) {
+            return List.of();
+        }
+        List<ProfilePoint> points = new ArrayList<>();
+        long solved = 0L;
+        long previous = Long.MIN_VALUE;
+        int denominator = successful.size();
+        for (Long evaluation : successful) {
+            solved++;
+            if (evaluation != previous) {
+                points.add(new ProfilePoint(evaluation, solved / (double) denominator));
+                previous = evaluation;
+            } else {
+                points.set(points.size() - 1, new ProfilePoint(evaluation, solved / (double) denominator));
+            }
+        }
+        return points;
+    }
+
+    private static List<HistogramBin> buildTimeToTargetHistogram(List<RunOutcome> outcomes) {
+        if (outcomes == null || outcomes.isEmpty()) {
+            return List.of();
+        }
+        List<Double> values = outcomes.stream()
+                .map(RunOutcome::evaluationToTarget)
+                .filter(value -> value != null && value > 0L)
+                .map(value -> value.doubleValue())
+                .sorted()
+                .toList();
+        if (values.isEmpty()) {
+            return List.of();
+        }
+        double min = values.getFirst();
+        double max = values.getLast();
+        if (Double.compare(min, max) == 0) {
+            return List.of(new HistogramBin(min, min + 1.0, values.size()));
+        }
+        int binCount = Math.max(6, Math.min(16, (int) Math.ceil(Math.sqrt(values.size()))));
+        double width = (max - min) / binCount;
+        long[] counts = new long[binCount];
+        for (double value : values) {
+            int index = Math.min(binCount - 1, (int) Math.floor((value - min) / width));
+            counts[index] += 1L;
+        }
+        List<HistogramBin> histogram = new ArrayList<>(binCount);
+        for (int index = 0; index < binCount; index++) {
+            double start = min + index * width;
+            double end = index == binCount - 1 ? max + 1.0 : start + width;
+            histogram.add(new HistogramBin(start, end, counts[index]));
+        }
+        return histogram;
+    }
+
+    private static List<ConfidenceBandPoint> buildConvergenceWithCi(List<RunOutcome> outcomes,
+                                                                    Map<String, List<IterationPoint>> tracesByRun) {
+        if (outcomes == null || outcomes.isEmpty() || tracesByRun == null || tracesByRun.isEmpty()) {
+            return List.of();
+        }
+        long maxBudget = outcomes.stream().mapToLong(RunOutcome::evaluationBudget).max().orElse(0L);
+        if (maxBudget <= 0L) {
+            return List.of();
+        }
+        List<Long> grid = linearBudgets(maxBudget, 64);
+        List<ConfidenceBandPoint> points = new ArrayList<>(grid.size());
+        for (long budget : grid) {
+            List<Double> sample = new ArrayList<>(outcomes.size());
+            for (RunOutcome outcome : outcomes) {
+                List<IterationPoint> trace = tracesByRun.get(outcome.runId());
+                Double fitness = bestFitnessAtBudget(trace, budget);
+                if (fitness != null) {
+                    sample.add(fitness);
+                }
+            }
+            if (sample.isEmpty()) {
+                continue;
+            }
+            Double mean = StatisticsUtils.mean(sample);
+            Double stdDev = StatisticsUtils.stdDev(sample);
+            long count = sample.size();
+            double margin = (stdDev == null || count < 2) ? 0.0 : 1.96 * (stdDev / Math.sqrt(count));
+            double meanValue = mean == null ? 0.0 : mean;
+            points.add(new ConfidenceBandPoint(
+                    budget,
+                    meanValue,
+                    meanValue - margin,
+                    meanValue + margin,
+                    StatisticsUtils.quantile(sample, 0.5),
+                    count
+            ));
+        }
+        return points;
+    }
+
+    private static Double bestFitnessAtBudget(List<IterationPoint> trace, long budget) {
+        if (trace == null || trace.isEmpty()) {
+            return null;
+        }
+        double fallback = trace.getFirst().bestFitness();
+        double best = fallback;
+        boolean found = false;
+        for (IterationPoint point : trace) {
+            if (point.evaluations() <= budget) {
+                best = point.bestFitness();
+                found = true;
+            } else {
+                break;
+            }
+        }
+        return found ? best : fallback;
+    }
+
+    private static List<Long> linearBudgets(long maxBudget, int points) {
+        if (maxBudget <= 0L || points <= 1) {
+            return List.of(maxBudget);
+        }
+        Set<Long> values = new LinkedHashSet<>();
+        for (int i = 0; i < points; i++) {
+            double ratio = i / (double) (points - 1);
+            long budget = Math.round(maxBudget * ratio);
+            values.add(Math.max(0L, budget));
+        }
+        values.add(maxBudget);
+        return values.stream().sorted().toList();
+    }
+
+    private static List<ProfilePoint> buildSinglePerformanceProfileFromOutcomes(List<RunOutcome> outcomes) {
+        if (outcomes == null || outcomes.isEmpty()) {
+            return List.of();
+        }
+        List<Long> successfulEvaluations = outcomes.stream()
+                .map(RunOutcome::evaluationToTarget)
+                .filter(value -> value != null && value > 0L)
+                .toList();
+        if (successfulEvaluations.isEmpty()) {
+            return List.of();
+        }
+        long bestEvaluation = successfulEvaluations.stream().min(Long::compareTo).orElse(1L);
+        double[] taus = {1.0, 1.2, 1.5, 2.0, 3.0, 5.0, 8.0, 13.0, 21.0, 34.0, 55.0, 89.0, 144.0};
+        List<ProfilePoint> points = new ArrayList<>(taus.length);
+        for (double tau : taus) {
+            double threshold = tau * bestEvaluation;
+            long solved = outcomes.stream()
+                    .filter(outcome -> outcome.evaluationToTarget() != null && outcome.evaluationToTarget() <= threshold)
+                    .count();
+            points.add(new ProfilePoint(tau, solved / (double) outcomes.size()));
+        }
+        return points;
     }
 
     private List<RunValueRow> loadRunValuesForProblem(String problemType, List<String> requestedAlgorithms) {
@@ -1165,6 +1611,21 @@ public final class JdbcRunRepository implements RunRepository {
         return totalEval / successfulRuns;
     }
 
+    private static Double computeErtFromOutcomes(List<RunOutcome> outcomes, long successfulRuns) {
+        if (successfulRuns <= 0L) {
+            return null;
+        }
+        double totalEval = outcomes.stream()
+                .mapToDouble(outcome -> {
+                    if (outcome.evaluationToTarget() != null) {
+                        return outcome.evaluationToTarget().doubleValue();
+                    }
+                    return Math.max(0L, outcome.evaluationBudget());
+                })
+                .sum();
+        return totalEval / successfulRuns;
+    }
+
     private static Double computeSp1(List<RunValueRow> rows, Predicate<RunValueRow> success, double successRate) {
         if (successRate <= 0.0) {
             return null;
@@ -1173,6 +1634,25 @@ public final class JdbcRunRepository implements RunRepository {
                 .filter(success)
                 .filter(r -> r.evaluations() != null)
                 .map(r -> r.evaluations().doubleValue())
+                .toList();
+        if (successEvals.isEmpty()) {
+            return null;
+        }
+        Double meanSuccessEval = StatisticsUtils.mean(successEvals);
+        if (meanSuccessEval == null) {
+            return null;
+        }
+        return meanSuccessEval / successRate;
+    }
+
+    private static Double computeSp1FromOutcomes(List<RunOutcome> outcomes, double successRate) {
+        if (successRate <= 0.0) {
+            return null;
+        }
+        List<Double> successEvals = outcomes.stream()
+                .map(RunOutcome::evaluationToTarget)
+                .filter(value -> value != null && value > 0L)
+                .map(value -> value.doubleValue())
                 .toList();
         if (successEvals.isEmpty()) {
             return null;
@@ -1255,13 +1735,14 @@ public final class JdbcRunRepository implements RunRepository {
         ExperimentQuery base = query == null ? ExperimentQuery.defaults() : query;
         int safePage = Math.max(0, base.page());
         int safeSize = Math.max(1, Math.min(base.size(), 200));
-        String sortBy = hasText(base.sortBy()) ? base.sortBy().toLowerCase(Locale.ROOT) : "created_at";
+        String sortBy = hasText(base.sortBy()) ? base.sortBy().toLowerCase(Locale.ROOT) : "latest_run_time";
         String sortDir = "asc".equalsIgnoreCase(base.sortDir()) ? "asc" : "desc";
         return new ExperimentQuery(
                 trimToNull(base.q()),
                 trimToNull(base.algorithm()),
                 trimToNull(base.model()),
                 trimToNull(base.problem()),
+                trimToNull(base.status()),
                 trimToNull(base.from()),
                 trimToNull(base.to()),
                 safePage,
@@ -1269,6 +1750,26 @@ public final class JdbcRunRepository implements RunRepository {
                 sortBy,
                 sortDir
         );
+    }
+
+    private static String deriveExperimentStatus(Long totalRuns,
+                                                 Long completedRuns,
+                                                 Long failedRuns,
+                                                 Long runningRuns) {
+        long total = totalRuns == null ? 0L : totalRuns;
+        long completed = completedRuns == null ? 0L : completedRuns;
+        long failed = failedRuns == null ? 0L : failedRuns;
+        long running = runningRuns == null ? 0L : runningRuns;
+        if (running > 0L) {
+            return "RUNNING";
+        }
+        if (total > 0L && completed == total) {
+            return "COMPLETED";
+        }
+        if (total > 0L && failed == total) {
+            return "FAILED";
+        }
+        return "PARTIAL";
     }
 
     private static WhereClause buildExperimentFilters(ExperimentQuery query) {
@@ -1286,6 +1787,70 @@ public final class JdbcRunRepository implements RunRepository {
         if (hasText(query.problem())) {
             sql.append(" AND LOWER(e.problem_type) = ? ");
             params.add(query.problem().toLowerCase(Locale.ROOT));
+        }
+        if (hasText(query.status())) {
+            String status = query.status().toUpperCase(Locale.ROOT);
+            switch (status) {
+                case "RUNNING" -> sql.append("""
+                        AND EXISTS (
+                            SELECT 1
+                            FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                              AND LOWER(COALESCE(rs.status, '')) = 'running'
+                        )
+                        """);
+                case "COMPLETED" -> sql.append("""
+                        AND EXISTS (
+                            SELECT 1 FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                              AND LOWER(COALESCE(rs.status, '')) <> 'completed'
+                        )
+                        """);
+                case "FAILED" -> sql.append("""
+                        AND EXISTS (
+                            SELECT 1 FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                              AND LOWER(COALESCE(rs.status, '')) <> 'failed'
+                        )
+                        """);
+                case "PARTIAL" -> sql.append("""
+                        AND EXISTS (
+                            SELECT 1 FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                        )
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                              AND LOWER(COALESCE(rs.status, '')) = 'running'
+                        )
+                        AND EXISTS (
+                            SELECT 1
+                            FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                              AND LOWER(COALESCE(rs.status, '')) <> 'completed'
+                        )
+                        AND EXISTS (
+                            SELECT 1
+                            FROM runs rs
+                            WHERE rs.experiment_id = e.experiment_id
+                              AND LOWER(COALESCE(rs.status, '')) <> 'failed'
+                        )
+                        """);
+                default -> {
+                    // Ignore unsupported values and keep query behavior deterministic.
+                }
+            }
         }
         if (hasText(query.from())) {
             sql.append(" AND e.created_at >= ? ");
@@ -1494,6 +2059,29 @@ public final class JdbcRunRepository implements RunRepository {
             Double bestFitness,
             Long evaluations,
             Long runtimeMillis
+    ) {
+    }
+
+    private record IterationPoint(
+            long evaluations,
+            double bestFitness
+    ) {
+    }
+
+    private record RunOutcome(
+            String runId,
+            String status,
+            Double bestFitness,
+            Long runtimeMillis,
+            long evaluationBudget,
+            Long evaluationToTarget,
+            boolean successful
+    ) {
+    }
+
+    private record ResolvedTarget(
+            Double value,
+            String source
     ) {
     }
 

@@ -8,6 +8,7 @@ public record ExperimentQuery(
         String algorithm,
         String model,
         String problem,
+        String status,
         String from,
         String to,
         int page,
@@ -17,7 +18,7 @@ public record ExperimentQuery(
 ) {
 
     public static ExperimentQuery defaults() {
-        return new ExperimentQuery(null, null, null, null, null, null, 0, 25, "created_at", "desc");
+        return new ExperimentQuery(null, null, null, null, null, null, null, 0, 25, "latest_run_time", "desc");
     }
 
     public int offset() {

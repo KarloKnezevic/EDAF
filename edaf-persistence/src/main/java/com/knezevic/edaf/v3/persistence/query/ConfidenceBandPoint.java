@@ -1,0 +1,14 @@
+package com.knezevic.edaf.v3.persistence.query;
+
+/**
+ * One convergence point with mean and 95% confidence interval bounds.
+ */
+public record ConfidenceBandPoint(
+        double x,
+        double mean,
+        double ciLower,
+        double ciUpper,
+        Double median,
+        long samples
+) {
+}

@@ -16,6 +16,8 @@ public record ExperimentListItem(
         Long totalRuns,
         Long completedRuns,
         Long failedRuns,
+        Long runningRuns,
+        String status,
         Double bestFitness
 ) {
 }

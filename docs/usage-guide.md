@@ -371,6 +371,73 @@ UI pages:
 - `/coco` campaign explorer
 - `/coco/{campaignId}` campaign detail
 
+### Run detail (`/runs/{runId}`) deep-dive
+
+Tabs and practical usage:
+
+- `Fitness`:
+  - line chart with `Best`, `Mean`, `Std` per iteration
+  - hover on one x-position shows all series values for that iteration
+- `Diversity`:
+  - population/elite diversity curves
+  - includes info button explaining interpretation (exploration collapse vs healthy spread)
+- `Drift`:
+  - model-drift signal per iteration
+  - includes info button for stagnation interpretation
+- `Insights`:
+  - representation-specific visualizations:
+    - binary: entropy heatmap, top changing bit probabilities, fixation ratio, dependency edges
+    - permutation: position heatmap, consensus drift, adjacency edges
+    - real: sigma heatmap, mean trajectories, eigen summary
+  - `Focus` mode for heatmaps:
+    - opens only on explicit click (no auto-open)
+    - close with `Close`, backdrop click, or `Esc`
+    - supports zoom, custom color range, pin/unpin tooltip
+- `Iterations`:
+  - sortable table by iteration/evals/pop/elite/best/mean/std/adaptive count
+- `Events`:
+  - adaptive timeline + raw event stream
+  - type filter + payload text search + paging
+- `Configuration`:
+  - YAML/JSON toggle
+  - flattened param table with search and sortable columns
+
+Visual status colors are consistent across pages:
+
+- `RUNNING`: green badge
+- `COMPLETED`: blue badge
+- `FAILED`: red badge
+- fallback/other states: amber badge
+
+### Experiment detail (`/experiments/{experimentId}`) analytics
+
+The experiment page aggregates multiple stochastic runs (for example, 30 seeds) and now includes:
+
+- Mean convergence + 95% CI:
+  - x-axis: evaluations
+  - y-axis: best fitness
+  - mean curve + CI band + median curve
+  - traces are aligned on common evaluation budgets using forward-fill
+- Success-vs-budget:
+  - solved fraction by evaluation budget
+  - uses configured target condition from analysis query or stored config
+- Time-to-target histogram:
+  - evaluations-to-target distribution over successful runs
+  - caption shows successes vs non-successes
+- Final fitness boxplot + histogram:
+  - distribution across all runs
+- ECDF of evaluations-to-target:
+  - total-runs normalized ECDF
+  - successful-only ECDF
+- Data/Performance profiles:
+  - benchmarking-oriented profile views remain available
+
+Target selection source is explicit in analytics:
+
+- query parameter `target` (highest priority), or
+- experiment config (`stopping.targetFitness` / `target`), or
+- none (fallback semantics).
+
 ## 8) API Query Recipes
 
 ### Run list with pagination
@@ -382,8 +449,22 @@ curl "http://localhost:7070/api/runs?page=0&size=25&sortBy=start_time&sortDir=de
 ### Experiment list with pagination
 
 ```bash
-curl "http://localhost:7070/api/experiments?page=0&size=25&sortBy=created_at&sortDir=desc"
+curl "http://localhost:7070/api/experiments?page=0&size=25&sortBy=latest_run_time&sortDir=desc"
 curl "http://localhost:7070/api/experiments?algorithm=umda&problem=onemax&q=maxDepth"
+```
+
+### Experiment status filter
+
+`/api/experiments` and `/experiments` support experiment-level status categories:
+
+- `RUNNING`: at least one run in experiment is currently running
+- `COMPLETED`: all runs are completed
+- `FAILED`: all runs failed
+- `PARTIAL`: mixed/non-terminal run states (excluding active `RUNNING`)
+
+```bash
+curl "http://localhost:7070/api/experiments?status=RUNNING"
+curl "http://localhost:7070/api/experiments?algorithm=boa&problem=disjunct-matrix&status=PARTIAL"
 ```
 
 ### Filter by algorithm/problem/status
@@ -427,6 +508,16 @@ curl "http://localhost:7070/api/experiments/<experimentId>/analysis?direction=ma
 curl "http://localhost:7070/api/experiments/<experimentId>/latex?direction=max&target=60"
 ```
 
+`/api/experiments/{experimentId}/analysis` now returns (in addition to box/profile stats):
+
+- `targetFitness`, `targetSource`
+- `convergence95Ci[]` with:
+  - `x`, `mean`, `ciLower`, `ciUpper`, `median`, `samples`
+- `successVsBudget[]`
+- `timeToTargetHistogram[]` (`startInclusive`, `endExclusive`, `count`)
+- `ecdfTotalRuns[]`
+- `ecdfSuccessfulRuns[]`
+
 ### Same-problem algorithm significance analysis
 
 ```bash
@@ -454,9 +545,12 @@ For browser workflow:
 1. Open one run from `/`.
 2. Click `Experiment` in run detail header.
 3. On experiment page inspect:
+   - convergence mean + CI, success-vs-budget, time-to-target histogram, ECDF
    - box-plot and histogram over all repeated runs
    - data/performance profiles
    - Wilcoxon/Holm pairwise table and Friedman summary.
+4. Use `Direction` + `Target fitness` controls to switch success semantics.
+5. Export experiment-level tables to LaTeX via page buttons.
 
 ### COCO campaign resources
 

@@ -62,15 +62,16 @@ public class ApiController {
             @RequestParam(required = false) String algorithm,
             @RequestParam(required = false) String model,
             @RequestParam(required = false) String problem,
+            @RequestParam(required = false) String status,
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int size,
-            @RequestParam(defaultValue = "created_at") String sortBy,
+            @RequestParam(defaultValue = "latest_run_time") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         return runRepository.listExperiments(new ExperimentQuery(
-                q, algorithm, model, problem, from, to, page, size, sortBy, sortDir
+                q, algorithm, model, problem, status, from, to, page, size, sortBy, sortDir
         ));
     }
 

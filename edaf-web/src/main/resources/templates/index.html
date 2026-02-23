@@ -109,6 +109,34 @@
             font-weight: 600;
             background: #f8fafc;
         }
+        th.sortable-th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 22px;
+            transition: background-color .12s ease;
+        }
+        th.sortable-th:hover {
+            background: #edf5ff;
+        }
+        th.sortable-th::after {
+            content: "";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            font-size: .72rem;
+            color: var(--accent);
+        }
+        th.sortable-th.sort-active.sort-asc::after {
+            content: "▲";
+            opacity: 1;
+        }
+        th.sortable-th.sort-active.sort-desc::after {
+            content: "▼";
+            opacity: 1;
+        }
         tr:hover td { background: #f8fffd; }
         a.run-link { color: var(--accent); font-weight: 700; text-decoration: none; }
         .status {
@@ -240,12 +268,12 @@
                     <th>Algorithm</th>
                     <th>Model</th>
                     <th>Problem</th>
-                    <th>Status</th>
-                    <th>Best</th>
-                    <th>Runtime (ms)</th>
+                    <th class="sortable-th" data-sort-key="status" data-default-dir="asc">Status</th>
+                    <th class="sortable-th" data-sort-key="best_fitness" data-default-dir="desc">Best</th>
+                    <th class="sortable-th" data-sort-key="runtime_millis" data-default-dir="desc">Runtime (ms)</th>
                     <th>Iterations</th>
                     <th>Evaluations</th>
-                    <th>Start Time</th>
+                    <th class="sortable-th" data-sort-key="start_time" data-default-dir="desc">Start Time</th>
                 </tr>
                 </thead>
                 <tbody id="rows">
@@ -309,7 +337,8 @@
         totalInfo: document.getElementById("totalInfo"),
         prevPage: document.getElementById("prevPage"),
         nextPage: document.getElementById("nextPage"),
-        resetBtn: document.getElementById("resetBtn")
+        resetBtn: document.getElementById("resetBtn"),
+        sortableHeaders: Array.from(document.querySelectorAll("th.sortable-th"))
     };
 
     function statusClass(status) {
@@ -404,6 +433,35 @@
         return params.toString();
     }
 
+    function updateSortIndicators() {
+        els.sortableHeaders.forEach(header => {
+            const active = header.dataset.sortKey === state.sortBy;
+            header.classList.toggle("sort-active", active);
+            header.classList.toggle("sort-asc", active && state.sortDir === "asc");
+            header.classList.toggle("sort-desc", active && state.sortDir === "desc");
+        });
+    }
+
+    function initHeaderSorting() {
+        els.sortableHeaders.forEach(header => {
+            header.addEventListener("click", async () => {
+                const key = header.dataset.sortKey;
+                const defaultDir = (header.dataset.defaultDir || "asc").toLowerCase() === "desc" ? "desc" : "asc";
+                if (!key) return;
+                if (state.sortBy === key) {
+                    state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+                } else {
+                    state.sortBy = key;
+                    state.sortDir = defaultDir;
+                }
+                state.page = 0;
+                stateToForm();
+                updateSortIndicators();
+                await loadRuns();
+            });
+        });
+    }
+
     function renderRows(items) {
         if (!items || items.length === 0) {
             els.rows.innerHTML = `<tr><td colspan="11" class="muted">No runs match current filters.</td></tr>`;
@@ -424,6 +482,7 @@
                 <td class="mono">${row.startTime || ""}</td>
             </tr>
         `).join("");
+        updateSortIndicators();
     }
 
     function renderPaging(pageData) {
@@ -489,12 +548,23 @@
         await loadRuns();
     });
 
+    els.sortBy.addEventListener("change", () => {
+        state.sortBy = els.sortBy.value || "start_time";
+        updateSortIndicators();
+    });
+    els.sortDir.addEventListener("change", () => {
+        state.sortDir = els.sortDir.value || "desc";
+        updateSortIndicators();
+    });
+
     readUrlState();
+    initHeaderSorting();
     fillSelect(els.algorithm, initialFacets.algorithms || []);
     fillSelect(els.model, initialFacets.models || []);
     fillSelect(els.problem, initialFacets.problems || []);
     fillSelect(els.status, initialFacets.statuses || []);
     stateToForm();
+    updateSortIndicators();
     renderRows(initialPage.items || []);
     renderPaging(initialPage);
     loadFacets();
