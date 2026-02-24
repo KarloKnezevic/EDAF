@@ -4,7 +4,10 @@
 
 ![Build](https://github.com/KarloKnezevic/EDAF/actions/workflows/build.yml/badge.svg)
 ![Test](https://github.com/KarloKnezevic/EDAF/actions/workflows/test.yml/badge.svg)
+![Documentation Status](https://readthedocs.org/projects/edaf/badge/?version=latest)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+Documentation portal: [https://edaf.readthedocs.io/](https://edaf.readthedocs.io/)
 
 **EDAF** is a modular Java 21 framework for Estimation of Distribution Algorithms (EDAs), including discrete, continuous, permutation, and mixed-variable optimization pipelines. The framework is designed for research and engineering workflows where reproducibility, observability, and composability are first-class concerns.
 
