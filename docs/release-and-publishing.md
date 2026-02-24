@@ -43,7 +43,7 @@ Automated helper (recommended):
 
 ```bash
 cd /Users/karloknezevic/Desktop/EDAF
-./scripts/release/github-release.sh v2.1.0 --push-tag
+./scripts/release/github-release.sh v3.0.0 --push-tag
 ```
 
 Typical artifacts:
@@ -51,6 +51,7 @@ Typical artifacts:
 - `/Users/karloknezevic/Desktop/EDAF/edaf-cli/target/edaf-cli.jar`
 - `/Users/karloknezevic/Desktop/EDAF/edaf-web/target/edaf-web-3.0.0.jar`
 - module jars under each `*/target/`
+- `/Users/karloknezevic/Desktop/EDAF/dist/v3.0.0/*` (local release bundle; intentionally ignored in git)
 
 ## 4) Versioning + Tagging
 
@@ -65,10 +66,10 @@ Example:
 ```bash
 cd /Users/karloknezevic/Desktop/EDAF
 git add -A
-git commit -m "release: prepare v2.1.0"
-git tag -a v2.1.0 -m "EDAF v2.1.0"
-git push origin main
-git push origin v2.1.0
+git commit -m "release: prepare v3.0.0"
+git tag -a v3.0.0 -m "EDAF v3.0.0"
+git push origin master
+git push origin v3.0.0
 ```
 
 ## 5) GitHub Release (CLI)
@@ -77,23 +78,38 @@ Using GitHub CLI:
 
 ```bash
 cd /Users/karloknezevic/Desktop/EDAF
-gh release create v2.1.0 \
-  --title "EDAF v2.1.0" \
-  --notes-file docs/release-notes-v2.1.0.md \
+gh release create v3.0.0 \
+  --title "EDAF v3.0.0" \
+  --notes-file docs/release-notes-v3.0.0.md \
   edaf-cli/target/edaf-cli.jar \
-  edaf-web/target/edaf-web-2.1.0.jar
+  edaf-web/target/edaf-web-3.0.0.jar
 ```
 
 Script alternative (build + tag handling + asset upload):
 
 ```bash
 cd /Users/karloknezevic/Desktop/EDAF
-./scripts/release/github-release.sh v2.1.0 --push-tag
+./scripts/release/github-release.sh v3.0.0 --push-tag
 ```
 
-## 6) GitHub Packages (Optional Maven Registry)
+## 6) GitHub Packages (Maven Registry)
 
-If you also want Maven artifacts on GitHub Packages, add a deployment repository in root `pom.xml` and deploy with `-Pgithub-packages`.
+EDAF root `pom.xml` already defines `distributionManagement` for:
+
+- `https://maven.pkg.github.com/KarloKnezevic/EDAF`
+
+Local deploy (from maintainer machine):
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+mvn -DskipTests deploy
+```
+
+Automated deploy:
+
+- workflow: `.github/workflows/publish-github-packages.yml`
+- triggers: release published or manual dispatch
+- required permissions: `packages: write`
 
 Typical server id in `~/.m2/settings.xml`:
 
@@ -175,7 +191,7 @@ mvn -Pcentral-release -DskipTests deploy
 3. test consumption in a clean project:
 
 ```bash
-mvn -q -U dependency:get -Dartifact=com.knezevic.edaf:edaf-core:2.1.0
+mvn -q -U dependency:get -Dartifact=com.knezevic.edaf:edaf-core:3.0.0
 ```
 
 ## 10) Common Failure Modes
