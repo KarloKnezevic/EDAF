@@ -1,6 +1,17 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Algorithms
 
 This document describes algorithm drivers currently registered in EDAF v3.
+
+```mermaid
+flowchart LR
+    A["Representation"] --> B["Algorithm Driver"]
+    B --> C["Probabilistic Model"]
+    C --> D["Sampling"]
+    D --> E["Problem Evaluation"]
+    E --> F["Telemetry + Persistence"]
+```
 
 ## 1) Implementation Status Matrix
 
@@ -271,3 +282,33 @@ Discovery source:
   - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/permutation`
   - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/dynamic`
   - `edaf-algorithms/src/main/java/com/knezevic/edaf/v3/algorithms/mo`
+
+## 7) Complexity Snapshot
+
+| Family | Typical algorithms | Iteration time complexity (informal) | Space complexity (informal) |
+| --- | --- | --- | --- |
+| Discrete factorized | `umda`, `pbil`, `cga` | `O(N*n)` | `O(n)` |
+| Discrete dependency | `bmda`, `mimic`, `boa`, `hboa` | `O(m*n^2)` to `O(m*n^3)` | `O(n^2)`+ |
+| Continuous diagonal | `gaussian-eda`, `umdac` | `O(N*n + m*n)` | `O(n)` |
+| Continuous full-covariance | `emna`, `egna`, `full-covariance-eda` | `O(m*n^2 + n^3)` | `O(n^2)` |
+| Permutation | `ehm-eda`, `ehbsa`, `mallows-eda` | `O(N*n + m*n)` to `O(N*n^2)` | `O(n^2)` |
+
+For measured runtime baselines and reproducible commands, see [Complexity and Performance](./complexity-and-performance.md).
+
+## 8) Literature mapping
+
+| EDAF algorithm type | Primary references |
+| --- | --- |
+| `umda`, `umdad` | [2], [1] |
+| `umdac`, `umda-continuous` | [3], [1] |
+| `univariate-keda`, `kde-eda` | [4], [13], [14] |
+| `egna`, `emna`, `full-covariance-eda` | [5], [6], [11], [15] |
+| `speda`, `gmm-eda` | [7], [13] |
+| `boa`, `ebna`, `hboa` | [8], [6], [7], [8] |
+| `pbil` | [9], [4] |
+| `cga` | [5] |
+| `mimic`, `chow-liu-eda`, `dependency-tree-eda` | [10], [9] |
+| `snes`, `xnes`, `igo`, `cma-es` | [16], [17], [18], [19], [20] |
+| `ehm-eda`, `ehbsa`, `mallows-eda`, `plackett-luce-eda` | [21], [22], [23], [24] |
+
+Reference list is provided in [Bibliography](./bibliography.md).

@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Logging and Observability
 
 EDAF observability is event-driven. Algorithm lifecycle events are emitted through `EventBus` and consumed by one or more `EventSink` implementations.
@@ -193,3 +195,16 @@ For latent telemetry interpretation and YAML knobs:
 
 - [Latent Insights and Adaptive Control](./latent-insights.md)
 - [Metrics and Results](./metrics-and-results.md)
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["logging and observability"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

@@ -1,0 +1,91 @@
+schema: "3.0"
+
+run:
+  id: docs-web-grammar-tree-hboa
+  name: Docs Showcase Grammar Tree (HBOA)
+  masterSeed: 2026022403
+  deterministicStreams: true
+  checkpointEveryIterations: 10
+
+grammar:
+  mode: auto
+  variables: [x0, x1, x2]
+  binary_ops: [and, or, xor, nand, nor]
+  unary_ops: [not]
+  ternary_ops: [if]
+  allow_constants: false
+  ephemeral_constants: false
+  max_depth: 6
+  typed: false
+  boolean_mode: true
+
+representation:
+  type: grammar-bitstring
+
+problem:
+  type: grammar-xor
+  bits: 3
+  variablePrefix: x
+  complexityPenalty: 0.0005
+
+algorithm:
+  type: hboa
+  populationSize: 180
+  selectionRatio: 0.35
+  elitism: 1
+
+model:
+  type: hboa-network
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 100
+  maxEvaluations: 80000
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/docs-showcase
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-docs.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/docs-showcase
+
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/docs-showcase/docs-web-grammar-tree-events.jsonl
+  logFile: ./results/docs-showcase/docs-web-grammar-tree.log

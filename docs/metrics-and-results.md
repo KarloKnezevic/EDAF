@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Metrics and Results
 
 This document explains what EDAF records, where it records it, and how to interpret it.
@@ -260,3 +262,16 @@ Current generators:
 
 For full metric semantics and YAML controls:
 - [Latent Insights and Adaptive Control](./latent-insights.md)
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["metrics and results"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

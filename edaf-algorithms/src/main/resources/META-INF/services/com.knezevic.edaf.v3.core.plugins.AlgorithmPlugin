@@ -1,4 +1,5 @@
 com.knezevic.edaf.v3.algorithms.plugins.discrete.UmdaAlgorithmPlugin
+com.knezevic.edaf.v3.algorithms.plugins.discrete.UmdadAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.continuous.GaussianEdaAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.permutation.EhmPermutationAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.discrete.PbilAlgorithmPlugin
@@ -19,6 +20,12 @@ com.knezevic.edaf.v3.algorithms.plugins.mo.MoEdaSkeletonAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.tree.TreeEdaAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.continuous.CemAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.continuous.UmdaContinuousAlgorithmPlugin
+com.knezevic.edaf.v3.algorithms.plugins.continuous.UmdacAlgorithmPlugin
+com.knezevic.edaf.v3.algorithms.plugins.continuous.UnivariateKedaAlgorithmPlugin
+com.knezevic.edaf.v3.algorithms.plugins.continuous.EgnaAlgorithmPlugin
+com.knezevic.edaf.v3.algorithms.plugins.continuous.EmnaAlgorithmPlugin
+com.knezevic.edaf.v3.algorithms.plugins.continuous.SpedaAlgorithmPlugin
+com.knezevic.edaf.v3.algorithms.plugins.continuous.MultivariateKedaAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.continuous.PbilRealAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.continuous.MimicContinuousAlgorithmPlugin
 com.knezevic.edaf.v3.algorithms.plugins.continuous.FullCovarianceEdaAlgorithmPlugin

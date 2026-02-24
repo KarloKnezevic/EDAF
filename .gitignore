@@ -19,6 +19,10 @@ results.json
 /reports/
 /data/
 *.db
+*.db-shm
+*.db-wal
+**/.jqwik-database/
+**/dependency-reduced-pom.xml
 
 # Maven wrapper / local tooling scratch
 .mvn/timing.properties

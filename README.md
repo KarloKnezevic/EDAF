@@ -1,8 +1,10 @@
+<p align="center"><img src="docs/assets/branding/edaf_logo.png" alt="EDAF logo" width="420" /></p>
+
 # Estimation of Distribution Algorithms Framework (EDAF)
 
 ![Build](https://github.com/KarloKnezevic/EDAF/actions/workflows/build.yml/badge.svg)
 ![Test](https://github.com/KarloKnezevic/EDAF/actions/workflows/test.yml/badge.svg)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 **EDAF** is a modular Java 21 framework for Estimation of Distribution Algorithms (EDAs), including discrete, continuous, permutation, and mixed-variable optimization pipelines. The framework is designed for research and engineering workflows where reproducibility, observability, and composability are first-class concerns.
 
@@ -25,7 +27,11 @@
 - [Web Dashboard and API](#web-dashboard-and-api)
 - [Docker Usage](#docker-usage)
 - [Extending the Framework](#extending-the-framework)
+- [Using EDAF as Package](#using-edaf-as-package)
+- [Release and Publishing](#release-and-publishing)
 - [Testing and Quality](#testing-and-quality)
+- [Complexity and Performance](#complexity-and-performance)
+- [Bibliography](#bibliography)
 - [Documentation Map](#documentation-map)
 - [License](#license)
 
@@ -622,18 +628,16 @@ Run web app locally:
 From a terminal opened at `/Users/karloknezevic/Desktop/EDAF`:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
-```
-
-Use repo-root execution with `-pl edaf-web -am` so sibling modules are available on classpath.
-
-Alternative (works if Maven prefix resolution is configured locally):
-
-```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+./scripts/run-web-local.sh
 ```
 
 Stop the server with `Ctrl+C` in that terminal.
+
+Optional runtime overrides:
+
+```bash
+EDAF_WEB_PORT=7080 EDAF_DB_PATH="$(pwd)/edaf-v3.db" ./scripts/run-web-local.sh
+```
 
 Open:
 
@@ -646,6 +650,22 @@ Core UI pages:
 - `/runs/{runId}` run detail
 - `/experiments/{experimentId}` experiment-level analytics (box-plot, profiles, significance tables)
 - `/coco` COCO campaign explorer
+
+### Web UI Preview
+
+Representative screenshots captured from the built-in docs showcase runs:
+
+![Run explorer](docs/assets/screenshots/web-dashboard-runs.png)
+![Experiment explorer](docs/assets/screenshots/web-dashboard-experiments.png)
+![Experiment analytics](docs/assets/screenshots/web-dashboard-experiment-detail.png)
+![Run detail - fitness](docs/assets/screenshots/web-dashboard-run-fitness.png)
+![Run detail - insights](docs/assets/screenshots/web-dashboard-run-insights.png)
+![Run detail - events](docs/assets/screenshots/web-dashboard-run-events.png)
+![Run detail - configuration](docs/assets/screenshots/web-dashboard-run-configuration.png)
+![Run detail - grammar tree (UMDA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-umda.png)
+![Run detail - grammar tree (BOA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-boa.png)
+![Run detail - grammar tree (Chow-Liu EDA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-chow-liu.png)
+![Run detail - grammar tree (hBOA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-hboa.png)
 
 Experiment deletion:
 
@@ -693,7 +713,7 @@ REST API:
 ### Build and Start Full Stack
 
 ```bash
-docker compose up --build
+./scripts/docker-stack.sh up
 ```
 
 Services:
@@ -709,29 +729,26 @@ Default runner config used by compose:
 ### Run in Detached Mode
 
 ```bash
-docker compose up -d --build
+./scripts/docker-stack.sh up-all
 ```
 
 ### Check Status and Logs
 
 ```bash
-docker compose ps
-docker compose logs -f web
-docker compose logs -f runner
-docker compose logs -f db
+./scripts/docker-stack.sh status
+./scripts/docker-stack.sh logs
 ```
 
 ### Stop / Shutdown
 
 ```bash
-docker compose stop
-docker compose down
+./scripts/docker-stack.sh down
 ```
 
 ### Remove Volumes (delete DB state)
 
 ```bash
-docker compose down -v
+./scripts/docker-stack.sh down-volumes
 ```
 
 ## Extending the Framework
@@ -751,6 +768,34 @@ You can add new components without touching orchestration code.
 5. Use new `type` in YAML.
 
 Full step-by-step examples are in [`docs/extending-the-framework.md`](docs/extending-the-framework.md).
+External-package integration and custom plugin walkthrough:
+
+- [docs/using-edaf-as-package.md](docs/using-edaf-as-package.md)
+
+## Using EDAF as Package
+
+For a concrete external Maven project example (custom plugin + run + web monitoring):
+
+- [docs/using-edaf-as-package.md](docs/using-edaf-as-package.md)
+- [examples/external-package-sample/README.md](examples/external-package-sample/README.md)
+
+## Release and Publishing
+
+For GitHub release, Maven Central (mvnrepository visibility), and Read the Docs publishing:
+
+- [docs/release-and-publishing.md](docs/release-and-publishing.md)
+
+Release helper scripts:
+
+```bash
+# Build/test/package + create/update GitHub release assets
+./scripts/release/github-release.sh v3.0.0 --push-tag
+
+# Trigger Read the Docs build (requires env vars)
+READTHEDOCS_PROJECT=edaf \
+READTHEDOCS_TOKEN=... \
+./scripts/release/publish-readthedocs.sh
+```
 
 ## Testing and Quality
 
@@ -774,6 +819,18 @@ Coverage includes:
 - property-based tests (e.g., permutation representation validity)
 - persistence schema/reset and query filtering tests
 
+## Complexity and Performance
+
+Algorithmic complexity tables and measured runtime snapshots are documented in:
+
+- [docs/complexity-and-performance.md](docs/complexity-and-performance.md)
+
+## Bibliography
+
+Full EDA/baseline/statistical bibliography:
+
+- [docs/bibliography.md](docs/bibliography.md)
+
 ## Documentation Map
 
 - [docs/index.md](docs/index.md) - full map
@@ -792,14 +849,19 @@ Coverage includes:
 - [docs/database-schema.md](docs/database-schema.md) - DB schema, relations, indexes, query model
 - [docs/web-dashboard.md](docs/web-dashboard.md) - UI/API behavior and filtering
 - [docs/benchmark-comparisons.md](docs/benchmark-comparisons.md) - reproducible side-by-side benchmark outputs
+- [docs/complexity-and-performance.md](docs/complexity-and-performance.md) - asymptotic complexity + measured runtime snapshot
+- [docs/testing-and-release.md](docs/testing-and-release.md) - release hardening checklist and validation pipeline
+- [docs/bibliography.md](docs/bibliography.md) - exhaustive EDA literature and benchmarking references
 - [docs/cli-reference.md](docs/cli-reference.md) - exhaustive command reference
 - [docs/docker.md](docs/docker.md) - containerized workflows
 - [docs/extending-the-framework.md](docs/extending-the-framework.md) - plugin authoring guide
+- [docs/using-edaf-as-package.md](docs/using-edaf-as-package.md) - consume EDAF from another Maven project and register custom plugins
 - [docs/usage-guide.md](docs/usage-guide.md) - command cookbook and recipes
+- [docs/release-and-publishing.md](docs/release-and-publishing.md) - GitHub release, Maven Central publishing, and Read the Docs deployment
 
 ## License
 
 EDAF (Estimation of Distribution Algorithms Framework)  
 Copyright (C) 2026 Dr. Karlo Knezevic
 
-Licensed under GNU GPL v3. See [LICENSE](LICENSE).
+Licensed under Apache License 2.0. See [LICENSE](LICENSE).

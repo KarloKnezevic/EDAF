@@ -1,0 +1,6 @@
+defaultRepetitions: 10
+defaultSeedStart: 2026022500
+
+experiments:
+  - config: web-screenshot-onemax.yml
+    runIdPrefix: docs-web-onemax

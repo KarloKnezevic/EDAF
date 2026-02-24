@@ -1,0 +1,238 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
+# Release, GitHub Packaging, Maven Central, and Read the Docs
+
+This guide covers:
+
+1. how to cut a GitHub release with reproducible artifacts
+2. how to publish EDAF to Maven Central (which then appears on mvnrepository.com)
+3. how to publish docs on Read the Docs
+
+## 1) Release Flow Overview
+
+```mermaid
+flowchart TD
+    A["Freeze branch + update docs"] --> B["mvn clean test + spotless"]
+    B --> C["Build release artifacts"]
+    C --> D["Tag version"]
+    D --> E["Push tag"]
+    E --> F["Create GitHub release + attach artifacts"]
+    F --> G["Publish to Maven Central"]
+    G --> H["Verify availability on Maven Central and mvnrepository"]
+```
+
+## 2) Pre-release Quality Gate
+
+From `/Users/karloknezevic/Desktop/EDAF`:
+
+```bash
+mvn -q clean test
+mvn -q spotless:check
+mvn -q -pl edaf-web -am package -DskipTests
+docker compose build runner web
+```
+
+## 3) Build Artifacts for GitHub Release
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+mvn -q -DskipTests package
+```
+
+Automated helper (recommended):
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+./scripts/release/github-release.sh v2.1.0 --push-tag
+```
+
+Typical artifacts:
+
+- `/Users/karloknezevic/Desktop/EDAF/edaf-cli/target/edaf-cli.jar`
+- `/Users/karloknezevic/Desktop/EDAF/edaf-web/target/edaf-web-3.0.0.jar`
+- module jars under each `*/target/`
+
+## 4) Versioning + Tagging
+
+Recommended:
+
+1. bump version in root `pom.xml` and all modules
+2. commit version bump
+3. create annotated tag
+
+Example:
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+git add -A
+git commit -m "release: prepare v2.1.0"
+git tag -a v2.1.0 -m "EDAF v2.1.0"
+git push origin main
+git push origin v2.1.0
+```
+
+## 5) GitHub Release (CLI)
+
+Using GitHub CLI:
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+gh release create v2.1.0 \
+  --title "EDAF v2.1.0" \
+  --notes-file docs/release-notes-v2.1.0.md \
+  edaf-cli/target/edaf-cli.jar \
+  edaf-web/target/edaf-web-2.1.0.jar
+```
+
+Script alternative (build + tag handling + asset upload):
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+./scripts/release/github-release.sh v2.1.0 --push-tag
+```
+
+## 6) GitHub Packages (Optional Maven Registry)
+
+If you also want Maven artifacts on GitHub Packages, add a deployment repository in root `pom.xml` and deploy with `-Pgithub-packages`.
+
+Typical server id in `~/.m2/settings.xml`:
+
+```xml
+<server>
+  <id>github</id>
+  <username>${env.GITHUB_ACTOR}</username>
+  <password>${env.GITHUB_TOKEN}</password>
+</server>
+```
+
+## 7) Maven Central vs mvnrepository.com
+
+Important:
+
+- **You do not publish directly to [mvnrepository.com](https://mvnrepository.com/).**
+- You publish to **Maven Central**.
+- mvnrepository indexes Maven Central automatically after synchronization.
+
+## 8) Maven Central Publishing Checklist
+
+### 8.1 Account and namespace
+
+1. Create/login to [central.sonatype.com](https://central.sonatype.com/).
+2. Claim namespace for your groupId (for example `com.knezevic.edaf`), usually via DNS TXT proof.
+3. Create publishing token credentials.
+
+### 8.2 GPG signing
+
+Generate and publish GPG public key:
+
+```bash
+gpg --full-generate-key
+gpg --list-secret-keys --keyid-format=long
+gpg --keyserver keyserver.ubuntu.com --send-keys <KEY_ID>
+```
+
+### 8.3 Maven `settings.xml`
+
+Configure credentials (example):
+
+```xml
+<settings>
+  <servers>
+    <server>
+      <id>central</id>
+      <username>${env.CENTRAL_PORTAL_USERNAME}</username>
+      <password>${env.CENTRAL_PORTAL_PASSWORD}</password>
+    </server>
+  </servers>
+</settings>
+```
+
+### 8.4 Artifact requirements
+
+Central requires:
+
+- compiled jar
+- `-sources.jar`
+- `-javadoc.jar`
+- GPG signatures (`.asc`)
+- POM metadata (license, scm, developers, etc.)
+
+### 8.5 Deploy command (release profile)
+
+After adding/activating your release profile for source/javadoc/sign/deploy:
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+mvn -Pcentral-release -DskipTests deploy
+```
+
+## 9) Post-publish Verification
+
+1. verify on Maven Central search:
+   - [https://central.sonatype.com/](https://central.sonatype.com/)
+2. wait for mvnrepository indexing:
+   - [https://mvnrepository.com/](https://mvnrepository.com/)
+3. test consumption in a clean project:
+
+```bash
+mvn -q -U dependency:get -Dartifact=com.knezevic.edaf:edaf-core:2.1.0
+```
+
+## 10) Common Failure Modes
+
+- missing signatures
+- missing javadoc/sources jars
+- invalid POM metadata (`scm`, license, developer)
+- namespace ownership not verified
+- wrong credentials ID in `settings.xml`
+
+## 11) Publish Documentation on Read the Docs
+
+EDAF includes ready RTD support files:
+
+- `/Users/karloknezevic/Desktop/EDAF/.readthedocs.yaml`
+- `/Users/karloknezevic/Desktop/EDAF/mkdocs.yml`
+- `/Users/karloknezevic/Desktop/EDAF/docs/requirements-rtd.txt`
+
+Flow:
+
+```mermaid
+flowchart LR
+    A["Push docs to GitHub"] --> B["Read the Docs project connected to repo"]
+    B --> C["RTD reads .readthedocs.yaml"]
+    C --> D["Installs docs/requirements-rtd.txt"]
+    D --> E["Builds MkDocs site from mkdocs.yml"]
+    E --> F["Publishes docs site"]
+```
+
+Steps:
+
+1. open [Read the Docs dashboard](https://readthedocs.io/dashboard/).
+2. import repository `KarloKnezevic/EDAF`.
+3. set default branch (`main` or `master`).
+4. ensure build config points to `.readthedocs.yaml` (root).
+5. trigger first build; verify pages and nav.
+6. enable versioned docs (optional) from RTD admin.
+
+Local pre-check:
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+python3 -m venv .venv-docs
+source .venv-docs/bin/activate
+pip install -r docs/requirements-rtd.txt
+mkdocs serve
+```
+
+Trigger RTD build from CLI:
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+READTHEDOCS_PROJECT=<your-project-slug> \
+READTHEDOCS_TOKEN=<token> \
+./scripts/release/publish-readthedocs.sh
+```
+
+Open local docs preview:
+
+- [http://127.0.0.1:8000](http://127.0.0.1:8000)

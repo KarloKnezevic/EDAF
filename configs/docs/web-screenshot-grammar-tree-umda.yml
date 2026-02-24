@@ -1,0 +1,95 @@
+schema: "3.0"
+
+run:
+  id: docs-web-grammar-tree-umda
+  name: Docs Showcase Grammar Tree (UMDA)
+  masterSeed: 2026022404
+  deterministicStreams: true
+  checkpointEveryIterations: 5
+
+grammar:
+  mode: auto
+  variables: [x0, x1, x2]
+  binary_ops: [and, or, xor]
+  unary_ops: [not]
+  ternary_ops: [if]
+  allow_constants: false
+  ephemeral_constants: false
+  max_depth: 5
+  typed: false
+  boolean_mode: true
+
+representation:
+  type: grammar-bitstring
+
+problem:
+  type: grammar-xor
+  bits: 3
+  variablePrefix: x
+  complexityPenalty: 0.0005
+
+algorithm:
+  type: umda
+  populationSize: 120
+  selectionRatio: 0.35
+  elitism: 1
+  latentTopK: 10
+  latentDependencyEnabled: false
+  adaptiveEnabled: false
+
+model:
+  type: umda-bernoulli
+  smoothing: 0.02
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 60
+  maxEvaluations: 50000
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/docs-showcase
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-docs.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/docs-showcase
+
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: quiet
+  jsonlFile: ./results/docs-showcase/docs-web-grammar-tree-umda-events.jsonl
+  logFile: ./results/docs-showcase/docs-web-grammar-tree-umda.log

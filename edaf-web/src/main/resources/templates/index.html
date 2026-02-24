@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EDAF v3 Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="stylesheet" href="/css/edaf-ui.css?v=20260224e" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -176,6 +183,23 @@
     </style>
 </head>
 <body>
+<header class="brand-header">
+    <div class="brand-header-left">
+        <a class="brand-home" href="/">
+            <img src="/assets/edaf_logo2.png?v=20260224b" alt="EDAF logo" class="brand-logo-short brand-logo-shimmer" width="92" />
+            <span class="brand-title">Estimation of Distribution Algorithms Framework</span>
+            <span class="brand-version" th:text="|v${frameworkVersion}|">v</span>
+        </a>
+        <a class="brand-doc-link" href="https://github.com/KarloKnezevic/EDAF/tree/master/docs" target="_blank" rel="noopener">Documentation</a>
+    </div>
+    <div class="brand-stats">
+        <span class="brand-stat" data-stat="db"><span class="brand-stat-icon" aria-hidden="true">🗄</span><span class="brand-stat-stack"><span class="brand-stat-label">DB size</span><span id="brandDbSize" class="brand-stat-value" th:text="${dashboardSummary.databaseSizeDisplay}">-</span></span></span>
+        <span class="brand-stat" data-stat="exp"><span class="brand-stat-icon" aria-hidden="true">🧪</span><span class="brand-stat-stack"><span class="brand-stat-label">Experiments</span><span id="brandExperimentCount" class="brand-stat-value" th:text="${dashboardSummary.experimentCountDisplay}">-</span></span></span>
+        <span class="brand-stat" data-stat="runs"><span class="brand-stat-icon" aria-hidden="true">🏁</span><span class="brand-stat-stack"><span class="brand-stat-label">Runs</span><span id="brandRunCount" class="brand-stat-value" th:text="${dashboardSummary.runCountDisplay}">-</span></span></span>
+        <span class="brand-stat" data-stat="runtime"><span class="brand-stat-icon" aria-hidden="true">⏱</span><span class="brand-stat-stack"><span class="brand-stat-label">Runtime (ms)</span><span id="brandTotalRuntime" class="brand-stat-value" th:text="${dashboardSummary.totalRuntimeMillisDisplay}">-</span></span></span>
+    </div>
+</header>
+
 <div class="wrap">
     <section class="hero">
         <div>
@@ -615,5 +639,16 @@
     loadFacets();
     loadRuns();
 </script>
+<script src="/js/edaf-ui.js?v=20260224c"></script>
+<footer class="brand-footer">
+    <div class="brand-footer-left">
+        <img src="/assets/edaf_logo.png?v=20260224b" alt="EDAF logo" class="brand-logo-footer-main" width="92" />
+    </div>
+    <div class="brand-footer-center">
+        <a class="brand-footer-link" href="https://github.com/KarloKnezevic/EDAF" target="_blank" rel="noopener">Estimation of Distribution Algorithms Framework</a>
+    </div>
+    <div class="brand-footer-right"></div>
+</footer>
 </body>
+
 </html>

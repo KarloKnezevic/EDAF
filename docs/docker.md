@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Docker Guide
 
 EDAF includes container recipes for a complete stack:
@@ -16,13 +18,13 @@ EDAF includes container recipes for a complete stack:
 ## 2) Build and Start
 
 ```bash
-docker compose up --build
+./scripts/docker-stack.sh up
 ```
 
 Detached mode:
 
 ```bash
-docker compose up -d --build
+./scripts/docker-stack.sh up-all
 ```
 
 ## 3) Services and Ports
@@ -45,10 +47,8 @@ PostgreSQL state is persisted in Docker volume:
 ## 5) Inspect and Monitor
 
 ```bash
-docker compose ps
-docker compose logs -f db
-docker compose logs -f web
-docker compose logs -f runner
+./scripts/docker-stack.sh status
+./scripts/docker-stack.sh logs
 ```
 
 ## 6) Stop / Restart / Destroy
@@ -56,7 +56,7 @@ docker compose logs -f runner
 Stop containers but keep state:
 
 ```bash
-docker compose stop
+./scripts/docker-stack.sh down
 ```
 
 Restart stopped containers:
@@ -68,13 +68,13 @@ docker compose start
 Shutdown and remove containers/network (keep volume):
 
 ```bash
-docker compose down
+./scripts/docker-stack.sh down
 ```
 
 Shutdown and remove containers/network/volume:
 
 ```bash
-docker compose down -v
+./scripts/docker-stack.sh down-volumes
 ```
 
 ## 7) Re-run Runner Only
@@ -119,6 +119,32 @@ curl "http://localhost:7070/api/runs?page=0&size=10"
 ### Clean reset
 
 ```bash
-docker compose down -v
-docker compose up --build
+./scripts/docker-stack.sh down-volumes
+./scripts/docker-stack.sh up-all
 ```
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["docker"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```
+
+## Build Context Hygiene
+
+EDAF includes `/Users/karloknezevic/Desktop/EDAF/.dockerignore` to keep Docker build context small and predictable.
+
+Key ignored paths:
+
+- runtime artifacts (`results/`, `reports/`, `*.db`, `*.log`)
+- Maven output (`target/`, `**/target/`)
+- local caches (`**/.jqwik-database/`)
+- VCS/editor metadata (`.git/`, `.vscode/`, `.idea/`)
+
+Without this, build context can become multiple GB and dramatically slow down image builds.

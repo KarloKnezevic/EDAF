@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Boolean Function and Cryptography Suite
 
 This document describes the EDAF v3 problem family for optimization of boolean functions with cryptographic criteria.
@@ -131,3 +133,16 @@ curl "http://localhost:7070/api/runs?problem=boolean-function-tree"
 5. Optionally add benchmark config variant under `configs/benchmarks/`.
 
 This keeps the suite open for criteria such as autocorrelation, resiliency, or propagation criteria without changing algorithm orchestration code.
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["crypto boolean problems"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

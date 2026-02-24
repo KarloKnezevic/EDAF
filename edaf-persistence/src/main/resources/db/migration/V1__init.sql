@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Dr. Karlo Knezevic
+ * Licensed under the Apache License, Version 2.0
+ */
+
 CREATE TABLE IF NOT EXISTS experiments (
     experiment_id TEXT PRIMARY KEY,
     config_hash TEXT NOT NULL UNIQUE,

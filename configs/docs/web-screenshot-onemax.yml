@@ -1,0 +1,82 @@
+schema: "3.0"
+
+run:
+  id: docs-web-onemax
+  name: Docs Showcase OneMax UMDA
+  masterSeed: 2026022401
+  deterministicStreams: true
+  checkpointEveryIterations: 0
+
+representation:
+  type: bitstring
+  length: 100
+
+problem:
+  type: onemax
+
+algorithm:
+  type: umda
+  populationSize: 180
+  elitism: 2
+  selectionRatio: 0.40
+  latentTopK: 12
+  latentDependencyTopK: 16
+  latentPairwiseMaxDimensions: 100
+  latentDependencyEnabled: true
+  adaptiveEnabled: false
+
+model:
+  type: umda-bernoulli
+  smoothing: 0.01
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 120
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/docs-showcase
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-docs.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/docs-showcase
+
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/docs-showcase/docs-web-onemax-events.jsonl
+  logFile: ./results/docs-showcase/docs-web-onemax.log

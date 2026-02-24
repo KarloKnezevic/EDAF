@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # COCO Integration Guide
 
 This document explains how EDAF integrates with COCO/BBOB style benchmarking and how to run reproducible, comparable optimizer campaigns with database + HTML outputs.

@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # CLI Reference
 
 EDAF CLI root:
@@ -200,3 +202,16 @@ EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml org.sprin
 
 - successful execution returns `0`
 - validation/runtime failures return non-zero with actionable messages
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["cli reference"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

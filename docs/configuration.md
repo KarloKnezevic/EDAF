@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Configuration Reference
 
 EDAF v3 uses strict YAML configuration with schema marker:
@@ -372,8 +374,8 @@ Semantic validator groups components by representation family.
 
 | Family | Algorithm types |
 | --- | --- |
-| Discrete | `umda`, `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`, `hboa`, `mo-eda-skeleton`, `tree-eda` |
-| Continuous | `gaussian-eda`, `full-covariance-eda`, `flow-eda`, `gmm-eda`, `kde-eda`, `copula-eda`, `snes`, `xnes`, `cma-es`, `mo-eda-skeleton` |
+| Discrete | `umda`, `umdad`, `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`, `hboa`, `mo-eda-skeleton`, `tree-eda` |
+| Continuous | `gaussian-eda`, `full-covariance-eda`, `flow-eda`, `gmm-eda`, `kde-eda`, `copula-eda`, `snes`, `xnes`, `cma-es`, `umda-continuous`, `umdac`, `univariate-keda`, `multivariate-keda`, `emna`, `egna`, `speda`, `mo-eda-skeleton` |
 | Permutation | `ehm-eda`, `plackett-luce-eda`, `mallows-eda`, `mo-eda-skeleton` |
 
 ## 11) Policy Types Currently Handled by `PolicyFactory`
@@ -428,6 +430,16 @@ Semantic validator groups components by representation family.
 ### Mixed Representation (Copula baseline pipeline)
 
 - `configs/mixed-toy-v3.yml`
+
+### Literature Alias Set (Discrete + Continuous)
+
+- `configs/literature-eda/umdad-onemax-v3.yml`
+- `configs/literature-eda/umdac-sphere-v3.yml`
+- `configs/literature-eda/univariate-keda-sphere-v3.yml`
+- `configs/literature-eda/emna-sphere-v3.yml`
+- `configs/literature-eda/egna-rosenbrock-v3.yml`
+- `configs/literature-eda/speda-rastrigin-v3.yml`
+- `configs/literature-eda/multivariate-keda-sphere-v3.yml`
 
 ### Boolean-function cryptography suite
 
@@ -518,3 +530,16 @@ COCO campaign fields:
 | `optimizers[].config` | path to a standard v3 experiment config template |
 
 See `/Users/karloknezevic/Desktop/EDAF/docs/coco-integration.md` for full details.
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["configuration"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

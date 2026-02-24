@@ -1,0 +1,79 @@
+schema: "3.0"
+
+run:
+  id: literature-umdac-sphere-v3
+  name: UMDAc on Sphere (v3)
+  masterSeed: 31002
+  deterministicStreams: true
+  checkpointEveryIterations: 10
+
+representation:
+  type: real-vector
+  length: 20
+  lower: -5.0
+  upper: 5.0
+
+problem:
+  type: sphere
+
+algorithm:
+  type: umdac
+  populationSize: 180
+  elitism: 1
+  selectionRatio: 0.4
+
+model:
+  type: gaussian-diag
+  minSigma: 1.0e-8
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 160
+
+constraints:
+  type: repair
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl]
+  outputDirectory: ./results/literature-eda
+  database:
+    enabled: false
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/literature-eda
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file]
+  verbosity: normal
+  jsonlFile: ./results/literature-eda/umdac-sphere-events.jsonl
+  logFile: ./results/literature-eda/umdac-sphere.log

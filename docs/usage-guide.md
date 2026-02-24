@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Usage Guide
 
 This guide is a practical cookbook for common EDAF workflows.
@@ -726,3 +728,16 @@ sqlite3 edaf-v3.db "SELECT campaign_id,optimizer_id,dimension,success_rate,ert_r
 4. run experiment with `./edaf run ...`
 5. inspect web/API and generate report
 6. commit config + report metadata for reproducibility
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["usage guide"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

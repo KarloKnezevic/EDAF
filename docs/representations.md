@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Representations
 
 Representations define genotype domains, validation, repair behavior, random initialization, and concise summaries used in logs/reports.
@@ -181,3 +183,16 @@ src/main/resources/META-INF/services/com.knezevic.edaf.v3.core.plugins.Represent
 4. Use `type: your-representation-type` in config.
 
 Detailed walkthrough: [Extending the Framework](./extending-the-framework.md).
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["representations"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

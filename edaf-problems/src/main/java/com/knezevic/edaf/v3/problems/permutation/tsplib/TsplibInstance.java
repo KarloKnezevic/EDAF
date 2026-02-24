@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Dr. Karlo Knezevic
+ * Licensed under the Apache License, Version 2.0
+ */
+
 package com.knezevic.edaf.v3.problems.permutation.tsplib;
 
 import java.util.ArrayList;

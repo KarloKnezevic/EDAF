@@ -1,0 +1,92 @@
+schema: "3.0"
+
+run:
+  id: docs-web-adaptive
+  name: Docs Showcase Adaptive PBIL
+  masterSeed: 2026022402
+  deterministicStreams: true
+  checkpointEveryIterations: 5
+
+representation:
+  type: bitstring
+  length: 120
+
+problem:
+  type: onemax
+
+algorithm:
+  type: pbil
+  populationSize: 280
+  elitism: 1
+  selectionRatio: 0.25
+  latentTopK: 16
+  latentDependencyTopK: 20
+  latentPairwiseMaxDimensions: 120
+  latentDependencyEnabled: true
+  adaptiveEnabled: true
+  adaptiveEarlyIterationLimit: 60
+  adaptiveBinaryEntropyThreshold: 0.70
+  adaptiveBinaryFixationThreshold: 0.10
+  adaptiveBinaryEntropyDropThreshold: 0.01
+  adaptiveExplorationFraction: 0.45
+  adaptiveExplorationNoiseRate: 0.12
+  adaptiveStagnationGenerations: 6
+  adaptiveBinaryDiversityThreshold: 0.10
+  adaptivePartialRestartFraction: 0.30
+  adaptiveImprovementEpsilon: 1.0e-10
+
+model:
+  type: pbil-frequency
+  learningRate: 0.35
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 130
+
+constraints:
+  type: identity
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 1
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl, db]
+  outputDirectory: ./results/docs-showcase
+  database:
+    enabled: true
+    url: jdbc:sqlite:edaf-docs.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/docs-showcase
+
+web:
+  enabled: true
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file, db]
+  verbosity: normal
+  jsonlFile: ./results/docs-showcase/docs-web-adaptive-events.jsonl
+  logFile: ./results/docs-showcase/docs-web-adaptive.log

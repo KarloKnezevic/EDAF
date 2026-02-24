@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Architecture
 
 EDAF v3 is a modular, plugin-driven framework where configuration resolves runtime components and execution is routed through a typed event bus.

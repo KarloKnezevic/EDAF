@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Dr. Karlo Knezevic
+ * Licensed under the Apache License, Version 2.0
+ */
+
 package com.knezevic.edaf.v3.persistence.jdbc;
 
 import javax.sql.DataSource;
@@ -42,6 +47,7 @@ public final class SchemaInitializer {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
             connection.setAutoCommit(false);
+            sql = adaptSqlForDialect(sql, connection);
             enableSQLiteForeignKeysIfNeeded(connection, statement);
 
             if (isLegacySchema(connection)) {
@@ -120,6 +126,20 @@ public final class SchemaInitializer {
         if (productName != null && productName.toLowerCase(Locale.ROOT).contains("sqlite")) {
             statement.execute("PRAGMA foreign_keys = ON");
         }
+    }
+
+    private static String adaptSqlForDialect(String sql, Connection connection) throws SQLException {
+        String productName = connection.getMetaData().getDatabaseProductName();
+        if (productName == null) {
+            return sql;
+        }
+        String product = productName.toLowerCase(Locale.ROOT);
+        if (product.contains("postgresql")) {
+            String adapted = sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY");
+            adapted = adapted.replace(" DOUBLE", " DOUBLE PRECISION");
+            return adapted;
+        }
+        return sql;
     }
 
     private static String loadSql(String resource) {

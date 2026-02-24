@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Dr. Karlo Knezevic
+ * Licensed under the Apache License, Version 2.0
+ */
+
 package com.knezevic.edaf.v3.core.config;
 
 import java.util.ArrayList;
@@ -26,13 +31,14 @@ public final class ExperimentConfigValidator {
     private static final Set<String> PERMUTATION_MODELS = Set.of("ehm", "plackett-luce", "mallows");
 
     private static final Set<String> DISCRETE_ALGORITHMS = Set.of(
-            "umda", "pbil", "cga", "bmda", "mimic", "boa", "ebna",
+            "umda", "umdad", "pbil", "cga", "bmda", "mimic", "boa", "ebna",
             "hboa", "factorized-discrete-eda", "dependency-tree-eda", "chow-liu-eda",
             "mo-eda-skeleton", "pareto-eda", "indicator-eda", "tree-eda",
             "sliding-window-eda", "memory-eda", "random-immigrants-eda", "noisy-resampling-eda");
     private static final Set<String> CONTINUOUS_ALGORITHMS = Set.of(
             "gaussian-eda", "gmm-eda", "kde-eda", "copula-eda", "snes", "xnes", "cma-es",
-            "cem", "umda-continuous", "pbil-real", "mimic-continuous",
+            "cem", "umda-continuous", "umdac", "univariate-keda", "multivariate-keda",
+            "emna", "egna", "speda", "pbil-real", "mimic-continuous",
             "full-covariance-eda", "lowrank-covariance-eda", "block-covariance-eda", "flow-eda", "igo",
             "mo-eda-skeleton", "pareto-eda", "indicator-eda",
             "sliding-window-eda", "memory-eda", "random-immigrants-eda", "noisy-resampling-eda");

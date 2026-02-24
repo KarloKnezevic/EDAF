@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Database Schema
 
 EDAF persistence supports SQLite by default and PostgreSQL where configured via JDBC URL.

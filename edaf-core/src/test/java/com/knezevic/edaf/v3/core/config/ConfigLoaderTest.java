@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Dr. Karlo Knezevic
+ * Licensed under the Apache License, Version 2.0
+ */
+
 package com.knezevic.edaf.v3.core.config;
 
 import com.knezevic.edaf.v3.core.errors.ConfigurationException;
@@ -166,5 +171,124 @@ class ConfigLoaderTest {
 
         ConfigLoader loader = new ConfigLoader();
         assertThrows(ConfigurationException.class, () -> loader.loadBatch(file));
+    }
+
+    @Test
+    void literatureAliasAlgorithmsAreAccepted() throws Exception {
+        Path discrete = Files.createTempFile("umdad", ".yaml");
+        Files.writeString(discrete, """
+                schema: "3.0"
+                run:
+                  id: alias-umdad
+                  masterSeed: 5
+                representation:
+                  type: bitstring
+                  length: 16
+                problem:
+                  type: onemax
+                algorithm:
+                  type: umdad
+                  populationSize: 40
+                  selectionRatio: 0.5
+                model:
+                  type: umda-bernoulli
+                selection:
+                  type: truncation
+                replacement:
+                  type: elitist
+                stopping:
+                  type: max-iterations
+                  maxIterations: 10
+                constraints:
+                  type: identity
+                localSearch:
+                  type: none
+                restart:
+                  type: none
+                niching:
+                  type: none
+                observability:
+                  metricsEveryIterations: 1
+                  emitModelDiagnostics: false
+                persistence:
+                  enabled: true
+                  sinks: [console]
+                  outputDirectory: ./results
+                  database:
+                    enabled: false
+                    url: jdbc:sqlite:test.db
+                reporting:
+                  enabled: false
+                  formats: [html]
+                  outputDirectory: ./reports
+                web:
+                  enabled: false
+                  port: 7070
+                  pollSeconds: 3
+                logging:
+                  modes: [console]
+                  verbosity: normal
+                """);
+
+        Path continuous = Files.createTempFile("umdac", ".yaml");
+        Files.writeString(continuous, """
+                schema: "3.0"
+                run:
+                  id: alias-umdac
+                  masterSeed: 6
+                representation:
+                  type: real-vector
+                  length: 8
+                  lower: -5.0
+                  upper: 5.0
+                problem:
+                  type: sphere
+                algorithm:
+                  type: umdac
+                  populationSize: 60
+                  selectionRatio: 0.4
+                model:
+                  type: gaussian-diag
+                selection:
+                  type: truncation
+                replacement:
+                  type: elitist
+                stopping:
+                  type: max-iterations
+                  maxIterations: 10
+                constraints:
+                  type: repair
+                localSearch:
+                  type: none
+                restart:
+                  type: none
+                niching:
+                  type: none
+                observability:
+                  metricsEveryIterations: 1
+                  emitModelDiagnostics: false
+                persistence:
+                  enabled: true
+                  sinks: [console]
+                  outputDirectory: ./results
+                  database:
+                    enabled: false
+                    url: jdbc:sqlite:test.db
+                reporting:
+                  enabled: false
+                  formats: [html]
+                  outputDirectory: ./reports
+                web:
+                  enabled: false
+                  port: 7070
+                  pollSeconds: 3
+                logging:
+                  modes: [console]
+                  verbosity: normal
+                """);
+
+        ConfigLoader loader = new ConfigLoader();
+        loader.load(discrete);
+        loader.load(continuous);
     }
 }

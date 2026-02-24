@@ -1,3 +1,5 @@
+<p align="right"><img src="docs/assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # EDAF Usage (Quick Reference)
 
 Primary runtime entrypoint:
@@ -28,7 +30,9 @@ mvn -q clean test
 ## Web Dashboard
 
 ```bash
-EDAF_DB_URL=jdbc:sqlite:edaf-v3.db mvn -q -pl edaf-web -am spring-boot:run
+# Build once, then run the packaged web app
+mvn -q -pl edaf-web -am package -DskipTests
+EDAF_DB_URL=jdbc:sqlite:edaf-v3.db java -jar edaf-web/target/edaf-web-*.jar
 ```
 
 Open [http://localhost:7070](http://localhost:7070)

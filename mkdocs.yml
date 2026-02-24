@@ -1,0 +1,41 @@
+site_name: EDAF Documentation
+site_description: Estimation of Distribution Algorithms Framework (EDAF)
+site_url: https://edaf.readthedocs.io/
+repo_url: https://github.com/KarloKnezevic/EDAF
+repo_name: KarloKnezevic/EDAF
+
+theme:
+  name: readthedocs
+  logo: docs/assets/branding/edaf_logo2.png
+
+docs_dir: docs
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Configuration: configuration.md
+  - CLI Reference: cli-reference.md
+  - Algorithms: algorithms.md
+  - Representations: representations.md
+  - Problem Suites: problem-suites.md
+  - Disjunct Matrix Problems: disjunct-matrix-problems.md
+  - ADM Paper Suite: adm-paper-suite.md
+  - Crypto Boolean Problems: crypto-boolean-problems.md
+  - COCO Integration: coco-integration.md
+  - Grammar-Based GP: grammar-based-gp.md
+  - Latent Insights: latent-insights.md
+  - Logging and Observability: logging-and-observability.md
+  - Metrics and Results: metrics-and-results.md
+  - Benchmark Comparisons: benchmark-comparisons.md
+  - Web Dashboard: web-dashboard.md
+  - Database Schema: database-schema.md
+  - Usage Guide: usage-guide.md
+  - Docker Guide: docker.md
+  - Extending Framework: extending-the-framework.md
+  - Improvements and Roadmap: improvements.md
+  - Using EDAF as Package: using-edaf-as-package.md
+  - Testing and Release: testing-and-release.md
+  - Release and Publishing: release-and-publishing.md
+  - Complexity and Performance: complexity-and-performance.md
+  - Bibliography: bibliography.md

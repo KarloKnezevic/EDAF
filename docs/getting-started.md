@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Getting Started
 
 This guide walks through local execution, artifact inspection, reporting, and dashboard usage with the current EDAF v3 stack.
@@ -163,7 +165,7 @@ By default web uses SQLite DB at `jdbc:sqlite:edaf-v3.db`.
 Run this from a terminal in `/Users/karloknezevic/Desktop/EDAF`:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+./scripts/run-web-local.sh
 ```
 
 Stop the server with `Ctrl+C` in that terminal.
@@ -175,7 +177,7 @@ Open:
 Alternative command if Maven prefix resolution fails:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -f edaf-web/pom.xml org.springframework.boot:spring-boot-maven-plugin:run
+EDAF_WEB_PORT=7080 EDAF_DB_PATH="$(pwd)/edaf-v3.db" ./scripts/run-web-local.sh
 ```
 
 ## 11) Run COCO Smoke Campaign
@@ -222,3 +224,16 @@ docker compose down -v
 - [Database Schema](./database-schema.md)
 - [Web Dashboard and API](./web-dashboard.md)
 - [COCO Integration Guide](./coco-integration.md)
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["getting started"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

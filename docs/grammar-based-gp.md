@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Grammar-Based GP in EDAF
 
 This document describes the grammar-based symbolic optimization stack in EDAF v3:
@@ -318,6 +320,13 @@ API endpoint:
 Service:
 
 - `/Users/karloknezevic/Desktop/EDAF/edaf-web/src/main/java/com/knezevic/edaf/v3/web/service/GrammarTreeViewService.java`
+
+Representative Tree tab screenshots (same XOR grammar, different EDA drivers):
+
+![Grammar tree (UMDA)](./assets/screenshots/web-dashboard-run-grammar-tree-umda.png)
+![Grammar tree (BOA)](./assets/screenshots/web-dashboard-run-grammar-tree-boa.png)
+![Grammar tree (Chow-Liu EDA)](./assets/screenshots/web-dashboard-run-grammar-tree-chow-liu.png)
+![Grammar tree (hBOA)](./assets/screenshots/web-dashboard-run-grammar-tree-hboa.png)
 
 ## 11. Persistence and Artifacts
 

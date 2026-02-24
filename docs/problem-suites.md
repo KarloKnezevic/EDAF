@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Problem Suites (Beyond COCO)
 
 This document describes the built-in optimization suites now supported in EDAF v3 outside COCO campaigns, including recommended configs and extension points.
@@ -200,3 +202,16 @@ mvn -q -pl edaf-problems,edaf-experiments -am test
 ```
 
 This keeps architecture stable while allowing incremental suite growth.
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["problem suites"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

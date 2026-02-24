@@ -1,0 +1,81 @@
+schema: "3.0"
+
+run:
+  id: literature-egna-rosenbrock-v3
+  name: EGNA on Rosenbrock (v3)
+  masterSeed: 31005
+  deterministicStreams: true
+  checkpointEveryIterations: 10
+
+representation:
+  type: real-vector
+  length: 16
+  lower: -3.0
+  upper: 3.0
+
+problem:
+  type: rosenbrock
+
+algorithm:
+  type: egna
+  populationSize: 240
+  elitism: 1
+  selectionRatio: 0.35
+
+model:
+  type: gaussian-full
+  jitter: 1.0e-8
+  learningRate: 0.9
+  shrinkage: 0.1
+
+selection:
+  type: truncation
+
+replacement:
+  type: elitist
+
+stopping:
+  type: max-iterations
+  maxIterations: 160
+
+constraints:
+  type: repair
+
+localSearch:
+  type: none
+
+restart:
+  type: none
+
+niching:
+  type: none
+
+observability:
+  metricsEveryIterations: 10
+  emitModelDiagnostics: true
+
+persistence:
+  enabled: true
+  sinks: [console, csv, jsonl]
+  outputDirectory: ./results/literature-eda
+  database:
+    enabled: false
+    url: jdbc:sqlite:edaf-v3.db
+    user: ""
+    password: ""
+
+reporting:
+  enabled: true
+  formats: [html]
+  outputDirectory: ./reports/literature-eda
+
+web:
+  enabled: false
+  port: 7070
+  pollSeconds: 3
+
+logging:
+  modes: [console, jsonl, file]
+  verbosity: normal
+  jsonlFile: ./results/literature-eda/egna-rosenbrock-events.jsonl
+  logFile: ./results/literature-eda/egna-rosenbrock.log

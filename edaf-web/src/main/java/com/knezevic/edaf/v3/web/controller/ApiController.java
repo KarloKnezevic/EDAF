@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Dr. Karlo Knezevic
+ * Licensed under the Apache License, Version 2.0
+ */
+
 package com.knezevic.edaf.v3.web.controller;
 
 import com.knezevic.edaf.v3.persistence.query.CheckpointRow;
@@ -25,6 +30,7 @@ import com.knezevic.edaf.v3.persistence.query.coco.CocoCampaignQuery;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoOptimizerConfigRow;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoRepository;
 import com.knezevic.edaf.v3.persistence.query.coco.CocoTrialMetric;
+import com.knezevic.edaf.v3.web.service.DashboardStatsService;
 import com.knezevic.edaf.v3.web.service.GrammarTreeViewService;
 import com.knezevic.edaf.v3.web.service.RunArtifactService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,15 +61,23 @@ public class ApiController {
     private final CocoRepository cocoRepository;
     private final RunArtifactService runArtifactService;
     private final GrammarTreeViewService grammarTreeViewService;
+    private final DashboardStatsService dashboardStatsService;
 
     public ApiController(RunRepository runRepository,
                          CocoRepository cocoRepository,
                          RunArtifactService runArtifactService,
-                         GrammarTreeViewService grammarTreeViewService) {
+                         GrammarTreeViewService grammarTreeViewService,
+                         DashboardStatsService dashboardStatsService) {
         this.runRepository = runRepository;
         this.cocoRepository = cocoRepository;
         this.runArtifactService = runArtifactService;
         this.grammarTreeViewService = grammarTreeViewService;
+        this.dashboardStatsService = dashboardStatsService;
+    }
+
+    @GetMapping("/dashboard/summary")
+    public DashboardStatsService.DashboardSummary dashboardSummary() {
+        return dashboardStatsService.readSummary();
     }
 
     @GetMapping("/experiments")

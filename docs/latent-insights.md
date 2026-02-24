@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Latent Insights and Adaptive Control
 
 This document explains the new latent-knowledge layer in EDAF v3:
@@ -266,3 +268,16 @@ Tabs now expose:
 - adaptive showcase:
   - `adaptive-showcase-onemax-collapse.yml` (intentionally triggers adaptive events)
 
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["latent insights"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

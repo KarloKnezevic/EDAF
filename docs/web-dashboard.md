@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Web Dashboard and API
 
 `edaf-web` is a lightweight monitoring and analysis UI built with Spring Boot + Thymeleaf + vanilla JavaScript.
@@ -7,13 +9,8 @@
 From `/Users/karloknezevic/Desktop/EDAF` run:
 
 ```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
-```
-
-Alternative (works when plugin prefix resolution is available in local Maven setup):
-
-```bash
-EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" mvn -q -pl edaf-web -am org.springframework.boot:spring-boot-maven-plugin:run
+mvn -q -pl edaf-web -am package -DskipTests
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-v3.db" java -jar edaf-web/target/edaf-web-*.jar
 ```
 
 Use `-pl edaf-web -am` from repo root to ensure sibling modules are on classpath.
@@ -27,6 +24,87 @@ Open:
 Configuration source:
 
 - `/Users/karloknezevic/Desktop/EDAF/edaf-web/src/main/resources/application.yml`
+
+## 1.1) Visual Preview
+
+The following screenshots are captured from real persisted runs in `edaf-docs.db`:
+
+![Run explorer](./assets/screenshots/web-dashboard-runs.png)
+![Experiment explorer](./assets/screenshots/web-dashboard-experiments.png)
+![Experiment analytics](./assets/screenshots/web-dashboard-experiment-detail.png)
+![Run detail - fitness](./assets/screenshots/web-dashboard-run-fitness.png)
+![Run detail - insights](./assets/screenshots/web-dashboard-run-insights.png)
+![Run detail - events](./assets/screenshots/web-dashboard-run-events.png)
+![Run detail - configuration](./assets/screenshots/web-dashboard-run-configuration.png)
+![Run detail - grammar tree](./assets/screenshots/web-dashboard-run-grammar-tree.png)
+![Run detail - grammar tree (UMDA)](./assets/screenshots/web-dashboard-run-grammar-tree-umda.png)
+![Run detail - grammar tree (BOA)](./assets/screenshots/web-dashboard-run-grammar-tree-boa.png)
+![Run detail - grammar tree (Chow-Liu EDA)](./assets/screenshots/web-dashboard-run-grammar-tree-chow-liu.png)
+![Run detail - grammar tree (hBOA)](./assets/screenshots/web-dashboard-run-grammar-tree-hboa.png)
+
+## 1.2) Reproduce the Screenshot Dataset
+
+The screenshots above were generated from these showcase configs:
+
+- `/Users/karloknezevic/Desktop/EDAF/configs/docs/web-screenshot-onemax.yml`
+- `/Users/karloknezevic/Desktop/EDAF/configs/docs/web-screenshot-adaptive.yml`
+- `/Users/karloknezevic/Desktop/EDAF/configs/docs/web-screenshot-grammar-tree-umda.yml`
+- `/Users/karloknezevic/Desktop/EDAF/configs/docs/web-screenshot-grammar-tree-boa.yml`
+- `/Users/karloknezevic/Desktop/EDAF/configs/docs/web-screenshot-grammar-tree-chow-liu.yml`
+- `/Users/karloknezevic/Desktop/EDAF/configs/docs/web-screenshot-grammar-tree-hboa.yml`
+
+Run commands:
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+
+# 10 repeated runs for experiment-level analytics.
+# SQLite is single-writer, so force sequential batch execution:
+EDAF_BATCH_PARALLELISM=1 ./edaf batch -c configs/docs/web-screenshot-batch.yml --verbosity quiet
+
+# one adaptive run for events/insights panels
+./edaf run -c configs/docs/web-screenshot-adaptive.yml --verbosity quiet
+
+# one grammar/tree run for Tree tab visualization
+./edaf run -c configs/docs/web-screenshot-grammar-tree-umda.yml --verbosity quiet
+./edaf run -c configs/docs/web-screenshot-grammar-tree-boa.yml --verbosity quiet
+./edaf run -c configs/docs/web-screenshot-grammar-tree-chow-liu.yml --verbosity quiet
+./edaf run -c configs/docs/web-screenshot-grammar-tree-hboa.yml --verbosity quiet
+
+# launch web on dedicated docs database
+mvn -q -pl edaf-web -am package -DskipTests
+EDAF_DB_URL="jdbc:sqlite:$(pwd)/edaf-docs.db" java -jar edaf-web/target/edaf-web-*.jar
+```
+
+Optional screenshot recapture (Playwright CLI):
+
+```bash
+npx -y playwright@1.51.1 install chromium
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' --full-page \
+  --wait-for-timeout=3500 http://localhost:7070 docs/assets/screenshots/web-dashboard-runs.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' --full-page \
+  --wait-for-timeout=3500 http://localhost:7070/experiments docs/assets/screenshots/web-dashboard-experiments.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' --full-page \
+  --wait-for-timeout=5000 "http://localhost:7070/experiments/11103ce43ffa38a5eaba5037b8230b492077041b1b6ccd162f3faac6146865d6" docs/assets/screenshots/web-dashboard-experiment-detail.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' --full-page \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-adaptive" docs/assets/screenshots/web-dashboard-run-fitness.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' --full-page \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-adaptive?tab=insights" docs/assets/screenshots/web-dashboard-run-insights.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-adaptive?tab=events" docs/assets/screenshots/web-dashboard-run-events.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-adaptive?tab=config" docs/assets/screenshots/web-dashboard-run-configuration.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-grammar-tree-umda?tab=tree" docs/assets/screenshots/web-dashboard-run-grammar-tree.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-grammar-tree-umda?tab=tree" docs/assets/screenshots/web-dashboard-run-grammar-tree-umda.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-grammar-tree-boa?tab=tree" docs/assets/screenshots/web-dashboard-run-grammar-tree-boa.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-grammar-tree-chow-liu?tab=tree" docs/assets/screenshots/web-dashboard-run-grammar-tree-chow-liu.png
+npx -y playwright@1.51.1 screenshot --browser=chromium --viewport-size='1920,1080' \
+  --wait-for-timeout=5000 "http://localhost:7070/runs/docs-web-grammar-tree-hboa?tab=tree" docs/assets/screenshots/web-dashboard-run-grammar-tree-hboa.png
+```
 
 ## 2) UI Pages
 
@@ -67,6 +145,11 @@ Features:
 - responsive layout with overflow-safe containers
 - adaptive timeline table from `adaptive_action` events
 - consistent status colors (`RUNNING` green, `COMPLETED` blue, `FAILED` red, `STOPPED` amber)
+- deep-link support for active tab via query parameter:
+  - `/runs/{runId}?tab=fitness`
+  - `/runs/{runId}?tab=insights`
+  - `/runs/{runId}?tab=events`
+  - `/runs/{runId}?tab=config`
 
 ### `/experiments` Experiment Explorer
 
@@ -299,3 +382,27 @@ The default `docker-compose.yml` starts web against PostgreSQL:
 - `EDAF_DB_URL=jdbc:postgresql://db:5432/edaf`
 
 See `/Users/karloknezevic/Desktop/EDAF/docs/docker.md` for lifecycle commands.
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["web dashboard"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```
+
+## Shared UI Assets
+
+Web templates now use centralized shared assets for easier maintenance:
+
+- CSS: `/edaf-web/src/main/resources/static/css/edaf-ui.css`
+- JS: `/edaf-web/src/main/resources/static/js/edaf-ui.js`
+- Logos: `/edaf-web/src/main/resources/static/assets/edaf_logo.png`, `/edaf-web/src/main/resources/static/assets/edaf_logo2.png`, `/edaf-web/src/main/resources/static/assets/edaf_logo3.png`
+- Favicons: `/edaf-web/src/main/resources/static/favicon.ico` and related `favicon-*` files
+
+All dashboard pages (`/`, `/experiments`, `/experiment/{id}`, `/run/{id}`, `/coco`, `/coco/{campaignId}`) render brand header and footer using these shared assets.

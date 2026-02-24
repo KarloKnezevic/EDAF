@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Dr. Karlo Knezevic
+ * Licensed under the Apache License, Version 2.0
+ */
+
 package com.knezevic.edaf.v3.persistence.jdbc;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -21,12 +26,17 @@ public final class DataSourceFactory {
         config.setJdbcUrl(normalizedUrl);
         config.setUsername(user == null ? "" : user);
         config.setPassword(password == null ? "" : password);
+        String driverClassName = resolveDriverClassName(normalizedUrl);
+        if (driverClassName != null) {
+            config.setDriverClassName(driverClassName);
+        }
+        // Do not fail-fast during pool construction; first real DB operation reports connectivity issues.
+        config.setInitializationFailTimeout(-1L);
         if (isSqliteUrl(normalizedUrl)) {
             // SQLite uses file-level locks; a single pooled connection avoids self-contention.
             config.setMaximumPoolSize(1);
             config.setMinimumIdle(1);
             config.setConnectionTimeout(30_000L);
-            config.setInitializationFailTimeout(30_000L);
         } else {
             config.setMaximumPoolSize(5);
         }
@@ -51,6 +61,20 @@ public final class DataSourceFactory {
 
     private static boolean isSqliteUrl(String url) {
         return url != null && url.toLowerCase(Locale.ROOT).startsWith("jdbc:sqlite:");
+    }
+
+    private static String resolveDriverClassName(String url) {
+        if (url == null) {
+            return null;
+        }
+        String lowered = url.toLowerCase(Locale.ROOT);
+        if (lowered.startsWith("jdbc:sqlite:")) {
+            return "org.sqlite.JDBC";
+        }
+        if (lowered.startsWith("jdbc:postgresql:")) {
+            return "org.postgresql.Driver";
+        }
+        return null;
     }
 
     private static String appendSqliteParamIfMissing(String url, String key, String value) {

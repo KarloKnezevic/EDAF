@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Disjunct Matrix Family (DM/RM/ADM)
 
 This document defines the disjunct-matrix problem family implemented in EDAF v3 and maps each item directly to the paper formulas used in implementation.
@@ -152,3 +154,16 @@ Added tests:
 - `edaf-problems/src/test/java/com/knezevic/edaf/v3/problems/discrete/disjunct/DisjunctMatrixValidatorTest.java`
 
 They cover exact values for hand-checkable matrices and sampled-mode behavior.
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["disjunct matrix problems"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

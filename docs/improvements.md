@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Implementation Status and Roadmap
 
 This document tracks the current maturity of EDAF v3 components and near-term priorities.
@@ -69,3 +71,16 @@ This docs set describes **current** runtime behavior. As families move from base
 - `README.md`
 
 in the same change set.
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["improvements"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

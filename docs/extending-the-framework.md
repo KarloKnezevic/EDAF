@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Extending the Framework
 
 EDAF v3 is extended through plugins discovered by Java `ServiceLoader`. You can add new representations, problems, models, and algorithm drivers without modifying `ExperimentRunner` orchestration logic.
@@ -249,3 +251,16 @@ For cryptographic boolean-function objectives, add new criteria without introduc
 - property tests for invariants (validity, bounds, normalization)
 - integration test in `edaf-experiments` with a minimal config assembled in code
 - persistence smoke test if plugin changes event payload size/shape expectations
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["extending the framework"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

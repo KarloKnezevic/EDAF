@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Disjunct-Matrix Paper Suite (DM/RM/ADM)
 
 This suite reproduces the exact instance grid requested from Table 1 of the paper for binary disjunct-matrix optimization.
@@ -150,3 +152,16 @@ Generated report artifacts:
 - `reports/adm_paper_suite/aggregate-stats.csv`
 - `reports/adm_paper_suite/campaign-coverage.csv`
 - `reports/adm_paper_suite/best_matrices/...`
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["adm paper suite"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
+```

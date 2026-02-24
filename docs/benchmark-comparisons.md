@@ -1,3 +1,5 @@
+<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+
 # Benchmark Comparisons
 
 This document records comparable experiment results produced directly from EDAF v3 campaign runs.
@@ -334,4 +336,17 @@ cd /Users/karloknezevic/Desktop/EDAF
 
 ./edaf coco run -c configs/coco/bbob-publishable-v4.yml
 ./edaf coco report --campaign-id coco-bbob-publishable-v4 --out reports/coco --db-url jdbc:sqlite:edaf-v3.db
+```
+
+
+
+## Visual Summary
+
+```mermaid
+flowchart LR
+    A["EDAF"] --> B["benchmark comparisons"]
+    B --> C["Configure"]
+    B --> D["Execute"]
+    B --> E["Inspect"]
+    E --> F["Iterate"]
 ```
