@@ -1,4 +1,4 @@
-<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+<p align="right"><img src="../assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
 
 # Latent Insights and Adaptive Control
 

@@ -6,7 +6,7 @@ repo_name: KarloKnezevic/EDAF
 
 theme:
   name: readthedocs
-  logo: docs/assets/branding/edaf_logo2.png
+  logo: assets/branding/edaf_logo2.png
 
 docs_dir: docs
 

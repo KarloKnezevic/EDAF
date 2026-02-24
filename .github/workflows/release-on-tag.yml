@@ -1,0 +1,64 @@
+name: Release on Tag
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+      - name: Verify and build release artifacts
+        run: |
+          mvn -B -q clean test -DskipITs
+          mvn -B -q -pl edaf-cli,edaf-web -am package -DskipTests
+      - name: Assemble distribution
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          DIST_DIR="dist/${TAG}"
+          mkdir -p "${DIST_DIR}"
+          cp "edaf-cli/target/edaf-cli.jar" "${DIST_DIR}/edaf-cli.jar"
+          WEB_JAR_PATH="$(find edaf-web/target -maxdepth 1 -type f -name 'edaf-web-*.jar' ! -name '*.original' | head -n 1)"
+          if [[ -z "${WEB_JAR_PATH}" ]]; then
+            echo "Missing web jar under edaf-web/target."
+            exit 1
+          fi
+          cp "${WEB_JAR_PATH}" "${DIST_DIR}/edaf-web.jar"
+          (
+            cd "${DIST_DIR}"
+            sha256sum edaf-cli.jar edaf-web.jar > SHA256SUMS.txt
+          )
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          DIST_DIR="dist/${TAG}"
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" \
+              "${DIST_DIR}/edaf-cli.jar" \
+              "${DIST_DIR}/edaf-web.jar" \
+              "${DIST_DIR}/SHA256SUMS.txt" \
+              --clobber
+          else
+            gh release create "${TAG}" \
+              "${DIST_DIR}/edaf-cli.jar" \
+              "${DIST_DIR}/edaf-web.jar" \
+              "${DIST_DIR}/SHA256SUMS.txt" \
+              --title "EDAF ${TAG}" \
+              --generate-notes
+          fi

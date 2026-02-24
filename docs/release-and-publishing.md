@@ -1,4 +1,4 @@
-<p align="right"><img src="./assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
+<p align="right"><img src="../assets/branding/edaf_logo2.png" alt="EDAF logo" width="180" /></p>
 
 # Release, GitHub Packaging, Maven Central, and Read the Docs
 
@@ -91,6 +91,15 @@ Script alternative (build + tag handling + asset upload):
 cd /Users/karloknezevic/Desktop/EDAF
 ./scripts/release/github-release.sh v3.0.0 --push-tag
 ```
+
+Automatic GitHub release on tags:
+
+- workflow: `/Users/karloknezevic/Desktop/EDAF/.github/workflows/release-on-tag.yml`
+- trigger: every pushed tag matching `v*` (for example `v3.0.1`)
+- result: workflow creates or updates the GitHub release and attaches:
+  - `edaf-cli.jar`
+  - `edaf-web.jar`
+  - `SHA256SUMS.txt`
 
 ## 6) GitHub Packages (Maven Registry)
 
