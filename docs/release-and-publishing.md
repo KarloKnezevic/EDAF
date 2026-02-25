@@ -105,13 +105,14 @@ Automatic GitHub release on tags:
 
 EDAF root `pom.xml` already defines `distributionManagement` for:
 
-- `https://maven.pkg.github.com/KarloKnezevic/EDAF`
+- profile `github-packages`:
+  - `https://maven.pkg.github.com/KarloKnezevic/EDAF`
 
 Local deploy (from maintainer machine):
 
 ```bash
 cd /Users/karloknezevic/Desktop/EDAF
-mvn -DskipTests deploy
+mvn -Pgithub-packages -DskipTests deploy
 ```
 
 Automated deploy:
@@ -188,8 +189,23 @@ After adding/activating your release profile for source/javadoc/sign/deploy:
 
 ```bash
 cd /Users/karloknezevic/Desktop/EDAF
-mvn -Pcentral-release -DskipTests deploy
+mvn -Pcentral-release -DskipTests \
+  -Dcentral.auto.publish=false \
+  -Dcentral.wait.until=validated \
+  deploy
 ```
+
+CI workflow:
+
+- `.github/workflows/publish-maven-central.yml`
+- triggers:
+  - manual (`workflow_dispatch`)
+  - pushed tag `v*`
+- required GitHub secrets:
+  - `CENTRAL_PORTAL_USERNAME`
+  - `CENTRAL_PORTAL_PASSWORD`
+  - `GPG_PRIVATE_KEY` (ASCII-armored private key)
+  - `GPG_PASSPHRASE`
 
 ## 9) Post-publish Verification
 

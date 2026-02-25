@@ -24,6 +24,6 @@ jobs:
           server-username: GITHUB_ACTOR
           server-password: GITHUB_TOKEN
       - name: Publish Maven packages to GitHub Packages
-        run: mvn -B -DskipTests deploy --file pom.xml
+        run: mvn -B -Pgithub-packages -DskipTests deploy --file pom.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
