@@ -200,6 +200,7 @@ Important:
 
 - `maven-gpg-plugin` in best-practices mode refuses passphrase from Maven properties or files.
 - provide passphrase via `MAVEN_GPG_PASSPHRASE` environment variable (or use gpg-agent).
+- EDAF uses CI-friendly versions (`${revision}`), so `flatten-maven-plugin` in `central-release` profile resolves deployed POM coordinates and inherited metadata for Central validation.
 
 CI workflow:
 
