@@ -61,6 +61,21 @@ Recommended:
 2. commit version bump
 3. create annotated tag
 
+Minimal automated path (recommended):
+
+```bash
+cd /Users/karloknezevic/Desktop/EDAF
+./scripts/release/cut-release.sh 3.0.1
+```
+
+`cut-release.sh` does all of the following:
+
+- updates `<revision>` in root `pom.xml`
+- runs quick `mvn validate`
+- creates and pushes commit to `master`
+- creates and pushes `v*` tag
+- triggers all publish workflows
+
 Example:
 
 ```bash
@@ -118,7 +133,7 @@ mvn -Pgithub-packages -DskipTests deploy
 Automated deploy:
 
 - workflow: `.github/workflows/publish-github-packages.yml`
-- triggers: release published or manual dispatch
+- triggers: pushed tag `v*` or manual dispatch
 - required permissions: `packages: write`
 
 Typical server id in `~/.m2/settings.xml`:
@@ -208,6 +223,9 @@ CI workflow:
 - triggers:
   - manual (`workflow_dispatch`)
   - pushed tag `v*`
+- behavior on pushed tags:
+  - `central.auto.publish=true`
+  - `central.wait.until=published`
 - required GitHub secrets:
   - `CENTRAL_PORTAL_USERNAME`
   - `CENTRAL_PORTAL_PASSWORD`

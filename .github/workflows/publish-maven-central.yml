@@ -47,14 +47,22 @@ jobs:
           test -n "$MAVEN_GPG_PASSPHRASE" || (echo "Missing MAVEN_GPG_PASSPHRASE" && exit 1)
       - name: Publish to Maven Central
         run: |
-          AUTO_PUBLISH="${{ github.event.inputs.auto_publish }}"
-          WAIT_UNTIL="${{ github.event.inputs.wait_until }}"
-          if [ -z "$AUTO_PUBLISH" ]; then
-            AUTO_PUBLISH="false"
+          EVENT_NAME="${{ github.event_name }}"
+          if [ "$EVENT_NAME" = "push" ]; then
+            AUTO_PUBLISH="true"
+            WAIT_UNTIL="published"
+          else
+            AUTO_PUBLISH="${{ github.event.inputs.auto_publish }}"
+            WAIT_UNTIL="${{ github.event.inputs.wait_until }}"
+            if [ -z "$AUTO_PUBLISH" ]; then
+              AUTO_PUBLISH="false"
+            fi
+            if [ -z "$WAIT_UNTIL" ]; then
+              WAIT_UNTIL="validated"
+            fi
           fi
-          if [ -z "$WAIT_UNTIL" ]; then
-            WAIT_UNTIL="validated"
-          fi
+          echo "central.auto.publish=$AUTO_PUBLISH"
+          echo "central.wait.until=$WAIT_UNTIL"
           mvn -B -Pcentral-release -DskipTests \
             -Dcentral.auto.publish="$AUTO_PUBLISH" \
             -Dcentral.wait.until="$WAIT_UNTIL" \

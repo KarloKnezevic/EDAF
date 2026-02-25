@@ -20,6 +20,7 @@ Documentation portal: [https://edaf.readthedocs.io/](https://edaf.readthedocs.io
 - [Supported Components](#supported-components)
 - [Grammar-Based GP](#grammar-based-gp-symbolic-regression-and-classification)
 - [Getting Started](#getting-started)
+- [Consume EDAF as a Maven Dependency](#consume-edaf-as-a-maven-dependency)
 - [CLI Commands](#cli-commands)
 - [Configuration](#configuration)
 - [Latent Insights and Adaptive Control](#latent-insights-and-adaptive-control-in-yaml)
@@ -242,6 +243,49 @@ mvn -q -pl edaf-cli -am package
 ```
 
 The wrapper script automatically builds `edaf-cli` if needed.
+
+## Consume EDAF as a Maven Dependency
+
+Published coordinates use `groupId=io.github.karloknezevic`.
+Java package names intentionally remain `com.knezevic.edaf.v3.*` for source compatibility.
+
+Minimal dependency (`edaf-core`):
+
+```xml
+<dependency>
+  <groupId>io.github.karloknezevic</groupId>
+  <artifactId>edaf-core</artifactId>
+  <version>3.0.0</version>
+</dependency>
+```
+
+Common extension pair (`edaf-core` + `edaf-representations`):
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>io.github.karloknezevic</groupId>
+    <artifactId>edaf-core</artifactId>
+    <version>3.0.0</version>
+  </dependency>
+  <dependency>
+    <groupId>io.github.karloknezevic</groupId>
+    <artifactId>edaf-representations</artifactId>
+    <version>3.0.0</version>
+  </dependency>
+</dependencies>
+```
+
+Verify artifact resolution:
+
+```bash
+mvn -q -U dependency:get -Dartifact=io.github.karloknezevic:edaf-core:3.0.0
+```
+
+Full external integration walkthrough:
+
+- `/Users/karloknezevic/Desktop/EDAF/examples/external-package-sample`
+- `/Users/karloknezevic/Desktop/EDAF/docs/using-edaf-as-package.md`
 
 ## CLI Commands
 
@@ -787,6 +831,19 @@ For a concrete external Maven project example (custom plugin + run + web monitor
 For GitHub release, Maven Central (mvnrepository visibility), and Read the Docs publishing:
 
 - [docs/release-and-publishing.md](docs/release-and-publishing.md)
+
+Minimal maintainer flow (single command):
+
+```bash
+./scripts/release/cut-release.sh 3.0.1
+```
+
+This command updates `pom.xml` revision, commits, pushes `master`, creates `v3.0.1` tag, and pushes the tag.
+Pushed `v*` tags then automatically trigger:
+
+- GitHub release creation with attached `edaf-cli.jar`, `edaf-web.jar`, `SHA256SUMS.txt`
+- GitHub Packages Maven publish
+- Maven Central publish (auto-publish enabled on tag builds)
 
 Release helper scripts:
 
