@@ -24,6 +24,7 @@ results.json
 *.db-wal
 **/.jqwik-database/
 **/dependency-reduced-pom.xml
+**/.flattened-pom.xml
 
 # Maven wrapper / local tooling scratch
 .mvn/timing.properties
