@@ -189,11 +189,17 @@ After adding/activating your release profile for source/javadoc/sign/deploy:
 
 ```bash
 cd /Users/karloknezevic/Desktop/EDAF
+export MAVEN_GPG_PASSPHRASE='<your-gpg-passphrase>'
 mvn -Pcentral-release -DskipTests \
   -Dcentral.auto.publish=false \
   -Dcentral.wait.until=validated \
   deploy
 ```
+
+Important:
+
+- `maven-gpg-plugin` in best-practices mode refuses passphrase from Maven properties or files.
+- provide passphrase via `MAVEN_GPG_PASSPHRASE` environment variable (or use gpg-agent).
 
 CI workflow:
 

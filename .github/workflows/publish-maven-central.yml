@@ -25,6 +25,7 @@ jobs:
       CENTRAL_PORTAL_USERNAME: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
       CENTRAL_PORTAL_PASSWORD: ${{ secrets.CENTRAL_PORTAL_PASSWORD }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21 + Maven server credentials + GPG key
@@ -43,6 +44,7 @@ jobs:
           test -n "$CENTRAL_PORTAL_USERNAME" || (echo "Missing CENTRAL_PORTAL_USERNAME" && exit 1)
           test -n "$CENTRAL_PORTAL_PASSWORD" || (echo "Missing CENTRAL_PORTAL_PASSWORD" && exit 1)
           test -n "$GPG_PASSPHRASE" || (echo "Missing GPG_PASSPHRASE" && exit 1)
+          test -n "$MAVEN_GPG_PASSPHRASE" || (echo "Missing MAVEN_GPG_PASSPHRASE" && exit 1)
       - name: Publish to Maven Central
         run: |
           AUTO_PUBLISH="${{ github.event.inputs.auto_publish }}"
