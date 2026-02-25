@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.knezevic.edaf</groupId>
+        <groupId>io.github.karloknezevic</groupId>
         <artifactId>edaf-parent</artifactId>
         <version>${revision}</version>
     </parent>
@@ -22,17 +22,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-experiments</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>

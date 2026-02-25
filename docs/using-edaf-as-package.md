@@ -4,6 +4,8 @@
 
 This guide shows how to consume EDAF from an external Maven project, add your own component, run it, and monitor it in the EDAF web dashboard.
 
+Maven coordinates use `io.github.karloknezevic:*` from v3.0.0+ releases. Java package names intentionally remain `com.knezevic.edaf.v3.*` for source compatibility.
+
 ## 1) Integration Model
 
 ```mermaid

@@ -143,7 +143,7 @@ Important:
 ### 8.1 Account and namespace
 
 1. Create/login to [central.sonatype.com](https://central.sonatype.com/).
-2. Claim namespace for your groupId (for example `com.knezevic.edaf`), usually via DNS TXT proof.
+2. Claim namespace for your groupId (for example `io.github.karloknezevic`), usually via DNS TXT proof.
 3. Create publishing token credentials.
 
 ### 8.2 GPG signing
@@ -200,7 +200,7 @@ mvn -Pcentral-release -DskipTests deploy
 3. test consumption in a clean project:
 
 ```bash
-mvn -q -U dependency:get -Dartifact=com.knezevic.edaf:edaf-core:3.0.0
+mvn -q -U dependency:get -Dartifact=io.github.karloknezevic:edaf-core:3.0.0
 ```
 
 ## 10) Common Failure Modes

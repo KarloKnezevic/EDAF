@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.knezevic.edaf</groupId>
+        <groupId>io.github.karloknezevic</groupId>
         <artifactId>edaf-parent</artifactId>
         <version>${revision}</version>
     </parent>
@@ -22,47 +22,47 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-representations</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-models-discrete</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-models-continuous</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-models-permutation</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-problems</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-algorithms</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-reporting</artifactId>
             <version>${project.version}</version>
         </dependency>

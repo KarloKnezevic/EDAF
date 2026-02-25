@@ -19,12 +19,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-core</artifactId>
             <version>${edaf.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-representations</artifactId>
             <version>${edaf.version}</version>
         </dependency>

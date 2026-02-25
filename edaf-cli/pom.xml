@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.knezevic.edaf</groupId>
+        <groupId>io.github.karloknezevic</groupId>
         <artifactId>edaf-parent</artifactId>
         <version>${revision}</version>
     </parent>
@@ -22,27 +22,27 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-experiments</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-coco</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-reporting</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.knezevic.edaf</groupId>
+            <groupId>io.github.karloknezevic</groupId>
             <artifactId>edaf-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -92,10 +92,10 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.knezevic.edaf.v3.cli.EdafCli</mainClass>
+                            <mainClass>io.github.karloknezevic.v3.cli.EdafCli</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.knezevic.edaf.v3.cli</Automatic-Module-Name>
+                            <Automatic-Module-Name>io.github.karloknezevic.v3.cli</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -116,7 +116,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.knezevic.edaf.v3.cli.EdafCli</mainClass>
+                                    <mainClass>io.github.karloknezevic.v3.cli.EdafCli</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
