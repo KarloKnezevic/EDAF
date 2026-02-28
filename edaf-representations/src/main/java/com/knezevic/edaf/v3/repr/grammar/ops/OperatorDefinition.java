@@ -13,6 +13,8 @@ import java.util.function.Function;
 
 /**
  * One registered grammar operator with arity, type signature, and execution lambda.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class OperatorDefinition {
 
@@ -50,6 +52,7 @@ public final class OperatorDefinition {
 
     /**
      * Canonical operator name used in grammar terminals.
+     * @return component name identifier
      */
     public String name() {
         return name;
@@ -57,6 +60,7 @@ public final class OperatorDefinition {
 
     /**
      * Required argument count.
+     * @return the computed arity
      */
     public int arity() {
         return arity;
@@ -64,6 +68,7 @@ public final class OperatorDefinition {
 
     /**
      * Operator family.
+     * @return the kind
      */
     public OperatorKind kind() {
         return kind;
@@ -71,6 +76,7 @@ public final class OperatorDefinition {
 
     /**
      * Output/input type signature.
+     * @return the type signature
      */
     public TypeSignature typeSignature() {
         return typeSignature;
@@ -78,6 +84,8 @@ public final class OperatorDefinition {
 
     /**
      * Evaluates operator for provided argument list.
+     * @param args operator arguments
+     * @return evaluation result
      */
     public double evaluate(List<Double> args) {
         if (args == null || args.size() != arity) {

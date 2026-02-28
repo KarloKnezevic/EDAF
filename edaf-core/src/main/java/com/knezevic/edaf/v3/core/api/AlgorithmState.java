@@ -11,6 +11,8 @@ import java.util.Objects;
 
 /**
  * Immutable snapshot of algorithm state used by stopping, restart, and metrics hooks.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class AlgorithmState<G> {
 
@@ -22,6 +24,17 @@ public final class AlgorithmState<G> {
     private final Population<G> population;
     private final Individual<G> best;
 
+    /**
+     * Creates immutable algorithm state snapshot.
+     *
+     * @param runId run identifier
+     * @param algorithmId algorithm identifier
+     * @param iteration completed iteration index
+     * @param evaluations total evaluation count
+     * @param startedAt run start time
+     * @param population current population
+     * @param best current best individual
+     */
     public AlgorithmState(String runId,
                           String algorithmId,
                           int iteration,
@@ -38,34 +51,74 @@ public final class AlgorithmState<G> {
         this.best = Objects.requireNonNull(best, "best must not be null");
     }
 
+    /**
+     * Returns run identifier.
+     *
+     * @return run identifier
+     */
     public String runId() {
         return runId;
     }
 
+    /**
+     * Returns algorithm identifier.
+     *
+     * @return algorithm identifier
+     */
     public String algorithmId() {
         return algorithmId;
     }
 
+    /**
+     * Returns current iteration index.
+     *
+     * @return iteration index
+     */
     public int iteration() {
         return iteration;
     }
 
+    /**
+     * Returns total number of evaluations performed so far.
+     *
+     * @return evaluation count
+     */
     public long evaluations() {
         return evaluations;
     }
 
+    /**
+     * Returns run start timestamp.
+     *
+     * @return start timestamp
+     */
     public Instant startedAt() {
         return startedAt;
     }
 
+    /**
+     * Returns current population snapshot.
+     *
+     * @return current population
+     */
     public Population<G> population() {
         return population;
     }
 
+    /**
+     * Returns best individual in current state.
+     *
+     * @return current best individual
+     */
     public Individual<G> best() {
         return best;
     }
 
+    /**
+     * Returns elapsed wall-clock time between start and now.
+     *
+     * @return elapsed duration
+     */
     public Duration elapsed() {
         return Duration.between(startedAt, Instant.now());
     }

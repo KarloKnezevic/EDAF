@@ -15,6 +15,8 @@ import java.util.Map;
  * <p>The payload separates scalar metrics from richer representation-specific insights so
  * sinks can both aggregate numeric signals and visualize detailed structures (heatmaps,
  * edge lists, trajectories).</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record LatentTelemetry(
         String representationFamily,
@@ -34,6 +36,8 @@ public record LatentTelemetry(
 
     /**
      * Returns empty telemetry payload used when representation-specific analysis is unavailable.
+     *
+     * @return empty telemetry payload
      */
     public static LatentTelemetry empty() {
         return new LatentTelemetry("unknown", Map.of(), Map.of(), Map.of(), Map.of());
@@ -41,6 +45,8 @@ public record LatentTelemetry(
 
     /**
      * Flattens all numeric maps into one map for compact CSV/DB storage.
+     *
+     * @return flattened numeric telemetry map
      */
     public Map<String, Double> flattenedNumeric() {
         Map<String, Double> merged = new LinkedHashMap<>();

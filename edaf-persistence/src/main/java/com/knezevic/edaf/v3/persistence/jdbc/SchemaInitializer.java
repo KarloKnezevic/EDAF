@@ -19,6 +19,8 @@ import java.util.Locale;
 
 /**
  * Initializes persistence schema from SQL migration file.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class SchemaInitializer {
 
@@ -42,6 +44,11 @@ public final class SchemaInitializer {
         // utility class
     }
 
+    /**
+     * Executes initialize.
+     *
+     * @param dataSource jdbc data source
+     */
     public static void initialize(DataSource dataSource) {
         String sql = loadSql("/db/migration/V1__init.sql");
         try (Connection connection = dataSource.getConnection();

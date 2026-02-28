@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Cross-algorithm comparison payload for one problem family.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ProblemComparisonReport(
         String problemType,

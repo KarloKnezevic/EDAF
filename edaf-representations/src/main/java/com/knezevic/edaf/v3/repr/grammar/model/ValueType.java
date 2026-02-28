@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.repr.grammar.model;
 
 /**
  * Runtime value type tags used by grammar symbols and production rules.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public enum ValueType {
 

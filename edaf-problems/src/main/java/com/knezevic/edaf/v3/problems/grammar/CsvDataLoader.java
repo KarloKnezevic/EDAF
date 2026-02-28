@@ -21,6 +21,8 @@ import java.util.Set;
 
 /**
  * Lightweight CSV loader for symbolic regression and classification datasets.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CsvDataLoader {
 
@@ -30,6 +32,9 @@ public final class CsvDataLoader {
 
     /**
      * Loads regression dataset with numeric target column.
+     * @param path resource path
+     * @param targetColumn the targetColumn argument
+     * @return the load regression
      */
     public static RegressionData loadRegression(String path, String targetColumn) {
         ParsedCsv parsed = parseCsv(path);
@@ -60,6 +65,9 @@ public final class CsvDataLoader {
 
     /**
      * Loads generic classification dataset and infers class order from first appearance.
+     * @param path resource path
+     * @param targetColumn the targetColumn argument
+     * @return the load classification
      */
     public static ClassificationData loadClassification(String path, String targetColumn) {
         return loadClassification(path, targetColumn, List.of());
@@ -68,6 +76,10 @@ public final class CsvDataLoader {
     /**
      * Loads generic classification dataset.
      * If {@code classValues} is provided, labels are validated against the provided class set.
+     * @param path resource path
+     * @param targetColumn the targetColumn argument
+     * @param classValues the classValues argument
+     * @return the load classification
      */
     public static ClassificationData loadClassification(String path, String targetColumn, List<String> classValues) {
         ParsedCsv parsed = parseCsv(path);
@@ -119,6 +131,10 @@ public final class CsvDataLoader {
 
     /**
      * Loads binary classification dataset using positive-vs-rest mapping.
+     * @param path resource path
+     * @param targetColumn the targetColumn argument
+     * @param positiveLabel the positiveLabel argument
+     * @return the load classification
      */
     public static ClassificationData loadClassification(String path, String targetColumn, String positiveLabel) {
         ClassificationData generic = loadClassification(path, targetColumn);
@@ -295,11 +311,17 @@ public final class CsvDataLoader {
 
     /**
      * Regression dataset rows and feature order.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record RegressionData(List<Row> rows, List<String> featureOrder) {
 
         /**
          * One regression row.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
          */
         public record Row(Map<String, Double> features, double target) implements FeatureRow {
         }
@@ -307,6 +329,9 @@ public final class CsvDataLoader {
 
     /**
      * Classification dataset rows and feature order.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record ClassificationData(List<Row> rows,
                                      List<String> featureOrder,
@@ -315,6 +340,7 @@ public final class CsvDataLoader {
 
         /**
          * Number of distinct classes.
+         * @return the computed class count
          */
         public int classCount() {
             return classValues.size();
@@ -322,6 +348,8 @@ public final class CsvDataLoader {
 
         /**
          * Resolves class label into a dense class index.
+         * @param label the label argument
+         * @return the computed class index
          */
         public int classIndex(String label) {
             Integer index = classIndexByLabel.get(label);
@@ -333,6 +361,9 @@ public final class CsvDataLoader {
 
         /**
          * One classification row.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
          */
         public record Row(Map<String, Double> features, String label) implements FeatureRow {
         }

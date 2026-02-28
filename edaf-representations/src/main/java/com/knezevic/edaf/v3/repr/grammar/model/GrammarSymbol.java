@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.repr.grammar.model;
 
 /**
  * Common marker for non-terminals and terminals used inside grammar productions.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface GrammarSymbol {
 

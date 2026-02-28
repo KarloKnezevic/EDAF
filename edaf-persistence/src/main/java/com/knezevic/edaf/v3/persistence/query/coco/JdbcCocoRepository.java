@@ -19,6 +19,8 @@ import java.util.Map;
 
 /**
  * JDBC implementation of COCO read repository.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class JdbcCocoRepository implements CocoRepository {
 
@@ -34,10 +36,21 @@ public final class JdbcCocoRepository implements CocoRepository {
 
     private final DataSource dataSource;
 
+    /**
+     * Creates a new JdbcCocoRepository instance.
+     *
+     * @param dataSource jdbc data source
+     */
     public JdbcCocoRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Lists campaigns.
+     *
+     * @param query the query argument
+     * @return the list campaigns
+     */
     @Override
     public PageResult<CocoCampaignListItem> listCampaigns(CocoCampaignQuery query) {
         CocoCampaignQuery effective = normalize(query);
@@ -101,6 +114,12 @@ public final class JdbcCocoRepository implements CocoRepository {
         }
     }
 
+    /**
+     * Executes get campaign.
+     *
+     * @param campaignId the campaignId argument
+     * @return the campaign
+     */
     @Override
     public CocoCampaignDetail getCampaign(String campaignId) {
         String sql = """
@@ -135,6 +154,12 @@ public final class JdbcCocoRepository implements CocoRepository {
         }
     }
 
+    /**
+     * Lists optimizers.
+     *
+     * @param campaignId the campaignId argument
+     * @return the list optimizers
+     */
     @Override
     public List<CocoOptimizerConfigRow> listOptimizers(String campaignId) {
         String sql = """
@@ -169,6 +194,12 @@ public final class JdbcCocoRepository implements CocoRepository {
         }
     }
 
+    /**
+     * Lists aggregates.
+     *
+     * @param campaignId the campaignId argument
+     * @return the list aggregates
+     */
     @Override
     public List<CocoAggregateMetric> listAggregates(String campaignId) {
         String sql = """

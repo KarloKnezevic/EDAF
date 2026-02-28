@@ -15,20 +15,39 @@ import com.knezevic.edaf.v3.repr.types.BitString;
 import java.util.Map;
 
 /**
- * Plugin for EBNA driver
+  * Plugin for EBNA driver.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class EbnaAlgorithmPlugin implements AlgorithmPlugin<BitString> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "ebna";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "EBNA driver";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<BitString> create(AlgorithmDependencies<BitString> dependencies, Map<String, Object> params) {
         return new EbnaAlgorithm(Params.dbl(params, "selectionRatio", 0.5));

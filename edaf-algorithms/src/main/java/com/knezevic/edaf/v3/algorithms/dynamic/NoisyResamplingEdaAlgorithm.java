@@ -13,6 +13,23 @@ import com.knezevic.edaf.v3.core.rng.RngStream;
 
 /**
  * Noisy-optimization EDA driver with per-candidate fitness resampling.
+ *
+ * <p>For each genotype, fitness is estimated by Monte Carlo averaging:
+ * <pre>
+ *   \hat{f}(x) = (1/R) Σ_{r=1}^{R} f_r(x)
+ * </pre>
+ * and noise level is tracked by EMA over sample variance. Selection ratio is then
+ * adapted according to estimated noise-to-signal regime.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>Y. Jin and J. Branke, "Evolutionary optimization in uncertain environments,"
+ *   IEEE Transactions on Evolutionary Computation, 2005.</li>
+ *   <li>H.-G. Beyer and B. Sendhoff, "Robust optimization: A comprehensive survey,"
+ *   Computer Methods in Applied Mechanics and Engineering, 2007.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class NoisyResamplingEdaAlgorithm<G> extends AdaptiveRatioEdaAlgorithm<G> {
 
@@ -34,6 +51,14 @@ public final class NoisyResamplingEdaAlgorithm<G> extends AdaptiveRatioEdaAlgori
         this.adjustmentStep = Math.max(1.0e-4, adjustmentStep);
     }
 
+    /**
+     * Evaluates genotype using repeated noisy sampling and returns averaged fitness.
+     *
+     * @param context algorithm runtime context
+     * @param feasibleGenotype candidate genotype after constraint handling
+     * @param evaluationRng RNG stream dedicated to evaluation noise
+     * @return averaged scalar or vector fitness estimate
+     */
     @Override
     protected Fitness evaluateGenotype(AlgorithmContext<G> context, G feasibleGenotype, RngStream evaluationRng) {
         Fitness first = context.problem().evaluate(feasibleGenotype);
@@ -70,6 +95,11 @@ public final class NoisyResamplingEdaAlgorithm<G> extends AdaptiveRatioEdaAlgori
         return new VectorFitness(objectiveSums, scalarMean);
     }
 
+    /**
+     * Updates adaptive ratio using noise estimate and improvement signal.
+     *
+     * @param normalizedImprovement normalized fitness improvement for current iteration
+     */
     @Override
     protected void adaptRatio(double normalizedImprovement) {
         if (emaNoise > noiseThreshold) {

@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query.coco;
 
 /**
  * Trial-level metric row for one campaign run.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CocoTrialMetric(
         long id,

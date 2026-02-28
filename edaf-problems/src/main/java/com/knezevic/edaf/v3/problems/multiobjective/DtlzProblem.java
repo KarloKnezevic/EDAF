@@ -15,6 +15,8 @@ import java.util.Arrays;
 
 /**
  * DTLZ multi-objective benchmark suite adapter.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DtlzProblem implements Problem<RealVector> {
 
@@ -22,6 +24,13 @@ public final class DtlzProblem implements Problem<RealVector> {
     private final int objectives;
     private final double[] scalarWeights;
 
+    /**
+     * Creates a new DtlzProblem instance.
+     *
+     * @param functionId benchmark function identifier
+     * @param objectives the objectives argument
+     * @param scalarWeights the scalarWeights argument
+     */
     public DtlzProblem(int functionId, int objectives, double[] scalarWeights) {
         if (objectives < 2) {
             throw new IllegalArgumentException("DTLZ objective count must be >= 2");
@@ -33,21 +42,42 @@ public final class DtlzProblem implements Problem<RealVector> {
                 : Arrays.copyOf(scalarWeights, scalarWeights.length);
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "dtlz" + functionId + "-m" + objectives;
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MINIMIZE;
     }
 
+    /**
+     * Returns number of objectives.
+     *
+     * @return objective count
+     */
     @Override
     public int objectiveCount() {
         return objectives;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(RealVector genotype) {
         double[] x = genotype.values();

@@ -10,13 +10,24 @@ import com.knezevic.edaf.v3.core.api.ScalarFitness;
 import com.knezevic.edaf.v3.repr.types.BitString;
 
 /**
- * (t,f)-resolvable matrix design objective using exact paper fitness:
+  * (t,f)-resolvable matrix design objective using exact paper fitness:.
  * {@code fit2(A) = |{S in S_t : delta(S) > f}|}.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ResolvableMatrixProblem extends AbstractDisjunctMatrixProblem {
 
     private final int f;
 
+    /**
+     * Creates a new ResolvableMatrixProblem instance.
+     *
+     * @param m matrix row count
+     * @param n problem dimension
+     * @param t disjunct level
+     * @param f resolvable tolerance
+     * @param evaluationConfig the evaluationConfig argument
+     */
     public ResolvableMatrixProblem(int m, int n, int t, int f, DisjunctEvaluationConfig evaluationConfig) {
         super("resolvable-matrix", m, n, t, evaluationConfig);
         if (f < 0 || f >= n()) {
@@ -25,6 +36,12 @@ public final class ResolvableMatrixProblem extends AbstractDisjunctMatrixProblem
         this.f = f;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         DisjunctMatrix matrix = matrixFrom(genotype);

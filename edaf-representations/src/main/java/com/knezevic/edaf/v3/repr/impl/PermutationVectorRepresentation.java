@@ -13,11 +13,18 @@ import java.util.Arrays;
 
 /**
  * Permutation representation built with in-place Fisher-Yates shuffle.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class PermutationVectorRepresentation implements Representation<PermutationVector> {
 
     private final int size;
 
+    /**
+     * Creates a new PermutationVectorRepresentation instance.
+     *
+     * @param size the size argument
+     */
     public PermutationVectorRepresentation(int size) {
         if (size <= 1) {
             throw new IllegalArgumentException("size must be > 1");
@@ -25,11 +32,22 @@ public final class PermutationVectorRepresentation implements Representation<Per
         this.size = size;
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "permutation-vector";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public PermutationVector random(RngStream rng) {
         int[] values = new int[size];
@@ -45,6 +63,12 @@ public final class PermutationVectorRepresentation implements Representation<Per
         return new PermutationVector(values);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(PermutationVector genotype) {
         if (genotype == null || genotype.size() != size) {
@@ -60,6 +84,12 @@ public final class PermutationVectorRepresentation implements Representation<Per
         return true;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public PermutationVector repair(PermutationVector genotype) {
         if (isValid(genotype)) {
@@ -73,6 +103,12 @@ public final class PermutationVectorRepresentation implements Representation<Per
         return new PermutationVector(identity);
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(PermutationVector genotype) {
         return Arrays.toString(genotype.order());

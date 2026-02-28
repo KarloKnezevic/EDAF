@@ -13,19 +13,37 @@ import com.knezevic.edaf.v3.repr.types.BitString;
 
 /**
  * OneMax benchmark: maximize number of ones in bitstring.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class OneMaxProblem implements Problem<BitString> {
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "onemax";
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MAXIMIZE;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         return new ScalarFitness(genotype.ones());

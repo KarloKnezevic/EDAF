@@ -27,11 +27,17 @@ import java.util.List;
  *
  * <p>The mapping follows breadth-first (BFS) non-terminal expansion up to max depth.
  * This yields a stable decision vector representation for discrete EDA drivers.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarDecisionCodec {
 
     /**
      * Decodes one genotype into derivation tree and decision metadata.
+     * @param genotype encoded genotype value
+     * @param grammar grammar definition
+     * @param encoding grammar encoding metadata
+     * @return decoded tree
      */
     public DecodedTree decode(BitString genotype, Grammar grammar, GrammarEncoding encoding) {
         if (genotype == null) {
@@ -112,6 +118,10 @@ public final class GrammarDecisionCodec {
 
     /**
      * Returns BFS decision vector only.
+     * @param genotype encoded genotype value
+     * @param grammar grammar definition
+     * @param encoding grammar encoding metadata
+     * @return the decision vector
      */
     public List<Integer> decisionVector(BitString genotype, Grammar grammar, GrammarEncoding encoding) {
         return decode(genotype, grammar, encoding).decisionVector();
@@ -183,6 +193,9 @@ public final class GrammarDecisionCodec {
 
     /**
      * Decode result bundle.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record DecodedTree(
             DerivationTree tree,

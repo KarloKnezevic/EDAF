@@ -10,6 +10,8 @@ import java.io.Serializable;
 
 /**
  * Serializable state snapshot for a single named RNG stream.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RngStreamState(long state, boolean hasGaussian, double gaussian) implements Serializable {
     @Serial

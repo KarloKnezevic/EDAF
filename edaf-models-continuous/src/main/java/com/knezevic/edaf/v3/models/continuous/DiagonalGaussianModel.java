@@ -19,7 +19,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Diagonal Gaussian model for continuous EDAs.
+ * Diagonal Gaussian model for continuous EDAs ({@code Σ = diag(σ^2)}).
+ *
+ * <p>The model estimates:
+ * <pre>
+ *   μ_d = mean(x_d),  σ_d = std(x_d)
+ * </pre>
+ * from selected individuals and samples independently per dimension:
+ * <pre>
+ *   x_d ~ N(μ_d, σ_d^2)
+ * </pre>
+ * with a configurable lower bound on {@code σ_d} to avoid collapse.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>H. Muehlenbein, J. Bendisch, and H.-M. Voigt, "From recombination of genes to
+ *   the estimation of distributions II. Continuous parameters," PPSN IV, 1996.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DiagonalGaussianModel implements Model<RealVector> {
 
@@ -27,15 +47,32 @@ public final class DiagonalGaussianModel implements Model<RealVector> {
     private double[] mean;
     private double[] sigma;
 
+    /**
+     * Creates a new DiagonalGaussianModel instance.
+     *
+     * @param minSigma lower floor for per-dimension standard deviation
+     */
     public DiagonalGaussianModel(double minSigma) {
         this.minSigma = Math.max(1e-8, minSigma);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "gaussian-diag";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected.isEmpty()) {
@@ -90,6 +127,11 @@ public final class DiagonalGaussianModel implements Model<RealVector> {
         return result;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (mean == null || sigma == null) {
@@ -105,16 +147,29 @@ public final class DiagonalGaussianModel implements Model<RealVector> {
         return new ModelDiagnostics(numeric);
     }
 
+    /**
+     * Returns a defensive copy of the current mean vector.
+     *
+     * @return mean vector {@code μ}
+     */
     public double[] mean() {
         return mean == null ? new double[0] : java.util.Arrays.copyOf(mean, mean.length);
     }
 
+    /**
+     * Returns a defensive copy of per-dimension standard deviations.
+     *
+     * @return standard deviation vector {@code σ}
+     */
     public double[] sigma() {
         return sigma == null ? new double[0] : java.util.Arrays.copyOf(sigma, sigma.length);
     }
 
     /**
      * Restores diagonal Gaussian state from checkpoint payload.
+     *
+     * @param mean mean vector {@code μ}
+     * @param sigma standard deviation vector {@code σ}
      */
     public void restore(double[] mean, double[] sigma) {
         this.mean = java.util.Arrays.copyOf(mean, mean.length);

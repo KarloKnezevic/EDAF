@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.core.rng.RngStream;
 
 /**
  * Policy for diversity preservation and niche formation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface NichingPolicy<G> {
 

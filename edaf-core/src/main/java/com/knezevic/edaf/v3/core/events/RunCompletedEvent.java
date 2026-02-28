@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * Event emitted when a run terminates.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RunCompletedEvent(
         String runId,
@@ -23,6 +25,11 @@ public record RunCompletedEvent(
         Map<String, String> artifacts
 ) implements RunEvent {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "run_completed";

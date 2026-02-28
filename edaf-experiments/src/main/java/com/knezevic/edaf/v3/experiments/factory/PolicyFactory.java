@@ -30,6 +30,8 @@ import com.knezevic.edaf.v3.core.util.Params;
 
 /**
  * Constructs policy components from config sections.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class PolicyFactory {
 
@@ -37,6 +39,12 @@ public final class PolicyFactory {
         // utility class
     }
 
+    /**
+     * Creates the configured selection policy.
+     *
+     * @param config experiment configuration
+     * @return instantiated selection policy
+     */
     public static <G> SelectionPolicy<G> createSelection(ExperimentConfig config) {
         String type = config.getSelection().getType().toLowerCase(java.util.Locale.ROOT);
         return switch (type) {
@@ -46,6 +54,12 @@ public final class PolicyFactory {
         };
     }
 
+    /**
+     * Creates the configured replacement policy.
+     *
+     * @param config experiment configuration
+     * @return instantiated replacement policy
+     */
     public static <G> ReplacementPolicy<G> createReplacement(ExperimentConfig config) {
         String type = config.getReplacement().getType().toLowerCase(java.util.Locale.ROOT);
         return switch (type) {
@@ -54,6 +68,12 @@ public final class PolicyFactory {
         };
     }
 
+    /**
+     * Creates the configured stopping condition.
+     *
+     * @param config experiment configuration
+     * @return stopping condition used by the algorithm loop
+     */
     public static <G> StoppingCondition<G> createStopping(ExperimentConfig config) {
         String type = config.getStopping().getType().toLowerCase(java.util.Locale.ROOT);
         return switch (type) {
@@ -68,6 +88,12 @@ public final class PolicyFactory {
         };
     }
 
+    /**
+     * Creates the configured constraint handling strategy.
+     *
+     * @param config experiment configuration
+     * @return instantiated constraint handling strategy
+     */
     public static <G> ConstraintHandling<G> createConstraintHandling(ExperimentConfig config) {
         String type = config.getConstraints().getType().toLowerCase(java.util.Locale.ROOT);
         return switch (type) {
@@ -78,10 +104,22 @@ public final class PolicyFactory {
         };
     }
 
+    /**
+     * Creates the configured local search strategy.
+     *
+     * @param config experiment configuration
+     * @return instantiated local search strategy
+     */
     public static <G> LocalSearch<G> createLocalSearch(ExperimentConfig config) {
         return new NoOpLocalSearch<>();
     }
 
+    /**
+     * Creates the configured restart policy.
+     *
+     * @param config experiment configuration
+     * @return instantiated restart policy
+     */
     public static <G> RestartPolicy<G> createRestartPolicy(ExperimentConfig config) {
         String type = config.getRestart().getType().toLowerCase(java.util.Locale.ROOT);
         return switch (type) {
@@ -90,6 +128,12 @@ public final class PolicyFactory {
         };
     }
 
+    /**
+     * Creates the configured niching policy.
+     *
+     * @param config experiment configuration
+     * @return instantiated niching policy
+     */
     public static <G> NichingPolicy<G> createNichingPolicy(ExperimentConfig config) {
         String type = config.getNiching().getType().toLowerCase(java.util.Locale.ROOT);
         return switch (type) {

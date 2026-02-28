@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.repr.types.PermutationVector;
 
 /**
  * Kendall tau inversion count distance for permutations.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class KendallTauDistance {
 
@@ -16,6 +18,13 @@ public final class KendallTauDistance {
         // utility class
     }
 
+    /**
+     * Computes Kendall tau distance (inversion count) between two permutations.
+     *
+     * @param a first permutation
+     * @param b second permutation
+     * @return the number of pairwise inversions between {@code a} and {@code b}
+     */
     public static int between(PermutationVector a, PermutationVector b) {
         if (a.size() != b.size()) {
             throw new IllegalArgumentException("Permutations must have same size");

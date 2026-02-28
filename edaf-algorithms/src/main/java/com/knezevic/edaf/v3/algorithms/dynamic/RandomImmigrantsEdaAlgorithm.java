@@ -15,6 +15,22 @@ import java.util.List;
 
 /**
  * Dynamic EDA driver that injects random immigrants after each iteration.
+ *
+ * <p>Given next population size {@code N}, immigrant count is:
+ * <pre>
+ *   I = max(minImmigrants, round(immigrantRatio * N))
+ * </pre>
+ * Worst {@code I} individuals are replaced by new random candidates sampled from
+ * representation priors and evaluated immediately.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>S. Yang, "Non-stationary problem optimization using the primal-dual genetic
+ *   algorithm," CEC, 2003. Random immigrants mechanism adapted to EDA pipeline.</li>
+ *   <li>J. Branke, "Evolutionary Optimization in Dynamic Environments," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RandomImmigrantsEdaAlgorithm<G> extends AdaptiveRatioEdaAlgorithm<G> {
 
@@ -31,6 +47,11 @@ public final class RandomImmigrantsEdaAlgorithm<G> extends AdaptiveRatioEdaAlgor
         this.minImmigrants = Math.max(0, minImmigrants);
     }
 
+    /**
+     * Updates adaptive ratio after each iteration.
+     *
+     * @param normalizedImprovement normalized fitness improvement for current iteration
+     */
     @Override
     protected void adaptRatio(double normalizedImprovement) {
         // Random immigrants keep moderate pressure; adapt gently around stability.
@@ -41,6 +62,14 @@ public final class RandomImmigrantsEdaAlgorithm<G> extends AdaptiveRatioEdaAlgor
         }
     }
 
+    /**
+     * Injects random immigrants by replacing the worst-ranked individuals.
+     *
+     * @param context algorithm runtime context
+     * @param previous previous population
+     * @param next next population
+     * @return population after random-immigrant replacement
+     */
     @Override
     protected Population<G> postProcessPopulation(AlgorithmContext<G> context, Population<G> previous, Population<G> next) {
         int immigrants = Math.max(minImmigrants, (int) Math.round(next.size() * immigrantRatio));

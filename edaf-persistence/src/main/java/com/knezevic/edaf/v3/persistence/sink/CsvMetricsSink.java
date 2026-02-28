@@ -17,6 +17,8 @@ import java.nio.file.StandardOpenOption;
 
 /**
  * CSV sink that writes one line per iteration metric snapshot.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CsvMetricsSink implements EventSink {
 
@@ -24,10 +26,20 @@ public final class CsvMetricsSink implements EventSink {
     private final ObjectMapper mapper = new ObjectMapper();
     private boolean headerWritten;
 
+    /**
+     * Creates a new CsvMetricsSink instance.
+     *
+     * @param file file path
+     */
     public CsvMetricsSink(Path file) {
         this.file = file;
     }
 
+    /**
+     * Executes on event.
+     *
+     * @param event run event payload
+     */
     @Override
     public synchronized void onEvent(RunEvent event) {
         if (!(event instanceof IterationCompletedEvent iteration)) {

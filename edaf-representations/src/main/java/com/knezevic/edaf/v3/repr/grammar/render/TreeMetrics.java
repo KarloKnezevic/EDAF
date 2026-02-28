@@ -14,6 +14,8 @@ import java.util.Map;
 
 /**
  * Structural metrics for derivation trees.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TreeMetrics {
 
@@ -23,6 +25,8 @@ public final class TreeMetrics {
 
     /**
      * Computes depth, size, and operator usage summary.
+     * @param tree derivation tree
+     * @return human-readable summary
      */
     public static Summary summarize(DerivationTree tree) {
         Accumulator accumulator = new Accumulator();
@@ -62,6 +66,9 @@ public final class TreeMetrics {
 
     /**
      * Immutable metrics summary.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record Summary(
             int depth,

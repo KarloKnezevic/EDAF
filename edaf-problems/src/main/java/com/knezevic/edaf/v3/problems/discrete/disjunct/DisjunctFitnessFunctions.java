@@ -8,13 +8,15 @@ package com.knezevic.edaf.v3.problems.discrete.disjunct;
 import java.util.Random;
 
 /**
- * Exact fitness functions defined in the paper:
+  * Exact fitness functions defined in the paper:.
  *
  * <ul>
  *     <li>{@code fit1(A) = sum_{S in S_t} delta(S)}</li>
  *     <li>{@code fit2(A) = |{S in S_t : delta(S) > f}|}</li>
  *     <li>{@code fit3(A) = fit1(A) / (C(N,t) * (N-t))}</li>
  * </ul>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DisjunctFitnessFunctions {
 
@@ -24,6 +26,9 @@ public final class DisjunctFitnessFunctions {
 
     /**
      * Exact {@code fit1} for t-disjunct objective.
+     * @param matrix the matrix argument
+     * @param t disjunct level
+     * @return the computed fit1
      */
     public static long fit1(DisjunctMatrix matrix, int t) {
         validateT(matrix, t);
@@ -36,6 +41,10 @@ public final class DisjunctFitnessFunctions {
 
     /**
      * Exact {@code fit2} for (t,f)-resolvable objective.
+     * @param matrix the matrix argument
+     * @param t disjunct level
+     * @param f resolvable tolerance
+     * @return the computed fit2
      */
     public static long fit2(DisjunctMatrix matrix, int t, int f) {
         validateT(matrix, t);
@@ -55,6 +64,9 @@ public final class DisjunctFitnessFunctions {
 
     /**
      * Exact {@code fit3} for (t,epsilon)-disjunct objective.
+     * @param matrix the matrix argument
+     * @param t disjunct level
+     * @return the computed fit3
      */
     public static double fit3(DisjunctMatrix matrix, int t) {
         validateT(matrix, t);
@@ -68,8 +80,13 @@ public final class DisjunctFitnessFunctions {
     }
 
     /**
-     * Sampled estimator of fit1:
+      * Sampled estimator of fit1:.
      * {@code E[delta(S)] * C(N,t)} using uniformly sampled subsets.
+     * @param matrix the matrix argument
+     * @param t disjunct level
+     * @param sampleSize the sampleSize argument
+     * @param seed the seed argument
+     * @return the computed fit1 sampled
      */
     public static double fit1Sampled(DisjunctMatrix matrix, int t, long sampleSize, long seed) {
         validateT(matrix, t);
@@ -88,8 +105,14 @@ public final class DisjunctFitnessFunctions {
     }
 
     /**
-     * Sampled estimator of fit2:
+      * Sampled estimator of fit2:.
      * {@code P(delta(S) > f) * C(N,t)} using uniformly sampled subsets.
+     * @param matrix the matrix argument
+     * @param t disjunct level
+     * @param f resolvable tolerance
+     * @param sampleSize the sampleSize argument
+     * @param seed the seed argument
+     * @return the computed fit2 sampled
      */
     public static double fit2Sampled(DisjunctMatrix matrix, int t, int f, long sampleSize, long seed) {
         validateT(matrix, t);
@@ -113,8 +136,13 @@ public final class DisjunctFitnessFunctions {
     }
 
     /**
-     * Sampled estimator of fit3:
+      * Sampled estimator of fit3:.
      * {@code E[delta(S)/(N-t)]} using uniformly sampled subsets.
+     * @param matrix the matrix argument
+     * @param t disjunct level
+     * @param sampleSize the sampleSize argument
+     * @param seed the seed argument
+     * @return the computed fit3 sampled
      */
     public static double fit3Sampled(DisjunctMatrix matrix, int t, long sampleSize, long seed) {
         validateT(matrix, t);

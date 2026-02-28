@@ -21,7 +21,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Diagonal-covariance Gaussian Mixture Model with EM fitting and mixture sampling.
+ * Diagonal-covariance Gaussian Mixture Model (GMM) with EM fitting.
+ *
+ * <p>The model estimates:
+ * <pre>
+ *   p(x) = Σ_k π_k N(x | μ_k, diag(σ_k²))
+ * </pre>
+ * by alternating expectation/maximization steps for a fixed number of
+ * iterations. Sampling first draws a component index from {@code π} and then
+ * samples each dimension from its corresponding diagonal Gaussian.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>A. P. Dempster, N. M. Laird, and D. B. Rubin, "Maximum likelihood from
+ *   incomplete data via the EM algorithm," JRSS B, 1977.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GmmModel implements Model<RealVector> {
 
@@ -34,17 +52,36 @@ public final class GmmModel implements Model<RealVector> {
     private double[][] variances;
     private double lastLogLikelihood;
 
+    /**
+     * Creates a new GmmModel instance.
+     *
+     * @param components number of mixture components
+     * @param emIterations number of EM iterations per fit
+     * @param minVariance floor for per-dimension component variance
+     */
     public GmmModel(int components, int emIterations, double minVariance) {
         this.components = Math.max(1, components);
         this.emIterations = Math.max(1, emIterations);
         this.minVariance = Math.max(1.0e-10, minVariance);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "gmm";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -91,6 +128,11 @@ public final class GmmModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (weights == null || means == null || variances == null) {

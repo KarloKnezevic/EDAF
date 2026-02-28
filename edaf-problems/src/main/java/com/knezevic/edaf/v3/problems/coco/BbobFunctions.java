@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>This implementation focuses on reproducible benchmarking flows inside EDAF.
  * Formulas follow the standard BBOB family structure (shifted/rotated variants,
  * conditioning, and multimodality), while keeping implementation compact.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BbobFunctions {
 
@@ -27,6 +29,10 @@ public final class BbobFunctions {
 
     /**
      * Evaluates one BBOB function id for a given vector and instance.
+     * @param functionId benchmark function identifier
+     * @param x input vector
+     * @param instanceId benchmark instance identifier
+     * @return fitness value
      */
     public static double evaluate(int functionId, double[] x, int instanceId) {
         int n = x.length;

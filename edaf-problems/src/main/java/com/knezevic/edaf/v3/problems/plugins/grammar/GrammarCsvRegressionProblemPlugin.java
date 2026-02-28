@@ -15,19 +15,37 @@ import java.util.Map;
 
 /**
  * Plugin for CSV-based symbolic regression.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarCsvRegressionProblemPlugin implements ProblemPlugin<BitString> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "grammar-csv-regression";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Grammar-based symbolic regression from CSV dataset";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public GrammarCsvRegressionProblem create(Map<String, Object> params) {
         String datasetPath = Params.str(params, "dataset", "classpath:datasets/grammar/regression/nguyen_like.csv");

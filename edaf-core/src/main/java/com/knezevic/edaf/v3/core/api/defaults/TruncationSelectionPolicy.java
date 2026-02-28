@@ -17,9 +17,20 @@ import java.util.List;
 
 /**
  * Selection policy that returns top-N individuals by fitness.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TruncationSelectionPolicy<G> implements SelectionPolicy<G> {
 
+    /**
+     * Selects top individuals by scalar fitness ordering.
+     *
+     * @param population source population
+     * @param count number of individuals to select
+     * @param rng random stream
+     * @return selected individuals
+     */
     @Override
     public List<Individual<G>> select(Population<G> population, int count, RngStream rng) {
         List<Individual<G>> copy = new ArrayList<>(population.asList());
@@ -32,6 +43,11 @@ public final class TruncationSelectionPolicy<G> implements SelectionPolicy<G> {
         return new ArrayList<>(copy.subList(0, limit));
     }
 
+    /**
+     * Returns selection-policy identifier.
+     *
+     * @return policy identifier
+     */
     @Override
     public String name() {
         return "truncation";

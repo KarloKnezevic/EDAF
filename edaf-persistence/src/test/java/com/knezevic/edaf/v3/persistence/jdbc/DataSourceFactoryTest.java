@@ -23,7 +23,7 @@ class DataSourceFactoryTest {
         DataSource dataSource = DataSourceFactory.create("jdbc:sqlite:/tmp/edaf-test.db", "", "");
         try (HikariDataSource hikari = (HikariDataSource) dataSource) {
             assertEquals("org.sqlite.JDBC", hikari.getDriverClassName());
-            assertEquals(1, hikari.getMaximumPoolSize());
+            assertEquals(4, hikari.getMaximumPoolSize());
             String url = hikari.getJdbcUrl();
             assertTrue(url.contains("busy_timeout=10000"));
             assertTrue(url.contains("journal_mode=WAL"));
@@ -42,4 +42,3 @@ class DataSourceFactoryTest {
         }
     }
 }
-

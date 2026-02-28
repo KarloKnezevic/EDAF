@@ -15,6 +15,8 @@ import java.util.List;
 
 /**
  * Utility loader resolving benchmark instances from classpath or filesystem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ProblemResourceLoader {
 
@@ -23,8 +25,10 @@ public final class ProblemResourceLoader {
     }
 
     /**
-     * Reads UTF-8 text content from either classpath resource (prefix {@code classpath:})
+      * Reads UTF-8 text content from either classpath resource (prefix {@code classpath:}).
      * or local filesystem path.
+     * @param location the location argument
+     * @return the read text
      */
     public static String readText(String location) {
         if (location == null || location.isBlank()) {
@@ -55,6 +59,8 @@ public final class ProblemResourceLoader {
 
     /**
      * Reads UTF-8 lines from either classpath or filesystem location.
+     * @param location the location argument
+     * @return the read lines
      */
     public static List<String> readLines(String location) {
         return readText(location).lines().toList();

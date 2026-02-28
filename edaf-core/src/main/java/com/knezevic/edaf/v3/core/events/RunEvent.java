@@ -9,6 +9,8 @@ import java.time.Instant;
 
 /**
  * Marker interface for all run lifecycle events.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface RunEvent {
 

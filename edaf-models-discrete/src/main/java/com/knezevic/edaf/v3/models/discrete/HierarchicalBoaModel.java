@@ -27,7 +27,23 @@ import java.util.Map;
  * <pre>
  *   p(x) = product_i p(x_i | x_parent(i))
  * </pre>
- * where root variables use marginals {@code p(x_i)}.</p>
+ * where root variables use marginals {@code p(x_i)}.
+ *
+ * <p>Model parameters are estimated with Laplace smoothing and can be blended with
+ * previous state using exponential averaging:
+ * <pre>
+ *   θ_t = (1 - α) θ_{t-1} + α θ̂_t
+ * </pre>
+ * where {@code α} is {@code learningRate}.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>M. Pelikan and D. E. Goldberg, "Hierarchical BOA," GECCO, 2001.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class HierarchicalBoaModel implements Model<BitString> {
 
@@ -42,17 +58,36 @@ public final class HierarchicalBoaModel implements Model<BitString> {
     private double meanMutualInformation;
     private int edgeCount;
 
+    /**
+     * Creates a new HierarchicalBoaModel instance.
+     *
+     * @param smoothing Laplace smoothing added to empirical probabilities
+     * @param minMutualInformation minimum mutual information required to add an edge
+     * @param learningRate exponential blending factor for state carry-over
+     */
     public HierarchicalBoaModel(double smoothing, double minMutualInformation, double learningRate) {
         this.smoothing = Math.max(1e-9, smoothing);
         this.minMutualInformation = Math.max(0.0, minMutualInformation);
         this.learningRate = Math.max(0.0, Math.min(1.0, learningRate));
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "hboa-network";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<BitString>> selected, Representation<BitString> representation, RngStream rng) {
         if (selected.isEmpty()) {
@@ -108,6 +143,11 @@ public final class HierarchicalBoaModel implements Model<BitString> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (marginalOne == null) {
@@ -120,18 +160,38 @@ public final class HierarchicalBoaModel implements Model<BitString> {
         return new ModelDiagnostics(values);
     }
 
+    /**
+     * Returns node sampling order derived from entropy ranking.
+     *
+     * @return entropy-ranked variable order
+     */
     public int[] order() {
         return order == null ? new int[0] : Arrays.copyOf(order, order.length);
     }
 
+    /**
+     * Returns parent index for each node in the learned directed tree.
+     *
+     * @return parent-index vector with {@code -1} for roots
+     */
     public int[] parent() {
         return parent == null ? new int[0] : Arrays.copyOf(parent, parent.length);
     }
 
+    /**
+     * Returns root or fallback Bernoulli marginals {@code p(x_i = 1)}.
+     *
+     * @return marginal probability vector
+     */
     public double[] marginalOne() {
         return marginalOne == null ? new double[0] : Arrays.copyOf(marginalOne, marginalOne.length);
     }
 
+    /**
+     * Returns conditional Bernoulli table values {@code p(x_i=1 | parent in {0,1})}.
+     *
+     * @return conditional probability matrix
+     */
     public double[][] conditionalOne() {
         if (conditionalOne == null) {
             return new double[0][0];
@@ -145,6 +205,11 @@ public final class HierarchicalBoaModel implements Model<BitString> {
 
     /**
      * Restores model state from checkpoint payload.
+     *
+     * @param order entropy-ranked variable order
+     * @param parent parent-index vector
+     * @param marginalOne Bernoulli marginals {@code p(x_i = 1)}
+     * @param conditionalOne conditional Bernoulli table per node
      */
     public void restore(int[] order, int[] parent, double[] marginalOne, double[][] conditionalOne) {
         if (order == null || parent == null || marginalOne == null || conditionalOne == null) {

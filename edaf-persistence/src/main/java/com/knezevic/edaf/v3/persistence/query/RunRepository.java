@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 /**
  * Read-side repository for run metadata, filtered queries, and run detail resources.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface RunRepository {
 
@@ -44,7 +46,7 @@ public interface RunRepository {
     PageResult<EventRow> listEvents(String runId, String eventType, String q, int page, int size);
 
     /**
-     * Lists flattened experiment parameters for run's experiment.
+     * Lists flattened experiment the input values for run's experiment.
      */
     List<ExperimentParamRow> listExperimentParams(String runId);
 

@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for hierarchical BOA-style sparse Bayesian-network model.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class HierarchicalBoaModelPlugin implements ModelPlugin<BitString> {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "hboa-network";
     }
 
+    /**
+     * Returns a short human-readable component description.
+     *
+     * @return human-readable model description
+     */
     @Override
     public String description() {
         return "Hierarchical BOA sparse Bayesian-network model";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params model parameter map from YAML configuration
+     * @return created component
+     */
     @Override
     public HierarchicalBoaModel create(Map<String, Object> params) {
         return new HierarchicalBoaModel(

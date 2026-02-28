@@ -433,6 +433,36 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>apidocs</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven.javadoc.plugin.version}</version>
+                        <configuration>
+                            <source>${maven.compiler.release}</source>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <docencoding>${project.build.sourceEncoding}</docencoding>
+                            <charset>${project.build.sourceEncoding}</charset>
+                            <doclint>none</doclint>
+                            <show>protected</show>
+                            <quiet>true</quiet>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>aggregate-javadocs</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>aggregate-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 </project>

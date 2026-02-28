@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Lightweight run summary row.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RunSummary(
         String runId,

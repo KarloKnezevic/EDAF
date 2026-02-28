@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.repr.grammar.encoding;
 
 /**
  * Cyclic bit reader used for deterministic genotype decoding.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 final class BitCursor {
 

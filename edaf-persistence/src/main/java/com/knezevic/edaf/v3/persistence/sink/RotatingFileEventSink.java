@@ -19,6 +19,8 @@ import java.time.Instant;
 
 /**
  * Plain file sink with size-based rotation for structured event logs.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RotatingFileEventSink implements EventSink {
 
@@ -26,11 +28,22 @@ public final class RotatingFileEventSink implements EventSink {
     private final long maxBytes;
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
+    /**
+     * Creates a new RotatingFileEventSink instance.
+     *
+     * @param file file path
+     * @param maxBytes the maxBytes argument
+     */
     public RotatingFileEventSink(Path file, long maxBytes) {
         this.file = file;
         this.maxBytes = Math.max(1024, maxBytes);
     }
 
+    /**
+     * Executes on event.
+     *
+     * @param event run event payload
+     */
     @Override
     public synchronized void onEvent(RunEvent event) {
         try {

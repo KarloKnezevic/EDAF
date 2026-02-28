@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin for permutation-encoded balanced boolean-function optimization.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BooleanFunctionPermutationProblemPlugin implements ProblemPlugin<PermutationVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "boolean-function-permutation";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Cryptographic boolean-function optimization with balanced permutation encoding";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public BooleanFunctionPermutationProblem create(Map<String, Object> params) {
         CryptoProblemConfig config = CryptoProblemConfig.from(params);

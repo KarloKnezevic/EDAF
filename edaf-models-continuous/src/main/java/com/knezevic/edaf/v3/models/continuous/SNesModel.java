@@ -19,7 +19,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Separable NES model with rank-based natural-gradient updates.
+ * Separable Natural Evolution Strategies (sNES) model.
+ *
+ * <p>State parameters are per-dimension mean/scale and therefore separable:
+ * <pre>
+ *   x_d = μ_d + σ_d z_d,   z_d ~ N(0,1)
+ * </pre>
+ * Update uses rank-based utilities and natural-gradient style statistics:
+ * <pre>
+ *   ∇_μ ∝ Σ u_k z_k
+ *   ∇_σ ∝ Σ u_k (z_k² - 1)
+ * </pre>
+ * with exponential update for {@code σ} to keep positivity.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>T. Schaul, T. Glasmachers, and J. Schmidhuber, "High dimensions and heavy tails
+ *   for natural evolution strategies," GECCO, 2011.</li>
+ *   <li>D. Wierstra et al., "Natural evolution strategies," JMLR, 2014.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class SNesModel implements Model<RealVector> {
 
@@ -32,6 +52,14 @@ public final class SNesModel implements Model<RealVector> {
     private double[] sigma;
     private double lastGradientNorm;
 
+    /**
+     * Creates a new SNesModel instance.
+     *
+     * @param etaMean learning rate for mean updates
+     * @param etaSigma learning rate for log-scale updates
+     * @param minSigma minimum standard deviation
+     * @param maxSigma maximum standard deviation
+     */
     public SNesModel(double etaMean, double etaSigma, double minSigma, double maxSigma) {
         this.etaMean = Math.max(1.0e-4, etaMean);
         this.etaSigma = Math.max(1.0e-4, etaSigma);
@@ -39,11 +67,23 @@ public final class SNesModel implements Model<RealVector> {
         this.maxSigma = Math.max(this.minSigma, maxSigma);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "snes";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -101,6 +141,11 @@ public final class SNesModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (mean == null || sigma == null) {

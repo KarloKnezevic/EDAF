@@ -10,10 +10,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Spring Boot entrypoint for EDAF v3 dashboard.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @SpringBootApplication
 public class EdafWebApplication {
 
+    /**
+     * Executes main.
+     *
+     * @param args method arguments
+     */
     public static void main(String[] args) {
         SpringApplication.run(EdafWebApplication.class, args);
     }

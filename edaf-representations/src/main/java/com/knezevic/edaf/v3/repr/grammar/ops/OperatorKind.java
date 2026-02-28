@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.repr.grammar.ops;
 
 /**
  * Operator family used by printers and evaluator safety rules.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public enum OperatorKind {
     REAL_UNARY,

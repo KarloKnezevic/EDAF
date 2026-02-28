@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.repr.grammar.model;
 
 /**
  * Boolean literal terminal.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BooleanConstantTerminal extends Terminal {
 
@@ -14,6 +16,7 @@ public final class BooleanConstantTerminal extends Terminal {
 
     /**
      * Creates a boolean constant terminal.
+     * @param value the value argument
      */
     public BooleanConstantTerminal(boolean value) {
         super(Boolean.toString(value), TypeSignature.leaf(ValueType.BOOL));
@@ -22,6 +25,7 @@ public final class BooleanConstantTerminal extends Terminal {
 
     /**
      * Boolean literal value.
+     * @return true if the condition is satisfied; otherwise false
      */
     public boolean value() {
         return value;

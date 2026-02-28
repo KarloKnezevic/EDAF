@@ -15,12 +15,20 @@ import java.util.Arrays;
 
 /**
  * ZDT multi-objective benchmark suite adapter.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ZdtProblem implements Problem<RealVector> {
 
     private final int functionId;
     private final double[] scalarWeights;
 
+    /**
+     * Creates a new ZdtProblem instance.
+     *
+     * @param functionId benchmark function identifier
+     * @param scalarWeights the scalarWeights argument
+     */
     public ZdtProblem(int functionId, double[] scalarWeights) {
         this.functionId = functionId;
         this.scalarWeights = scalarWeights == null || scalarWeights.length == 0
@@ -28,21 +36,42 @@ public final class ZdtProblem implements Problem<RealVector> {
                 : Arrays.copyOf(scalarWeights, scalarWeights.length);
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "zdt" + functionId;
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MINIMIZE;
     }
 
+    /**
+     * Returns number of objectives.
+     *
+     * @return objective count
+     */
     @Override
     public int objectiveCount() {
         return 2;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(RealVector genotype) {
         double[] x = genotype.values();

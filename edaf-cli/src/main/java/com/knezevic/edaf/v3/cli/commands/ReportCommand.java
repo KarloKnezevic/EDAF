@@ -23,6 +23,9 @@ import java.util.concurrent.Callable;
 
 /**
  * Generates reports for an already persisted run.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Command(name = "report", description = "Generate run report from database")
 public final class ReportCommand implements Callable<Integer> {
@@ -48,6 +51,11 @@ public final class ReportCommand implements Callable<Integer> {
     @Option(names = "--verbosity", description = "Override verbosity: quiet|normal|verbose|debug")
     private String verbosity;
 
+    /**
+     * Generates requested report formats for one run id.
+     *
+     * @return process exit code
+     */
     @Override
     public Integer call() {
         Verbosity effectiveVerbosity = verbosity != null && !verbosity.isBlank()

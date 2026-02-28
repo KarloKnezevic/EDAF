@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 /**
  * Mixed discrete vector containing integer-encoded categorical attributes.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record MixedDiscreteVector(int[] encodedValues) {
 
@@ -16,10 +18,20 @@ public record MixedDiscreteVector(int[] encodedValues) {
         encodedValues = Arrays.copyOf(encodedValues, encodedValues.length);
     }
 
+    /**
+     * Executes length.
+     *
+     * @return the computed length
+     */
     public int length() {
         return encodedValues.length;
     }
 
+    /**
+     * Converts to string.
+     *
+     * @return the string representation
+     */
     @Override
     public String toString() {
         return Arrays.toString(encodedValues);

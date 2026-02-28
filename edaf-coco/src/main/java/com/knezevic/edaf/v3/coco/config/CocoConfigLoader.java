@@ -24,12 +24,18 @@ import java.util.Set;
 
 /**
  * Loads and validates COCO campaign configuration documents.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CocoConfigLoader {
 
     private final ObjectMapper mapper;
     private final Validator validator;
 
+    /**
+     * Creates a new CocoConfigLoader instance.
+     *
+     */
     public CocoConfigLoader() {
         this.mapper = new ObjectMapper(new YAMLFactory())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
@@ -40,6 +46,8 @@ public final class CocoConfigLoader {
 
     /**
      * Loads one COCO campaign YAML file and validates structure and semantics.
+     * @param path filesystem path
+     * @return loaded value
      */
     public CocoCampaignConfig load(Path path) {
         CocoCampaignConfig config;

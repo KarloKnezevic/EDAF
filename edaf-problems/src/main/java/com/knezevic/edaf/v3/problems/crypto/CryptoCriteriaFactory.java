@@ -14,6 +14,8 @@ import java.util.Locale;
 
 /**
  * Factory for configured cryptographic boolean-function criteria.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CryptoCriteriaFactory {
 
@@ -23,6 +25,8 @@ public final class CryptoCriteriaFactory {
 
     /**
      * Creates criterion by id with backwards-compatible aliases.
+     * @param rawId raw criterion identifier
+     * @return component instance
      */
     public static CryptoFitnessCriterion create(String rawId) {
         String id = rawId == null ? "" : rawId.trim().toLowerCase(Locale.ROOT);

@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.coco.model;
 
 /**
  * Trial-level COCO outcome persisted after one EDAF run.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CocoTrialOutcome(
         String campaignId,

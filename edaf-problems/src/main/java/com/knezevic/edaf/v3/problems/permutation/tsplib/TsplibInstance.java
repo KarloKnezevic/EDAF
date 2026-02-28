@@ -10,11 +10,15 @@ import java.util.List;
 
 /**
  * Parsed TSPLIB NODE_COORD_SECTION instance.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record TsplibInstance(String name, double[][] coordinates) {
 
     /**
      * Parses TSPLIB text containing NODE_COORD_SECTION and EOF.
+     * @param text the text argument
+     * @return the parse
      */
     public static TsplibInstance parse(String text) {
         String name = "tsplib";

@@ -11,6 +11,8 @@ import java.util.Map;
 
 /**
  * Variable bindings used for tree evaluation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class EvaluationContext {
 
@@ -19,6 +21,8 @@ public final class EvaluationContext {
 
     /**
      * Creates context from numeric and boolean variable maps.
+     * @param realVariables real-valued variable map
+     * @param booleanVariables boolean variable map
      */
     public EvaluationContext(Map<String, Double> realVariables, Map<String, Boolean> booleanVariables) {
         this.realVariables = immutableCopy(realVariables);
@@ -27,6 +31,8 @@ public final class EvaluationContext {
 
     /**
      * Creates context from numeric variables only.
+     * @param variables input variable map
+     * @return the real
      */
     public static EvaluationContext real(Map<String, Double> variables) {
         return new EvaluationContext(variables, Map.of());
@@ -34,6 +40,8 @@ public final class EvaluationContext {
 
     /**
      * Creates context from boolean variables only.
+     * @param variables input variable map
+     * @return the bool
      */
     public static EvaluationContext bool(Map<String, Boolean> variables) {
         return new EvaluationContext(Map.of(), variables);
@@ -41,6 +49,8 @@ public final class EvaluationContext {
 
     /**
      * Resolves numeric variable (missing values default to zero).
+     * @param name symbol name
+     * @return the computed real
      */
     public double real(String name) {
         if (name == null) {
@@ -55,6 +65,8 @@ public final class EvaluationContext {
 
     /**
      * Resolves boolean variable (missing values default to false).
+     * @param name symbol name
+     * @return true if the condition is satisfied; otherwise false
      */
     public boolean bool(String name) {
         if (name == null) {

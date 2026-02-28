@@ -23,6 +23,8 @@ import java.util.Map;
 
 /**
  * High-level facade for grammar decoding, evaluation, and visualization exports.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarTreeEngine {
 
@@ -34,7 +36,8 @@ public final class GrammarTreeEngine {
     private final TreeSerializer serializer;
 
     /**
-     * Creates engine from plugin parameters.
+     * Creates engine from plugin the input values.
+     * @param params configuration the input value map
      */
     public GrammarTreeEngine(Map<String, Object> params) {
         GrammarFactory factory = new GrammarFactory();
@@ -49,6 +52,8 @@ public final class GrammarTreeEngine {
 
     /**
      * Decodes genotype into tree and export strings.
+     * @param genotype encoded genotype value
+     * @return the inspect
      */
     public TreeInspection inspect(BitString genotype) {
         GrammarDecisionCodec.DecodedTree decoded = codec.decode(genotype, grammar, encoding);
@@ -69,6 +74,9 @@ public final class GrammarTreeEngine {
 
     /**
      * Evaluates genotype as numeric expression.
+     * @param genotype encoded genotype value
+     * @param context evaluation context
+     * @return evaluation result
      */
     public double evaluate(BitString genotype, EvaluationContext context) {
         return evaluator.evaluate(inspect(genotype).tree(), context);
@@ -76,6 +84,9 @@ public final class GrammarTreeEngine {
 
     /**
      * Evaluates genotype as boolean expression.
+     * @param genotype encoded genotype value
+     * @param context evaluation context
+     * @return true if the condition is satisfied; otherwise false
      */
     public boolean evaluateBoolean(BitString genotype, EvaluationContext context) {
         return evaluator.evaluateBoolean(inspect(genotype).tree(), context);
@@ -83,6 +94,7 @@ public final class GrammarTreeEngine {
 
     /**
      * Grammar instance.
+     * @return the grammar
      */
     public Grammar grammar() {
         return grammar;
@@ -90,6 +102,7 @@ public final class GrammarTreeEngine {
 
     /**
      * Encoding plan used for fixed-length decision vector mapping.
+     * @return the encoding
      */
     public GrammarEncoding encoding() {
         return encoding;
@@ -97,6 +110,9 @@ public final class GrammarTreeEngine {
 
     /**
      * Tree inspection bundle.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record TreeInspection(
             DerivationTree tree,

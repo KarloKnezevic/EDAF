@@ -12,6 +12,8 @@ import java.util.Map;
 
 /**
  * Execution result envelope for CLI and automation consumers.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RunExecution(RunResult<?> result, Map<String, String> artifacts, List<String> warnings) {
 }

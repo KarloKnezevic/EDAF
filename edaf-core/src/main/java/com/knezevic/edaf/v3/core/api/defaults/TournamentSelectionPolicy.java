@@ -17,15 +17,31 @@ import java.util.List;
 
 /**
  * K-tournament selection policy.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TournamentSelectionPolicy<G> implements SelectionPolicy<G> {
 
     private final int k;
 
+    /**
+     * Creates tournament selection with minimum size of two.
+     *
+     * @param k tournament size
+     */
     public TournamentSelectionPolicy(int k) {
         this.k = Math.max(2, k);
     }
 
+    /**
+     * Selects individuals with tournament competition.
+     *
+     * @param population source population
+     * @param count number of individuals to select
+     * @param rng random stream
+     * @return selected individuals
+     */
     @Override
     public List<Individual<G>> select(Population<G> population, int count, RngStream rng) {
         List<Individual<G>> selected = new ArrayList<>(count);
@@ -48,6 +64,11 @@ public final class TournamentSelectionPolicy<G> implements SelectionPolicy<G> {
         return selected;
     }
 
+    /**
+     * Returns selection-policy identifier.
+     *
+     * @return policy identifier
+     */
     @Override
     public String name() {
         return "tournament";

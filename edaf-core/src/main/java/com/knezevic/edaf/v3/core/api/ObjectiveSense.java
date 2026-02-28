@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.core.api;
 
 /**
  * Defines whether the optimization objective is a minimization or maximization problem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public enum ObjectiveSense {
     /** Smaller fitness values are better. */

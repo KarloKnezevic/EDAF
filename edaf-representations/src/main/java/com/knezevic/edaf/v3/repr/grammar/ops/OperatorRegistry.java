@@ -20,6 +20,8 @@ import java.util.Optional;
  *
  * <p>The registry intentionally uses protected variants for numerically unsafe
  * operators (division, log, sqrt) to keep search stable.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class OperatorRegistry {
 
@@ -34,6 +36,8 @@ public final class OperatorRegistry {
 
     /**
      * Resolves operator by name (case-insensitive).
+     * @param name symbol name
+     * @return the find
      */
     public Optional<OperatorDefinition> find(String name) {
         if (name == null) {
@@ -44,6 +48,7 @@ public final class OperatorRegistry {
 
     /**
      * Returns all known operators.
+     * @return the all
      */
     public List<OperatorDefinition> all() {
         return List.copyOf(operators.values());
@@ -51,6 +56,8 @@ public final class OperatorRegistry {
 
     /**
      * Returns subset by operator kind.
+     * @param kind the kind argument
+     * @return the by kind
      */
     public List<OperatorDefinition> byKind(OperatorKind kind) {
         List<OperatorDefinition> result = new ArrayList<>();

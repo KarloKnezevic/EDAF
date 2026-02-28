@@ -20,6 +20,26 @@ import java.util.Map;
 
 /**
  * Gaussian copula baseline with empirical marginals.
+ *
+ * <p>Workflow:
+ * <ol>
+ *     <li>estimate empirical CDF/ranks per dimension from elites</li>
+ *     <li>map ranks to latent Gaussian scores via inverse normal CDF</li>
+ *     <li>estimate latent correlation matrix and sample correlated Gaussian vectors</li>
+ *     <li>map latent samples back to original scale via empirical quantiles</li>
+ * </ol>
+ *
+ * <p>This captures dependence structure separately from marginal shape and is a
+ * robust baseline when marginals are non-Gaussian.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>R. B. Nelsen, "An Introduction to Copulas," Springer, 2006.</li>
+ *   <li>J. Segers, M. Sibuya, and H. Tsukahara, "The empirical beta copula,"
+ *   Journal of Multivariate Analysis, 2017.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CopulaBaselineModel implements Model<RealVector> {
 
@@ -30,15 +50,32 @@ public final class CopulaBaselineModel implements Model<RealVector> {
     private double[][] cholesky;
     private double averageAbsoluteCorrelation;
 
+    /**
+     * Creates a new CopulaBaselineModel instance.
+     *
+     * @param jitter diagonal regularization for correlation/cholesky stability
+     */
     public CopulaBaselineModel(double jitter) {
         this.jitter = Math.max(1.0e-12, jitter);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "copula-baseline";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -111,6 +148,11 @@ public final class CopulaBaselineModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (sortedMarginals == null || correlation == null) {

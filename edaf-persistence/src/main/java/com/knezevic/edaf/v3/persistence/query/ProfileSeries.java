@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Named profile series for chart rendering.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ProfileSeries(
         String name,

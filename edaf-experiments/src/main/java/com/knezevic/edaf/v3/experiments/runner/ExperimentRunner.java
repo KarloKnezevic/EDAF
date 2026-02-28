@@ -78,7 +78,20 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 /**
- * High-level experiment runner with checkpoint/resume support.
+ * High-level orchestrator for single-run execution with checkpoint/resume support.
+ *
+ * <p>Main responsibilities:
+ * <ul>
+ *     <li>component assembly from validated configuration</li>
+ *     <li>event sink wiring (console/file/json/db/artifacts) with optional async wrappers</li>
+ *     <li>deterministic RNG stream initialization and restoration</li>
+ *     <li>iteration loop, checkpointing, stop-request handling and run finalization</li>
+ * </ul>
+ *
+ * <p>The runner is intentionally side-effect aware: failures in observability paths
+ * are isolated from algorithm state progression whenever safe to do so.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ExperimentRunner {
 
@@ -88,6 +101,9 @@ public final class ExperimentRunner {
     private final ObjectMapper canonicalJsonMapper;
     private final ObjectMapper canonicalYamlMapper;
 
+    /**
+     * Creates runner with default component catalog and object mappers.
+     */
     public ExperimentRunner() {
         this.catalog = new ComponentCatalog();
         this.checkpointStore = new CheckpointStore();
@@ -100,18 +116,40 @@ public final class ExperimentRunner {
                 .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     }
 
+    /**
+     * Lists registered algorithm plugins.
+     *
+     * @return available algorithms
+     */
     public List<Plugin> listAlgorithms() {
         return catalog.listAlgorithms();
     }
 
+    /**
+     * Lists registered model plugins.
+     *
+     * @return available models
+     */
     public List<Plugin> listModels() {
         return catalog.listModels();
     }
 
+    /**
+     * Lists registered problem plugins.
+     *
+     * @return available problems
+     */
     public List<Plugin> listProblems() {
         return catalog.listProblems();
     }
 
+    /**
+     * Executes one configured run from initialization to completion.
+     *
+     * @param config validated experiment configuration
+     * @param additionalSinks externally provided event sinks
+     * @return run execution details and artifact references
+     */
     public RunExecution run(ExperimentConfig config, List<EventSink> additionalSinks) {
         SinkSetup sinkSetup = buildSinks(config, additionalSinks);
         EventBus eventBus = new EventBus();
@@ -167,6 +205,13 @@ public final class ExperimentRunner {
         }
     }
 
+    /**
+     * Resumes a run from checkpoint payload.
+     *
+     * @param checkpointPath checkpoint file path
+     * @param additionalSinks externally provided event sinks
+     * @return resumed run execution details and artifact references
+     */
     public RunExecution resume(Path checkpointPath, List<EventSink> additionalSinks) {
         JsonNode payload = checkpointStore.load(checkpointPath);
         ExperimentConfig config;

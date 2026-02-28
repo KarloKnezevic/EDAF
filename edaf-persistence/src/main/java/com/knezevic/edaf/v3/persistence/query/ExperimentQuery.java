@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Query object for experiment-list filtering, sorting, and pagination.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ExperimentQuery(
         String q,
@@ -22,10 +24,20 @@ public record ExperimentQuery(
         String sortDir
 ) {
 
+    /**
+     * Executes defaults.
+     *
+     * @return the defaults
+     */
     public static ExperimentQuery defaults() {
         return new ExperimentQuery(null, null, null, null, null, null, null, 0, 25, "latest_run_time", "desc");
     }
 
+    /**
+     * Executes offset.
+     *
+     * @return the computed offset
+     */
     public int offset() {
         return Math.max(0, page) * Math.max(1, size);
     }

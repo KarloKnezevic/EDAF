@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 /**
  * Cached statistics for one boolean function truth table.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BooleanFunctionStats {
 
@@ -37,6 +39,9 @@ public final class BooleanFunctionStats {
 
     /**
      * Builds immutable stats object from binary truth table values {0,1}.
+     * @param n problem dimension
+     * @param truthTable boolean function truth table
+     * @return the of
      */
     public static BooleanFunctionStats of(int n, int[] truthTable) {
         if (n < 1 || n > 16) {
@@ -55,22 +60,47 @@ public final class BooleanFunctionStats {
         return new BooleanFunctionStats(n, copy);
     }
 
+    /**
+     * Executes n.
+     *
+     * @return the computed n
+     */
     public int n() {
         return n;
     }
 
+    /**
+     * Executes size.
+     *
+     * @return the number of elements
+     */
     public int size() {
         return size;
     }
 
+    /**
+     * Executes ones.
+     *
+     * @return the computed ones
+     */
     public int ones() {
         return ones;
     }
 
+    /**
+     * Executes zeros.
+     *
+     * @return the computed zeros
+     */
     public int zeros() {
         return size - ones;
     }
 
+    /**
+     * Executes max walsh abs.
+     *
+     * @return the computed max walsh abs
+     */
     public int maxWalshAbs() {
         if (maxWalshAbs == null) {
             int[] transformed = new int[size];
@@ -101,6 +131,11 @@ public final class BooleanFunctionStats {
         return maxWalshAbs;
     }
 
+    /**
+     * Executes nonlinearity.
+     *
+     * @return the computed nonlinearity
+     */
     public double nonlinearity() {
         if (nonlinearity == null) {
             nonlinearity = (size - maxWalshAbs()) / 2.0;
@@ -108,6 +143,11 @@ public final class BooleanFunctionStats {
         return nonlinearity;
     }
 
+    /**
+     * Executes algebraic degree.
+     *
+     * @return the computed algebraic degree
+     */
     public int algebraicDegree() {
         if (algebraicDegree == null) {
             int[] anf = Arrays.copyOf(truthTable, truthTable.length);
@@ -132,6 +172,7 @@ public final class BooleanFunctionStats {
 
     /**
      * Returns known upper bound for nonlinearity.
+     * @return the computed nonlinearity upper bound
      */
     public double nonlinearityUpperBound() {
         if ((n & 1) == 0) {

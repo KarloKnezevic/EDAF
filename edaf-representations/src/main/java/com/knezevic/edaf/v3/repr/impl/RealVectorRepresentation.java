@@ -13,6 +13,8 @@ import java.util.Arrays;
 
 /**
  * Real vector representation with optional per-dimension bounds.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RealVectorRepresentation implements Representation<RealVector> {
 
@@ -20,6 +22,13 @@ public final class RealVectorRepresentation implements Representation<RealVector
     private final double lower;
     private final double upper;
 
+    /**
+     * Creates a new RealVectorRepresentation instance.
+     *
+     * @param length the length argument
+     * @param lower the lower argument
+     * @param upper the upper argument
+     */
     public RealVectorRepresentation(int length, double lower, double upper) {
         if (length <= 0) {
             throw new IllegalArgumentException("length must be > 0");
@@ -32,11 +41,22 @@ public final class RealVectorRepresentation implements Representation<RealVector
         this.upper = upper;
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "real-vector";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public RealVector random(RngStream rng) {
         double[] values = new double[length];
@@ -47,6 +67,12 @@ public final class RealVectorRepresentation implements Representation<RealVector
         return new RealVector(values);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(RealVector genotype) {
         if (genotype == null || genotype.length() != length) {
@@ -60,6 +86,12 @@ public final class RealVectorRepresentation implements Representation<RealVector
         return true;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public RealVector repair(RealVector genotype) {
         if (genotype == null) {
@@ -72,6 +104,12 @@ public final class RealVectorRepresentation implements Representation<RealVector
         return new RealVector(repaired);
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(RealVector genotype) {
         return genotype.toString();

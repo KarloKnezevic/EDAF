@@ -15,19 +15,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for categorical vectors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CategoricalVectorRepresentationPlugin implements RepresentationPlugin<CategoricalVector> {
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "categorical-vector";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Categorical vector representation";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return the create
+     */
     @Override
     public CategoricalVectorRepresentation create(Map<String, Object> params) {
         int length = Params.integer(params, "length", 16);

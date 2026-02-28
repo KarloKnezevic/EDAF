@@ -19,6 +19,8 @@ import java.util.Map;
 
 /**
  * Shared base for cryptographic boolean-function optimization problems.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public abstract class AbstractBooleanFunctionProblem<G> implements Problem<G> {
 
@@ -64,11 +66,22 @@ public abstract class AbstractBooleanFunctionProblem<G> implements Problem<G> {
         this.criterionWeightSum = sum <= 0.0 ? 1.0 : sum;
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MAXIMIZE;
     }
 
+    /**
+     * Executes evaluate scalar fitness.
+     *
+     * @param truthTable boolean function truth table
+     * @return the evaluate scalar fitness
+     */
     protected final ScalarFitness evaluateScalarFitness(int[] truthTable) {
         BooleanFunctionStats stats = BooleanFunctionStats.of(n, truthTable);
         double[] objectiveValues = objectiveValues(stats);
@@ -81,12 +94,25 @@ public abstract class AbstractBooleanFunctionProblem<G> implements Problem<G> {
         return new ScalarFitness(scalar);
     }
 
+    /**
+     * Executes evaluate vector fitness.
+     *
+     * @param truthTable boolean function truth table
+     * @param scalarWeights the scalarWeights argument
+     * @return the evaluate vector fitness
+     */
     protected final VectorFitness evaluateVectorFitness(int[] truthTable, double[] scalarWeights) {
         BooleanFunctionStats stats = BooleanFunctionStats.of(n, truthTable);
         double[] objectiveValues = objectiveValues(stats);
         return new VectorFitness(objectiveValues, scalarWeights);
     }
 
+    /**
+     * Executes objective values.
+     *
+     * @param stats the stats argument
+     * @return the objective values
+     */
     protected final double[] objectiveValues(BooleanFunctionStats stats) {
         double[] values = new double[criteria.size()];
         for (int i = 0; i < criteria.size(); i++) {
@@ -95,6 +121,12 @@ public abstract class AbstractBooleanFunctionProblem<G> implements Problem<G> {
         return values;
     }
 
+    /**
+     * Converts to truth table from bits.
+     *
+     * @param bits the bits argument
+     * @return the truth table from bits representation
+     */
     protected final int[] toTruthTableFromBits(boolean[] bits) {
         int[] table = new int[truthTableSize];
         int limit = Math.min(bits.length, table.length);
@@ -104,6 +136,12 @@ public abstract class AbstractBooleanFunctionProblem<G> implements Problem<G> {
         return table;
     }
 
+    /**
+     * Converts to truth table from balanced permutation.
+     *
+     * @param permutation the permutation argument
+     * @return the truth table from balanced permutation representation
+     */
     protected final int[] toTruthTableFromBalancedPermutation(int[] permutation) {
         int[] table = new int[truthTableSize];
         int onesCount = truthTableSize / 2;
@@ -117,22 +155,48 @@ public abstract class AbstractBooleanFunctionProblem<G> implements Problem<G> {
         return table;
     }
 
+    /**
+     * Returns number of objectives.
+     *
+     * @return objective count
+     */
     @Override
     public int objectiveCount() {
         return criteria.size();
     }
 
+    /**
+     * Executes variable count.
+     *
+     * @return the computed variable count
+     */
     public int variableCount() {
         return n;
     }
 
+    /**
+     * Executes truth table size.
+     *
+     * @return the computed truth table size
+     */
     public int truthTableSize() {
         return truthTableSize;
     }
 
+    /**
+     * Executes criterion ids.
+     *
+     * @return the criterion ids
+     */
     public List<String> criterionIds() {
         return Collections.unmodifiableList(criterionIds);
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     public abstract Fitness evaluate(G genotype);
 }

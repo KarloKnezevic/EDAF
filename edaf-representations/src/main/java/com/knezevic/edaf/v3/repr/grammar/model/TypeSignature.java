@@ -14,6 +14,8 @@ import java.util.List;
  *
  * <p>This keeps the current untyped execution path lightweight while allowing
  * future strongly-typed GP extensions without refactoring core model classes.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record TypeSignature(ValueType outputType, List<ValueType> inputTypes) {
 
@@ -29,6 +31,8 @@ public record TypeSignature(ValueType outputType, List<ValueType> inputTypes) {
 
     /**
      * Convenience factory for leaf symbols with no arguments.
+     * @param outputType the outputType argument
+     * @return the leaf
      */
     public static TypeSignature leaf(ValueType outputType) {
         return new TypeSignature(outputType, List.of());
@@ -36,6 +40,7 @@ public record TypeSignature(ValueType outputType, List<ValueType> inputTypes) {
 
     /**
      * Returns true when this signature has no explicit input argument types.
+     * @return true if leaf; otherwise false
      */
     public boolean isLeaf() {
         return inputTypes.isEmpty();

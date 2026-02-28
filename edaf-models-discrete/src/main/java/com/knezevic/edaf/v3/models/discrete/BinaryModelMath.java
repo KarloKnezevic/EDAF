@@ -17,7 +17,22 @@ import java.util.Deque;
 import java.util.List;
 
 /**
- * Shared statistics and sampling utilities for binary dependency models.
+ * Shared statistics/sampling utilities for binary probabilistic models.
+ *
+ * <p>The helpers centralize mathematically sensitive operations used by UMDA,
+ * PBIL, BMDA, BOA-like and Chow-Liu-style models:
+ * <ul>
+ *     <li>Laplace-smoothed marginals</li>
+ *     <li>pairwise mutual information matrix</li>
+ *     <li>maximum spanning tree extraction</li>
+ *     <li>tree-topology traversal and conditional sampling</li>
+ *     <li>entropy/probability clamping primitives</li>
+ * </ul>
+ *
+ * <p>All probabilities are clamped to avoid exact 0/1 values that break
+ * logarithms and destabilize iterative model updates.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 final class BinaryModelMath {
 

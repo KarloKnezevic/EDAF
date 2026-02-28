@@ -14,6 +14,12 @@ public abstract sealed class Terminal implements GrammarSymbol
     private final String symbol;
     private final TypeSignature typeSignature;
 
+    /**
+     * Creates a new Terminal instance.
+     *
+     * @param symbol grammar symbol
+     * @param typeSignature type signature
+     */
     protected Terminal(String symbol, TypeSignature typeSignature) {
         if (symbol == null || symbol.isBlank()) {
             throw new IllegalArgumentException("Terminal symbol must not be blank");
@@ -24,16 +30,31 @@ public abstract sealed class Terminal implements GrammarSymbol
                 : typeSignature;
     }
 
+    /**
+     * Executes symbol.
+     *
+     * @return the symbol
+     */
     @Override
     public final String symbol() {
         return symbol;
     }
 
+    /**
+     * Executes type signature.
+     *
+     * @return the type signature
+     */
     @Override
     public final TypeSignature typeSignature() {
         return typeSignature;
     }
 
+    /**
+     * Converts to string.
+     *
+     * @return the string representation
+     */
     @Override
     public String toString() {
         return symbol;

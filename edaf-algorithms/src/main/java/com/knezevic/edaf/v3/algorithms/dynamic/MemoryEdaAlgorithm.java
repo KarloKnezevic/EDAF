@@ -7,6 +7,23 @@ package com.knezevic.edaf.v3.algorithms.dynamic;
 
 /**
  * Memory-based dynamic EDA driver using EMA-smoothed improvement signal.
+ *
+ * <p>Selection ratio adaptation is driven by:
+ * <pre>
+ *   m_t = β m_{t-1} + (1-β) Δ_t
+ * </pre>
+ * where {@code Δ_t} is normalized best-fitness improvement and {@code β} is
+ * {@code memoryDecay}. If {@code m_t} falls below target, the algorithm increases
+ * exploration by raising elite ratio.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>R. W. Eberhart and Y. Shi, "Tracking and optimizing dynamic systems with particle
+ *   swarms," CEC, 2001. The same memory principle is adapted here to EDA ratio control.</li>
+ *   <li>J. Branke, "Evolutionary Optimization in Dynamic Environments," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MemoryEdaAlgorithm<G> extends AdaptiveRatioEdaAlgorithm<G> {
 
@@ -28,6 +45,11 @@ public final class MemoryEdaAlgorithm<G> extends AdaptiveRatioEdaAlgorithm<G> {
         this.adjustmentStep = Math.max(1.0e-4, adjustmentStep);
     }
 
+    /**
+     * Updates adaptive ratio from EMA-smoothed normalized improvement.
+     *
+     * @param normalizedImprovement normalized fitness improvement for current iteration
+     */
     @Override
     protected void adaptRatio(double normalizedImprovement) {
         if (!initialized) {

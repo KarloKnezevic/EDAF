@@ -15,19 +15,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for mixed real/discrete vectors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MixedRealDiscreteVectorRepresentationPlugin implements RepresentationPlugin<MixedRealDiscreteVector> {
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "mixed-real-discrete-vector";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Mixed real and discrete representation";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return the create
+     */
     @Override
     public MixedRealDiscreteVectorRepresentation create(Map<String, Object> params) {
         int realDimensions = Params.integer(params, "realDimensions", 8);

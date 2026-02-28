@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Typed parameter extraction helpers used by plugin factories.
+ * Typed parameter extraction helpers used by configuration-driven factories.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class Params {
 
@@ -17,11 +19,27 @@ public final class Params {
         // utility class
     }
 
+    /**
+     * Reads a string parameter from a generic parameter map.
+     *
+     * @param params parameter map
+     * @param key parameter key
+     * @param defaultValue fallback value when key is missing
+     * @return string value for {@code key}, or {@code defaultValue} when absent
+     */
     public static String str(Map<String, Object> params, String key, String defaultValue) {
         Object value = params.get(key);
         return value == null ? defaultValue : String.valueOf(value);
     }
 
+    /**
+     * Reads an integer parameter from a generic parameter map.
+     *
+     * @param params parameter map
+     * @param key parameter key
+     * @param defaultValue fallback value when key is missing
+     * @return parsed integer for {@code key}, or {@code defaultValue} when absent
+     */
     public static int integer(Map<String, Object> params, String key, int defaultValue) {
         Object value = params.get(key);
         if (value == null) {
@@ -33,6 +51,14 @@ public final class Params {
         return Integer.parseInt(String.valueOf(value));
     }
 
+    /**
+     * Reads a long parameter from a generic parameter map.
+     *
+     * @param params parameter map
+     * @param key parameter key
+     * @param defaultValue fallback value when key is missing
+     * @return parsed long for {@code key}, or {@code defaultValue} when absent
+     */
     public static long longValue(Map<String, Object> params, String key, long defaultValue) {
         Object value = params.get(key);
         if (value == null) {
@@ -44,6 +70,14 @@ public final class Params {
         return Long.parseLong(String.valueOf(value));
     }
 
+    /**
+     * Reads a double parameter from a generic parameter map.
+     *
+     * @param params parameter map
+     * @param key parameter key
+     * @param defaultValue fallback value when key is missing
+     * @return parsed double for {@code key}, or {@code defaultValue} when absent
+     */
     public static double dbl(Map<String, Object> params, String key, double defaultValue) {
         Object value = params.get(key);
         if (value == null) {
@@ -55,6 +89,14 @@ public final class Params {
         return Double.parseDouble(String.valueOf(value));
     }
 
+    /**
+     * Reads a boolean parameter from a generic parameter map.
+     *
+     * @param params parameter map
+     * @param key parameter key
+     * @param defaultValue fallback value when key is missing
+     * @return parsed boolean for {@code key}, or {@code defaultValue} when absent
+     */
     public static boolean bool(Map<String, Object> params, String key, boolean defaultValue) {
         Object value = params.get(key);
         if (value == null) {
@@ -66,6 +108,13 @@ public final class Params {
         return Boolean.parseBoolean(String.valueOf(value));
     }
 
+    /**
+     * Reads a nested map parameter.
+     *
+     * @param params parameter map
+     * @param key parameter key
+     * @return nested map value for {@code key}, or empty map when absent
+     */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> map(Map<String, Object> params, String key) {
         Object value = params.get(key);
@@ -75,6 +124,13 @@ public final class Params {
         return (Map<String, Object>) value;
     }
 
+    /**
+     * Reads a list parameter.
+     *
+     * @param params parameter map
+     * @param key parameter key
+     * @return list value for {@code key}, or empty list when absent
+     */
     @SuppressWarnings("unchecked")
     public static List<Object> list(Map<String, Object> params, String key) {
         Object value = params.get(key);

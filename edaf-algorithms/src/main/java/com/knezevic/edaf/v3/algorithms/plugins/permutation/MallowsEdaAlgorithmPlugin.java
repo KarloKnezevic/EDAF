@@ -15,20 +15,39 @@ import com.knezevic.edaf.v3.repr.types.PermutationVector;
 import java.util.Map;
 
 /**
- * Plugin for Mallows EDA driver
+  * Plugin for Mallows EDA driver.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MallowsEdaAlgorithmPlugin implements AlgorithmPlugin<PermutationVector> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "mallows-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Mallows EDA driver";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<PermutationVector> create(AlgorithmDependencies<PermutationVector> dependencies, Map<String, Object> params) {
         return new MallowsEdaAlgorithm(Params.dbl(params, "selectionRatio", 0.5));

@@ -14,12 +14,20 @@ import java.util.stream.Collectors;
 
 /**
  * Orchestrates report generation for one run across requested formats.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ReportService {
 
     private final RunRepository repository;
     private final Map<String, ReportGenerator> generators;
 
+    /**
+     * Creates a new ReportService instance.
+     *
+     * @param repository repository dependency
+     * @param generators the generators argument
+     */
     public ReportService(RunRepository repository, List<ReportGenerator> generators) {
         this.repository = repository;
         this.generators = generators.stream().collect(Collectors.toMap(ReportGenerator::format, g -> g));
@@ -27,6 +35,10 @@ public final class ReportService {
 
     /**
      * Generates all requested formats for a run.
+     * @param runId run identifier
+     * @param outputDir output directory path
+     * @param formats report format list
+     * @return generated artifact path
      */
     public Map<String, Path> generate(String runId, Path outputDir, List<String> formats) {
         var run = repository.getRun(runId);

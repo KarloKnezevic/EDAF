@@ -11,6 +11,8 @@ import java.time.Instant;
 
 /**
  * Event emitted whenever adaptive control modifies exploration/restart behavior.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record AdaptiveActionEvent(
         String runId,
@@ -19,6 +21,11 @@ public record AdaptiveActionEvent(
         AdaptiveActionRecord action
 ) implements RunEvent {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "adaptive_action";

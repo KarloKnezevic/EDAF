@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.core.rng.RngStream;
 
 /**
  * Policy controlling run restarts when stagnation or degeneracy is detected.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface RestartPolicy<G> {
 

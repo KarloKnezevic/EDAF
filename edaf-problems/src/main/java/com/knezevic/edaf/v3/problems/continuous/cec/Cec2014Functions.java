@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentMap;
  * <p>This implementation keeps the same CEC-style API and function indexing (1..30)
  * with deterministic instance transforms. Formulas are intentionally compact and
  * engineering-focused for repeatable benchmarking inside EDAF.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class Cec2014Functions {
 
@@ -27,6 +29,10 @@ public final class Cec2014Functions {
 
     /**
      * Evaluates one CEC-style function in range 1..30.
+     * @param functionId benchmark function identifier
+     * @param x input vector
+     * @param instanceId benchmark instance identifier
+     * @return fitness value
      */
     public static double evaluate(int functionId, double[] x, int instanceId) {
         if (functionId < 1 || functionId > 30) {

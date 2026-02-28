@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Event row with type and JSON payload.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record EventRow(
         long id,

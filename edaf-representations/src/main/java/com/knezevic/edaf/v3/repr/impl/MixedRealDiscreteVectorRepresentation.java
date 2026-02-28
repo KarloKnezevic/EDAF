@@ -13,6 +13,8 @@ import java.util.Arrays;
 
 /**
  * Mixed real/discrete representation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MixedRealDiscreteVectorRepresentation implements Representation<MixedRealDiscreteVector> {
 
@@ -21,6 +23,14 @@ public final class MixedRealDiscreteVectorRepresentation implements Representati
     private final double lower;
     private final double upper;
 
+    /**
+     * Creates a new MixedRealDiscreteVectorRepresentation instance.
+     *
+     * @param realDimensions the realDimensions argument
+     * @param cardinalities the cardinalities argument
+     * @param lower the lower argument
+     * @param upper the upper argument
+     */
     public MixedRealDiscreteVectorRepresentation(int realDimensions, int[] cardinalities, double lower, double upper) {
         if (realDimensions < 0) {
             throw new IllegalArgumentException("realDimensions must be >= 0");
@@ -34,11 +44,22 @@ public final class MixedRealDiscreteVectorRepresentation implements Representati
         this.upper = upper;
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "mixed-real-discrete-vector";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public MixedRealDiscreteVector random(RngStream rng) {
         double[] real = new double[realDimensions];
@@ -55,6 +76,12 @@ public final class MixedRealDiscreteVectorRepresentation implements Representati
         return new MixedRealDiscreteVector(real, discrete);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(MixedRealDiscreteVector genotype) {
         if (genotype == null || genotype.realPart().length != realDimensions || genotype.discretePart().length != cardinalities.length) {
@@ -73,6 +100,12 @@ public final class MixedRealDiscreteVectorRepresentation implements Representati
         return true;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public MixedRealDiscreteVector repair(MixedRealDiscreteVector genotype) {
         if (genotype == null) {
@@ -94,6 +127,12 @@ public final class MixedRealDiscreteVectorRepresentation implements Representati
         return new MixedRealDiscreteVector(repairedReal, repairedDiscrete);
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(MixedRealDiscreteVector genotype) {
         return genotype.toString();

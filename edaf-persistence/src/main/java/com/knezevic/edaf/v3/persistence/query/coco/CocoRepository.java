@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * Read-side repository for COCO campaign dashboards and reports.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface CocoRepository {
 

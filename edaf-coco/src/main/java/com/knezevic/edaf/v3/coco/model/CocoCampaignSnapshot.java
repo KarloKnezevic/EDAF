@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Rich campaign snapshot used by HTML report generation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CocoCampaignSnapshot(
         String campaignId,

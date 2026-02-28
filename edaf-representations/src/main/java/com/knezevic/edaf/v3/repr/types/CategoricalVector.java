@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 /**
  * Categorical genotype where each position stores one symbol.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CategoricalVector(String[] categories) {
 
@@ -16,10 +18,20 @@ public record CategoricalVector(String[] categories) {
         categories = Arrays.copyOf(categories, categories.length);
     }
 
+    /**
+     * Executes length.
+     *
+     * @return the computed length
+     */
     public int length() {
         return categories.length;
     }
 
+    /**
+     * Converts to string.
+     *
+     * @return the string representation
+     */
     @Override
     public String toString() {
         return Arrays.toString(categories);

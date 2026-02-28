@@ -19,7 +19,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * xNES-style full-covariance model with rank-based natural gradient updates.
+ * Exponential NES (xNES) full-covariance model.
+ *
+ * <p>xNES performs natural-gradient updates in a Gaussian search distribution:
+ * <pre>
+ *   x = μ + A z,   z ~ N(0, I),   Σ = A Aᵀ
+ * </pre>
+ * using rank-based utilities to estimate gradients for both location and
+ * covariance geometry. This implementation applies the equivalent covariance
+ * step in matrix space and then re-factorizes with Cholesky decomposition.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>T. Glasmachers et al., "Exponential natural evolution strategies,"
+ *   GECCO, 2010.</li>
+ *   <li>D. Wierstra et al., "Natural evolution strategies," JMLR, 2014.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class XNesModel implements Model<RealVector> {
 
@@ -32,17 +49,36 @@ public final class XNesModel implements Model<RealVector> {
     private double[][] cholesky;
     private double lastUpdateNorm;
 
+    /**
+     * Creates a new XNesModel instance.
+     *
+     * @param etaMean learning rate for mean update
+     * @param etaCovariance learning rate for covariance update
+     * @param jitter minimum diagonal regularization
+     */
     public XNesModel(double etaMean, double etaCovariance, double jitter) {
         this.etaMean = Math.max(1.0e-4, etaMean);
         this.etaCovariance = Math.max(1.0e-4, etaCovariance);
         this.jitter = Math.max(1.0e-12, jitter);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "xnes";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -126,6 +162,11 @@ public final class XNesModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (mean == null || covariance == null) {

@@ -16,19 +16,38 @@ import java.util.Map;
 
 /**
  * Plugin for Gaussian diagonal EDA driver algorithm.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GaussianEdaAlgorithmPlugin implements AlgorithmPlugin<RealVector> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "gaussian-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Gaussian diagonal EDA driver";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<RealVector> create(AlgorithmDependencies<RealVector> dependencies, Map<String, Object> params) {
         return new GaussianDiagEdaAlgorithm(Params.dbl(params, "selectionRatio", 0.4));

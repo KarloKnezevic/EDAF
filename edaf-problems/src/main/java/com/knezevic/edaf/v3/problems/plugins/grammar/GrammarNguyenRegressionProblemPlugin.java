@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin for Nguyen symbolic regression benchmarks using grammar representation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarNguyenRegressionProblemPlugin implements ProblemPlugin<BitString> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "grammar-nguyen-regression";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Grammar-based Nguyen symbolic regression benchmark";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public GrammarNguyenRegressionProblem create(Map<String, Object> params) {
         int variant = Params.integer(params, "variant", 1);

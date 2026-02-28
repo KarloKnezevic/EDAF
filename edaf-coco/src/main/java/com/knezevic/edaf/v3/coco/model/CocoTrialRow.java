@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.coco.model;
 
 /**
  * Persisted COCO trial row.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CocoTrialRow(
         String campaignId,

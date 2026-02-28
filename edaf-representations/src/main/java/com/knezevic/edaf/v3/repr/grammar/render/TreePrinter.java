@@ -19,11 +19,15 @@ import java.util.Locale;
 
 /**
  * Expression renderers for derivation trees.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TreePrinter {
 
     /**
      * Prints tree in readable infix/function form.
+     * @param tree derivation tree
+     * @return infix expression
      */
     public String toInfix(DerivationTree tree) {
         return print(tree, Mode.INFIX);
@@ -31,6 +35,8 @@ public final class TreePrinter {
 
     /**
      * Prints tree in prefix function form.
+     * @param tree derivation tree
+     * @return prefix expression
      */
     public String toPrefix(DerivationTree tree) {
         return print(tree, Mode.PREFIX);
@@ -38,6 +44,8 @@ public final class TreePrinter {
 
     /**
      * Prints tree in LaTeX-like mathematical form.
+     * @param tree derivation tree
+     * @return latex expression
      */
     public String toLatex(DerivationTree tree) {
         return print(tree, Mode.LATEX);
@@ -45,6 +53,8 @@ public final class TreePrinter {
 
     /**
      * Exports tree as Graphviz DOT graph.
+     * @param tree derivation tree
+     * @return dot graph text
      */
     public String toDot(DerivationTree tree) {
         StringBuilder sb = new StringBuilder();

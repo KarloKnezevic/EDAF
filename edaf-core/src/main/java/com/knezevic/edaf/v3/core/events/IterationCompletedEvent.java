@@ -15,6 +15,8 @@ import java.util.Map;
 
 /**
  * Event emitted on each iteration with metrics and model diagnostics.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record IterationCompletedEvent(
         String runId,
@@ -32,6 +34,11 @@ public record IterationCompletedEvent(
         List<AdaptiveActionRecord> adaptiveActions
 ) implements RunEvent {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "iteration_completed";

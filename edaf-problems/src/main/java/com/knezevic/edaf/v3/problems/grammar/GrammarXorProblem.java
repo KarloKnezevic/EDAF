@@ -16,23 +16,44 @@ import java.util.Map;
 
 /**
  * Boolean XOR symbolic classification benchmark.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarXorProblem extends AbstractGrammarBitStringProblem {
 
     private final int bits;
     private final String variablePrefix;
 
+    /**
+     * Creates a new GrammarXorProblem instance.
+     *
+     * @param params configuration the input value map
+     * @param bits the bits argument
+     * @param variablePrefix the variablePrefix argument
+     * @param complexityPenalty the complexityPenalty argument
+     */
     public GrammarXorProblem(Map<String, Object> params, int bits, String variablePrefix, double complexityPenalty) {
         super(params, complexityPenalty);
         this.bits = Math.max(2, bits);
         this.variablePrefix = variablePrefix == null || variablePrefix.isBlank() ? "x" : variablePrefix;
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "grammar-xor-" + bits;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         GrammarTreeEngine.TreeInspection inspection = inspect(genotype);

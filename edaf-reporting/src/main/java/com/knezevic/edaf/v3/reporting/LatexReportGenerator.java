@@ -15,9 +15,19 @@ import java.util.List;
 
 /**
  * Generates compact LaTeX report source for reproducible papers.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class LatexReportGenerator implements ReportGenerator {
 
+    /**
+     * Generates report artifact.
+     *
+     * @param run the run argument
+     * @param iterations the iterations argument
+     * @param outputDir output directory path
+     * @return generated artifact path
+     */
     @Override
     public Path generate(RunSummary run, List<IterationMetric> iterations, Path outputDir) {
         try {
@@ -59,6 +69,11 @@ public final class LatexReportGenerator implements ReportGenerator {
         }
     }
 
+    /**
+     * Executes format.
+     *
+     * @return the format
+     */
     @Override
     public String format() {
         return "latex";

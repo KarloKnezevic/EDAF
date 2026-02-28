@@ -15,6 +15,8 @@ import java.util.Locale;
 
 /**
  * Symbolic classifier over CSV datasets (binary and multiclass).
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarCsvClassificationProblem extends AbstractGrammarBitStringProblem {
 
@@ -41,11 +43,22 @@ public final class GrammarCsvClassificationProblem extends AbstractGrammarBitStr
         this.binaryThreshold = binaryThreshold;
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "grammar-csv-classification";
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         var inspection = inspect(genotype);

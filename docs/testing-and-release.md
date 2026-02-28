@@ -23,7 +23,8 @@ Gate criteria:
 2. Spotless check passes.
 3. `edaf-web` packages successfully.
 4. Docker runner and web images build from clean context.
-5. No generated artifacts pollute root directory.
+5. Aggregated JavaDoc generation succeeds.
+6. No generated artifacts pollute root directory.
 
 ## 2) Full test commands
 
@@ -48,6 +49,12 @@ mvn -q -pl edaf-web -am package -DskipTests
 mvn -q -pl edaf-core,edaf-experiments -am test
 ./edaf config validate configs/umda-onemax-v3.yml
 ./edaf run -c configs/umda-onemax-v3.yml --verbosity quiet
+```
+
+## 2.4 API JavaDoc generation
+
+```bash
+./scripts/docs/build-javadocs.sh
 ```
 
 ## 3) Parallelism validation

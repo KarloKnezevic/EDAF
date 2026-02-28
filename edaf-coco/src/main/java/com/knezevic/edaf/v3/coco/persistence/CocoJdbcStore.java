@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 /**
  * JDBC write/read helper for COCO campaign data.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CocoJdbcStore {
 
@@ -43,6 +45,11 @@ public final class CocoJdbcStore {
     private final DataSource dataSource;
     private final ObjectMapper mapper;
 
+    /**
+     * Creates a new CocoJdbcStore instance.
+     *
+     * @param dataSource the dataSource argument
+     */
     public CocoJdbcStore(DataSource dataSource) {
         this.dataSource = dataSource;
         this.mapper = new ObjectMapper();
@@ -50,6 +57,7 @@ public final class CocoJdbcStore {
 
     /**
      * Creates or updates campaign row and marks it running.
+     * @param config configuration object
      */
     public void upsertCampaignStarted(CocoCampaignConfig config) {
         String sql = """
@@ -89,6 +97,9 @@ public final class CocoJdbcStore {
 
     /**
      * Marks campaign final state.
+     * @param campaignId campaign identifier
+     * @param status the status argument
+     * @param notes the notes argument
      */
     public void updateCampaignStatus(String campaignId, String status, String notes) {
         String sql = """
@@ -145,6 +156,7 @@ public final class CocoJdbcStore {
 
     /**
      * Persists one trial result.
+     * @param trial the trial argument
      */
     public void upsertTrial(CocoTrialOutcome trial) {
         String sql = """
@@ -193,6 +205,9 @@ public final class CocoJdbcStore {
 
     /**
      * Finds evaluations count where best fitness first reached target, or null if never reached.
+     * @param runId run identifier
+     * @param target the target argument
+     * @return the matching evaluations to target, or null if none matches
      */
     public Long findEvaluationsToTarget(String runId, double target) {
         String sql = """
@@ -220,6 +235,10 @@ public final class CocoJdbcStore {
 
     /**
      * Rebuilds campaign aggregates from trial rows and optional imported references.
+     * @param campaignId campaign identifier
+     * @param suite the suite argument
+     * @param targetValue the targetValue argument
+     * @param referenceMode the referenceMode argument
      */
     public void rebuildAggregates(String campaignId, String suite, double targetValue, String referenceMode) {
         List<CocoTrialRow> trials = listTrials(campaignId);
@@ -281,6 +300,10 @@ public final class CocoJdbcStore {
 
     /**
      * Imports reference data CSV into baseline table.
+     * @param csvPath the csvPath argument
+     * @param suite the suite argument
+     * @param sourceUrl the sourceUrl argument
+     * @return the computed import reference csv
      */
     public int importReferenceCsv(Path csvPath, String suite, String sourceUrl) {
         List<String> lines;
@@ -323,6 +346,8 @@ public final class CocoJdbcStore {
 
     /**
      * Loads a complete snapshot used by COCO HTML report generation.
+     * @param campaignId campaign identifier
+     * @return the load snapshot
      */
     public CocoCampaignSnapshot loadSnapshot(String campaignId) {
         String campaignSql = """
@@ -360,6 +385,12 @@ public final class CocoJdbcStore {
         }
     }
 
+    /**
+     * Lists trials.
+     *
+     * @param campaignId campaign identifier
+     * @return the list trials
+     */
     public List<CocoTrialRow> listTrials(String campaignId) {
         String sql = """
                 SELECT campaign_id, optimizer_id, run_id, function_id, instance_id, dimension,
@@ -401,6 +432,12 @@ public final class CocoJdbcStore {
         }
     }
 
+    /**
+     * Lists aggregates.
+     *
+     * @param campaignId campaign identifier
+     * @return the list aggregates
+     */
     public List<CocoAggregateRow> listAggregates(String campaignId) {
         String sql = """
                 SELECT campaign_id, optimizer_id, dimension, target_value,
@@ -437,6 +474,12 @@ public final class CocoJdbcStore {
         }
     }
 
+    /**
+     * Lists optimizers.
+     *
+     * @param campaignId campaign identifier
+     * @return the list optimizers
+     */
     public List<CocoOptimizerRow> listOptimizers(String campaignId) {
         String sql = """
                 SELECT campaign_id, optimizer_id, config_path, algorithm_type, model_type, representation_type, created_at

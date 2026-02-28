@@ -19,22 +19,51 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * PBIL-style frequency model with exponential moving-average updates.
+ * Population-Based Incremental Learning (PBIL) probability-vector model.
+ *
+ * <p>After each elite selection step, bit probabilities are updated by an
+ * exponential moving average:
+ * <pre>
+ *   p_i(t+1) = (1 - η) p_i(t) + η * mean_elite(x_i)
+ * </pre>
+ * where {@code η} is {@code learningRate}.</p>
+ *
+ * <p>The model clamps each {@code p_i} to {@code [1e-6, 1-1e-6]} to preserve
+ * exploration and avoid numerical degeneracy in long runs.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class PbilFrequencyModel implements Model<BitString> {
 
     private final double learningRate;
     private double[] probabilities;
 
+    /**
+     * Creates a new PbilFrequencyModel instance.
+     *
+     * @param learningRate EMA step size ({@code η}) in {@code [0.01, 1.0]}
+      */
     public PbilFrequencyModel(double learningRate) {
         this.learningRate = Math.max(0.01, Math.min(1.0, learningRate));
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "pbil-frequency";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<BitString>> selected, Representation<BitString> representation, RngStream rng) {
         if (selected.isEmpty()) {
@@ -81,6 +110,11 @@ public final class PbilFrequencyModel implements Model<BitString> {
         return result;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (probabilities == null) {

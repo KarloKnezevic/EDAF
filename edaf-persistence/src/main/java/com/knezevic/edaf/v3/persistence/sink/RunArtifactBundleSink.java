@@ -32,6 +32,8 @@ import java.util.Map;
 
 /**
  * Writes a self-contained run artifact bundle used by offline reporting and web fallback loading.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RunArtifactBundleSink implements EventSink {
 
@@ -84,6 +86,11 @@ public final class RunArtifactBundleSink implements EventSink {
         this.resolvedJson = resolvedJson;
     }
 
+    /**
+     * Executes on event.
+     *
+     * @param event run event payload
+     */
     @Override
     public synchronized void onEvent(RunEvent event) {
         ensureInitialized();
@@ -117,26 +124,56 @@ public final class RunArtifactBundleSink implements EventSink {
         }
     }
 
+    /**
+     * Executes run directory.
+     *
+     * @return the run directory
+     */
     public Path runDirectory() {
         return runDirectory;
     }
 
+    /**
+     * Executes telemetry jsonl.
+     *
+     * @return the telemetry jsonl
+     */
     public Path telemetryJsonl() {
         return telemetryJsonl;
     }
 
+    /**
+     * Executes metrics csv.
+     *
+     * @return the metrics csv
+     */
     public Path metricsCsv() {
         return metricsCsv;
     }
 
+    /**
+     * Executes events jsonl.
+     *
+     * @return the events jsonl
+     */
     public Path eventsJsonl() {
         return eventsJsonl;
     }
 
+    /**
+     * Executes summary json.
+     *
+     * @return the summary json
+     */
     public Path summaryJson() {
         return summaryJson;
     }
 
+    /**
+     * Executes report html.
+     *
+     * @return the report html
+     */
     public Path reportHtml() {
         return reportHtml;
     }

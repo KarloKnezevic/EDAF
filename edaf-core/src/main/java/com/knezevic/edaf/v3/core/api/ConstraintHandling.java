@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.core.rng.RngStream;
 
 /**
  * Strategy for handling infeasible sampled genotypes.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface ConstraintHandling<G> {
 

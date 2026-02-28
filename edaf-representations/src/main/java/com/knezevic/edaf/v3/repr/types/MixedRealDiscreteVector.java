@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 /**
  * Mixed representation with real and discrete sections.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record MixedRealDiscreteVector(double[] realPart, int[] discretePart) {
 
@@ -17,6 +19,11 @@ public record MixedRealDiscreteVector(double[] realPart, int[] discretePart) {
         discretePart = Arrays.copyOf(discretePart, discretePart.length);
     }
 
+    /**
+     * Converts to string.
+     *
+     * @return the string representation
+     */
     @Override
     public String toString() {
         return "MixedRealDiscreteVector{" +

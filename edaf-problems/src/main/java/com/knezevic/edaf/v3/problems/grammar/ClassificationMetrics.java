@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.problems.grammar;
 
 /**
  * Utility functions for single-label classification metric computation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ClassificationMetrics {
 
@@ -16,6 +18,8 @@ public final class ClassificationMetrics {
 
     /**
      * Computes plain classification accuracy from confusion matrix.
+     * @param confusion the confusion argument
+     * @return the computed accuracy
      */
     public static double accuracy(int[][] confusion) {
         long correct = 0;
@@ -38,6 +42,8 @@ public final class ClassificationMetrics {
 
     /**
      * Computes macro averaged F1 score across all classes.
+     * @param confusion the confusion argument
+     * @return the computed macro f1
      */
     public static double macroF1(int[][] confusion) {
         if (confusion.length == 0) {
@@ -52,6 +58,9 @@ public final class ClassificationMetrics {
 
     /**
      * Computes F1 score for a selected positive class in one-vs-rest view.
+     * @param confusion the confusion argument
+     * @param positiveClassIndex the positiveClassIndex argument
+     * @return the computed binary f1
      */
     public static double binaryF1(int[][] confusion, int positiveClassIndex) {
         if (confusion.length == 0) {

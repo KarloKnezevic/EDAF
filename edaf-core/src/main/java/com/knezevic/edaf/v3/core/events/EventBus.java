@@ -10,6 +10,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Thread-safe event fan-out used as the observability backbone.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class EventBus implements AutoCloseable {
 
@@ -17,6 +19,7 @@ public final class EventBus implements AutoCloseable {
 
     /**
      * Registers a sink.
+     * @param sink event sink
      */
     public void register(EventSink sink) {
         sinks.add(sink);
@@ -24,6 +27,7 @@ public final class EventBus implements AutoCloseable {
 
     /**
      * Publishes an event to all registered sinks.
+     * @param event event payload
      */
     public void publish(RunEvent event) {
         for (EventSink sink : sinks) {
@@ -33,11 +37,16 @@ public final class EventBus implements AutoCloseable {
 
     /**
      * Returns number of currently registered sinks.
+     * @return the computed sink count
      */
     public int sinkCount() {
         return sinks.size();
     }
 
+    /**
+     * Executes close.
+     *
+     */
     @Override
     public void close() {
         RuntimeException failure = null;

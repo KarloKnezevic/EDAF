@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.repr.grammar.ops.OperatorDefinition;
 
 /**
  * Terminal that references one executable operator definition.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class OperatorTerminal extends Terminal {
 
@@ -16,6 +18,7 @@ public final class OperatorTerminal extends Terminal {
 
     /**
      * Creates operator terminal.
+     * @param operator operator definition
      */
     public OperatorTerminal(OperatorDefinition operator) {
         super(operator == null ? "" : operator.name(), operator == null ? null : operator.typeSignature());
@@ -27,6 +30,7 @@ public final class OperatorTerminal extends Terminal {
 
     /**
      * Bound operator implementation.
+     * @return the operator
      */
     public OperatorDefinition operator() {
         return operator;

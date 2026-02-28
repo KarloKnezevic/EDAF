@@ -13,6 +13,8 @@ import java.util.Arrays;
  * <p>When {@code exact=true}, {@code valid} is mathematically exact.
  * In sampled mode, {@code valid=true} means no violating subset was observed and
  * the returned confidence bound quantifies residual uncertainty.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record DisjunctMatrixValidationResult(
         String definition,
@@ -37,6 +39,7 @@ public record DisjunctMatrixValidationResult(
 
     /**
      * Returns true only when a concrete violating subset witness was discovered.
+     * @return true if the instance has witness; otherwise false
      */
     public boolean hasWitness() {
         return witnessSubset.length > 0;

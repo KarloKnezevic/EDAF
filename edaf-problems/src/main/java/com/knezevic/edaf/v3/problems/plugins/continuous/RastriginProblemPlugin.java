@@ -13,19 +13,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for Rastrigin problem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RastriginProblemPlugin implements ProblemPlugin<RealVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "rastrigin";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Rastrigin benchmark";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public RastriginProblem create(Map<String, Object> params) {
         return new RastriginProblem();

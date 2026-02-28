@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for sparse BOA/EBNA Bayesian-network model.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BoaEbnaModelPlugin implements ModelPlugin<BitString> {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "boa-ebna";
     }
 
+    /**
+     * Returns a short human-readable component description.
+     *
+     * @return human-readable model description
+     */
     @Override
     public String description() {
         return "BOA/EBNA Bayesian-network model with sparse parent sets";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params model parameter map from YAML configuration
+     * @return created component
+     */
     @Override
     public BoaEbnaModel create(Map<String, Object> params) {
         return new BoaEbnaModel(

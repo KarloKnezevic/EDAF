@@ -22,11 +22,16 @@ import java.util.stream.Collectors;
 
 /**
  * Generates standalone HTML report for one COCO campaign.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CocoHtmlReportGenerator {
 
     /**
      * Writes COCO campaign report and returns output path.
+     * @param snapshot the snapshot argument
+     * @param outputDirectory the outputDirectory argument
+     * @return generated artifact path
      */
     public Path generate(CocoCampaignSnapshot snapshot, Path outputDirectory) {
         try {

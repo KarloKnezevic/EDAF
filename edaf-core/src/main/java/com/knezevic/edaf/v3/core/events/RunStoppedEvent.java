@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * Event emitted when a run is stopped cooperatively by user/API request.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RunStoppedEvent(
         String runId,
@@ -29,6 +31,11 @@ public record RunStoppedEvent(
         String resumedFrom
 ) implements RunEvent {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "run_stopped";

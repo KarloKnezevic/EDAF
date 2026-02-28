@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Five-number summary and moments used for box-plot and distribution cards.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record BoxPlotStats(
         Double min,

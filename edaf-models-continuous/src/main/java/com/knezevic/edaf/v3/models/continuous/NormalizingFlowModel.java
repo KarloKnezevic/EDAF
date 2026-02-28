@@ -28,7 +28,20 @@ import java.util.Map;
  *   x = mu + L u
  * </pre>
  * where {@code L} is the Cholesky factor of a smoothed covariance estimate and
- * {@code alpha_i} is adapted from whitened-sample skewness.</p>
+ * {@code alpha_i} is adapted from whitened-sample skewness.
+ *
+ * <p>This acts as a first-order normalizing-flow surrogate with diagonal nonlinearity
+ * over latent Gaussian coordinates and is computationally cheaper than deep flow stacks.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>D. J. Rezende and S. Mohamed, "Variational inference with normalizing flows,"
+ *   ICML, 2015.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class NormalizingFlowModel implements Model<RealVector> {
 
@@ -41,17 +54,36 @@ public final class NormalizingFlowModel implements Model<RealVector> {
     private double[][] cholesky;
     private double[] skew;
 
+    /**
+     * Creates a new NormalizingFlowModel instance.
+     *
+     * @param jitter diagonal regularization used in covariance factorization
+     * @param learningRate exponential averaging factor for model updates
+     * @param maxSkew upper bound for absolute latent skew coefficient
+     */
     public NormalizingFlowModel(double jitter, double learningRate, double maxSkew) {
         this.jitter = Math.max(1e-10, jitter);
         this.learningRate = Math.max(0.0, Math.min(1.0, learningRate));
         this.maxSkew = Math.max(0.01, Math.min(2.0, maxSkew));
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "normalizing-flow";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected.isEmpty()) {
@@ -114,6 +146,11 @@ public final class NormalizingFlowModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (mean == null || covariance == null || skew == null) {
@@ -137,20 +174,39 @@ public final class NormalizingFlowModel implements Model<RealVector> {
         return new ModelDiagnostics(values);
     }
 
+    /**
+     * Returns a defensive copy of the current mean vector.
+     *
+     * @return mean vector {@code μ}
+     */
     public double[] mean() {
         return mean == null ? new double[0] : java.util.Arrays.copyOf(mean, mean.length);
     }
 
+    /**
+     * Returns a defensive copy of the current covariance matrix.
+     *
+     * @return covariance matrix {@code Σ}
+     */
     public double[][] covariance() {
         return covariance == null ? new double[0][0] : ContinuousModelMath.deepCopy(covariance);
     }
 
+    /**
+     * Returns a defensive copy of latent skew parameters.
+     *
+     * @return skew vector {@code α}
+     */
     public double[] skew() {
         return skew == null ? new double[0] : java.util.Arrays.copyOf(skew, skew.length);
     }
 
     /**
      * Restores flow model state from checkpoint payload.
+     *
+     * @param mean mean vector {@code μ}
+     * @param covariance covariance matrix {@code Σ}
+     * @param skew latent skew coefficients {@code α}
      */
     public void restore(double[] mean, double[][] covariance, double[] skew) {
         if (mean == null || covariance == null || covariance.length != mean.length || skew == null || skew.length != mean.length) {

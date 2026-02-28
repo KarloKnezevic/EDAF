@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.problems.discrete.disjunct;
 
 /**
  * Evaluation policy for objective computation during optimization.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record DisjunctEvaluationConfig(
         DisjunctEvaluationMode mode,
@@ -28,8 +30,9 @@ public record DisjunctEvaluationConfig(
     }
 
     /**
-     * Default policy:
+      * Default policy:.
      * exact up to 1000 subsets, sampled above with 512 sampled subsets.
+     * @return the defaults
      */
     public static DisjunctEvaluationConfig defaults() {
         return new DisjunctEvaluationConfig(
@@ -42,6 +45,8 @@ public record DisjunctEvaluationConfig(
 
     /**
      * Resolves concrete mode from total subset count.
+     * @param totalSubsets the totalSubsets argument
+     * @return the resolve
      */
     public DisjunctEvaluationMode resolve(long totalSubsets) {
         if (mode != DisjunctEvaluationMode.AUTO) {

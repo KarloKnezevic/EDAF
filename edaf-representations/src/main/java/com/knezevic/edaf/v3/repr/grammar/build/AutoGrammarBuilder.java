@@ -27,6 +27,8 @@ import java.util.Map;
 
 /**
  * Builds grammar structure from {@link GrammarConfig} for auto mode.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class AutoGrammarBuilder {
 
@@ -41,6 +43,7 @@ public final class AutoGrammarBuilder {
 
     /**
      * Creates builder with explicit operator registry.
+     * @param operatorRegistry operator registry
      */
     public AutoGrammarBuilder(OperatorRegistry operatorRegistry) {
         this.operatorRegistry = operatorRegistry;
@@ -48,6 +51,8 @@ public final class AutoGrammarBuilder {
 
     /**
      * Builds grammar from config in auto mode.
+     * @param config grammar configuration
+     * @return constructed grammar
      */
     public Grammar build(GrammarConfig config) {
         if (!"auto".equals(config.mode())) {

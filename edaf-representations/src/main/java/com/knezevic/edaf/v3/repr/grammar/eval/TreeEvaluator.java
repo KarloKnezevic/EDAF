@@ -19,11 +19,16 @@ import java.util.List;
 
 /**
  * Evaluates grammar derivation trees for provided variable bindings.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TreeEvaluator {
 
     /**
      * Evaluates tree to numeric output.
+     * @param tree derivation tree
+     * @param context evaluation context
+     * @return evaluation result
      */
     public double evaluate(DerivationTree tree, EvaluationContext context) {
         if (tree == null) {
@@ -37,6 +42,9 @@ public final class TreeEvaluator {
 
     /**
      * Evaluates tree to boolean output using numeric thresholding.
+     * @param tree derivation tree
+     * @param context evaluation context
+     * @return true if the condition is satisfied; otherwise false
      */
     public boolean evaluateBoolean(DerivationTree tree, EvaluationContext context) {
         return evaluate(tree, context) > 0.5;

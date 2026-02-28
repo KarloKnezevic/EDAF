@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for lightweight normalizing-flow model.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class NormalizingFlowModelPlugin implements ModelPlugin<RealVector> {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "normalizing-flow";
     }
 
+    /**
+     * Returns a short human-readable component description.
+     *
+     * @return human-readable model description
+     */
     @Override
     public String description() {
         return "Autoregressive tanh flow with covariance transport";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params model parameter map from YAML configuration
+     * @return created component
+     */
     @Override
     public NormalizingFlowModel create(Map<String, Object> params) {
         return new NormalizingFlowModel(

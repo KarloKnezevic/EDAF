@@ -11,13 +11,25 @@ import java.util.Map;
 
 /**
  * Structured model diagnostics captured per iteration and persisted by sinks.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ModelDiagnostics(Map<String, Double> numeric) {
 
+    /**
+     * Creates immutable diagnostics record from numeric metric map.
+     *
+     * @param numeric numeric diagnostics map
+     */
     public ModelDiagnostics {
         numeric = Collections.unmodifiableMap(new LinkedHashMap<>(numeric));
     }
 
+    /**
+     * Returns an empty diagnostics instance.
+     *
+     * @return empty diagnostics
+     */
     public static ModelDiagnostics empty() {
         return new ModelDiagnostics(Map.of());
     }

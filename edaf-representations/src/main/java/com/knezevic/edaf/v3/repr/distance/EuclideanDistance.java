@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.repr.types.RealVector;
 
 /**
  * Euclidean distance utility for real vectors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class EuclideanDistance {
 
@@ -16,6 +18,13 @@ public final class EuclideanDistance {
         // utility class
     }
 
+    /**
+     * Computes Euclidean distance between two real-valued vectors.
+     *
+     * @param a first vector
+     * @param b second vector
+     * @return the Euclidean distance between {@code a} and {@code b}
+     */
     public static double between(RealVector a, RealVector b) {
         if (a.length() != b.length()) {
             throw new IllegalArgumentException("Vectors must have same length");

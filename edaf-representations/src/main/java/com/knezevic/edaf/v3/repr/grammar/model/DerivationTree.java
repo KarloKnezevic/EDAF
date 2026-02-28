@@ -38,6 +38,8 @@ public sealed interface DerivationTree permits DerivationTree.RuleNode, Derivati
 
     /**
      * Non-terminal expansion node.
+     * @author Karlo Knezevic
+     * @version EDAF 3.0.0
      */
     record RuleNode(NonTerminal nonTerminal,
                     ProductionRule productionRule,
@@ -59,6 +61,11 @@ public sealed interface DerivationTree permits DerivationTree.RuleNode, Derivati
                     : Collections.unmodifiableList(new ArrayList<>(children));
         }
 
+        /**
+         * Executes output type.
+         *
+         * @return the output type
+         */
         @Override
         public ValueType outputType() {
             return productionRule.left().typeSignature().outputType();
@@ -69,6 +76,8 @@ public sealed interface DerivationTree permits DerivationTree.RuleNode, Derivati
      * Leaf terminal node.
      *
      * <p>For ERC nodes, {@code sampledValue} stores sampled numeric constant.</p>
+     * @author Karlo Knezevic
+     * @version EDAF 3.0.0
      */
     record TerminalNode(Terminal terminal,
                         Double sampledValue,
@@ -83,11 +92,21 @@ public sealed interface DerivationTree permits DerivationTree.RuleNode, Derivati
             }
         }
 
+        /**
+         * Executes output type.
+         *
+         * @return the output type
+         */
         @Override
         public ValueType outputType() {
             return terminal.typeSignature().outputType();
         }
 
+        /**
+         * Executes children.
+         *
+         * @return the children
+         */
         @Override
         public List<DerivationTree> children() {
             return List.of();

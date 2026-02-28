@@ -14,18 +14,27 @@ import java.util.concurrent.ConcurrentHashMap;
  * Deterministic RNG stream manager.
  *
  * Streams are derived from a master seed and a component key to ensure independent and reproducible random flows.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RngManager {
 
     private final long masterSeed;
     private final Map<String, RngStream> streams = new ConcurrentHashMap<>();
 
+    /**
+     * Creates a new RngManager instance.
+     *
+     * @param masterSeed the masterSeed argument
+     */
     public RngManager(long masterSeed) {
         this.masterSeed = masterSeed;
     }
 
     /**
      * Returns (or lazily creates) a deterministic named stream.
+     * @param component the component argument
+     * @return random stream
      */
     public RngStream stream(String component) {
         Objects.requireNonNull(component, "component must not be null");
@@ -37,6 +46,8 @@ public final class RngManager {
      *
      * <p>This is useful for per-item parallel tasks where each task can derive a stable
      * stream name (for example generation/index), avoiding shared mutable RNG state.</p>
+     * @param component the component argument
+     * @return the ephemeral stream
      */
     public RngStream ephemeralStream(String component) {
         Objects.requireNonNull(component, "component must not be null");
@@ -45,6 +56,7 @@ public final class RngManager {
 
     /**
      * Captures complete RNG state for checkpoint/resume.
+     * @return snapshot value
      */
     public RngSnapshot snapshot() {
         Map<String, RngStreamState> map = new LinkedHashMap<>();
@@ -56,6 +68,7 @@ public final class RngManager {
 
     /**
      * Restores stream states from checkpoint.
+     * @param snapshot snapshot payload
      */
     public void restore(RngSnapshot snapshot) {
         for (Map.Entry<String, RngStreamState> entry : snapshot.streams().entrySet()) {
@@ -64,12 +77,20 @@ public final class RngManager {
         }
     }
 
+    /**
+     * Executes master seed.
+     *
+     * @return the computed master seed
+     */
     public long masterSeed() {
         return masterSeed;
     }
 
     /**
      * Stable seed derivation for component streams using SplitMix64 style mixing.
+     * @param masterSeed the masterSeed argument
+     * @param component the component argument
+     * @return the computed derive seed
      */
     public static long deriveSeed(long masterSeed, String component) {
         long z = masterSeed ^ fnv1a64(component);

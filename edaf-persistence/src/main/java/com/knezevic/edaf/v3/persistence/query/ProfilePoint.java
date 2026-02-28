@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * One X/Y point in profile curves (data profile or performance profile).
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ProfilePoint(double x, double y) {
 }

@@ -18,6 +18,9 @@ import java.util.concurrent.Callable;
 
 /**
  * Executes a batch of experiment configs.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Command(name = "batch", description = "Run a batch configuration")
 public final class BatchCommand implements Callable<Integer> {
@@ -28,6 +31,11 @@ public final class BatchCommand implements Callable<Integer> {
     @Option(names = "--verbosity", description = "Override verbosity: quiet|normal|verbose|debug")
     private String verbosity;
 
+    /**
+     * Executes configured batch and prints per-run summaries.
+     *
+     * @return process exit code
+     */
     @Override
     public Integer call() {
         Verbosity effectiveVerbosity = verbosity != null && !verbosity.isBlank()

@@ -11,31 +11,47 @@ import com.knezevic.edaf.v3.core.rng.RngStream;
  * Domain-specific genotype representation.
  *
  * @param <G> genotype value type.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface Representation<G> {
 
     /**
-     * Representation identifier used in configuration and logs.
+     * Returns representation identifier used in configuration and logs.
+     *
+     * @return representation identifier
      */
     String type();
 
     /**
-     * Creates a random feasible genotype.
+     * Creates a random genotype candidate in the representation domain.
+     *
+     * @param rng random stream used for sampling
+     * @return sampled genotype
      */
     G random(RngStream rng);
 
     /**
-     * Returns true if the genotype is valid in this domain.
+     * Checks whether the given genotype is valid in this representation.
+     *
+     * @param genotype genotype to validate
+     * @return true when genotype is valid
      */
     boolean isValid(G genotype);
 
     /**
-     * Repairs a genotype into the feasible domain.
+     * Repairs an invalid genotype into the feasible domain when possible.
+     *
+     * @param genotype genotype to repair
+     * @return repaired genotype
      */
     G repair(G genotype);
 
     /**
-     * Provides a stable summary for logs and reports.
+     * Returns a stable and concise genotype summary for logs and reports.
+     *
+     * @param genotype genotype to summarize
+     * @return human-readable summary
      */
     String summarize(G genotype);
 }

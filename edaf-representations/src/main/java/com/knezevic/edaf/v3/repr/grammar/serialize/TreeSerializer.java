@@ -17,6 +17,8 @@ import java.util.Map;
 
 /**
  * Serializes derivation trees into structured JSON payloads.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TreeSerializer {
 
@@ -24,6 +26,8 @@ public final class TreeSerializer {
 
     /**
      * Converts tree to nested map suitable for API payloads.
+     * @param tree derivation tree
+     * @return the map representation
      */
     public Map<String, Object> toMap(DerivationTree tree) {
         if (tree == null) {
@@ -63,6 +67,8 @@ public final class TreeSerializer {
 
     /**
      * Converts tree map representation to pretty JSON.
+     * @param tree derivation tree
+     * @return json representation
      */
     public String toJson(DerivationTree tree) {
         try {

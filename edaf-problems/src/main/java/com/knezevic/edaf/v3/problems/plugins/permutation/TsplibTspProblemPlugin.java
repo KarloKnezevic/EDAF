@@ -16,19 +16,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for TSPLIB TSP instances.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TsplibTspProblemPlugin implements ProblemPlugin<PermutationVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "tsplib-tsp";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "TSP from TSPLIB NODE_COORD_SECTION instance";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public TsplibTspProblem create(Map<String, Object> params) {
         String instance = Params.str(params, "instance", "classpath:tsplib/berlin52.tsp");

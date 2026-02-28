@@ -10,6 +10,8 @@ import com.knezevic.edaf.v3.repr.grammar.model.Grammar;
 
 /**
  * Deterministic fixed-length encoding metadata for grammar derivation decisions.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record GrammarEncoding(
         int maxDepth,
@@ -21,6 +23,9 @@ public record GrammarEncoding(
 
     /**
      * Creates encoding plan from grammar and config.
+     * @param grammar grammar definition
+     * @param config grammar configuration
+     * @return the from
      */
     public static GrammarEncoding from(Grammar grammar, GrammarConfig config) {
         int maxAlternatives = Math.max(2, grammar.maxAlternatives());

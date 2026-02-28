@@ -13,6 +13,8 @@ import com.knezevic.edaf.v3.repr.types.BitString;
 
 /**
  * Custom benchmark that maximizes number of consecutive ones from index 0.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class LeadingOnesProblem implements Problem<BitString> {
 

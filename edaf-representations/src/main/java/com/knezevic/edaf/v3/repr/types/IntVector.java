@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 /**
  * Bounded integer vector genotype.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record IntVector(int[] values) {
 
@@ -16,10 +18,20 @@ public record IntVector(int[] values) {
         values = Arrays.copyOf(values, values.length);
     }
 
+    /**
+     * Executes length.
+     *
+     * @return the computed length
+     */
     public int length() {
         return values.length;
     }
 
+    /**
+     * Converts to string.
+     *
+     * @return the string representation
+     */
     @Override
     public String toString() {
         return Arrays.toString(values);

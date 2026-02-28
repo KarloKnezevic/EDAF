@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin for token-tree boolean-function optimization.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BooleanFunctionTreeProblemPlugin implements ProblemPlugin<VariableLengthVector<Integer>> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "boolean-function-tree";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Cryptographic boolean-function optimization via tokenized expression trees";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public BooleanFunctionTreeProblem create(Map<String, Object> params) {
         CryptoProblemConfig config = CryptoProblemConfig.from(params);

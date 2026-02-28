@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.problems.discrete.disjunct;
 
 /**
  * Validation execution strategy.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public enum DisjunctMatrixValidationMode {
     /**

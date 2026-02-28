@@ -16,9 +16,21 @@ import java.util.List;
 
 /**
  * Replacement policy that keeps top elites from current population and fills remaining slots with offspring.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ElitistReplacementPolicy<G> implements ReplacementPolicy<G> {
 
+    /**
+     * Produces next population by preserving elites and filling with offspring.
+     *
+     * @param current current population
+     * @param offspring offspring population
+     * @param elitism number of elites to preserve
+     * @param sense objective optimization sense
+     * @return next population
+     */
     @Override
     public Population<G> replace(Population<G> current, List<Individual<G>> offspring, int elitism, ObjectiveSense sense) {
         List<Individual<G>> sortedCurrent = new ArrayList<>(current.asList());
@@ -45,6 +57,11 @@ public final class ElitistReplacementPolicy<G> implements ReplacementPolicy<G> {
         return result;
     }
 
+    /**
+     * Returns replacement-policy identifier.
+     *
+     * @return policy identifier
+     */
     @Override
     public String name() {
         return "elitist";

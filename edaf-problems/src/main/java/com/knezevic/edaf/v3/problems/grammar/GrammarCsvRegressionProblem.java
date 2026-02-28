@@ -14,6 +14,8 @@ import java.util.Map;
 
 /**
  * Symbolic regression over CSV dataset.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarCsvRegressionProblem extends AbstractGrammarBitStringProblem {
 
@@ -29,11 +31,22 @@ public final class GrammarCsvRegressionProblem extends AbstractGrammarBitStringP
         this.metric = metric == null ? "mse" : metric.trim().toLowerCase();
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "grammar-csv-regression";
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         var inspection = inspect(genotype);

@@ -13,6 +13,8 @@ import java.util.Map;
 
 /**
  * Serializable snapshot of all RNG streams used by a run.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RngSnapshot(long masterSeed, Map<String, RngStreamState> streams) implements Serializable {
 

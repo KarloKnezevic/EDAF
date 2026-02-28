@@ -11,11 +11,13 @@ import java.util.Map;
 
 /**
  * Plugin factory for probabilistic models.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface ModelPlugin<G> extends Plugin {
 
     /**
-     * Constructs a model instance from config parameters.
+     * Constructs a model instance from config the input values.
      */
     Model<G> create(Map<String, Object> params);
 }

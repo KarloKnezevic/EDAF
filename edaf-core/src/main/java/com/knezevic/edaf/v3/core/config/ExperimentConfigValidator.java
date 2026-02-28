@@ -12,6 +12,8 @@ import java.util.Set;
 
 /**
  * Semantic validator for v3 configs with actionable messages.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ExperimentConfigValidator {
 
@@ -53,6 +55,8 @@ public final class ExperimentConfigValidator {
 
     /**
      * Validates cross-field semantics and returns accumulated issues.
+     * @param config configuration object
+     * @return validation result
      */
     public List<ConfigIssue> validate(ExperimentConfig config) {
         List<ConfigIssue> issues = new ArrayList<>();

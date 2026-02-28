@@ -10,6 +10,8 @@ package com.knezevic.edaf.v3.repr.grammar.model;
  *
  * <p>Sampling is performed while decoding a tree and sampled value is persisted in the
  * terminal AST node.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class EphemeralConstantTerminal extends Terminal {
 
@@ -19,6 +21,9 @@ public final class EphemeralConstantTerminal extends Terminal {
 
     /**
      * Creates ERC definition with inclusive bounds.
+     * @param distributionSpec erc distribution specification
+     * @param min minimum value
+     * @param max maximum value
      */
     public EphemeralConstantTerminal(String distributionSpec, double min, double max) {
         super("ERC", TypeSignature.leaf(ValueType.REAL));
@@ -31,6 +36,7 @@ public final class EphemeralConstantTerminal extends Terminal {
 
     /**
      * ERC distribution name used in serialization payloads.
+     * @return the distribution spec
      */
     public String distributionSpec() {
         return distributionSpec;
@@ -38,6 +44,7 @@ public final class EphemeralConstantTerminal extends Terminal {
 
     /**
      * Minimum sampled value.
+     * @return the computed min
      */
     public double min() {
         return min;
@@ -45,6 +52,7 @@ public final class EphemeralConstantTerminal extends Terminal {
 
     /**
      * Maximum sampled value.
+     * @return the computed max
      */
     public double max() {
         return max;

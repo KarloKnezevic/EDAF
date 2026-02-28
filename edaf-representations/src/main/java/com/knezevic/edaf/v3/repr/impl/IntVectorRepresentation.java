@@ -13,6 +13,8 @@ import java.util.Arrays;
 
 /**
  * Bounded integer vector representation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class IntVectorRepresentation implements Representation<IntVector> {
 
@@ -20,6 +22,13 @@ public final class IntVectorRepresentation implements Representation<IntVector> 
     private final int min;
     private final int max;
 
+    /**
+     * Creates a new IntVectorRepresentation instance.
+     *
+     * @param length the length argument
+     * @param min minimum value
+     * @param max maximum value
+     */
     public IntVectorRepresentation(int length, int min, int max) {
         if (length <= 0) {
             throw new IllegalArgumentException("length must be > 0");
@@ -32,11 +41,22 @@ public final class IntVectorRepresentation implements Representation<IntVector> 
         this.max = max;
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "int-vector";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public IntVector random(RngStream rng) {
         int[] values = new int[length];
@@ -47,6 +67,12 @@ public final class IntVectorRepresentation implements Representation<IntVector> 
         return new IntVector(values);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(IntVector genotype) {
         if (genotype == null || genotype.length() != length) {
@@ -60,6 +86,12 @@ public final class IntVectorRepresentation implements Representation<IntVector> 
         return true;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public IntVector repair(IntVector genotype) {
         if (genotype == null) {
@@ -72,6 +104,12 @@ public final class IntVectorRepresentation implements Representation<IntVector> 
         return new IntVector(repaired);
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(IntVector genotype) {
         return genotype.toString();

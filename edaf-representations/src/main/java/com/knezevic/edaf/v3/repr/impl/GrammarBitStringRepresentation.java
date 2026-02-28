@@ -18,6 +18,8 @@ import java.util.Map;
  *
  * <p>Bitstrings are decoded through BFS production choices, enabling direct compatibility
  * with existing binary/discrete EDA drivers.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarBitStringRepresentation implements Representation<BitString> {
 
@@ -26,17 +28,29 @@ public final class GrammarBitStringRepresentation implements Representation<BitS
 
     /**
      * Creates grammar bitstring representation.
+     * @param params configuration the input value map
      */
     public GrammarBitStringRepresentation(Map<String, Object> params) {
         this.treeEngine = new GrammarTreeEngine(params);
         this.length = treeEngine.encoding().genomeLength();
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "grammar-bitstring";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public BitString random(RngStream rng) {
         boolean[] genes = new boolean[length];
@@ -46,11 +60,23 @@ public final class GrammarBitStringRepresentation implements Representation<BitS
         return new BitString(genes);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(BitString genotype) {
         return genotype != null && genotype.length() == length;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public BitString repair(BitString genotype) {
         if (genotype == null) {
@@ -59,6 +85,12 @@ public final class GrammarBitStringRepresentation implements Representation<BitS
         return new BitString(Arrays.copyOf(genotype.genes(), length));
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(BitString genotype) {
         if (genotype == null) {
@@ -75,6 +107,7 @@ public final class GrammarBitStringRepresentation implements Representation<BitS
 
     /**
      * Returns associated grammar tree engine for advanced consumers.
+     * @return the tree engine
      */
     public GrammarTreeEngine treeEngine() {
         return treeEngine;
@@ -82,6 +115,7 @@ public final class GrammarBitStringRepresentation implements Representation<BitS
 
     /**
      * Fixed genotype length in bits.
+     * @return the computed length
      */
     public int length() {
         return length;

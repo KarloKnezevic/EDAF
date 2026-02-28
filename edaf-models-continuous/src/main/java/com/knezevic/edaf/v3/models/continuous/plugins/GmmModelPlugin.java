@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for diagonal-covariance Gaussian Mixture model.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GmmModelPlugin implements ModelPlugin<RealVector> {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "gmm";
     }
 
+    /**
+     * Returns a short human-readable component description.
+     *
+     * @return human-readable model description
+     */
     @Override
     public String description() {
         return "Gaussian mixture model with EM updates";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params model parameter map from YAML configuration
+     * @return created component
+     */
     @Override
     public GmmModel create(Map<String, Object> params) {
         return new GmmModel(

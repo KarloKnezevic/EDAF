@@ -19,12 +19,32 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Plackett-Luce permutation model.
+ * Plackett-Luce model for permutations.
+ *
+ * <p>Each item {@code i} has non-negative weight {@code w_i}. A permutation is
+ * generated sequentially by sampling one item at a time from the remaining set:
+ * <pre>
+ *   P(i chosen at step k) = w_i / Σ_{j in remaining} w_j
+ * </pre>
+ * Weights are estimated from elite position scores, then normalized.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>R. D. Luce, "Individual Choice Behavior: A Theoretical Analysis," Wiley, 1959.</li>
+ *   <li>R. L. Plackett, "The analysis of permutations," Applied Statistics, 1975.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class PlackettLuceModel implements Model<PermutationVector> {
 
     private double[] weights;
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "plackett-luce";
@@ -83,6 +103,11 @@ public final class PlackettLuceModel implements Model<PermutationVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (weights == null) {

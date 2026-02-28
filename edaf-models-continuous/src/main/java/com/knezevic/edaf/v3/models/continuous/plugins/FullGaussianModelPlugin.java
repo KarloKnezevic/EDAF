@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for full-covariance Gaussian model.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class FullGaussianModelPlugin implements ModelPlugin<RealVector> {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "gaussian-full";
     }
 
+    /**
+     * Returns a short human-readable component description.
+     *
+     * @return human-readable model description
+     */
     @Override
     public String description() {
         return "Full covariance Gaussian density estimator";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params model parameter map from YAML configuration
+     * @return created component
+     */
     @Override
     public FullGaussianModel create(Map<String, Object> params) {
         return new FullGaussianModel(

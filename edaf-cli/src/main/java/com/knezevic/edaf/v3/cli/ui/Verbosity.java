@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.cli.ui;
 
 /**
  * Console verbosity levels for CLI output.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public enum Verbosity {
     QUIET,
@@ -14,6 +16,12 @@ public enum Verbosity {
     VERBOSE,
     DEBUG;
 
+    /**
+     * Executes from.
+     *
+     * @param value the value argument
+     * @return the from
+     */
     public static Verbosity from(String value) {
         if (value == null) {
             return NORMAL;

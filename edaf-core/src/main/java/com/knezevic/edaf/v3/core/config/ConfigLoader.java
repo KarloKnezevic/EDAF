@@ -25,6 +25,8 @@ import java.util.Set;
 
 /**
  * Loads and validates EDAF v3 YAML configurations.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ConfigLoader {
 
@@ -32,6 +34,9 @@ public final class ConfigLoader {
     private final Validator validator;
     private final ExperimentConfigValidator semanticValidator;
 
+    /**
+     * Creates a new ConfigLoader instance.
+     */
     public ConfigLoader() {
         this.mapper = new ObjectMapper(new YAMLFactory())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
@@ -43,6 +48,8 @@ public final class ConfigLoader {
 
     /**
      * Detects whether the YAML document represents a single experiment config or a batch config.
+     * @param path filesystem path
+     * @return detected document type
      */
     public ConfigDocumentType detectType(Path path) {
         try {
@@ -58,6 +65,8 @@ public final class ConfigLoader {
 
     /**
      * Loads and validates one experiment configuration.
+     * @param path filesystem path
+     * @return loaded value
      */
     public ConfigLoadResult load(Path path) {
         ExperimentConfig config = decode(path);
@@ -67,6 +76,8 @@ public final class ConfigLoader {
 
     /**
      * Loads batch configuration for `edaf batch` command.
+     * @param path filesystem path
+     * @return loaded and validated batch configuration
      */
     public BatchConfig loadBatch(Path path) {
         try {

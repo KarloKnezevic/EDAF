@@ -30,6 +30,9 @@ import java.util.concurrent.Callable;
 
 /**
  * Runs one experiment config file.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Command(name = "run", description = "Run one experiment configuration")
 public final class RunCommand implements Callable<Integer> {
@@ -40,6 +43,11 @@ public final class RunCommand implements Callable<Integer> {
     @Option(names = "--verbosity", description = "Override verbosity: quiet|normal|verbose|debug")
     private String verbosity;
 
+    /**
+     * Executes one configured run and prints artifact summary.
+     *
+     * @return process exit code
+     */
     @Override
     public Integer call() {
         Verbosity requestedVerbosity = verbosity != null && !verbosity.isBlank()

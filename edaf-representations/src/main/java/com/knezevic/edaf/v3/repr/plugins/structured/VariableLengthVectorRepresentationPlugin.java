@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for variable-length vectors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class VariableLengthVectorRepresentationPlugin implements RepresentationPlugin<VariableLengthVector<Integer>> {
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "variable-length-vector";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Variable-length integer token representation";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return the create
+     */
     @Override
     public VariableLengthVectorRepresentation create(Map<String, Object> params) {
         int min = Params.integer(params, "minLength", 2);

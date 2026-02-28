@@ -20,6 +20,20 @@ import java.util.Map;
 
 /**
  * Categorical token model for variable-length integer vectors.
+ *
+ * <p>The model factorizes sequence generation into:
+ * <pre>
+ *   p(length = l) * Π_{i=0}^{l-1} p(token_i = v)
+ * </pre>
+ * with Laplace smoothing for both length and token-position marginals.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TokenCategoricalModel implements Model<VariableLengthVector<Integer>> {
 
@@ -31,11 +45,22 @@ public final class TokenCategoricalModel implements Model<VariableLengthVector<I
     private double[] lengthProbabilities;
     private double[][] tokenProbabilities;
 
+    /**
+     * Creates a new TokenCategoricalModel instance.
+     *
+     * @param maxToken exclusive upper bound for token values
+     * @param smoothing Laplace smoothing added to empirical counts
+     */
     public TokenCategoricalModel(int maxToken, double smoothing) {
         this.maxToken = Math.max(2, maxToken);
         this.smoothing = Math.max(0.0, Math.min(0.2, smoothing));
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "token-categorical";
@@ -105,6 +130,11 @@ public final class TokenCategoricalModel implements Model<VariableLengthVector<I
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (lengthProbabilities == null) {

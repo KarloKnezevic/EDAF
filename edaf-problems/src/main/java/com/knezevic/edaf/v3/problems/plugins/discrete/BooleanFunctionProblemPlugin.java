@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin for direct truth-table boolean-function optimization.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BooleanFunctionProblemPlugin implements ProblemPlugin<BitString> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "boolean-function";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Cryptographic boolean-function optimization over truth-table bitstring";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public BooleanFunctionProblem create(Map<String, Object> params) {
         CryptoProblemConfig config = CryptoProblemConfig.from(params);

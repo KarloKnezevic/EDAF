@@ -11,11 +11,13 @@ import java.util.Map;
 
 /**
  * Plugin factory for representation components.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface RepresentationPlugin<G> extends Plugin {
 
     /**
-     * Constructs a representation instance from config parameters.
+     * Constructs a representation instance from config the input values.
      */
     Representation<G> create(Map<String, Object> params);
 }

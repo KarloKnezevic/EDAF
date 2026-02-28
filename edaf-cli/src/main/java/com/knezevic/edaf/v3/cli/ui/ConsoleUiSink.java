@@ -17,6 +17,8 @@ import picocli.CommandLine;
 
 /**
  * Rich console sink with color, progress bar, compact iteration lines, and run summary.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ConsoleUiSink implements EventSink {
 
@@ -25,12 +27,24 @@ public final class ConsoleUiSink implements EventSink {
     private final int summaryEvery;
     private ProgressBar progressBar;
 
+    /**
+     * Creates a new ConsoleUiSink instance.
+     *
+     * @param verbosity the verbosity argument
+     * @param maxIterations the maxIterations argument
+     * @param summaryEvery the summaryEvery argument
+     */
     public ConsoleUiSink(Verbosity verbosity, int maxIterations, int summaryEvery) {
         this.verbosity = verbosity;
         this.maxIterations = Math.max(1, maxIterations);
         this.summaryEvery = Math.max(1, summaryEvery);
     }
 
+    /**
+     * Executes on event.
+     *
+     * @param event run event payload
+     */
     @Override
     public void onEvent(RunEvent event) {
         if (event instanceof RunStartedEvent started) {
@@ -89,6 +103,10 @@ public final class ConsoleUiSink implements EventSink {
         }
     }
 
+    /**
+     * Executes close.
+     *
+     */
     @Override
     public void close() {
         if (progressBar != null) {

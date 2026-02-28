@@ -19,7 +19,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Full-covariance Gaussian model with Cholesky sampling.
+ * Full-covariance Gaussian model ({@code N(μ, Σ)}) with Cholesky sampling.
+ *
+ * <p>Model update uses empirical elite estimates blended with optional momentum:
+ * <pre>
+ *   μ <- (1-α) μ + α μ_hat
+ *   Σ <- (1-α) Σ + α Σ_hat
+ * </pre>
+ * followed by optional diagonal shrinkage and symmetric regularization.
+ *
+ * <p>Sampling draws {@code z ~ N(0, I)} and computes
+ * {@code x = μ + Lz}, where {@code LLᵀ = Σ}.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>P. Larranaga, "Optimization in continuous domains by learning and simulation
+ *   of Gaussian networks," GECCO Workshop, 2000.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class FullGaussianModel implements Model<RealVector> {
 
@@ -30,21 +50,45 @@ public final class FullGaussianModel implements Model<RealVector> {
     private double[][] covariance;
     private double[][] cholesky;
 
+    /**
+     * Creates a new FullGaussianModel instance.
+     *
+     * @param jitter diagonal regularization term added before decomposition
+     */
     public FullGaussianModel(double jitter) {
         this(jitter, 1.0, 0.0);
     }
 
+    /**
+     * Creates a new FullGaussianModel instance.
+     *
+     * @param jitter diagonal regularization term
+     * @param learningRate blend factor used for temporal smoothing of mean/covariance
+     * @param shrinkage off-diagonal shrinkage factor in {@code [0,1]}
+     */
     public FullGaussianModel(double jitter, double learningRate, double shrinkage) {
         this.jitter = Math.max(1e-10, jitter);
         this.learningRate = Math.max(0.0, Math.min(1.0, learningRate));
         this.shrinkage = Math.max(0.0, Math.min(1.0, shrinkage));
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "gaussian-full";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected.isEmpty()) {
@@ -96,6 +140,11 @@ public final class FullGaussianModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (covariance == null) {
@@ -110,16 +159,29 @@ public final class FullGaussianModel implements Model<RealVector> {
         return new ModelDiagnostics(values);
     }
 
+    /**
+     * Returns a defensive copy of the current mean vector.
+     *
+     * @return mean vector {@code μ}
+     */
     public double[] mean() {
         return mean == null ? new double[0] : java.util.Arrays.copyOf(mean, mean.length);
     }
 
+    /**
+     * Returns a defensive copy of the current covariance matrix.
+     *
+     * @return covariance matrix {@code Σ}
+     */
     public double[][] covariance() {
         return covariance == null ? new double[0][0] : ContinuousModelMath.deepCopy(covariance);
     }
 
     /**
      * Restores full Gaussian state from checkpoint payload.
+     *
+     * @param mean mean vector {@code μ}
+     * @param covariance covariance matrix {@code Σ}
      */
     public void restore(double[] mean, double[][] covariance) {
         if (mean == null || covariance == null || covariance.length != mean.length) {

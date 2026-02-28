@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.core.events;
 
 /**
  * Consumer for run events used by persistence, console, and web adapters.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface EventSink extends AutoCloseable {
 

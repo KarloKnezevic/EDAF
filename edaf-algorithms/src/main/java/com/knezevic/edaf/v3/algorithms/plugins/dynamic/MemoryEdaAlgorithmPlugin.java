@@ -15,19 +15,38 @@ import java.util.Map;
 
 /**
  * Plugin for memory-based dynamic EDA.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MemoryEdaAlgorithmPlugin implements AlgorithmPlugin<Object> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "memory-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Memory-based dynamic EDA driver";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<Object> create(AlgorithmDependencies<Object> dependencies, Map<String, Object> params) {
         return new MemoryEdaAlgorithm<>(

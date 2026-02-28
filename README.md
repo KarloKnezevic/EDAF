@@ -32,6 +32,7 @@ Documentation portal: [https://edaf.readthedocs.io/](https://edaf.readthedocs.io
 - [Docker Usage](#docker-usage)
 - [Extending the Framework](#extending-the-framework)
 - [Using EDAF as Package](#using-edaf-as-package)
+- [API JavaDoc](#api-javadoc)
 - [Release and Publishing](#release-and-publishing)
 - [Testing and Quality](#testing-and-quality)
 - [Complexity and Performance](#complexity-and-performance)
@@ -826,6 +827,26 @@ For a concrete external Maven project example (custom plugin + run + web monitor
 - [docs/using-edaf-as-package.md](docs/using-edaf-as-package.md)
 - [examples/external-package-sample/README.md](examples/external-package-sample/README.md)
 
+## API JavaDoc
+
+EDAF includes package-level JavaDoc across core, algorithms, models, problems, persistence, CLI and web modules, plus expanded mathematical docs for key probabilistic models and algorithm drivers.
+
+Generate aggregated API docs locally:
+
+```bash
+./scripts/docs/build-javadocs.sh
+```
+
+Alternative direct Maven command:
+
+```bash
+mvn -q -P apidocs -DskipTests verify
+```
+
+Generated entrypoint:
+
+- `target/site/apidocs/index.html`
+
 ## Release and Publishing
 
 For GitHub release, Maven Central (mvnrepository visibility), and Read the Docs publishing:
@@ -911,6 +932,7 @@ Full EDA/baseline/statistical bibliography:
 - [docs/benchmark-comparisons.md](docs/benchmark-comparisons.md) - reproducible side-by-side benchmark outputs
 - [docs/complexity-and-performance.md](docs/complexity-and-performance.md) - asymptotic complexity + measured runtime snapshot
 - [docs/testing-and-release.md](docs/testing-and-release.md) - release hardening checklist and validation pipeline
+- [docs/javadoc-api.md](docs/javadoc-api.md) - aggregated API docs generation and navigation guide
 - [docs/bibliography.md](docs/bibliography.md) - exhaustive EDA literature and benchmarking references
 - [docs/cli-reference.md](docs/cli-reference.md) - exhaustive command reference
 - [docs/docker.md](docs/docker.md) - containerized workflows

@@ -17,16 +17,28 @@ import java.nio.file.StandardOpenOption;
 
 /**
  * JSON Lines sink for machine-ingestible event streams.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class JsonLinesEventSink implements EventSink {
 
     private final Path file;
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
+    /**
+     * Creates a new JsonLinesEventSink instance.
+     *
+     * @param file file path
+     */
     public JsonLinesEventSink(Path file) {
         this.file = file;
     }
 
+    /**
+     * Executes on event.
+     *
+     * @param event run event payload
+     */
     @Override
     public synchronized void onEvent(RunEvent event) {
         try {

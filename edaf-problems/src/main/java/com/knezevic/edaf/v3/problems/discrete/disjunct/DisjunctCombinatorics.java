@@ -10,8 +10,10 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 /**
- * Combinatorial helpers used for exhaustive and sampled validation/evaluation
+  * Combinatorial helpers used for exhaustive and sampled validation/evaluation.
  * of disjunct matrix properties.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DisjunctCombinatorics {
 
@@ -21,10 +23,13 @@ public final class DisjunctCombinatorics {
 
     /**
      * Iterates all {@code k}-combinations of indices {@code [0, n-1]} in lexicographic order.
+     * @param n problem dimension
+     * @param k combination size
+     * @param visitor combination visitor callback
      */
     public static void forEachCombination(int n, int k, Consumer<int[]> visitor) {
         if (k < 0 || k > n) {
-            throw new IllegalArgumentException("invalid combination parameters: n=" + n + ", k=" + k);
+            throw new IllegalArgumentException("invalid combination the input values: n=" + n + ", k=" + k);
         }
         if (k == 0) {
             visitor.accept(new int[0]);
@@ -56,13 +61,17 @@ public final class DisjunctCombinatorics {
     /**
      * Samples one {@code k}-combination uniformly without replacement into {@code output}.
      * Output is sorted increasingly.
+     * @param random random generator
+     * @param n problem dimension
+     * @param k combination size
+     * @param output the output argument
      */
     public static void sampleCombination(Random random, int n, int k, int[] output) {
         if (output.length != k) {
             throw new IllegalArgumentException("output length must equal k");
         }
         if (k < 0 || k > n) {
-            throw new IllegalArgumentException("invalid combination parameters: n=" + n + ", k=" + k);
+            throw new IllegalArgumentException("invalid combination the input values: n=" + n + ", k=" + k);
         }
 
         int remainingToPick = k;
@@ -78,6 +87,10 @@ public final class DisjunctCombinatorics {
 
     /**
      * Returns {@code n choose k} capped to {@code cap + 1} to avoid overflow.
+     * @param n problem dimension
+     * @param k combination size
+     * @param cap the cap argument
+     * @return the computed binomial coefficient capped
      */
     public static long binomialCoefficientCapped(int n, int k, long cap) {
         if (k < 0 || k > n) {
@@ -101,6 +114,9 @@ public final class DisjunctCombinatorics {
 
     /**
      * Returns {@code n choose k} as double for ratio-based metrics.
+     * @param n problem dimension
+     * @param k combination size
+     * @return the computed binomial coefficient as double
      */
     public static double binomialCoefficientAsDouble(int n, int k) {
         if (k < 0 || k > n) {

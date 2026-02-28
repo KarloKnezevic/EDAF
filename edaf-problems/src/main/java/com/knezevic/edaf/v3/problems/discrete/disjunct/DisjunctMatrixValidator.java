@@ -16,6 +16,8 @@ import java.util.Random;
  * <p>For small instances, validation is exhaustive over all {@code C(N,t)} subsets.
  * For larger instances, validation switches to random subset sampling with a
  * Hoeffding-style confidence bound.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DisjunctMatrixValidator {
 

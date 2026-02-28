@@ -15,6 +15,8 @@ import java.util.Objects;
  *
  * <p>Right-hand side may begin with an {@link OperatorTerminal} followed by argument
  * symbols, or contain a single leaf terminal/non-terminal.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ProductionRule {
 
@@ -24,6 +26,9 @@ public final class ProductionRule {
 
     /**
      * Creates immutable production rule.
+     * @param id the id argument
+     * @param left left operand value
+     * @param right right operand value
      */
     public ProductionRule(String id, NonTerminal left, List<GrammarSymbol> right) {
         if (id == null || id.isBlank()) {
@@ -42,6 +47,7 @@ public final class ProductionRule {
 
     /**
      * Rule identifier.
+     * @return the id
      */
     public String id() {
         return id;
@@ -49,6 +55,7 @@ public final class ProductionRule {
 
     /**
      * Left non-terminal.
+     * @return the left
      */
     public NonTerminal left() {
         return left;
@@ -56,6 +63,7 @@ public final class ProductionRule {
 
     /**
      * Full right-hand side symbol sequence.
+     * @return the right
      */
     public List<GrammarSymbol> right() {
         return right;
@@ -63,6 +71,7 @@ public final class ProductionRule {
 
     /**
      * Returns operator terminal when RHS begins with an operator.
+     * @return the operator
      */
     public OperatorTerminal operator() {
         GrammarSymbol first = right.getFirst();
@@ -71,6 +80,7 @@ public final class ProductionRule {
 
     /**
      * Returns child symbols used to build derivation tree children.
+     * @return the child symbols
      */
     public List<GrammarSymbol> childSymbols() {
         if (operator() == null) {
@@ -81,6 +91,7 @@ public final class ProductionRule {
 
     /**
      * Returns true when rule can terminate without expanding additional non-terminals.
+     * @return true if leaf candidate; otherwise false
      */
     public boolean isLeafCandidate() {
         for (GrammarSymbol symbol : childSymbols()) {
@@ -93,6 +104,7 @@ public final class ProductionRule {
 
     /**
      * Returns the number of non-terminal child symbols.
+     * @return the computed non terminal child count
      */
     public int nonTerminalChildCount() {
         int count = 0;
@@ -104,16 +116,32 @@ public final class ProductionRule {
         return count;
     }
 
+    /**
+     * Converts to string.
+     *
+     * @return the string representation
+     */
     @Override
     public String toString() {
         return left.symbol() + " ::= " + right;
     }
 
+    /**
+     * Executes hash code.
+     *
+     * @return true if the instance has h code; otherwise false
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id, left, right);
     }
 
+    /**
+     * Executes equals.
+     *
+     * @param obj the obj argument
+     * @return true if the condition is satisfied; otherwise false
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

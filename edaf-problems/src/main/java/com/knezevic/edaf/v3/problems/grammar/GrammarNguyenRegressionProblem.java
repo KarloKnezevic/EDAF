@@ -15,6 +15,8 @@ import java.util.Map;
 
 /**
  * Nguyen symbolic regression benchmark using grammar-based expression representation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarNguyenRegressionProblem extends AbstractGrammarBitStringProblem {
 
@@ -39,11 +41,22 @@ public final class GrammarNguyenRegressionProblem extends AbstractGrammarBitStri
         this.variableName = variableName == null || variableName.isBlank() ? "x" : variableName;
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "grammar-nguyen-" + variant;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         var inspection = inspect(genotype);

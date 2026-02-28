@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.problems.discrete.disjunct;
 
 /**
  * Objective evaluation mode for DM/RM/ADM fitness computation.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public enum DisjunctEvaluationMode {
     /**

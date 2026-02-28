@@ -16,14 +16,26 @@ import java.util.Map;
 
 /**
  * Plugin for Edge Histogram Based Sampling Algorithm.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class EhbsaAlgorithmPlugin implements AlgorithmPlugin<PermutationVector> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "ehbsa";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Edge Histogram Based Sampling Algorithm driver";

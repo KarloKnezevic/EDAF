@@ -19,11 +19,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * CMA-ES strategy model with evolution paths, rank-1/rank-mu covariance updates,
- * cumulative step-size adaptation, and IPOP-like internal restarts.
+ * CMA-ES strategy model with evolution paths, rank-1/rank-{@code μ} covariance updates,
+ * cumulative step-size adaptation (CSA), and optional IPOP-style restarts.
  *
- * This model assumes selected individuals are already ranked best-first by the
- * outer selection policy (truncation/tournament winner list).
+ * <p>Main update blocks implemented by this class:
+ * <pre>
+ *   m_{t+1} = m_t + c_m * Σ_i w_i (x_i - m_t)
+ *   p_σ <- (1-c_σ) p_σ + sqrt(c_σ(2-c_σ) μ_eff) C^{-1/2} y
+ *   σ <- σ * exp((c_σ / d_σ) * (||p_σ|| / E||N(0, I)|| - 1))
+ *   C <- (1-c_1-c_μ) C + c_1 p_c p_c^T + c_μ Σ_i w_i y_i y_i^T
+ * </pre>
+ * where {@code y_i = (x_i - m_t) / σ_t}.
+ *
+ * <p>The model assumes selected individuals are already sorted from best to worst by
+ * the external selection policy.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>N. Hansen and A. Ostermeier, "Completely derandomized self-adaptation in
+ *   evolution strategies," Evolutionary Computation, 2001.</li>
+ *   <li>N. Hansen, "The CMA Evolution Strategy: A Tutorial," arXiv:1604.00772, 2016.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CmaEsStrategyModel implements Model<RealVector> {
 
@@ -56,16 +74,40 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
     private int stagnationIterations;
     private double bestFitnessSeen;
 
+    /**
+     * Creates a new CmaEsStrategyModel instance.
+     */
     public CmaEsStrategyModel() {
         this(1.0e-12, 5.0, 1.0e-12, -1.0,
                 true, 30, 2.0, 1.0e12, 1.0e-12);
     }
 
+    /**
+     * Creates a new CmaEsStrategyModel instance.
+     *
+     * @param minSigma lower bound for global step size {@code σ}
+     * @param maxSigma upper bound for global step size {@code σ}
+     * @param jitter diagonal regularization added before matrix factorization
+     * @param initialSigma initial step size ({@code <=0} means auto-estimate from elites)
+     */
     public CmaEsStrategyModel(double minSigma, double maxSigma, double jitter, double initialSigma) {
         this(minSigma, maxSigma, jitter, initialSigma,
                 true, 30, 2.0, 1.0e12, 1.0e-12);
     }
 
+    /**
+     * Creates a fully configurable CMA-ES strategy model.
+     *
+     * @param minSigma lower bound for global step size {@code σ}
+     * @param maxSigma upper bound for global step size {@code σ}
+     * @param jitter diagonal regularization added before matrix factorization
+     * @param initialSigma initial step size ({@code <=0} means auto-estimate from elites)
+     * @param restartEnabled whether internal restart logic is enabled
+     * @param restartPatience stagnation patience measured in iterations
+     * @param restartSigmaMultiplier factor used to increase {@code σ} after restart
+     * @param restartConditionThreshold condition-number threshold that triggers restart
+     * @param restartImprovementEpsilon minimum improvement considered meaningful
+     */
     public CmaEsStrategyModel(double minSigma,
                               double maxSigma,
                               double jitter,
@@ -87,11 +129,23 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
         this.bestFitnessSeen = Double.POSITIVE_INFINITY;
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "cma-es";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -142,6 +196,11 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (mean == null || covariance == null) {
@@ -166,6 +225,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns copy of current mean vector for checkpoint persistence.
+     *
+     * @return current CMA mean vector
      */
     public double[] mean() {
         return mean == null ? new double[0] : java.util.Arrays.copyOf(mean, mean.length);
@@ -173,6 +234,7 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns current global step size.
+     * @return current global step size
      */
     public double sigma() {
         return sigma;
@@ -180,6 +242,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns deep copy of current covariance matrix for checkpoint persistence.
+     *
+     * @return current normalized covariance matrix
      */
     public double[][] covariance() {
         return deepCopy(covariance);
@@ -187,6 +251,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns copy of sigma-path vector for checkpoint persistence.
+     *
+     * @return evolution path used by CSA
      */
     public double[] pathSigma() {
         return pathSigma == null ? new double[0] : java.util.Arrays.copyOf(pathSigma, pathSigma.length);
@@ -194,6 +260,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns copy of covariance-path vector for checkpoint persistence.
+     *
+     * @return evolution path used by covariance update
      */
     public double[] pathCovariance() {
         return pathCovariance == null ? new double[0] : java.util.Arrays.copyOf(pathCovariance, pathCovariance.length);
@@ -201,6 +269,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns current generation counter for checkpoint persistence.
+     *
+     * @return current generation counter
      */
     public int generation() {
         return generation;
@@ -208,6 +278,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns number of internal CMA restarts.
+     *
+     * @return number of performed internal restarts
      */
     public int restartCount() {
         return restartCount;
@@ -215,6 +287,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns current stagnation counter.
+     *
+     * @return number of consecutive stagnation iterations
      */
     public int stagnationIterations() {
         return stagnationIterations;
@@ -222,6 +296,8 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Returns best observed fitness tracked by model-level restart logic.
+     *
+     * @return best fitness observed by restart logic
      */
     public double bestFitnessSeen() {
         return bestFitnessSeen;
@@ -229,6 +305,13 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Restores full CMA-ES state from checkpoint payload.
+     *
+     * @param mean CMA mean vector
+     * @param sigma global step size
+     * @param covariance normalized covariance matrix
+     * @param pathSigma CSA evolution path
+     * @param pathCovariance covariance evolution path
+     * @param generation generation counter
      */
     public void restore(double[] mean,
                         double sigma,
@@ -241,6 +324,16 @@ public final class CmaEsStrategyModel implements Model<RealVector> {
 
     /**
      * Restores full CMA-ES state including restart counters.
+     *
+     * @param mean CMA mean vector
+     * @param sigma global step size
+     * @param covariance normalized covariance matrix
+     * @param pathSigma CSA evolution path
+     * @param pathCovariance covariance evolution path
+     * @param generation generation counter
+     * @param restartCount number of completed restarts
+     * @param stagnationIterations consecutive stagnation iterations
+     * @param bestFitnessSeen best observed fitness used by restart logic
      */
     public void restore(double[] mean,
                         double sigma,

@@ -31,6 +31,8 @@ import java.util.stream.Stream;
 
 /**
  * Reads completed-run artifacts from filesystem for UI/API fallback when DB entries are unavailable.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Service
 public final class RunArtifactService {
@@ -40,6 +42,12 @@ public final class RunArtifactService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    /**
+     * Loads run detail.
+     *
+     * @param runId run identifier
+     * @return the load run detail
+     */
     public Optional<RunDetail> loadRunDetail(String runId) {
         return locateRunDirectory(runId).flatMap(dir -> {
             try {
@@ -127,6 +135,12 @@ public final class RunArtifactService {
         });
     }
 
+    /**
+     * Loads iterations.
+     *
+     * @param runId run identifier
+     * @return the load iterations
+     */
     public List<IterationMetric> loadIterations(String runId) {
         return locateRunDirectory(runId)
                 .map(dir -> readJsonLines(dir.resolve("telemetry.jsonl")))
@@ -158,6 +172,16 @@ public final class RunArtifactService {
                 .toList();
     }
 
+    /**
+     * Loads events.
+     *
+     * @param runId run identifier
+     * @param eventType the eventType argument
+     * @param q search query
+     * @param page page index
+     * @param size page size
+     * @return the load events
+     */
     public PageResult<EventRow> loadEvents(String runId, String eventType, String q, int page, int size) {
         int safePage = Math.max(0, page);
         int safeSize = Math.max(1, Math.min(200, size));
@@ -200,10 +224,22 @@ public final class RunArtifactService {
         return new PageResult<>(items, safePage, safeSize, total, totalPages);
     }
 
+    /**
+     * Loads checkpoints.
+     *
+     * @param runId run identifier
+     * @return the load checkpoints
+     */
     public List<CheckpointRow> loadCheckpoints(String runId) {
         return List.of();
     }
 
+    /**
+     * Loads params.
+     *
+     * @param runId run identifier
+     * @return the load params
+     */
     public List<ExperimentParamRow> loadParams(String runId) {
         return locateRunDirectory(runId)
                 .map(dir -> parseMap(readIfExists(dir.resolve("config-resolved.json"))))
@@ -215,6 +251,8 @@ public final class RunArtifactService {
      * Deletes filesystem run artifacts for provided run ids.
      *
      * <p>This is a best-effort cleanup used after experiment deletion from DB.</p>
+     * @param runIds the runIds argument
+     * @return the computed delete run artifacts
      */
     public int deleteRunArtifacts(List<String> runIds) {
         if (runIds == null || runIds.isEmpty()) {

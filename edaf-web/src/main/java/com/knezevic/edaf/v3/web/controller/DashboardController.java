@@ -22,6 +22,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Thymeleaf page controller for run list/detail views.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Controller
 public class DashboardController {
@@ -81,6 +83,13 @@ public class DashboardController {
     }
 
     @GetMapping("/runs/{runId}")
+    /**
+     * Runs configured operation.
+     *
+     * @param runId run identifier
+     * @param model model filter
+     * @return operation result
+     */
     public String run(@PathVariable String runId, Model model) {
         var detail = runRepository.getRunDetail(runId);
         boolean artifactFallback = false;
@@ -146,6 +155,13 @@ public class DashboardController {
     }
 
     @GetMapping("/coco/{campaignId}")
+    /**
+     * Executes coco campaign.
+     *
+     * @param campaignId the campaignId argument
+     * @param model model filter
+     * @return the coco campaign
+     */
     public String cocoCampaign(@PathVariable String campaignId, Model model) {
         var campaign = cocoRepository.getCampaign(campaignId);
         if (campaign == null) {

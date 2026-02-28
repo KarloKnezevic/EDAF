@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * One row in filtered run listing.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RunListItem(
         String runId,

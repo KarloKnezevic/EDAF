@@ -27,6 +27,8 @@ import java.util.function.Predicate;
 
 /**
  * JDBC read repository used by reporting and web dashboard.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class JdbcRunRepository implements RunRepository {
 
@@ -75,10 +77,21 @@ public final class JdbcRunRepository implements RunRepository {
 
     private final DataSource dataSource;
 
+    /**
+     * Creates a new JdbcRunRepository instance.
+     *
+     * @param dataSource jdbc data source
+     */
     public JdbcRunRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Lists experiment summaries.
+     *
+     * @param query the query argument
+     * @return paged experiment list
+     */
     @Override
     public PageResult<ExperimentListItem> listExperiments(ExperimentQuery query) {
         ExperimentQuery effective = normalize(query);
@@ -174,6 +187,12 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Lists run summaries.
+     *
+     * @param query the query argument
+     * @return paged run list
+     */
     @Override
     public PageResult<RunListItem> listRuns(RunQuery query) {
         RunQuery effective = normalize(query);
@@ -251,6 +270,12 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Executes get run detail.
+     *
+     * @param runId run identifier
+     * @return the run detail
+     */
     @Override
     public RunDetail getRunDetail(String runId) {
         String sql = """
@@ -330,6 +355,12 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Lists iterations.
+     *
+     * @param runId run identifier
+     * @return the list iterations
+     */
     @Override
     public List<IterationMetric> listIterations(String runId) {
         String sql = """
@@ -362,6 +393,12 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Lists checkpoints.
+     *
+     * @param runId run identifier
+     * @return the list checkpoints
+     */
     @Override
     public List<CheckpointRow> listCheckpoints(String runId) {
         String sql = """
@@ -391,6 +428,16 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Lists events.
+     *
+     * @param runId run identifier
+     * @param eventType the eventType argument
+     * @param q search query
+     * @param page page index
+     * @param size page size
+     * @return the list events
+     */
     @Override
     public PageResult<EventRow> listEvents(String runId, String eventType, String q, int page, int size) {
         int safePage = Math.max(0, page);
@@ -450,6 +497,12 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Lists experiment params.
+     *
+     * @param runId run identifier
+     * @return the list experiment params
+     */
     @Override
     public List<ExperimentParamRow> listExperimentParams(String runId) {
         String sql = """
@@ -495,6 +548,11 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Lists facets.
+     *
+     * @return the list facets
+     */
     @Override
     public FilterFacets listFacets() {
         try (Connection connection = dataSource.getConnection()) {
@@ -508,6 +566,12 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Executes get experiment detail.
+     *
+     * @param experimentId experiment identifier
+     * @return the experiment detail
+     */
     @Override
     public ExperimentDetail getExperimentDetail(String experimentId) {
         String sql = """
@@ -585,6 +649,16 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Lists experiment runs.
+     *
+     * @param experimentId experiment identifier
+     * @param page page index
+     * @param size page size
+     * @param sortBy sort field
+     * @param sortDir sort direction
+     * @return the list experiment runs
+     */
     @Override
     public PageResult<ExperimentRunItem> listExperimentRuns(String experimentId, int page, int size, String sortBy, String sortDir) {
         int safePage = Math.max(0, page);
@@ -653,6 +727,14 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Executes analyze experiment.
+     *
+     * @param experimentId experiment identifier
+     * @param objectiveDirection the objectiveDirection argument
+     * @param targetFitness the targetFitness argument
+     * @return the analyze experiment
+     */
     @Override
     public ExperimentAnalytics analyzeExperiment(String experimentId, String objectiveDirection, Double targetFitness) {
         ExperimentDetail detail = getExperimentDetail(experimentId);
@@ -838,6 +920,12 @@ public final class JdbcRunRepository implements RunRepository {
         );
     }
 
+    /**
+     * Lists run ids for experiment.
+     *
+     * @param experimentId experiment identifier
+     * @return the list run ids for experiment
+     */
     @Override
     public List<String> listRunIdsForExperiment(String experimentId) {
         if (!hasText(experimentId)) {
@@ -864,6 +952,12 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Executes delete experiment.
+     *
+     * @param experimentId experiment identifier
+     * @return the delete experiment
+     */
     @Override
     public ExperimentDeletionResult deleteExperiment(String experimentId) {
         if (!hasText(experimentId)) {
@@ -937,6 +1031,14 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Executes request run stop.
+     *
+     * @param runId run identifier
+     * @param requestedBy the requestedBy argument
+     * @param reason the reason argument
+     * @return the request run stop
+     */
     @Override
     public StopRequestResult requestRunStop(String runId, String requestedBy, String reason) {
         String normalizedRunId = trimToNull(runId);
@@ -975,6 +1077,14 @@ public final class JdbcRunRepository implements RunRepository {
         }
     }
 
+    /**
+     * Executes request experiment stop.
+     *
+     * @param experimentId experiment identifier
+     * @param requestedBy the requestedBy argument
+     * @param reason the reason argument
+     * @return the request experiment stop
+     */
     @Override
     public StopRequestResult requestExperimentStop(String experimentId, String requestedBy, String reason) {
         String normalizedExperimentId = trimToNull(experimentId);

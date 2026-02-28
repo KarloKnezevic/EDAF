@@ -9,16 +9,24 @@ import java.util.Map;
 
 /**
  * Hook for collecting iteration metrics and diagnostics.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface MetricCollector<G> {
 
     /**
-     * Collector identifier used for grouped diagnostics.
+     * Returns collector identifier used for grouped diagnostics.
+     *
+     * @return metric collector identifier
      */
     String name();
 
     /**
-     * Returns key-value metrics for current state.
+     * Collects numeric metrics from the current algorithm state.
+     *
+     * @param state current algorithm state snapshot
+     * @return key-value metric map
      */
     Map<String, Double> collect(AlgorithmState<G> state);
 }

@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Applies runtime log levels based on CLI verbosity.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class LoggingConfigurator {
 

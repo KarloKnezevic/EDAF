@@ -11,16 +11,26 @@ import java.util.List;
 
 /**
  * Strategy for selecting individuals used for model fitting or parent selection.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface SelectionPolicy<G> {
 
     /**
      * Selects a subset from the current population.
+     *
+     * @param population current population
+     * @param count requested number of selected individuals
+     * @param rng random stream used by stochastic selection policies
+     * @return selected individuals
      */
     List<Individual<G>> select(Population<G> population, int count, RngStream rng);
 
     /**
-     * Policy identifier used in logs and reports.
+     * Returns the policy identifier used in logs and reports.
+     *
+     * @return selection policy identifier
      */
     String name();
 }

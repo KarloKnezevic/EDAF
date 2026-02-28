@@ -19,25 +19,60 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Compact GA probability-vector model.
+ * Compact Genetic Algorithm (cGA)-style probability-vector model.
  *
- * This v3 baseline implementation provides a working probability vector sampler and fit approximation.
- * Tournament winner/loser updates are tracked as TODO for strict cGA parity.
+ * <p>The implementation keeps a single Bernoulli vector and moves it by
+ * fixed {@code step} toward elite empirical frequencies. This preserves the
+ * memory-light cGA flavor while keeping integration with the generic EDA
+ * model API deterministic and checkpoint-safe.</p>
+ *
+ * <p>Update direction (per locus):
+ * <pre>
+ *   p_i <- clip(p_i + step * sign(mean_elite(x_i) - p_i))
+ * </pre>
+ * with clipping to {@code [1e-6, 1-1e-6]}.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>G. R. Harik, F. G. Lobo, and D. E. Goldberg, "The compact genetic algorithm,"
+ *   IEEE Transactions on Evolutionary Computation, 1999.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CompactGaModel implements Model<BitString> {
 
     private final double step;
     private double[] probabilities;
 
+    /**
+     * Creates a new CompactGaModel instance.
+     *
+     * @param step probability move size per fit iteration
+     */
     public CompactGaModel(double step) {
         this.step = Math.max(1e-4, step);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "cga-frequency";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<BitString>> selected, Representation<BitString> representation, RngStream rng) {
         if (selected.isEmpty()) {
@@ -84,6 +119,11 @@ public final class CompactGaModel implements Model<BitString> {
         return result;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (probabilities == null) {

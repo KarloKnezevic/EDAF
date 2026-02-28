@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.core.config;
 
 /**
  * One validation issue with path, message, and optional remediation hint.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ConfigIssue(String path, String message, String hint) {
 }

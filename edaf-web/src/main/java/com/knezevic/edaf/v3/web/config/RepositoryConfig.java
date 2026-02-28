@@ -19,6 +19,8 @@ import javax.sql.DataSource;
 
 /**
  * Wires read repository and ensures schema exists on app startup.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Configuration
 public class RepositoryConfig {
@@ -33,12 +35,24 @@ public class RepositoryConfig {
     }
 
     @Bean
+    /**
+     * Executes run repository.
+     *
+     * @param dataSource jdbc data source
+     * @return the run repository
+     */
     public RunRepository runRepository(DataSource dataSource) {
         SchemaInitializer.initialize(dataSource);
         return new JdbcRunRepository(dataSource);
     }
 
     @Bean
+    /**
+     * Executes coco repository.
+     *
+     * @param dataSource jdbc data source
+     * @return the coco repository
+     */
     public CocoRepository cocoRepository(DataSource dataSource) {
         SchemaInitializer.initialize(dataSource);
         return new JdbcCocoRepository(dataSource);

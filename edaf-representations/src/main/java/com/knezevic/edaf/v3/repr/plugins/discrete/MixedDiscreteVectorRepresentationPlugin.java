@@ -15,19 +15,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for mixed discrete vectors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MixedDiscreteVectorRepresentationPlugin implements RepresentationPlugin<MixedDiscreteVector> {
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "mixed-discrete-vector";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Mixed discrete vector representation";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return the create
+     */
     @Override
     public MixedDiscreteVectorRepresentation create(Map<String, Object> params) {
         List<Object> cards = Params.list(params, "cardinalities");

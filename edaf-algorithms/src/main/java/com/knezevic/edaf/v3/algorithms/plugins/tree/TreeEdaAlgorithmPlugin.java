@@ -16,14 +16,26 @@ import java.util.Map;
 
 /**
  * Plugin for tree EDA driver.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TreeEdaAlgorithmPlugin implements AlgorithmPlugin<VariableLengthVector<Integer>> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "tree-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Tree EDA driver";

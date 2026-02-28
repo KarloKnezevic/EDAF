@@ -153,7 +153,7 @@ class LatentKnowledgeAnalyzerTest {
     }
 
     /**
-     * Real-valued test model exposing Gaussian parameters through bean-like accessors.
+     * Real-valued test model exposing Gaussian the input values through bean-like accessors.
      */
     private static final class RealModel extends DummyModel<RealG> {
         private final double[] mean;

@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.models.continuous;
 
 /**
  * Gaussian CDF/inverse-CDF helpers for copula and rank-based continuous models.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 final class GaussianMath {
 

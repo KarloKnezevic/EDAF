@@ -9,14 +9,27 @@ import com.knezevic.edaf.v3.problems.crypto.BooleanFunctionStats;
 
 /**
  * Measures closeness to strict balancedness.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BalancednessCriterion implements CryptoFitnessCriterion {
 
+    /**
+     * Returns identifier.
+     *
+     * @return identifier value
+     */
     @Override
     public String id() {
         return "balancedness";
     }
 
+    /**
+     * Executes score.
+     *
+     * @param stats the stats argument
+     * @return the computed score
+     */
     @Override
     public double score(BooleanFunctionStats stats) {
         double target = stats.size() / 2.0;

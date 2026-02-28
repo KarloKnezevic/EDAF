@@ -20,7 +20,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MIMIC model using a Chow-Liu dependency tree with conditional sampling.
+ * MIMIC-style model using a Chow-Liu maximum-weight dependency tree.
+ *
+ * <p>The model approximates the elite distribution with the best tree-structured
+ * factorization under pairwise mutual information. In this implementation,
+ * the root is chosen as the minimum-entropy variable to stabilize chain/tree
+ * sampling on highly decisive loci.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>P. A. Bosman and D. Thierens, "MIMIC from a Bayesian perspective,"
+ *   PPSN, 2000.</li>
+ *   <li>C. K. Chow and C. N. Liu, "Approximating discrete probability distributions
+ *   with dependence trees," IEEE Transactions on Information Theory, 1968.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MimicChowLiuModel implements Model<BitString> {
 
@@ -33,15 +48,32 @@ public final class MimicChowLiuModel implements Model<BitString> {
     private double[][] conditionalOne;
     private double averageMutualInformation;
 
+    /**
+     * Creates a new MimicChowLiuModel instance.
+     *
+     * @param smoothing Laplace smoothing for marginal and conditional estimates
+     */
     public MimicChowLiuModel(double smoothing) {
         this.smoothing = Math.max(1.0e-9, smoothing);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "mimic-chow-liu";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<BitString>> selected, Representation<BitString> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -74,6 +106,11 @@ public final class MimicChowLiuModel implements Model<BitString> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (marginalOne == null || parent == null) {

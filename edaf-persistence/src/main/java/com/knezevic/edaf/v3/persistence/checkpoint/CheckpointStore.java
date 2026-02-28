@@ -15,6 +15,8 @@ import java.nio.file.Path;
 
 /**
  * Checkpoint storage utility using YAML payload files.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CheckpointStore {
 
@@ -22,6 +24,8 @@ public final class CheckpointStore {
 
     /**
      * Saves checkpoint payload as YAML file.
+     * @param path filesystem path
+     * @param payload the payload argument
      */
     public void save(Path path, JsonNode payload) {
         try {
@@ -34,6 +38,8 @@ public final class CheckpointStore {
 
     /**
      * Loads checkpoint payload from YAML file.
+     * @param path filesystem path
+     * @return loaded value
      */
     public JsonNode load(Path path) {
         try {

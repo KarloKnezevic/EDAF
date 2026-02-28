@@ -10,11 +10,15 @@ import java.util.List;
 
 /**
  * Parsed DIMACS CNF formula.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record DimacsCnf(int variableCount, int[][] clauses) {
 
     /**
      * Parses DIMACS text format.
+     * @param text the text argument
+     * @return the parse
      */
     public static DimacsCnf parse(String text) {
         int variableCount = -1;

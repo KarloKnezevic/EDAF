@@ -13,6 +13,8 @@ import java.util.List;
 
 /**
  * Contract for report generators.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface ReportGenerator {
 

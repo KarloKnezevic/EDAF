@@ -16,19 +16,38 @@ import java.util.Map;
 
 /**
  * Literature alias for binary UMDA (UMDAd).
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class UmdadAlgorithmPlugin implements AlgorithmPlugin<BitString> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "umdad";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "UMDAd (binary UMDA) literature alias";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<BitString> create(AlgorithmDependencies<BitString> dependencies, Map<String, Object> params) {
         return new UmdaAlgorithm(Params.dbl(params, "selectionRatio", 0.5));

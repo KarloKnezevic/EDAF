@@ -12,7 +12,9 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Entry-point factory for building grammar instances from plugin parameter maps.
+ * Entry-point factory for building grammar instances from plugin the input value maps.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarFactory {
 
@@ -29,6 +31,8 @@ public final class GrammarFactory {
 
     /**
      * Builds grammar using {@code grammar.mode} from params.
+     * @param params configuration the input value map
+     * @return constructed grammar
      */
     public Grammar build(Map<String, Object> params) {
         GrammarConfig config = GrammarConfig.fromParams(params);
@@ -37,6 +41,8 @@ public final class GrammarFactory {
 
     /**
      * Builds grammar from canonical config object.
+     * @param config grammar configuration
+     * @return constructed grammar
      */
     public Grammar build(GrammarConfig config) {
         if ("auto".equals(config.mode())) {

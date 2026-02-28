@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * One convergence point with mean and 95% confidence interval bounds.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ConfidenceBandPoint(
         double x,

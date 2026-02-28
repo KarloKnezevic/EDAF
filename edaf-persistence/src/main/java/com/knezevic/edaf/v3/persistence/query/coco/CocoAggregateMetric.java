@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query.coco;
 
 /**
  * Aggregate metric row persisted per optimizer/dimension.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CocoAggregateMetric(
         long id,

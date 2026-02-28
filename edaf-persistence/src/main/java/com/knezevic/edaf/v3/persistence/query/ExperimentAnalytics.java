@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Aggregate metrics and profile curves computed over all runs of one experiment.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ExperimentAnalytics(
         String experimentId,

@@ -21,7 +21,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * BOA/EBNA-inspired sparse Bayesian-network model over bitstrings.
+ * Sparse Bayesian-network model used by BOA/EBNA-style discrete EDAs.
+ *
+ * <p>Variables are ordered by entropy and each node chooses up to
+ * {@code maxParents} predecessors with highest mutual information. The resulting
+ * directed acyclic graph defines:
+ * <pre>
+ *   p(x) = Π_i p(x_i | Pa(x_i))
+ * </pre>
+ * with Laplace-smoothed conditional probability tables.</p>
+ *
+ * <p>Compared to tree models, this representation captures higher-order local
+ * structure while keeping sampling exact and deterministic given RNG stream.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>M. Pelikan, D. E. Goldberg, and E. Cantú-Paz, "BOA: The Bayesian optimization
+ *   algorithm," GECCO, 1999.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BoaEbnaModel implements Model<BitString> {
 
@@ -34,16 +55,34 @@ public final class BoaEbnaModel implements Model<BitString> {
     private double[][] conditionalProbabilities;
     private int totalEdgeCount;
 
+    /**
+     * Creates a new BoaEbnaModel instance.
+     *
+     * @param maxParents upper bound on parent count per node
+     * @param smoothing Laplace smoothing for CPT estimation
+      */
     public BoaEbnaModel(int maxParents, double smoothing) {
         this.maxParents = Math.max(0, Math.min(8, maxParents));
         this.smoothing = Math.max(1.0e-9, smoothing);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "boa-ebna";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<BitString>> selected, Representation<BitString> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -96,6 +135,11 @@ public final class BoaEbnaModel implements Model<BitString> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (order == null || parents == null || marginalOne == null) {

@@ -23,16 +23,32 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Executes batch configs with bounded parallelism and deterministic run plan expansion.
+ * Executes batch configurations with bounded multicore parallelism.
+ *
+ * <p>Run plans are expanded deterministically (stable ordering, run IDs, seeds),
+ * then executed sequentially or in parallel depending on configured/derived
+ * runtime parallelism and sink thread-safety constraints.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BatchRunner {
 
     private final ConfigLoader configLoader;
 
+    /**
+     * Creates batch runner with default config loader.
+     */
     public BatchRunner() {
         this.configLoader = new ConfigLoader();
     }
 
+    /**
+     * Executes all runs defined in one batch file.
+     *
+     * @param batchConfigPath batch YAML path
+     * @param additionalSinks externally provided run sinks
+     * @return ordered run execution results
+     */
     public List<RunExecution> runBatch(Path batchConfigPath, List<EventSink> additionalSinks) {
         BatchConfig batch = configLoader.loadBatch(batchConfigPath);
         List<RunPlan> plans = expandPlans(batchConfigPath, batch);

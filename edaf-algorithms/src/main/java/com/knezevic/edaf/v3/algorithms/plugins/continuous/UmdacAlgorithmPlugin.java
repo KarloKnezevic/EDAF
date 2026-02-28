@@ -16,19 +16,38 @@ import java.util.Map;
 
 /**
  * Literature alias for continuous UMDA (UMDAc).
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class UmdacAlgorithmPlugin implements AlgorithmPlugin<RealVector> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "umdac";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "UMDAc (continuous UMDA) literature alias";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<RealVector> create(AlgorithmDependencies<RealVector> dependencies, Map<String, Object> params) {
         return new UmdaContinuousAlgorithm(Params.dbl(params, "selectionRatio", 0.5));

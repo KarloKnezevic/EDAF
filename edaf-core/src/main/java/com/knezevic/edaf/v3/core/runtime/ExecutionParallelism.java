@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </ul>
  * This coordinator keeps global run activity count so in-run evaluators can
  * dynamically scale their worker budget and avoid CPU oversubscription.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ExecutionParallelism {
 
@@ -34,6 +36,7 @@ public final class ExecutionParallelism {
 
     /**
      * Number of logical processors visible to the JVM.
+     * @return the computed available processors
      */
     public static int availableProcessors() {
         return AVAILABLE_PROCESSORS;
@@ -41,6 +44,7 @@ public final class ExecutionParallelism {
 
     /**
      * Recommended run-level concurrency for batch/campaign orchestration.
+     * @return the computed suggested run parallelism
      */
     public static int suggestedRunParallelism() {
         return Math.max(1, Math.min(BATCH_PARALLELISM_HINT, AVAILABLE_PROCESSORS));
@@ -48,6 +52,7 @@ public final class ExecutionParallelism {
 
     /**
      * Number of runs currently executing in this JVM process.
+     * @return the computed active runs
      */
     public static int activeRuns() {
         return Math.max(0, ACTIVE_RUNS.get());
@@ -57,6 +62,7 @@ public final class ExecutionParallelism {
      * Dynamic worker budget for one run fitness evaluator.
      *
      * <p>When multiple runs are active, each run gets a proportional share of available CPUs.</p>
+     * @return the computed suggested fitness workers per run
      */
     public static int suggestedFitnessWorkersPerRun() {
         int active = Math.max(1, activeRuns());
@@ -66,6 +72,7 @@ public final class ExecutionParallelism {
 
     /**
      * Marks one run as active and returns lease that must be closed when run finishes.
+     * @return the enter run
      */
     public static RunLease enterRun() {
         ACTIVE_RUNS.incrementAndGet();
@@ -86,6 +93,9 @@ public final class ExecutionParallelism {
 
     /**
      * AutoCloseable lease for active-run accounting.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public static final class RunLease implements AutoCloseable {
 
@@ -94,6 +104,10 @@ public final class ExecutionParallelism {
         private RunLease() {
         }
 
+        /**
+         * Executes close.
+         *
+         */
         @Override
         public void close() {
             if (!closed.compareAndSet(false, true)) {

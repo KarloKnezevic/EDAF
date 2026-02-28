@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.repr.types.BitString;
 
 /**
  * Hamming distance utility for binary strings.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class HammingDistance {
 
@@ -16,6 +18,13 @@ public final class HammingDistance {
         // utility class
     }
 
+    /**
+     * Computes Hamming distance between two bit strings.
+     *
+     * @param a first bit string
+     * @param b second bit string
+     * @return the number of positions where {@code a} and {@code b} differ
+     */
     public static int between(BitString a, BitString b) {
         if (a.length() != b.length()) {
             throw new IllegalArgumentException("Bitstrings must have same length");

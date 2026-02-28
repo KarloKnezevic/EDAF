@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Iteration metric row used by reports and web charts.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record IterationMetric(
         int iteration,

@@ -12,6 +12,8 @@ import java.util.Map;
 
 /**
  * ServiceLoader plugin registration for custom external Leading-Ones problem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class LeadingOnesProblemPlugin implements ProblemPlugin<BitString> {
 

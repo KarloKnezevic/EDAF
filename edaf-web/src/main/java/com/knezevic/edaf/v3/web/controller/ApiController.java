@@ -52,6 +52,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * REST API for polling dashboard updates.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
  */
 @RestController
 @RequestMapping("/api")
@@ -76,6 +79,11 @@ public class ApiController {
     }
 
     @GetMapping("/dashboard/summary")
+    /**
+     * Executes dashboard summary.
+     *
+     * @return the dashboard summary
+     */
     public DashboardStatsService.DashboardSummary dashboardSummary() {
         return dashboardStatsService.readSummary();
     }
@@ -121,6 +129,12 @@ public class ApiController {
     }
 
     @GetMapping("/runs/{runId}")
+    /**
+     * Returns run detail by identifier.
+     *
+     * @param runId run identifier
+     * @return run detail
+     */
     public RunDetail getRun(@PathVariable String runId) {
         RunDetail detail = runRepository.getRunDetail(runId);
         if (detail == null) {
@@ -133,6 +147,12 @@ public class ApiController {
     }
 
     @GetMapping("/runs/{runId}/tree")
+    /**
+     * Executes get run tree.
+     *
+     * @param runId run identifier
+     * @return the run tree
+     */
     public GrammarTreeViewService.GrammarTreeView getRunTree(@PathVariable String runId) {
         RunDetail detail = runRepository.getRunDetail(runId);
         if (detail == null) {
@@ -149,6 +169,12 @@ public class ApiController {
     }
 
     @GetMapping("/runs/{runId}/iterations")
+    /**
+     * Lists iterations.
+     *
+     * @param runId run identifier
+     * @return the list iterations
+     */
     public List<IterationMetric> listIterations(@PathVariable String runId) {
         List<IterationMetric> rows = runRepository.listIterations(runId);
         if (!rows.isEmpty()) {
@@ -173,6 +199,12 @@ public class ApiController {
     }
 
     @GetMapping("/runs/{runId}/checkpoints")
+    /**
+     * Lists checkpoints.
+     *
+     * @param runId run identifier
+     * @return the list checkpoints
+     */
     public List<CheckpointRow> listCheckpoints(@PathVariable String runId) {
         List<CheckpointRow> rows = runRepository.listCheckpoints(runId);
         if (!rows.isEmpty()) {
@@ -182,6 +214,12 @@ public class ApiController {
     }
 
     @GetMapping("/runs/{runId}/params")
+    /**
+     * Lists params.
+     *
+     * @param runId run identifier
+     * @return the list params
+     */
     public List<ExperimentParamRow> listParams(@PathVariable String runId) {
         List<ExperimentParamRow> rows = runRepository.listExperimentParams(runId);
         if (!rows.isEmpty()) {
@@ -191,11 +229,22 @@ public class ApiController {
     }
 
     @GetMapping("/facets")
+    /**
+     * Executes facets.
+     *
+     * @return the facets
+     */
     public FilterFacets facets() {
         return runRepository.listFacets();
     }
 
     @GetMapping("/experiments/{experimentId}")
+    /**
+     * Executes get experiment.
+     *
+     * @param experimentId experiment identifier
+     * @return the experiment
+     */
     public ExperimentDetail getExperiment(@PathVariable String experimentId) {
         ExperimentDetail detail = runRepository.getExperimentDetail(experimentId);
         if (detail == null) {
@@ -205,6 +254,12 @@ public class ApiController {
     }
 
     @DeleteMapping("/experiments/{experimentId}")
+    /**
+     * Executes delete experiment.
+     *
+     * @param experimentId experiment identifier
+     * @return the delete experiment
+     */
     public DeleteExperimentResponse deleteExperiment(@PathVariable String experimentId) {
         ExperimentDetail detail = runRepository.getExperimentDetail(experimentId);
         if (detail == null) {
@@ -235,6 +290,12 @@ public class ApiController {
     }
 
     @PostMapping("/experiments/delete-bulk")
+    /**
+     * Executes delete experiments bulk.
+     *
+     * @param request request payload
+     * @return the delete experiments bulk
+     */
     public BulkDeleteResponse deleteExperimentsBulk(@RequestBody BulkDeleteRequest request) {
         if (request == null || request.experimentIds() == null || request.experimentIds().isEmpty()) {
             return new BulkDeleteResponse(List.of(), 0, 0, 0);
@@ -372,6 +433,12 @@ public class ApiController {
     }
 
     @GetMapping("/coco/campaigns/{campaignId}")
+    /**
+     * Executes get coco campaign.
+     *
+     * @param campaignId the campaignId argument
+     * @return the coco campaign
+     */
     public CocoCampaignDetail getCocoCampaign(@PathVariable String campaignId) {
         CocoCampaignDetail detail = cocoRepository.getCampaign(campaignId);
         if (detail == null) {
@@ -381,11 +448,23 @@ public class ApiController {
     }
 
     @GetMapping("/coco/campaigns/{campaignId}/optimizers")
+    /**
+     * Lists coco optimizers.
+     *
+     * @param campaignId the campaignId argument
+     * @return the list coco optimizers
+     */
     public List<CocoOptimizerConfigRow> listCocoOptimizers(@PathVariable String campaignId) {
         return cocoRepository.listOptimizers(campaignId);
     }
 
     @GetMapping("/coco/campaigns/{campaignId}/aggregates")
+    /**
+     * Lists coco aggregates.
+     *
+     * @param campaignId the campaignId argument
+     * @return the list coco aggregates
+     */
     public List<CocoAggregateMetric> listCocoAggregates(@PathVariable String campaignId) {
         return cocoRepository.listAggregates(campaignId);
     }
@@ -490,7 +569,9 @@ public class ApiController {
 
     /**
      * API payload for one hard-delete experiment operation.
-     */
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ */
     public record DeleteExperimentResponse(
             String experimentId,
             boolean deleted,
@@ -506,12 +587,18 @@ public class ApiController {
 
     /**
      * API payload for cooperative stop requests.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record StopRequestBody(String reason) {
     }
 
     /**
      * API payload for stop request result.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record StopResponse(
             String scope,
@@ -524,12 +611,18 @@ public class ApiController {
 
     /**
      * API payload for bulk delete request.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record BulkDeleteRequest(List<String> experimentIds) {
     }
 
     /**
      * API payload for one bulk delete item.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record BulkDeleteItemResult(
             String experimentId,
@@ -540,6 +633,9 @@ public class ApiController {
 
     /**
      * API payload for bulk delete summary.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     public record BulkDeleteResponse(
             List<BulkDeleteItemResult> items,

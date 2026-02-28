@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for bounded integer vectors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class IntVectorRepresentationPlugin implements RepresentationPlugin<IntVector> {
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "int-vector";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Bounded integer vector representation";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return the create
+     */
     @Override
     public IntVectorRepresentation create(Map<String, Object> params) {
         int length = Params.integer(params, "length", 32);

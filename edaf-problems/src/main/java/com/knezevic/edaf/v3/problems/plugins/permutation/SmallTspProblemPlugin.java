@@ -15,19 +15,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for small TSP problem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class SmallTspProblemPlugin implements ProblemPlugin<PermutationVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "small-tsp";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Small Euclidean TSP benchmark";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public SmallTspProblem create(Map<String, Object> params) {
         List<Object> rawCoords = Params.list(params, "coordinates");

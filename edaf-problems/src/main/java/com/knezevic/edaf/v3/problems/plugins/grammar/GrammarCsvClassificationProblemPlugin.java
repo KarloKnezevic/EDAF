@@ -16,19 +16,37 @@ import java.util.Map;
 
 /**
  * Plugin for CSV-based symbolic classification (binary and multiclass).
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarCsvClassificationProblemPlugin implements ProblemPlugin<BitString> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "grammar-csv-classification";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Grammar-based symbolic classification from CSV dataset (binary and multiclass)";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public GrammarCsvClassificationProblem create(Map<String, Object> params) {
         String datasetPath = Params.str(params, "dataset", "classpath:datasets/grammar/classification/iris_multiclass.csv");

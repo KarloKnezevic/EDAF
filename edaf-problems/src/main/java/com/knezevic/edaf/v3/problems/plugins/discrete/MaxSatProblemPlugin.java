@@ -16,19 +16,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for MAX-SAT benchmark instances.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MaxSatProblemPlugin implements ProblemPlugin<BitString> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "maxsat";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "MAX-SAT from DIMACS CNF instance";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public MaxSatProblem create(Map<String, Object> params) {
         String instance = Params.str(params, "instance", "classpath:maxsat/uf20-01.cnf");

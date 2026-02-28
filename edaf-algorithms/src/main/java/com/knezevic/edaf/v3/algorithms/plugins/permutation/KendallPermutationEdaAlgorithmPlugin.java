@@ -16,14 +16,26 @@ import java.util.Map;
 
 /**
  * Plugin for Kendall-distance permutation EDA.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class KendallPermutationEdaAlgorithmPlugin implements AlgorithmPlugin<PermutationVector> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "kendall-permutation-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Kendall-distance permutation EDA driver";

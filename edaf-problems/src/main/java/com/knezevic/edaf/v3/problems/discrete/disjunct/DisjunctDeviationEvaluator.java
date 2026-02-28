@@ -9,11 +9,13 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 /**
- * Stateful evaluator for deviation
+  * Stateful evaluator for deviation.
  * {@code delta(S) = |{x_j notin S : supp(x_j) subseteq union_{x_i in S} supp(x_i)}|}.
  *
  * <p>This class is intentionally mutable to reduce allocations during repeated
  * combination traversals. It is not thread-safe.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 final class DisjunctDeviationEvaluator {
 

@@ -39,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * JDBC sink persisting experiment metadata, runs, objectives, iterations, checkpoints, and raw events.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class JdbcEventSink implements EventSink {
 
@@ -58,6 +60,14 @@ public final class JdbcEventSink implements EventSink {
 
     private volatile boolean experimentInitialized;
 
+    /**
+     * Creates a new JdbcEventSink instance.
+     *
+     * @param dataSource jdbc data source
+     * @param config configuration object
+     * @param canonicalYaml the canonicalYaml argument
+     * @param canonicalJson the canonicalJson argument
+     */
     public JdbcEventSink(DataSource dataSource, ExperimentConfig config, String canonicalYaml, String canonicalJson) {
         this.dataSource = dataSource;
         this.config = config;
@@ -80,6 +90,11 @@ public final class JdbcEventSink implements EventSink {
         }
     }
 
+    /**
+     * Executes on event.
+     *
+     * @param event run event payload
+     */
     @Override
     public void onEvent(RunEvent event) {
         try (Connection connection = dataSource.getConnection()) {

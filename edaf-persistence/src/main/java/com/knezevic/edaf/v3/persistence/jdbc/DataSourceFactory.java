@@ -12,14 +12,37 @@ import javax.sql.DataSource;
 import java.util.Locale;
 
 /**
- * Creates pooled DataSource instances for JDBC sinks and queries.
+ * Creates pooled {@link DataSource} instances used by EDAF persistence/query layers.
+ *
+ * <p>For SQLite, the factory applies concurrency-friendly defaults that reduce lock contention:
+ * <ul>
+ *     <li>{@code journal_mode=WAL}: enables concurrent readers with one writer.</li>
+ *     <li>{@code busy_timeout=10000}: lets SQLite wait before returning {@code SQLITE_BUSY}.</li>
+ *     <li>{@code synchronous=NORMAL}: practical durability/performance trade-off for run telemetry.</li>
+ *     <li>small multi-connection pool: prevents local self-starvation between writer and stop-poll reads.</li>
+ * </ul>
+ *
+ * <p>For non-SQLite JDBC URLs, conservative generic pool defaults are used.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DataSourceFactory {
+
+    private static final int SQLITE_MAX_POOL_SIZE = 4;
+    private static final long SQLITE_CONNECTION_TIMEOUT_MS = 15_000L;
 
     private DataSourceFactory() {
         // utility class
     }
 
+    /**
+     * Creates a configured JDBC {@link DataSource}.
+     *
+     * @param url JDBC URL
+     * @param user database username
+     * @param password database password
+     * @return configured pooled datasource
+     */
     public static DataSource create(String url, String user, String password) {
         String normalizedUrl = normalizeJdbcUrl(url);
         HikariConfig config = new HikariConfig();
@@ -33,10 +56,11 @@ public final class DataSourceFactory {
         // Do not fail-fast during pool construction; first real DB operation reports connectivity issues.
         config.setInitializationFailTimeout(-1L);
         if (isSqliteUrl(normalizedUrl)) {
-            // SQLite uses file-level locks; a single pooled connection avoids self-contention.
-            config.setMaximumPoolSize(1);
+            // WAL allows one writer + concurrent readers. A tiny pool avoids
+            // stop-request polling starvation when writer sink is active.
+            config.setMaximumPoolSize(SQLITE_MAX_POOL_SIZE);
             config.setMinimumIdle(1);
-            config.setConnectionTimeout(30_000L);
+            config.setConnectionTimeout(SQLITE_CONNECTION_TIMEOUT_MS);
         } else {
             config.setMaximumPoolSize(5);
         }

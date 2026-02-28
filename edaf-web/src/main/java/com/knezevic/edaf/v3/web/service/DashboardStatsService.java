@@ -22,18 +22,27 @@ import java.util.Locale;
 
 /**
  * Computes lightweight global dashboard statistics used by header summary cards.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
  */
 @Service
 public final class DashboardStatsService {
 
     private final DataSource dataSource;
 
+    /**
+     * Creates a new DashboardStatsService instance.
+     *
+     * @param dataSource jdbc data source
+     */
     public DashboardStatsService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     /**
      * Reads global database-backed summary counters for header presentation.
+     * @return the read summary
      */
     public DashboardSummary readSummary() {
         String countersSql = """
@@ -150,7 +159,9 @@ public final class DashboardStatsService {
 
     /**
      * Header summary payload DTO.
-     */
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ */
     public record DashboardSummary(
             long experimentCount,
             long runCount,

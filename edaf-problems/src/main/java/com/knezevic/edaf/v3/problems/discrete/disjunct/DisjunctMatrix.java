@@ -11,11 +11,13 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 /**
- * Immutable binary matrix view optimized for column-support operations used by
+  * Immutable binary matrix view optimized for column-support operations used by.
  * disjunct/resolvable/almost-disjunct definitions.
  *
  * <p>The matrix is represented by support bitsets of each column:
  * {@code supp(x_j) = { i in [M] : A[i,j] = 1 }}.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DisjunctMatrix {
 
@@ -33,8 +35,12 @@ public final class DisjunctMatrix {
     }
 
     /**
-     * Builds matrix from a bitstring encoded in column-major layout:
+      * Builds matrix from a bitstring encoded in column-major layout:.
      * bits {@code [j * M, j * M + 1, ..., j * M + (M-1)]} correspond to column {@code j}.
+     * @param genotype candidate genotype
+     * @param rows the rows argument
+     * @param columns the columns argument
+     * @return the from bit string
      */
     public static DisjunctMatrix fromBitString(BitString genotype, int rows, int columns) {
         if (rows <= 0) {
@@ -67,6 +73,8 @@ public final class DisjunctMatrix {
 
     /**
      * Builds matrix from dense row-major values where {@code values[row][column]} is matrix entry.
+     * @param values the values argument
+     * @return the from dense
      */
     public static DisjunctMatrix fromDense(boolean[][] values) {
         if (values == null || values.length == 0) {
@@ -95,16 +103,28 @@ public final class DisjunctMatrix {
         return new DisjunctMatrix(rows, columns, supports);
     }
 
+    /**
+     * Executes rows.
+     *
+     * @return the computed rows
+     */
     public int rows() {
         return rows;
     }
 
+    /**
+     * Executes columns.
+     *
+     * @return the computed columns
+     */
     public int columns() {
         return columns;
     }
 
     /**
      * Returns a defensive copy of support bitset for one column.
+     * @param columnIndex the columnIndex argument
+     * @return the support
      */
     public BitSet support(int columnIndex) {
         if (columnIndex < 0 || columnIndex >= columns) {

@@ -34,6 +34,8 @@ import java.util.Set;
 
 /**
  * Safe parser for custom BNF-like grammar files.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarParser {
 
@@ -48,6 +50,7 @@ public final class GrammarParser {
 
     /**
      * Creates parser with custom operator registry.
+     * @param operatorRegistry operator registry
      */
     public GrammarParser(OperatorRegistry operatorRegistry) {
         this.operatorRegistry = operatorRegistry;
@@ -55,6 +58,9 @@ public final class GrammarParser {
 
     /**
      * Parses custom grammar from file path.
+     * @param file grammar source file
+     * @param config grammar configuration
+     * @return parsed grammar
      */
     public Grammar parse(Path file, GrammarConfig config) {
         if (file == null) {
@@ -69,6 +75,10 @@ public final class GrammarParser {
 
     /**
      * Parses custom grammar from text payload.
+     * @param bnf BNF grammar source text
+     * @param config grammar configuration
+     * @param sourceName source identifier
+     * @return parsed grammar
      */
     public Grammar parse(String bnf, GrammarConfig config, String sourceName) {
         if (bnf == null || bnf.isBlank()) {

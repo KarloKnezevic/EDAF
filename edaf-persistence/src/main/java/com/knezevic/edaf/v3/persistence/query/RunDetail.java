@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Rich run + experiment view used by run detail API and dashboard.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RunDetail(
         String runId,

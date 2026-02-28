@@ -15,19 +15,38 @@ import java.util.Map;
 
 /**
  * Plugin for noisy optimization EDA with resampling.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class NoisyResamplingEdaAlgorithmPlugin implements AlgorithmPlugin<Object> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "noisy-resampling-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Noisy-resampling EDA driver";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<Object> create(AlgorithmDependencies<Object> dependencies, Map<String, Object> params) {
         return new NoisyResamplingEdaAlgorithm<>(

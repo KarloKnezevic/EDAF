@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.core.plugins;
 
 /**
  * Base plugin metadata contract.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface Plugin {
 

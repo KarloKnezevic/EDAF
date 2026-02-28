@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin for majority boolean symbolic classification problem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarMajorityProblemPlugin implements ProblemPlugin<BitString> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "grammar-majority";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Grammar-based symbolic majority classification benchmark";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public GrammarMajorityProblem create(Map<String, Object> params) {
         int bits = Params.integer(params, "bits", 5);

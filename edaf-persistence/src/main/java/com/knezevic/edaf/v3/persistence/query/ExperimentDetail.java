@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Experiment-level metadata with run counters for aggregated analysis views.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ExperimentDetail(
         String experimentId,

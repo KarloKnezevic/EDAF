@@ -33,6 +33,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Template-method base implementation for model-based algorithms.
+ *
+ * @param <G> genotype value type
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
 
@@ -54,11 +58,19 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
 
     /**
      * Returns how many individuals are used for model fitting.
+     *
+     * @param context algorithm runtime context
+     * @param population current population
+     * @return number of selected individuals
      */
     protected abstract int selectionSize(AlgorithmContext<G> context, Population<G> population);
 
     /**
      * Optional hook for algorithm-specific per-iteration behavior.
+     *
+     * @param context algorithm runtime context
+     * @param previous previous population
+     * @param next next population
      */
     protected void afterIteration(AlgorithmContext<G> context, Population<G> previous, Population<G> next) {
         // default no-op
@@ -69,6 +81,11 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
      *
      * <p>Specialized algorithms can override this hook for noisy resampling or
      * surrogate-assisted evaluation while preserving the shared iteration flow.</p>
+     *
+     * @param context algorithm runtime context
+     * @param feasibleGenotype feasible genotype candidate
+     * @param evaluationRng random stream dedicated to this evaluation
+     * @return evaluated fitness
      */
     protected Fitness evaluateGenotype(AlgorithmContext<G> context, G feasibleGenotype, RngStream evaluationRng) {
         return context.problem().evaluate(feasibleGenotype);
@@ -77,6 +94,11 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
     /**
      * Allows algorithm-specific population post-processing after replacement,
      * niching, and restarts (for example random immigrants injection).
+     *
+     * @param context algorithm runtime context
+     * @param previous previous population
+     * @param next candidate next population
+     * @return post-processed population
      */
     protected Population<G> postProcessPopulation(AlgorithmContext<G> context,
                                                   Population<G> previous,
@@ -84,6 +106,11 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
         return next;
     }
 
+    /**
+     * Initializes algorithm state and emits initial run and iteration events.
+     *
+     * @param context algorithm runtime context
+     */
     @Override
     public void initialize(AlgorithmContext<G> context) {
         Population<G> population = new Population<>(context.problem().objectiveSense());
@@ -139,6 +166,11 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
         publishIterationEvent(context, state, telemetry, List.of(), elite.size());
     }
 
+    /**
+     * Executes one full model-based iteration and emits telemetry events.
+     *
+     * @param context algorithm runtime context
+     */
     @Override
     public void iterate(AlgorithmContext<G> context) {
         if (state == null) {
@@ -317,6 +349,11 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
         return context.rngManager().ephemeralStream(streamName);
     }
 
+    /**
+     * Executes full optimization loop until stopping condition becomes true.
+     *
+     * @param context algorithm runtime context
+     */
     @Override
     public void run(AlgorithmContext<G> context) {
         initialize(context);
@@ -326,11 +363,21 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
         complete(context, Map.of());
     }
 
+    /**
+     * Returns current algorithm state.
+     *
+     * @return current algorithm state
+     */
     @Override
     public AlgorithmState<G> state() {
         return state;
     }
 
+    /**
+     * Returns final run result after completion.
+     *
+     * @return final run result
+     */
     @Override
     public RunResult<G> result() {
         return result;
@@ -338,6 +385,8 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
 
     /**
      * Restores internal state from checkpoint payload.
+     *
+     * @param restoredState restored checkpoint state
      */
     public void restoreState(AlgorithmState<G> restoredState) {
         this.state = restoredState;
@@ -348,6 +397,9 @@ public abstract class AbstractEdaAlgorithm<G> implements Algorithm<G> {
 
     /**
      * Finalizes the run and emits completion event with artifact pointers.
+     *
+     * @param context algorithm runtime context
+     * @param artifacts artifact map with output paths
      */
     public void complete(AlgorithmContext<G> context, Map<String, String> artifacts) {
         Duration runtime = Duration.between(state.startedAt(), Instant.now());

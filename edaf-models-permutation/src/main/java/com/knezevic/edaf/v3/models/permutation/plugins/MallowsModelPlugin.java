@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for Mallows-Kendall permutation model.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MallowsModelPlugin implements ModelPlugin<PermutationVector> {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "mallows";
     }
 
+    /**
+     * Returns a short human-readable component description.
+     *
+     * @return human-readable model description
+     */
     @Override
     public String description() {
         return "Mallows-Kendall model with consensus ranking";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params model parameter map from YAML configuration
+     * @return created component
+     */
     @Override
     public MallowsModel create(Map<String, Object> params) {
         return new MallowsModel(

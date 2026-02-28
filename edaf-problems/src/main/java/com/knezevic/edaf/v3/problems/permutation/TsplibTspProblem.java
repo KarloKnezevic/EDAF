@@ -15,27 +15,51 @@ import java.util.List;
 
 /**
  * TSP problem backed by TSPLIB coordinates.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class TsplibTspProblem implements Problem<PermutationVector> {
 
     private final String instanceName;
     private final double[][] coordinates;
 
+    /**
+     * Creates a new TsplibTspProblem instance.
+     *
+     * @param instanceName the instanceName argument
+     * @param coordinates the coordinates argument
+     */
     public TsplibTspProblem(String instanceName, double[][] coordinates) {
         this.instanceName = instanceName;
         this.coordinates = coordinates;
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "tsplib-" + instanceName;
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MINIMIZE;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(PermutationVector genotype) {
         int[] order = genotype.order();
@@ -48,6 +72,12 @@ public final class TsplibTspProblem implements Problem<PermutationVector> {
         return new ScalarFitness(length);
     }
 
+    /**
+     * Returns feasibility violations.
+     *
+     * @param genotype candidate genotype
+     * @return violation message list
+     */
     @Override
     public List<String> violations(PermutationVector genotype) {
         if (genotype.size() != coordinates.length) {
@@ -56,6 +86,11 @@ public final class TsplibTspProblem implements Problem<PermutationVector> {
         return List.of();
     }
 
+    /**
+     * Executes city count.
+     *
+     * @return the computed city count
+     */
     public int cityCount() {
         return coordinates.length;
     }

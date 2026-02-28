@@ -15,27 +15,51 @@ import java.util.List;
 
 /**
  * MAX-SAT benchmark over fixed CNF formula.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MaxSatProblem implements Problem<BitString> {
 
     private final int variableCount;
     private final int[][] clauses;
 
+    /**
+     * Creates a new MaxSatProblem instance.
+     *
+     * @param variableCount the variableCount argument
+     * @param clauses the clauses argument
+     */
     public MaxSatProblem(int variableCount, int[][] clauses) {
         this.variableCount = variableCount;
         this.clauses = clauses;
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "maxsat";
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MAXIMIZE;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         boolean[] assignment = genotype.genes();
@@ -49,6 +73,12 @@ public final class MaxSatProblem implements Problem<BitString> {
         return new ScalarFitness(satisfied);
     }
 
+    /**
+     * Returns feasibility violations.
+     *
+     * @param genotype candidate genotype
+     * @return violation message list
+     */
     @Override
     public List<String> violations(BitString genotype) {
         if (genotype.length() < variableCount) {
@@ -57,10 +87,20 @@ public final class MaxSatProblem implements Problem<BitString> {
         return List.of();
     }
 
+    /**
+     * Executes variable count.
+     *
+     * @return the computed variable count
+     */
     public int variableCount() {
         return variableCount;
     }
 
+    /**
+     * Executes clause count.
+     *
+     * @return the computed clause count
+     */
     public int clauseCount() {
         return clauses.length;
     }

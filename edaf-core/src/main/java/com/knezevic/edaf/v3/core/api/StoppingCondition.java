@@ -7,16 +7,24 @@ package com.knezevic.edaf.v3.core.api;
 
 /**
  * Defines when an algorithm run should stop.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface StoppingCondition<G> {
 
     /**
-     * Returns true when the run should terminate.
+     * Returns whether the current run state satisfies termination criteria.
+     *
+     * @param state current algorithm state snapshot
+     * @return true when the run should terminate
      */
     boolean shouldStop(AlgorithmState<G> state);
 
     /**
-     * Condition identifier used in diagnostics.
+     * Returns the condition identifier used in diagnostics.
+     *
+     * @return stopping condition identifier
      */
     String name();
 }

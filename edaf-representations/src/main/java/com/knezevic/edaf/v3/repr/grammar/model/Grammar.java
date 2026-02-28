@@ -15,6 +15,8 @@ import java.util.Set;
 
 /**
  * Immutable grammar model with start symbol, productions, and metadata.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class Grammar {
 
@@ -78,6 +80,7 @@ public final class Grammar {
 
     /**
      * Grammar start symbol.
+     * @return the start symbol
      */
     public NonTerminal startSymbol() {
         return startSymbol;
@@ -85,6 +88,8 @@ public final class Grammar {
 
     /**
      * Returns productions for one non-terminal.
+     * @param symbol grammar symbol
+     * @return the rules for
      */
     public List<ProductionRule> rulesFor(NonTerminal symbol) {
         List<ProductionRule> productions = rules.get(symbol);
@@ -96,6 +101,8 @@ public final class Grammar {
 
     /**
      * Returns non-terminal by symbol text or null when absent.
+     * @param symbol grammar symbol
+     * @return the matching non terminal, or null if none matches
      */
     public NonTerminal findNonTerminal(String symbol) {
         return nonTerminals.get(symbol);
@@ -103,6 +110,7 @@ public final class Grammar {
 
     /**
      * All non-terminals.
+     * @return the non terminals
      */
     public List<NonTerminal> nonTerminals() {
         return List.copyOf(nonTerminals.values());
@@ -110,6 +118,7 @@ public final class Grammar {
 
     /**
      * Immutable grammar metadata map.
+     * @return the metadata
      */
     public Map<String, Object> metadata() {
         return metadata;
@@ -117,6 +126,7 @@ public final class Grammar {
 
     /**
      * Maximum RHS production count among all non-terminals.
+     * @return the computed max alternatives
      */
     public int maxAlternatives() {
         int max = 0;
@@ -128,6 +138,7 @@ public final class Grammar {
 
     /**
      * Maximum number of non-terminal children among productions.
+     * @return the computed max branching factor
      */
     public int maxBranchingFactor() {
         int max = 0;

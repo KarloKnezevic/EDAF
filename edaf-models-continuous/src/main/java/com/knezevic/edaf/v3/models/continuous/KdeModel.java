@@ -20,7 +20,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Kernel density estimator with Gaussian kernels and Silverman-style bandwidth.
+ * Kernel Density Estimation (KDE) model with Gaussian kernels.
+ *
+ * <p>The elite set is stored as kernel centers. Per-dimension bandwidth is
+ * estimated from sample standard deviation with Silverman-like scaling:
+ * <pre>
+ *   h_d = scale * n^(-1/(D+4)) * std_d
+ * </pre>
+ * and clipped by {@code minBandwidth}. Sampling draws one elite center at
+ * random and perturbs it with Gaussian noise scaled by {@code h_d}.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>B. W. Silverman, "Density Estimation for Statistics and Data Analysis," 1986.</li>
+ *   <li>N. Luo and F. Qian, "Evolutionary algorithm using kernel density estimation model
+ *   in continuous domain," ASCC, 2009.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class KdeModel implements Model<RealVector> {
 
@@ -30,16 +47,34 @@ public final class KdeModel implements Model<RealVector> {
     private double[][] kernels;
     private double[] bandwidth;
 
+    /**
+     * Creates a new KdeModel instance.
+     *
+     * @param bandwidthScale multiplicative factor applied to Silverman bandwidth
+     * @param minBandwidth minimal per-dimension kernel width
+     */
     public KdeModel(double bandwidthScale, double minBandwidth) {
         this.bandwidthScale = Math.max(1.0e-6, bandwidthScale);
         this.minBandwidth = Math.max(1.0e-10, minBandwidth);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "kde";
     }
 
+    /**
+     * Fits the probabilistic model parameters from selected elite individuals.
+     *
+     * @param selected selected individual list
+     * @param representation genotype representation
+     * @param rng random stream
+     */
     @Override
     public void fit(List<Individual<RealVector>> selected, Representation<RealVector> representation, RngStream rng) {
         if (selected == null || selected.isEmpty()) {
@@ -105,6 +140,11 @@ public final class KdeModel implements Model<RealVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (kernels == null || bandwidth == null) {

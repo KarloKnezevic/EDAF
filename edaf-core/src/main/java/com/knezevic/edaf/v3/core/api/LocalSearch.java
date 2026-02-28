@@ -9,6 +9,8 @@ import com.knezevic.edaf.v3.core.rng.RngStream;
 
 /**
  * Optional local-search hook for memetic EDA variants.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface LocalSearch<G> {
 

@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query.coco;
 
 /**
  * Optimizer config metadata for campaign details.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CocoOptimizerConfigRow(
         long id,

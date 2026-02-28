@@ -16,6 +16,8 @@ import java.util.List;
 
 /**
  * COCO/BBOB benchmark problem adapter.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CocoBbobProblem implements Problem<RealVector> {
 
@@ -24,6 +26,14 @@ public final class CocoBbobProblem implements Problem<RealVector> {
     private final int dimension;
     private final int instanceId;
 
+    /**
+     * Creates a new CocoBbobProblem instance.
+     *
+     * @param suite the suite argument
+     * @param functionId benchmark function identifier
+     * @param dimension the dimension argument
+     * @param instanceId benchmark instance identifier
+     */
     public CocoBbobProblem(String suite, int functionId, int dimension, int instanceId) {
         this.suite = suite;
         this.functionId = functionId;
@@ -31,16 +41,32 @@ public final class CocoBbobProblem implements Problem<RealVector> {
         this.instanceId = instanceId;
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return suite + "-f" + functionId + "-d" + dimension + "-i" + instanceId;
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MINIMIZE;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(RealVector genotype) {
         double[] values = genotype.values();
@@ -51,6 +77,12 @@ public final class CocoBbobProblem implements Problem<RealVector> {
         return new ScalarFitness(result);
     }
 
+    /**
+     * Returns feasibility violations.
+     *
+     * @param genotype candidate genotype
+     * @return violation message list
+     */
     @Override
     public List<String> violations(RealVector genotype) {
         if (genotype.length() != dimension) {

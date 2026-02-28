@@ -39,6 +39,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Runs a COCO/BBOB campaign by expanding one config into many EDAF runs.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CocoCampaignRunner {
 
@@ -47,6 +49,10 @@ public final class CocoCampaignRunner {
     private final ObjectMapper mapper;
     private final ObjectMapper canonicalYamlMapper;
 
+    /**
+     * Creates a new CocoCampaignRunner instance.
+     *
+     */
     public CocoCampaignRunner() {
         this.cocoConfigLoader = new CocoConfigLoader();
         this.experimentConfigLoader = new ConfigLoader();
@@ -58,6 +64,9 @@ public final class CocoCampaignRunner {
 
     /**
      * Executes campaign config and writes DB + HTML outputs.
+     * @param campaignConfigPath campaign configuration path
+     * @param additionalSinks additional event sink list
+     * @return campaign execution result
      */
     public CocoCampaignResult run(Path campaignConfigPath, List<EventSink> additionalSinks) {
         CocoCampaignConfig campaignConfig = cocoConfigLoader.load(campaignConfigPath);

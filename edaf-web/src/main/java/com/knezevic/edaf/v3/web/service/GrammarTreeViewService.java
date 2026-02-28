@@ -19,6 +19,9 @@ import java.util.Optional;
 
 /**
  * Builds tree-visualization payload for grammar-based runs.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
  */
 @Service
 public final class GrammarTreeViewService {
@@ -30,6 +33,8 @@ public final class GrammarTreeViewService {
 
     /**
      * Returns tree payload when run uses grammar representation and best genotype is available.
+     * @param detail the detail argument
+     * @return the view
      */
     @SuppressWarnings("unchecked")
     public Optional<GrammarTreeView> view(RunDetail detail) {
@@ -219,7 +224,9 @@ public final class GrammarTreeViewService {
 
     /**
      * Tree visualization payload returned by API.
-     */
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ */
     public record GrammarTreeView(
             String runId,
             String representationType,

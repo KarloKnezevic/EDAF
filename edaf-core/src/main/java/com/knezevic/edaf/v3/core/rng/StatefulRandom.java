@@ -12,6 +12,8 @@ import java.io.Serializable;
  * Lightweight deterministic RNG with explicit serializable state.
  *
  * This implementation uses xorshift64* for reproducible stream state persistence.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class StatefulRandom implements Serializable {
 
@@ -22,30 +24,58 @@ public final class StatefulRandom implements Serializable {
     private boolean hasGaussian;
     private double gaussian;
 
+    /**
+     * Creates a new StatefulRandom instance.
+     *
+     * @param seed seed value
+     */
     public StatefulRandom(long seed) {
         this.state = seed == 0L ? 0x9E3779B97F4A7C15L : seed;
     }
 
+    /**
+     * Executes state.
+     *
+     * @return the computed state
+     */
     public long state() {
         return state;
     }
 
+    /**
+     * Restores state from snapshot.
+     *
+     * @param state algorithm state
+     * @param hasGaussian the hasGaussian argument
+     * @param gaussian the gaussian argument
+     */
     public void restore(long state, boolean hasGaussian, double gaussian) {
         this.state = state;
         this.hasGaussian = hasGaussian;
         this.gaussian = gaussian;
     }
 
+    /**
+     * Executes has gaussian.
+     *
+     * @return true if the instance has gaussian; otherwise false
+     */
     public boolean hasGaussian() {
         return hasGaussian;
     }
 
+    /**
+     * Executes gaussian cache.
+     *
+     * @return the computed gaussian cache
+     */
     public double gaussianCache() {
         return gaussian;
     }
 
     /**
      * Returns a uniformly distributed long.
+     * @return the computed next long
      */
     public long nextLong() {
         long x = state;
@@ -58,6 +88,7 @@ public final class StatefulRandom implements Serializable {
 
     /**
      * Returns a uniformly distributed double in [0, 1).
+     * @return the computed next double
      */
     public double nextDouble() {
         long bits = nextLong() >>> 11;
@@ -66,6 +97,8 @@ public final class StatefulRandom implements Serializable {
 
     /**
      * Returns a uniformly distributed integer in [0, bound).
+     * @param bound the bound argument
+     * @return the computed next int
      */
     public int nextInt(int bound) {
         if (bound <= 0) {
@@ -77,6 +110,7 @@ public final class StatefulRandom implements Serializable {
 
     /**
      * Returns a normal distributed sample using Box-Muller transform.
+     * @return the computed next gaussian
      */
     public double nextGaussian() {
         if (hasGaussian) {

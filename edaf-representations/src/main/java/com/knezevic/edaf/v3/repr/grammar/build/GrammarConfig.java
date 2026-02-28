@@ -14,6 +14,8 @@ import java.util.Map;
 
 /**
  * Canonical grammar configuration used by both auto and custom modes.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class GrammarConfig {
 
@@ -78,6 +80,8 @@ public final class GrammarConfig {
      * Parses canonical grammar config from section params.
      *
      * <p>Accepts either direct keys or nested map under {@code grammar}.</p>
+     * @param params configuration the input value map
+     * @return parsed configuration
      */
     @SuppressWarnings("unchecked")
     public static GrammarConfig fromParams(Map<String, Object> params) {
@@ -204,74 +208,164 @@ public final class GrammarConfig {
         return result;
     }
 
+    /**
+     * Executes mode.
+     *
+     * @return the mode
+     */
     public String mode() {
         return mode;
     }
 
+    /**
+     * Executes file.
+     *
+     * @return the file
+     */
     public String file() {
         return file;
     }
 
+    /**
+     * Executes variables.
+     *
+     * @return the variables
+     */
     public List<String> variables() {
         return variables;
     }
 
+    /**
+     * Executes binary ops.
+     *
+     * @return the binary ops
+     */
     public List<String> binaryOps() {
         return binaryOps;
     }
 
+    /**
+     * Executes unary ops.
+     *
+     * @return the unary ops
+     */
     public List<String> unaryOps() {
         return unaryOps;
     }
 
+    /**
+     * Executes ternary ops.
+     *
+     * @return the ternary ops
+     */
     public List<String> ternaryOps() {
         return ternaryOps;
     }
 
+    /**
+     * Executes allow constants.
+     *
+     * @return true if the condition is satisfied; otherwise false
+     */
     public boolean allowConstants() {
         return allowConstants;
     }
 
+    /**
+     * Executes constants.
+     *
+     * @return the constants
+     */
     public List<Double> constants() {
         return constants;
     }
 
+    /**
+     * Executes ephemeral constants.
+     *
+     * @return true if the condition is satisfied; otherwise false
+     */
     public boolean ephemeralConstants() {
         return ephemeralConstants;
     }
 
+    /**
+     * Executes ephemeral distribution.
+     *
+     * @return the ephemeral distribution
+     */
     public String ephemeralDistribution() {
         return ephemeralDistribution;
     }
 
+    /**
+     * Executes ephemeral min.
+     *
+     * @return the computed ephemeral min
+     */
     public double ephemeralMin() {
         return ephemeralMin;
     }
 
+    /**
+     * Executes ephemeral max.
+     *
+     * @return the computed ephemeral max
+     */
     public double ephemeralMax() {
         return ephemeralMax;
     }
 
+    /**
+     * Executes max depth.
+     *
+     * @return the computed max depth
+     */
     public int maxDepth() {
         return maxDepth;
     }
 
+    /**
+     * Executes typed.
+     *
+     * @return true if the condition is satisfied; otherwise false
+     */
     public boolean typed() {
         return typed;
     }
 
+    /**
+     * Executes boolean mode.
+     *
+     * @return true if the condition is satisfied; otherwise false
+     */
     public boolean booleanMode() {
         return booleanMode;
     }
 
+    /**
+     * Executes bits per decision.
+     *
+     * @return the computed bits per decision
+     */
     public int bitsPerDecision() {
         return bitsPerDecision;
     }
 
+    /**
+     * Executes bits per erc.
+     *
+     * @return the computed bits per erc
+     */
     public int bitsPerErc() {
         return bitsPerErc;
     }
 
+    /**
+     * Executes max nodes.
+     *
+     * @return the computed max nodes
+     */
     public int maxNodes() {
         return maxNodes;
     }

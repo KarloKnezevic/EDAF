@@ -6,7 +6,9 @@
 package com.knezevic.edaf.v3.persistence.query;
 
 /**
- * Flattened experiment parameter row for searchable config exploration.
+ * Flattened experiment the input value row for searchable config exploration.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ExperimentParamRow(
         long id,

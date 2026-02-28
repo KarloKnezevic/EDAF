@@ -14,6 +14,9 @@ import java.util.Comparator;
 
 /**
  * List command group for discoverable plugins.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Command(
         name = "list",
@@ -24,8 +27,19 @@ import java.util.Comparator;
                 ListCommand.ProblemsCommand.class
         }
 )
+/**
+ * ListCommand implementation in this module.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ */
 public final class ListCommand implements Runnable {
 
+    /**
+     * Prints usage hint for list subcommands.
+     *
+     * @return no return value
+     */
     @Override
     public void run() {
         System.out.println("Use subcommands: algorithms, models, problems");
@@ -36,6 +50,10 @@ public final class ListCommand implements Runnable {
      */
     @Command(name = "algorithms", description = "List algorithms")
     public static final class AlgorithmsCommand implements Runnable {
+        /**
+         * Runs configured operation.
+         *
+         */
         @Override
         public void run() {
             LoggingConfigurator.apply(Verbosity.NORMAL);
@@ -48,9 +66,16 @@ public final class ListCommand implements Runnable {
 
     /**
      * Lists available model plugins.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     @Command(name = "models", description = "List models")
     public static final class ModelsCommand implements Runnable {
+        /**
+         * Runs configured operation.
+         *
+         */
         @Override
         public void run() {
             LoggingConfigurator.apply(Verbosity.NORMAL);
@@ -63,9 +88,16 @@ public final class ListCommand implements Runnable {
 
     /**
      * Lists available problem plugins.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ *
      */
     @Command(name = "problems", description = "List problems")
     public static final class ProblemsCommand implements Runnable {
+        /**
+         * Runs configured operation.
+         *
+         */
         @Override
         public void run() {
             LoggingConfigurator.apply(Verbosity.NORMAL);

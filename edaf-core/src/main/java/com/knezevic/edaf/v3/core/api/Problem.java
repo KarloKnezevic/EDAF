@@ -11,40 +11,57 @@ import java.util.List;
  * Optimization problem contract.
  *
  * @param <G> genotype value type.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public interface Problem<G> {
 
     /**
-     * Problem identifier used for reporting and persistence.
+     * Returns the stable problem identifier used in logs, persistence, and reports.
+     *
+     * @return problem identifier
      */
     String name();
 
     /**
-     * Returns whether this problem is min or max.
+     * Returns the objective direction of the problem.
+     *
+     * @return objective sense
      */
     ObjectiveSense objectiveSense();
 
     /**
-     * Evaluates one genotype and returns its fitness.
+     * Evaluates one genotype and returns the computed fitness.
+     *
+     * @param genotype candidate solution to evaluate
+     * @return evaluated fitness value
      */
     Fitness evaluate(G genotype);
 
     /**
-     * Returns true if the genotype satisfies hard constraints.
+     * Checks whether the genotype satisfies all hard feasibility constraints.
+     *
+     * @param genotype candidate solution to validate
+     * @return true when genotype is feasible
      */
     default boolean feasible(G genotype) {
         return violations(genotype).isEmpty();
     }
 
     /**
-     * Returns validation/constraint violations for diagnostics.
+     * Returns all constraint violation messages for diagnostics.
+     *
+     * @param genotype candidate solution to validate
+     * @return list of violation messages
      */
     default List<String> violations(G genotype) {
         return List.of();
     }
 
     /**
-     * Number of objectives; defaults to one objective.
+     * Returns the number of optimization objectives exposed by the problem.
+     *
+     * @return objective count
      */
     default int objectiveCount() {
         return 1;

@@ -21,7 +21,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Mallows-Kendall model with consensus ranking and repeated-insertion sampling.
+ * Mallows model under Kendall distance.
+ *
+ * <p>The model estimates a consensus permutation (Borda-like ranking from elites)
+ * and concentration value {@code φ} (or {@code θ=-log φ}) from average
+ * Kendall distance to the consensus. Sampling uses repeated insertion model (RIM),
+ * yielding a valid permutation with controllable dispersion around consensus.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>C. L. Mallows, "Non-null ranking models. I," Biometrika, 1957.</li>
+ *   <li>P. Fligner and J. Verducci, "Distance based ranking models," Journal of the
+ *   Royal Statistical Society B, 1986.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MallowsModel implements Model<PermutationVector> {
 
@@ -32,11 +46,22 @@ public final class MallowsModel implements Model<PermutationVector> {
     private double phi;
     private double theta;
 
+    /**
+     * Creates a new MallowsModel instance.
+     *
+     * @param minPhi minimum concentration factor (more peaked around consensus)
+     * @param maxPhi maximum concentration factor (more exploratory)
+     */
     public MallowsModel(double minPhi, double maxPhi) {
         this.minPhi = Math.max(1.0e-4, Math.min(0.99, minPhi));
         this.maxPhi = Math.max(this.minPhi, Math.min(0.9999, maxPhi));
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "mallows";
@@ -100,6 +125,11 @@ public final class MallowsModel implements Model<PermutationVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (consensus == null) {

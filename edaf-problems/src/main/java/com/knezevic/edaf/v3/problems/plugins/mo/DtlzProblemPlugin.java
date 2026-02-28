@@ -15,19 +15,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for DTLZ benchmark suite.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class DtlzProblemPlugin implements ProblemPlugin<RealVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "dtlz";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "DTLZ multi-objective benchmark (1,2,7)";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public DtlzProblem create(Map<String, Object> params) {
         int functionId = Params.integer(params, "functionId", 2);

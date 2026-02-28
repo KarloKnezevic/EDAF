@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
  * Provides shared model attributes for all Thymeleaf pages.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @ControllerAdvice
 public final class GlobalModelAttributes {
@@ -31,11 +33,21 @@ public final class GlobalModelAttributes {
     }
 
     @ModelAttribute("dashboardSummary")
+    /**
+     * Executes dashboard summary.
+     *
+     * @return the dashboard summary
+     */
     public DashboardStatsService.DashboardSummary dashboardSummary() {
         return dashboardStatsService.readSummary();
     }
 
     @ModelAttribute("frameworkVersion")
+    /**
+     * Executes framework version.
+     *
+     * @return the framework version
+     */
     public String frameworkVersion() {
         return frameworkVersion;
     }

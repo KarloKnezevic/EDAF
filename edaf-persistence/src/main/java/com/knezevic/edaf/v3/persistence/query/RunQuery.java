@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Query object for run-list filtering, sorting, and pagination.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record RunQuery(
         String q,
@@ -24,10 +26,20 @@ public record RunQuery(
         String sortDir
 ) {
 
+    /**
+     * Executes defaults.
+     *
+     * @return the defaults
+     */
     public static RunQuery defaults() {
         return new RunQuery(null, null, null, null, null, null, null, null, null, 0, 25, "start_time", "desc");
     }
 
+    /**
+     * Executes offset.
+     *
+     * @return the computed offset
+     */
     public int offset() {
         return Math.max(0, page) * Math.max(1, size);
     }

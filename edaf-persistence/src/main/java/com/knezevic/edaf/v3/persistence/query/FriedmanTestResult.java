@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Friedman omnibus test output for multiple algorithms.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record FriedmanTestResult(
         int blocks,

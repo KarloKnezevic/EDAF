@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.Locale;
 
 /**
- * Shared typed parameter parsing for DM/RM/ADM problem plugins.
+ * Shared typed the input value parsing for DM/RM/ADM problem plugins.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record DisjunctProblemParams(
         int m,
@@ -23,10 +25,12 @@ public record DisjunctProblemParams(
 ) {
 
     /**
-     * Parses common problem parameters from YAML plugin map.
+     * Parses common problem the input values from YAML plugin map.
      *
      * <p>Supported aliases:
      * {@code m|rows}, {@code n|columns}, {@code t}, {@code f}, {@code epsilon}.</p>
+     * @param params configuration the input value map
+     * @return the from
      */
     public static DisjunctProblemParams from(Map<String, Object> params) {
         int m = Params.integer(params, "m", Params.integer(params, "rows", -1));
@@ -59,6 +63,7 @@ public record DisjunctProblemParams(
 
     /**
      * Expected genotype length for column-major encoding.
+     * @return the computed expected genome length
      */
     public int expectedGenomeLength() {
         return Math.multiplyExact(m, n);

@@ -20,16 +20,44 @@ import java.util.Map;
 
 /**
  * Edge Histogram Model (EHM) for permutation EDAs.
+ *
+ * <p>Model stores transition probabilities between consecutive items:
+ * <pre>
+ *   P(next = j | current = i)
+ * </pre>
+ * estimated from elite edge frequencies with additive {@code epsilon}
+ * smoothing. Sampling builds a Hamiltonian path greedily by repeatedly
+ * drawing the next unused item from the transition row of the current item.
+ *
+ * <p>References:
+ * <ol>
+ *   <li>M. Tsutsui, "Probabilistic model-building genetic algorithms in permutation domains,"
+ *   GECCO Workshop, 2006.</li>
+ *   <li>P. Larranaga and J. A. Lozano (eds.), "Estimation of Distribution Algorithms:
+ *   A New Tool for Evolutionary Computation," Kluwer, 2001.</li>
+ * </ol>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class EdgeHistogramModel implements Model<PermutationVector> {
 
     private final double epsilon;
     private double[][] transitions;
 
+    /**
+     * Creates a new EdgeHistogramModel instance.
+     *
+     * @param epsilon additive smoothing for transition counts
+     */
     public EdgeHistogramModel(double epsilon) {
         this.epsilon = Math.max(1e-9, epsilon);
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     @Override
     public String name() {
         return "ehm";
@@ -96,6 +124,11 @@ public final class EdgeHistogramModel implements Model<PermutationVector> {
         return samples;
     }
 
+    /**
+     * Returns model diagnostics snapshot.
+     *
+     * @return diagnostics snapshot
+     */
     @Override
     public ModelDiagnostics diagnostics() {
         if (transitions == null) {
@@ -169,6 +202,8 @@ public final class EdgeHistogramModel implements Model<PermutationVector> {
 
     /**
      * Returns a deep copy of transition matrix for checkpoint persistence.
+     *
+     * @return transition matrix {@code P(next=j | current=i)}
      */
     public double[][] transitions() {
         if (transitions == null) {
@@ -183,6 +218,8 @@ public final class EdgeHistogramModel implements Model<PermutationVector> {
 
     /**
      * Restores transition matrix state from checkpoint payload.
+     *
+     * @param transitions transition matrix persisted in checkpoint
      */
     public void restore(double[][] transitions) {
         this.transitions = new double[transitions.length][];

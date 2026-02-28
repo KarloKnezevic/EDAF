@@ -14,6 +14,8 @@ import java.util.Map;
 
 /**
  * Parsed configuration payload for crypto boolean-function problems.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CryptoProblemConfig(
         int n,
@@ -25,6 +27,8 @@ public record CryptoProblemConfig(
 
     /**
      * Parses common crypto-problem parameters from plugin params map.
+     * @param params configuration the input value map
+     * @return the from
      */
     public static CryptoProblemConfig from(Map<String, Object> params) {
         int n = Params.integer(params, "n", 6);

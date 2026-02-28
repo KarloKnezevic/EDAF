@@ -14,20 +14,39 @@ import com.knezevic.edaf.v3.core.util.Params;
 import java.util.Map;
 
 /**
- * Plugin for Indicator-based EDA driver
+  * Plugin for Indicator-based EDA driver.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class IndicatorEdaAlgorithmPlugin implements AlgorithmPlugin<Object> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "indicator-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Indicator-based EDA driver";
     }
 
+    /**
+     * Creates component instance from plugin dependencies and configuration parameters.
+     *
+     * @param dependencies algorithm dependency bundle resolved by framework
+     * @param params algorithm parameter map from YAML configuration
+      * @return algorithm instance
+     */
     @Override
     public Algorithm<Object> create(AlgorithmDependencies<Object> dependencies, Map<String, Object> params) {
         return new IndicatorEdaAlgorithm(Params.dbl(params, "selectionRatio", 0.5));

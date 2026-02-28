@@ -11,7 +11,14 @@ import com.knezevic.edaf.v3.repr.types.RealVector;
 import java.util.List;
 
 /**
- * Shared linear-algebra/statistics helpers for continuous probabilistic models.
+ * Shared linear algebra/statistics helpers for continuous probabilistic models.
+ *
+ * <p>The methods in this utility keep covariance handling numerically stable:
+ * empirical estimation, exponential blending, shrinkage, symmetric regularization,
+ * and robust Cholesky factorization with deterministic fallback. Centralizing
+ * this logic ensures all continuous models use consistent matrix semantics.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 final class ContinuousModelMath {
 

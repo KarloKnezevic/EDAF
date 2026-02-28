@@ -18,6 +18,8 @@ import java.util.Locale;
 
 /**
  * Canonical identity derived from config payload while ignoring per-run mutable fields.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ExperimentIdentity(
         JsonNode normalizedConfig,
@@ -36,6 +38,8 @@ public record ExperimentIdentity(
 
     /**
      * Builds canonical experiment identity from one canonical run config JSON payload.
+     * @param canonicalConfigJson the canonicalConfigJson argument
+     * @return the from canonical json
      */
     public static ExperimentIdentity fromCanonicalJson(String canonicalConfigJson) {
         try {

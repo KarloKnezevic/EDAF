@@ -14,6 +14,8 @@ import java.util.concurrent.BlockingQueue;
  *
  * <p>The wrapper preserves event order per sink, applies backpressure when the queue is full,
  * and guarantees flush-on-close semantics.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class AsyncEventSink implements EventSink {
 
@@ -29,6 +31,9 @@ public final class AsyncEventSink implements EventSink {
 
     /**
      * Creates async wrapper with explicit queue capacity.
+     * @param delegate the delegate argument
+     * @param workerName the workerName argument
+     * @param queueCapacity the queueCapacity argument
      */
     public AsyncEventSink(EventSink delegate, String workerName, int queueCapacity) {
         this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
@@ -41,6 +46,11 @@ public final class AsyncEventSink implements EventSink {
         this.worker.start();
     }
 
+    /**
+     * Executes on event.
+     *
+     * @param event event payload
+     */
     @Override
     public void onEvent(RunEvent event) {
         Objects.requireNonNull(event, "event must not be null");
@@ -55,6 +65,10 @@ public final class AsyncEventSink implements EventSink {
         }
     }
 
+    /**
+     * Executes close.
+     *
+     */
     @Override
     public void close() {
         synchronized (lifecycleLock) {

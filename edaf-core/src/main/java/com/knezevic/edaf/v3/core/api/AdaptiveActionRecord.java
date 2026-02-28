@@ -11,6 +11,8 @@ import java.util.Map;
 
 /**
  * One adaptive action triggered by latent-knowledge signals.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record AdaptiveActionRecord(
         String trigger,
@@ -19,6 +21,14 @@ public record AdaptiveActionRecord(
         Map<String, Object> details
 ) {
 
+    /**
+     * Creates immutable adaptive action record with normalized default values.
+     *
+     * @param trigger trigger identifier
+     * @param actionType adaptive action identifier
+     * @param reason human-readable explanation
+     * @param details additional structured action metadata
+     */
     public AdaptiveActionRecord {
         trigger = trigger == null ? "unknown" : trigger;
         actionType = actionType == null ? "unknown" : actionType;

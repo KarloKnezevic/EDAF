@@ -14,6 +14,8 @@ import java.util.List;
 
 /**
  * Minimal variable-length integer token representation scaffold.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class VariableLengthVectorRepresentation implements Representation<VariableLengthVector<Integer>> {
 
@@ -21,6 +23,13 @@ public final class VariableLengthVectorRepresentation implements Representation<
     private final int maxLength;
     private final int maxToken;
 
+    /**
+     * Creates a new VariableLengthVectorRepresentation instance.
+     *
+     * @param minLength the minLength argument
+     * @param maxLength the maxLength argument
+     * @param maxToken the maxToken argument
+     */
     public VariableLengthVectorRepresentation(int minLength, int maxLength, int maxToken) {
         if (minLength < 1 || maxLength < minLength) {
             throw new IllegalArgumentException("invalid length bounds");
@@ -30,11 +39,22 @@ public final class VariableLengthVectorRepresentation implements Representation<
         this.maxToken = Math.max(1, maxToken);
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "variable-length-vector";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public VariableLengthVector<Integer> random(RngStream rng) {
         int length = minLength + rng.nextInt(maxLength - minLength + 1);
@@ -45,6 +65,12 @@ public final class VariableLengthVectorRepresentation implements Representation<
         return new VariableLengthVector<>(values);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(VariableLengthVector<Integer> genotype) {
         if (genotype == null || genotype.size() < minLength || genotype.size() > maxLength) {
@@ -58,6 +84,12 @@ public final class VariableLengthVectorRepresentation implements Representation<
         return true;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public VariableLengthVector<Integer> repair(VariableLengthVector<Integer> genotype) {
         if (genotype == null || genotype.values().isEmpty()) {
@@ -77,6 +109,12 @@ public final class VariableLengthVectorRepresentation implements Representation<
         return new VariableLengthVector<>(repaired);
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(VariableLengthVector<Integer> genotype) {
         return genotype.toString();

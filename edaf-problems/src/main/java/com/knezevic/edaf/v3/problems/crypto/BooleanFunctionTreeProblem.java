@@ -13,6 +13,8 @@ import java.util.Map;
 
 /**
  * Boolean-function optimization where genotype is interpreted as tokenized boolean expression tree.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BooleanFunctionTreeProblem extends AbstractBooleanFunctionProblem<VariableLengthVector<Integer>> {
 
@@ -26,11 +28,22 @@ public final class BooleanFunctionTreeProblem extends AbstractBooleanFunctionPro
         this.maxDepth = Math.max(2, maxDepth);
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "boolean-function-tree";
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(VariableLengthVector<Integer> genotype) {
         BooleanExpression expr = BooleanExpression.parse(genotype.values(), n, maxDepth);
@@ -42,6 +55,12 @@ public final class BooleanFunctionTreeProblem extends AbstractBooleanFunctionPro
         return evaluateScalarFitness(truthTable);
     }
 
+    /**
+     * Returns feasibility violations.
+     *
+     * @param genotype candidate genotype
+     * @return violation message list
+     */
     @Override
     public List<String> violations(VariableLengthVector<Integer> genotype) {
         if (genotype == null || genotype.size() == 0) {

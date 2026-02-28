@@ -16,14 +16,26 @@ import java.util.Map;
 
 /**
  * Plugin for position-based permutation EDA.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class PositionBasedPermutationEdaAlgorithmPlugin implements AlgorithmPlugin<PermutationVector> {
 
+    /**
+     * Returns plugin type identifier.
+     *
+      * @return plugin type identifier
+     */
     @Override
     public String type() {
         return "position-based-permutation-eda";
     }
 
+    /**
+     * Returns short component description.
+     *
+      * @return human-readable plugin description
+     */
     @Override
     public String description() {
         return "Position-based permutation EDA driver";

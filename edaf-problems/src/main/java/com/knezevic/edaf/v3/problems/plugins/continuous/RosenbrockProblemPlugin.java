@@ -13,19 +13,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for Rosenbrock problem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RosenbrockProblemPlugin implements ProblemPlugin<RealVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "rosenbrock";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Rosenbrock benchmark";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public RosenbrockProblem create(Map<String, Object> params) {
         return new RosenbrockProblem();

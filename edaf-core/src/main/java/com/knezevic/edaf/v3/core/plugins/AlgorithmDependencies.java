@@ -15,6 +15,8 @@ import com.knezevic.edaf.v3.core.api.StoppingCondition;
 
 /**
  * Dependency bundle passed to algorithm plugins.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record AlgorithmDependencies<G>(
         Representation<G> representation,

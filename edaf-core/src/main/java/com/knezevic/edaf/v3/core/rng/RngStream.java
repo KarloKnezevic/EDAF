@@ -9,6 +9,8 @@ import java.util.Objects;
 
 /**
  * Named deterministic RNG stream used by one pipeline component.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RngStream {
 
@@ -20,22 +22,48 @@ public final class RngStream {
         this.random = Objects.requireNonNull(random, "random must not be null");
     }
 
+    /**
+     * Returns component name identifier.
+     *
+     * @return component name
+     */
     public String name() {
         return name;
     }
 
+    /**
+     * Executes next double.
+     *
+     * @return the computed next double
+     */
     public double nextDouble() {
         return random.nextDouble();
     }
 
+    /**
+     * Executes next int.
+     *
+     * @param bound the bound argument
+     * @return the computed next int
+     */
     public int nextInt(int bound) {
         return random.nextInt(bound);
     }
 
+    /**
+     * Executes next long.
+     *
+     * @return the computed next long
+     */
     public long nextLong() {
         return random.nextLong();
     }
 
+    /**
+     * Executes next gaussian.
+     *
+     * @return the computed next gaussian
+     */
     public double nextGaussian() {
         return random.nextGaussian();
     }

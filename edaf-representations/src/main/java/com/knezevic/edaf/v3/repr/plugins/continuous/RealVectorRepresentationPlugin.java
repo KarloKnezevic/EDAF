@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for real-valued vectors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class RealVectorRepresentationPlugin implements RepresentationPlugin<RealVector> {
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "real-vector";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Real-valued vector representation";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return the create
+     */
     @Override
     public RealVectorRepresentation create(Map<String, Object> params) {
         int length = Params.integer(params, "length", 16);

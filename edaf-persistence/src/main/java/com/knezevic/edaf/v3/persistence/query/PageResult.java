@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * Generic page envelope for API and repository responses.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record PageResult<T>(
         List<T> items,

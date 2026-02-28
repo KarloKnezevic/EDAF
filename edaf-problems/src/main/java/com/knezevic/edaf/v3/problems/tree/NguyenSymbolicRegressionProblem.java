@@ -19,6 +19,8 @@ import java.util.List;
  *
  * <p>Genotype is interpreted as prefix tokens. This keeps tree-style search runnable
  * with the existing variable-length representation pipeline.</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class NguyenSymbolicRegressionProblem implements Problem<VariableLengthVector<Integer>> {
 
@@ -27,6 +29,14 @@ public final class NguyenSymbolicRegressionProblem implements Problem<VariableLe
     private final double minX;
     private final double maxX;
 
+    /**
+     * Creates a new NguyenSymbolicRegressionProblem instance.
+     *
+     * @param variant the variant argument
+     * @param sampleCount the sampleCount argument
+     * @param minX the minX argument
+     * @param maxX the maxX argument
+     */
     public NguyenSymbolicRegressionProblem(int variant, int sampleCount, double minX, double maxX) {
         this.variant = variant;
         this.sampleCount = Math.max(8, sampleCount);
@@ -34,16 +44,32 @@ public final class NguyenSymbolicRegressionProblem implements Problem<VariableLe
         this.maxX = maxX;
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "nguyen-sr-" + variant;
     }
 
+    /**
+     * Returns objective optimization sense.
+     *
+     * @return objective sense
+     */
     @Override
     public ObjectiveSense objectiveSense() {
         return ObjectiveSense.MINIMIZE;
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(VariableLengthVector<Integer> genotype) {
         TokenReader reader = new TokenReader(genotype.values());
@@ -67,6 +93,12 @@ public final class NguyenSymbolicRegressionProblem implements Problem<VariableLe
         return new ScalarFitness(mse);
     }
 
+    /**
+     * Returns feasibility violations.
+     *
+     * @param genotype candidate genotype
+     * @return violation message list
+     */
     @Override
     public List<String> violations(VariableLengthVector<Integer> genotype) {
         if (genotype == null || genotype.size() == 0) {

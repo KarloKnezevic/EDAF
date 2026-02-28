@@ -14,6 +14,8 @@ import java.util.Map;
 
 /**
  * Multi-objective boolean-function problem emitting one objective per selected criterion.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class BooleanFunctionMultiObjectiveProblem extends AbstractBooleanFunctionProblem<BitString> {
 
@@ -27,16 +29,33 @@ public final class BooleanFunctionMultiObjectiveProblem extends AbstractBooleanF
         this.scalarWeights = normalizeScalarWeights(scalarWeights, objectiveCount());
     }
 
+    /**
+     * Returns problem identifier.
+     *
+     * @return problem identifier
+     */
     @Override
     public String name() {
         return "boolean-function-mo";
     }
 
+    /**
+     * Evaluates candidate solution.
+     *
+     * @param genotype candidate genotype
+     * @return fitness value
+     */
     @Override
     public Fitness evaluate(BitString genotype) {
         return evaluateVectorFitness(toTruthTableFromBits(genotype.genes()), scalarWeights);
     }
 
+    /**
+     * Returns feasibility violations.
+     *
+     * @param genotype candidate genotype
+     * @return violation message list
+     */
     @Override
     public List<String> violations(BitString genotype) {
         if (genotype.length() != truthTableSize) {

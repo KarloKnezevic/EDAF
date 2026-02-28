@@ -11,16 +11,29 @@ import java.util.List;
 
 /**
  * Structured validation exception for user-facing config errors.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ConfigValidationException extends ConfigurationException {
 
     private final List<ConfigIssue> issues;
 
+    /**
+     * Creates a new ConfigValidationException instance.
+     *
+     * @param file file path
+     * @param issues the issues argument
+     */
     public ConfigValidationException(String file, List<ConfigIssue> issues) {
         super(buildMessage(file, issues));
         this.issues = List.copyOf(issues);
     }
 
+    /**
+     * Checks whether sues.
+     *
+     * @return true if sues; otherwise false
+     */
     public List<ConfigIssue> issues() {
         return issues;
     }

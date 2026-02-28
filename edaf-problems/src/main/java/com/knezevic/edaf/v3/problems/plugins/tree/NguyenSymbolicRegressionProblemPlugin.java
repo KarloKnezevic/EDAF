@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for Nguyen symbolic regression benchmark.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class NguyenSymbolicRegressionProblemPlugin implements ProblemPlugin<VariableLengthVector<Integer>> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "nguyen-sr";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "Nguyen symbolic regression suite (variants 1..8)";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public NguyenSymbolicRegressionProblem create(Map<String, Object> params) {
         int variant = Params.integer(params, "variant", 1);

@@ -50,6 +50,7 @@ flowchart TD
 - [Benchmark Comparisons](./benchmark-comparisons.md)
 - [Complexity and Performance](./complexity-and-performance.md)
 - [Testing and Release Hardening](./testing-and-release.md)
+- [API JavaDoc](./javadoc-api.md)
 - [Bibliography](./bibliography.md)
 
 ## Operations

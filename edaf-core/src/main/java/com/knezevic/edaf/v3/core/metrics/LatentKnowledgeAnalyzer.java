@@ -25,6 +25,8 @@ import java.util.Map;
  *
  * <p>The analyzer intentionally emits both scalar summaries (for compact storage and filtering)
  * and structured payloads (for heatmaps/graphs in web and offline reports).</p>
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class LatentKnowledgeAnalyzer {
 

@@ -17,6 +17,9 @@ import java.util.concurrent.Callable;
 
 /**
  * Config command group for validation and migration.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Command(
         name = "config",
@@ -26,8 +29,19 @@ import java.util.concurrent.Callable;
                 ConfigCommand.ValidateCommand.class
         }
 )
+/**
+ * ConfigCommand implementation in this module.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
+ */
 public final class ConfigCommand implements Runnable {
 
+    /**
+     * Prints usage hint for config subcommands.
+     *
+     * @return no return value
+     */
     @Override
     public void run() {
         System.out.println("Use subcommand: validate");
@@ -42,6 +56,11 @@ public final class ConfigCommand implements Runnable {
         @Parameters(index = "0", description = "Config path")
         private Path config;
 
+        /**
+         * Executes CLI command.
+         *
+         * @return command exit code
+         */
         @Override
         public Integer call() {
             LoggingConfigurator.apply(Verbosity.NORMAL);

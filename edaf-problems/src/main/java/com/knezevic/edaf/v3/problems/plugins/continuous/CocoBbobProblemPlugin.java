@@ -14,19 +14,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for COCO/BBOB benchmark adapter problem.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CocoBbobProblemPlugin implements ProblemPlugin<RealVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "coco-bbob";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "COCO/BBOB adapter problem (function + dimension + instance)";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public CocoBbobProblem create(Map<String, Object> params) {
         String suite = Params.str(params, "suite", "bbob");

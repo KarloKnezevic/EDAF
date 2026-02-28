@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * One row in experiment listing.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record ExperimentListItem(
         String experimentId,

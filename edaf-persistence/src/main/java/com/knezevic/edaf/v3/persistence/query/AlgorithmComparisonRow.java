@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Per-algorithm aggregate row for same-problem comparisons.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record AlgorithmComparisonRow(
         String algorithm,

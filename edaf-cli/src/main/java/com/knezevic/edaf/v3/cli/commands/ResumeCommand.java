@@ -22,6 +22,9 @@ import java.util.concurrent.Callable;
 
 /**
  * Resumes an experiment from checkpoint.
+ *
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 @Command(name = "resume", description = "Resume run from checkpoint")
 public final class ResumeCommand implements Callable<Integer> {
@@ -32,6 +35,11 @@ public final class ResumeCommand implements Callable<Integer> {
     @Option(names = "--verbosity", description = "Override verbosity: quiet|normal|verbose|debug")
     private String verbosity;
 
+    /**
+     * Resumes run execution from checkpoint file.
+     *
+     * @return process exit code
+     */
     @Override
     public Integer call() throws Exception {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

@@ -14,12 +14,20 @@ import java.util.List;
 
 /**
  * Categorical vector representation with per-position symbol draw.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class CategoricalVectorRepresentation implements Representation<CategoricalVector> {
 
     private final int length;
     private final List<String> symbols;
 
+    /**
+     * Creates a new CategoricalVectorRepresentation instance.
+     *
+     * @param length the length argument
+     * @param symbols the symbols argument
+     */
     public CategoricalVectorRepresentation(int length, List<String> symbols) {
         if (length <= 0) {
             throw new IllegalArgumentException("length must be > 0");
@@ -31,11 +39,22 @@ public final class CategoricalVectorRepresentation implements Representation<Cat
         this.symbols = List.copyOf(symbols);
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "categorical-vector";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public CategoricalVector random(RngStream rng) {
         String[] values = new String[length];
@@ -45,6 +64,12 @@ public final class CategoricalVectorRepresentation implements Representation<Cat
         return new CategoricalVector(values);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(CategoricalVector genotype) {
         if (genotype == null || genotype.length() != length) {
@@ -58,6 +83,12 @@ public final class CategoricalVectorRepresentation implements Representation<Cat
         return true;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public CategoricalVector repair(CategoricalVector genotype) {
         if (genotype == null) {
@@ -74,6 +105,12 @@ public final class CategoricalVectorRepresentation implements Representation<Cat
         return new CategoricalVector(repaired);
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(CategoricalVector genotype) {
         return genotype.toString();

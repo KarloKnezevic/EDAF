@@ -15,19 +15,37 @@ import java.util.Map;
 
 /**
  * Plugin factory for ZDT benchmark suite.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class ZdtProblemPlugin implements ProblemPlugin<RealVector> {
 
+    /**
+     * Executes type.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "zdt";
     }
 
+    /**
+     * Executes description.
+     *
+     * @return the description
+     */
     @Override
     public String description() {
         return "ZDT multi-objective benchmark (1,2,3,4,6)";
     }
 
+    /**
+     * Creates plugin component instance.
+     *
+     * @param params configuration the input value map
+     * @return component instance
+     */
     @Override
     public ZdtProblem create(Map<String, Object> params) {
         int functionId = Params.integer(params, "functionId", 1);

@@ -12,6 +12,8 @@ import java.util.List;
 
 /**
  * Numerical helpers for descriptive statistics and nonparametric significance tests.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 final class StatisticsUtils {
 
@@ -325,6 +327,12 @@ final class StatisticsUtils {
         return 0.5 * Math.log(2.0 * Math.PI) + (zp + 0.5) * Math.log(t) - t + Math.log(x);
     }
 
+    /**
+     * FriedmanComputation implementation in this module.
+     *
+     * @author Karlo Knezevic
+     * @version EDAF 3.0.0
+     */
     record FriedmanComputation(Double statistic, Double pValue, List<FriedmanRank> ranks) {
     }
 

@@ -9,6 +9,8 @@ import java.time.Instant;
 
 /**
  * Event emitted when a checkpoint is persisted.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CheckpointSavedEvent(
         String runId,
@@ -17,6 +19,11 @@ public record CheckpointSavedEvent(
         String checkpointPath
 ) implements RunEvent {
 
+    /**
+     * Returns component type identifier.
+     *
+     * @return component type
+     */
     @Override
     public String type() {
         return "checkpoint_saved";

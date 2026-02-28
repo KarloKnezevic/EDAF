@@ -7,6 +7,8 @@ package com.knezevic.edaf.v3.persistence.query;
 
 /**
  * Result of requesting cooperative stop for one run or experiment.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record StopRequestResult(
         String scope,

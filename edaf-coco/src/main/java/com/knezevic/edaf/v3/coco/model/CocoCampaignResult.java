@@ -10,6 +10,8 @@ import java.util.Map;
 
 /**
  * Result of a completed COCO campaign execution.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public record CocoCampaignResult(
         String campaignId,

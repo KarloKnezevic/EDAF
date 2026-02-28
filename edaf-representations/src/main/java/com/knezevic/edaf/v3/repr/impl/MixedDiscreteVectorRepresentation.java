@@ -13,11 +13,18 @@ import java.util.Arrays;
 
 /**
  * Mixed discrete representation modeled as integer-coded attributes with cardinalities.
+ * @author Karlo Knezevic
+ * @version EDAF 3.0.0
  */
 public final class MixedDiscreteVectorRepresentation implements Representation<MixedDiscreteVector> {
 
     private final int[] cardinalities;
 
+    /**
+     * Creates a new MixedDiscreteVectorRepresentation instance.
+     *
+     * @param cardinalities the cardinalities argument
+     */
     public MixedDiscreteVectorRepresentation(int[] cardinalities) {
         if (cardinalities == null || cardinalities.length == 0) {
             throw new IllegalArgumentException("cardinalities must not be empty");
@@ -25,11 +32,22 @@ public final class MixedDiscreteVectorRepresentation implements Representation<M
         this.cardinalities = Arrays.copyOf(cardinalities, cardinalities.length);
     }
 
+    /**
+     * Returns representation type identifier.
+     *
+     * @return the type
+     */
     @Override
     public String type() {
         return "mixed-discrete-vector";
     }
 
+    /**
+     * Samples a random value in representation domain.
+     *
+     * @param rng random stream
+     * @return the random
+     */
     @Override
     public MixedDiscreteVector random(RngStream rng) {
         int[] values = new int[cardinalities.length];
@@ -40,6 +58,12 @@ public final class MixedDiscreteVectorRepresentation implements Representation<M
         return new MixedDiscreteVector(values);
     }
 
+    /**
+     * Returns whether value is valid in representation domain.
+     *
+     * @param genotype encoded genotype value
+     * @return true if valid; otherwise false
+     */
     @Override
     public boolean isValid(MixedDiscreteVector genotype) {
         if (genotype == null || genotype.length() != cardinalities.length) {
@@ -54,6 +78,12 @@ public final class MixedDiscreteVectorRepresentation implements Representation<M
         return true;
     }
 
+    /**
+     * Repairs value to representation domain constraints.
+     *
+     * @param genotype encoded genotype value
+     * @return the repair
+     */
     @Override
     public MixedDiscreteVector repair(MixedDiscreteVector genotype) {
         if (genotype == null) {
@@ -69,6 +99,12 @@ public final class MixedDiscreteVectorRepresentation implements Representation<M
         return new MixedDiscreteVector(repaired);
     }
 
+    /**
+     * Returns compact value summary.
+     *
+     * @param genotype encoded genotype value
+     * @return the summarize
+     */
     @Override
     public String summarize(MixedDiscreteVector genotype) {
         return genotype.toString();
