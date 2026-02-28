@@ -8,7 +8,7 @@ on:
         required: true
         default: "false"
       wait_until:
-        description: "Central wait mode (validated/published)"
+        description: "Central wait mode (uploaded/validated/published)"
         required: true
         default: "validated"
   push:
@@ -50,7 +50,9 @@ jobs:
           EVENT_NAME="${{ github.event_name }}"
           if [ "$EVENT_NAME" = "push" ]; then
             AUTO_PUBLISH="true"
-            WAIT_UNTIL="published"
+            # Central queues can exceed 30m on busy windows; wait only for validation in CI
+            # and let Central complete publish asynchronously.
+            WAIT_UNTIL="validated"
           else
             AUTO_PUBLISH="${{ github.event.inputs.auto_publish }}"
             WAIT_UNTIL="${{ github.event.inputs.wait_until }}"
@@ -66,4 +68,6 @@ jobs:
           mvn -B -Pcentral-release -DskipTests \
             -Dcentral.auto.publish="$AUTO_PUBLISH" \
             -Dcentral.wait.until="$WAIT_UNTIL" \
+            -Dcentral.wait.max.time="PT120M" \
+            -Dcentral.wait.poll.interval="PT15S" \
             deploy --file pom.xml

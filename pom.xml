@@ -60,6 +60,8 @@
         <central.publishing.plugin.version>0.9.0</central.publishing.plugin.version>
         <central.auto.publish>false</central.auto.publish>
         <central.wait.until>validated</central.wait.until>
+        <central.wait.max.time>PT120M</central.wait.max.time>
+        <central.wait.poll.interval>PT15S</central.wait.poll.interval>
     </properties>
 
     <modules>
@@ -428,6 +430,8 @@
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>${central.auto.publish}</autoPublish>
                             <waitUntil>${central.wait.until}</waitUntil>
+                            <waitMaxTime>${central.wait.max.time}</waitMaxTime>
+                            <waitPollingInterval>${central.wait.poll.interval}</waitPollingInterval>
                         </configuration>
                     </plugin>
                 </plugins>

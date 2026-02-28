@@ -32,18 +32,10 @@ import java.util.concurrent.Callable;
                 CocoCommand.ReportCampaignCommand.class
         }
 )
-/**
- * CocoCommand implementation in this module.
- *
- * @author Karlo Knezevic
- * @version EDAF 3.0.0
- */
 public final class CocoCommand implements Runnable {
 
     /**
      * Prints usage hint for COCO subcommands.
-     *
-     * @return no return value
      */
     @Override
     public void run() {
@@ -91,9 +83,6 @@ public final class CocoCommand implements Runnable {
 
     /**
      * Imports reference ERT rows from CSV for campaign comparisons.
- * @author Karlo Knezevic
- * @version EDAF 3.0.0
- *
      */
     @Command(name = "import-reference", description = "Import reference ERT CSV for COCO comparison")
     public static final class ImportReferenceCommand implements Callable<Integer> {
@@ -135,9 +124,6 @@ public final class CocoCommand implements Runnable {
 
     /**
      * Rebuilds one campaign HTML report from persisted DB state.
- * @author Karlo Knezevic
- * @version EDAF 3.0.0
- *
      */
     @Command(name = "report", description = "Generate COCO campaign HTML report from database")
     public static final class ReportCampaignCommand implements Callable<Integer> {

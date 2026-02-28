@@ -29,18 +29,10 @@ import java.util.concurrent.Callable;
                 ConfigCommand.ValidateCommand.class
         }
 )
-/**
- * ConfigCommand implementation in this module.
- *
- * @author Karlo Knezevic
- * @version EDAF 3.0.0
- */
 public final class ConfigCommand implements Runnable {
 
     /**
      * Prints usage hint for config subcommands.
-     *
-     * @return no return value
      */
     @Override
     public void run() {
