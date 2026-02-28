@@ -12,30 +12,42 @@ docs_dir: docs
 
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - Architecture: architecture.md
-  - Configuration: configuration.md
-  - CLI Reference: cli-reference.md
-  - Algorithms: algorithms.md
-  - Representations: representations.md
-  - Problem Suites: problem-suites.md
-  - Disjunct Matrix Problems: disjunct-matrix-problems.md
-  - ADM Paper Suite: adm-paper-suite.md
-  - Crypto Boolean Problems: crypto-boolean-problems.md
-  - COCO Integration: coco-integration.md
-  - Grammar-Based GP: grammar-based-gp.md
-  - Latent Insights: latent-insights.md
-  - Logging and Observability: logging-and-observability.md
-  - Metrics and Results: metrics-and-results.md
-  - Benchmark Comparisons: benchmark-comparisons.md
-  - Web Dashboard: web-dashboard.md
-  - Database Schema: database-schema.md
-  - Usage Guide: usage-guide.md
-  - Docker Guide: docker.md
-  - Extending Framework: extending-the-framework.md
-  - Improvements and Roadmap: improvements.md
-  - Using EDAF as Package: using-edaf-as-package.md
-  - Testing and Release: testing-and-release.md
-  - Release and Publishing: release-and-publishing.md
-  - Complexity and Performance: complexity-and-performance.md
-  - Bibliography: bibliography.md
+  - Guides:
+      - Getting Started: guides/getting-started.md
+      - Usage Guide: guides/usage-guide.md
+      - Docker: guides/docker.md
+      - Using EDAF as Package: guides/using-edaf-as-package.md
+  - Foundations:
+      - Architecture: foundations/architecture.md
+      - Configuration: foundations/configuration.md
+      - CLI Reference: foundations/cli-reference.md
+      - Algorithms: foundations/algorithms.md
+      - Representations: foundations/representations.md
+      - Grammar-Based GP: foundations/grammar-based-gp.md
+      - Extending Framework: foundations/extending-the-framework.md
+  - Runtime and Analytics:
+      - Web Dashboard: runtime/web-dashboard.md
+      - Database Schema: runtime/database-schema.md
+      - Latent Insights: runtime/latent-insights.md
+      - Logging and Observability: runtime/logging-and-observability.md
+      - Metrics and Results: runtime/metrics-and-results.md
+  - Benchmarks:
+      - Problem Suites: benchmarks/problem-suites.md
+      - COCO Integration: benchmarks/coco-integration.md
+      - Disjunct Matrix Family: benchmarks/disjunct-matrix-problems.md
+      - ADM Paper Suite: benchmarks/adm-paper-suite.md
+      - Crypto Boolean Problems: benchmarks/crypto-boolean-problems.md
+      - Benchmark Comparisons: benchmarks/benchmark-comparisons.md
+      - Complexity and Performance: benchmarks/complexity-and-performance.md
+  - Engineering:
+      - Testing and Release: engineering/testing-and-release.md
+      - Release and Publishing: engineering/release-and-publishing.md
+      - Improvements and Roadmap: engineering/improvements.md
+  - API:
+      - JavaDoc Guide: api/javadoc-api.md
+  - Release Notes:
+      - Overview: release-notes/index.md
+      - 3.1.0: release-notes/3.1.0.md
+      - 3.0.0: release-notes/3.0.0.md
+  - References:
+      - Bibliography: references/bibliography.md

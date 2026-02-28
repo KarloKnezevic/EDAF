@@ -1,4 +1,6 @@
-<p align="center"><img src="docs/assets/branding/edaf_logo.png" alt="EDAF logo" width="420" /></p>
+<p align="center">
+  <img src="docs/assets/branding/edaf_logo.png" alt="EDAF logo" width="420" />
+</p>
 
 # Estimation of Distribution Algorithms Framework (EDAF)
 
@@ -7,943 +9,254 @@
 ![Documentation Status](https://readthedocs.org/projects/edaf/badge/?version=latest)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-Documentation portal: [https://edaf.readthedocs.io/](https://edaf.readthedocs.io/)
+EDAF is a research-grade Java framework for **Estimation of Distribution Algorithms (EDAs)** and adjacent evolutionary optimization workflows.
+It is designed for teams that need reproducibility, deep telemetry, algorithmic extensibility, and publishable benchmarking outputs.
 
-**EDAF** is a modular Java 21 framework for Estimation of Distribution Algorithms (EDAs), including discrete, continuous, permutation, and mixed-variable optimization pipelines. The framework is designed for research and engineering workflows where reproducibility, observability, and composability are first-class concerns.
+Documentation portal: [https://edaf.readthedocs.io/](https://edaf.readthedocs.io/)  
+Repository docs index: [docs/index.md](docs/index.md)
 
-**Karlo Knezevic** (2013). *Evolucijski algoritmi temeljeni na vjerojatnosnim razdiobama* (Croatian). *Master thesis, Nr. 540*, Faculty of Electrical Engineering and Computing, University of Zagreb. [Google Scholar](https://scholar.google.hr/citations?view_op=view_citation&hl=en&user=vrxkfe0AAAAJ&citation_for_view=vrxkfe0AAAAJ:UeHWp8X0CEIC)
+## Why EDAF
 
-## Table of Contents
+- Strongly typed, modular architecture across algorithms, models, representations, problems, execution, persistence, reporting, and web.
+- Reproducible by design: deterministic seed handling, component-level RNG streams, checkpoint/resume.
+- Research observability: latent model insights, drift/diversity metrics, adaptive-event timeline, experiment-level analytics.
+- Production-grade operational tooling: CLI, structured logging, DB-backed run explorer, static reports, Docker stack.
+- Extensible plugin system (ServiceLoader) for custom algorithms, models, representations, and problems.
 
-- [Architecture](#architecture)
-- [Module Layout](#module-layout)
-- [Supported Components](#supported-components)
-- [Grammar-Based GP](#grammar-based-gp-symbolic-regression-and-classification)
-- [Getting Started](#getting-started)
-- [Consume EDAF as a Maven Dependency](#consume-edaf-as-a-maven-dependency)
-- [CLI Commands](#cli-commands)
-- [Configuration](#configuration)
-- [Latent Insights and Adaptive Control](#latent-insights-and-adaptive-control-in-yaml)
-- [COCO Benchmarking](#coco-benchmarking)
-- [Operators and Policies](#operators-and-policies)
-- [Logging and Observability](#logging-and-observability)
-- [Persistence and Database](#persistence-and-database)
-- [Web Dashboard and API](#web-dashboard-and-api)
-- [Docker Usage](#docker-usage)
-- [Extending the Framework](#extending-the-framework)
-- [Using EDAF as Package](#using-edaf-as-package)
-- [API JavaDoc](#api-javadoc)
-- [Release and Publishing](#release-and-publishing)
-- [Testing and Quality](#testing-and-quality)
-- [Complexity and Performance](#complexity-and-performance)
-- [Bibliography](#bibliography)
-- [Documentation Map](#documentation-map)
-- [License](#license)
-
-## Architecture
-
-EDAF v3 is plugin-driven and strongly typed. A run is assembled from representation, problem, model, algorithm, and runtime policies. Event sinks provide console UX, files, JSONL, DB persistence, reporting, and web querying without changing algorithm code.
+## Architecture At A Glance
 
 ```mermaid
 graph LR
-    CFG["YAML Config (schema 3.0)"] --> CLI["edaf-cli (picocli)"]
-    CLI --> RUNNER["edaf-experiments::ExperimentRunner"]
-    CLI --> COCOCLI["edaf coco ..."]
+    CFG["YAML Config"] --> CLI["edaf CLI"]
+    CLI --> RUNNER["Experiment Runner"]
+    RUNNER --> REG["Plugin Registry"]
 
-    RUNNER --> REG["PluginRegistry (ServiceLoader)"]
-    REG --> REP["RepresentationPlugin<G>"]
-    REG --> PROB["ProblemPlugin<G>"]
-    REG --> MODEL["ModelPlugin<G>"]
-    REG --> ALG["AlgorithmPlugin<G>"]
+    REG --> ALG["Algorithm"]
+    REG --> MODEL["Model"]
+    REG --> PROB["Problem"]
+    REG --> REP["Representation"]
 
-    RUNNER --> CTX["AlgorithmContext<G>"]
-    CTX --> RNG["RngManager (named deterministic streams)"]
-    CTX --> POL["Selection/Replacement/Stopping/Constraint/Restart/Niching"]
+    ALG --> BUS["Event Bus"]
+    BUS --> SINKS["Console / File / JSONL / DB Sinks"]
+    SINKS --> DB[("SQLite / PostgreSQL")]
 
-    ALG --> LOOP["Initialize -> Iterate -> Complete"]
-    LOOP --> BUS["EventBus (RunEvent)"]
-
-    BUS --> CONSOLE["ConsoleUiSink"]
-    BUS --> CSV["CsvMetricsSink"]
-    BUS --> JSONL["JsonLinesEventSink"]
-    BUS --> FILE["RotatingFileEventSink"]
-    BUS --> JDBC["JdbcEventSink"]
-
-    JDBC --> DB[("SQLite/PostgreSQL")]
-    DB --> WEB["edaf-web (Spring Boot + Thymeleaf + API)"]
-    DB --> REPORT["edaf-reporting (HTML/LaTeX)"]
-    COCOCLI --> COCORUN["edaf-coco::CocoCampaignRunner"]
-    COCORUN --> RUNNER
-    COCORUN --> COCOSTORE["COCO campaign store + aggregates"]
-    COCOSTORE --> DB
-    DB --> COCOWEB["/coco dashboard pages + /api/coco/*"]
+    DB --> WEB["Web Dashboard + API"]
+    DB --> REPORT["HTML / LaTeX Reporting"]
 ```
 
-### Core Design Principles
-
-- Determinism by default: one master seed, component-scoped RNG streams, checkpointed RNG state.
-- Separation of concerns: algorithm logic is decoupled from persistence and presentation.
-- Plugin extensibility: new representation/problem/model/algorithm via ServiceLoader.
-- Research-friendly traces: per-iteration metrics, diagnostics, raw event payloads.
-- Operational ergonomics: CLI progress, filtering APIs, run dashboards, report generation.
-
-## Module Layout
-
-| Module | Responsibility |
-| --- | --- |
-| `edaf-core` | Core contracts (`Algorithm`, `Model`, `Problem`, `Representation`), policies, RNG, events, config model/validation |
-| `edaf-representations` | Genotype domains and domain repair/validation implementations |
-| `edaf-models-discrete` | Discrete probabilistic models |
-| `edaf-models-continuous` | Continuous probabilistic models and strategy-model implementations |
-| `edaf-models-permutation` | Permutation models |
-| `edaf-problems` | Built-in benchmark/objective implementations |
-| `edaf-algorithms` | Algorithm drivers and algorithm plugins |
-| `edaf-experiments` | Runtime orchestration, batch execution, checkpoint/resume |
-| `edaf-coco` | COCO/BBOB campaign orchestration, reference import, aggregate/report generation |
-| `edaf-persistence` | Event sinks, JDBC schema/bootstrap, read query repository |
-| `edaf-reporting` | HTML/LaTeX report generation |
-| `edaf-web` | Web UI + REST API over persisted runs |
-| `edaf-cli` | User-facing CLI entrypoint and console UX |
-
-`edaf-algorithms` is organized by driver family:
-- `.../algorithms/discrete`
-- `.../algorithms/continuous`
-- `.../algorithms/permutation`
-- `.../algorithms/dynamic`
-- `.../algorithms/mo`
-
-## Supported Components
-
-### Algorithms (`./edaf list algorithms`)
-
-Current registry includes UMDA, Gaussian EDA, EHM-EDA, PBIL, cGA, BMDA, MIMIC, BOA, EBNA, GMM-EDA, KDE-EDA, Copula-EDA, sNES, xNES, CMA-ES, Plackett-Luce EDA, Mallows EDA, and MO-EDA skeleton.
-
-Implementation status:
-
-- Production vertical slices:
-  - `umda` (discrete)
-  - `gaussian-eda` (continuous, diagonal Gaussian pipeline)
-  - `full-covariance-eda` (continuous, adaptive covariance)
-  - `flow-eda` (continuous, nonlinear transport)
-  - `hboa` (discrete dependency-aware Bayesian-network variant)
-  - `ehm-eda` (permutation)
-- Implemented baseline and advanced families:
-  - `pbil`, `cga`, `bmda`, `mimic`, `boa`, `ebna`
-  - `gmm-eda`, `kde-eda`, `copula-eda`
-  - `snes`, `xnes`, `cma-es`
-  - `plackett-luce-eda`, `mallows-eda`
-  - `mo-eda-skeleton`
-
-### Models (`./edaf list models`)
-
-- Discrete: `umda-bernoulli`, `pbil-frequency`, `cga-frequency`, `bmda`, `mimic-chow-liu`, `boa-ebna`, `hboa-network`
-- Continuous: `gaussian-diag`, `gaussian-full`, `normalizing-flow`, `gmm`, `kde`, `copula-baseline`, `snes`, `xnes`, `cma-es`
-- Permutation: `ehm`, `plackett-luce`, `mallows`
+## Supported Optimization Scope
 
 ### Representations
 
-- `bitstring`
-- `int-vector`
-- `categorical-vector`
-- `mixed-discrete-vector`
-- `real-vector`
-- `mixed-real-discrete-vector`
-- `permutation-vector`
-- `variable-length-vector`
+- BitString
+- IntVector (bounded)
+- CategoricalVector
+- MixedDiscreteVector
+- RealVector (bounded/unbounded)
+- MixedRealDiscreteVector
+- PermutationVector
+- VariableLengthVector
+- GrammarBitString (grammar-based GP)
 
-### Problems (`./edaf list problems`)
+### Models
 
-- `onemax`
-- `knapsack`
-- `maxsat`
-- `sphere`
-- `rosenbrock`
-- `rastrigin`
-- `small-tsp`
-- `tsplib-tsp`
-- `cec2014`
-- `zdt`
-- `dtlz`
-- `nguyen-sr`
-- `disjunct-matrix`
-- `resolvable-matrix`
-- `almost-disjunct-matrix`
-- `boolean-function`
-- `boolean-function-permutation`
-- `boolean-function-tree`
-- `boolean-function-mo`
-- `mixed-toy`
+- Discrete: Bernoulli/frequency vectors, dependency-tree and Bayesian-network families
+- Continuous: diagonal and full Gaussian, mixture/KDE/copula/flow families
+- Permutation: edge histogram and ranking-based models
+- Strategy-model hybrids: NES and CMA-style updates
 
-## Grammar-Based GP (Symbolic Regression and Classification)
+### Algorithm Families
 
-EDAF includes a grammar-driven GP pipeline that reuses discrete EDA drivers by mapping derivation choices to fixed-length bitstrings.
+- **Discrete EDAs:** UMDA, PBIL, cGA, BMDA, MIMIC, BOA, hBOA, EBNA, Chow-Liu / dependency-tree variants, factorized variants
+- **Continuous EDAs/strategies:** Gaussian EDA, GMM-EDA, KDE-EDA, Copula-EDA, Flow-EDA, CEM, IGO-style drivers, sNES, xNES, CMA-ES
+- **Permutation EDAs:** EHM/EHBSA-style, Mallows and Plackett-Luce variants
+- **Advanced lines:** noisy/dynamic aliases, multi-objective skeletons, adaptive runs with latent-knowledge triggers
 
-What is available now:
+### Built-in Problem Coverage
 
-- Representation: `grammar-bitstring`
-- Grammar modes:
-  - `grammar.mode: auto`
-  - `grammar.mode: custom` (BNF file)
-- Built-in grammar problems:
-  - `grammar-xor`
-  - `grammar-majority`
-  - `grammar-csv-regression`
-  - `grammar-csv-classification` (binary + multiclass)
-  - `grammar-nguyen-regression`
-- ERC support with deterministic decoding and persisted sampled constants.
-- Web `Tree` panel for grammar runs (AST graph, infix/LaTeX, metrics, export).
+- Continuous: Sphere, Rosenbrock, Rastrigin, CEC suite adapters, COCO/BBOB integration
+- Discrete/combinatorial: OneMax, Knapsack, MAX-SAT, TSP/TSPLIB, disjunct matrix family (DM/RM/ADM)
+- Multi-objective: ZDT and DTLZ baseline suites
+- Symbolic/grammar: boolean tasks, regression from CSV, multiclass classification from CSV
+- Crypto/boolean-function optimization suite
 
-Config suite (20 auto configs + 2 custom grammar examples):
+## Quick Start
 
-- `/Users/karloknezevic/Desktop/EDAF/configs/grammar_gp_suite`
-
-Quick run examples:
-
-```bash
-./edaf run -c configs/grammar_gp_suite/boolean/boolean-xor3-umda.yml
-./edaf run -c configs/grammar_gp_suite/regression/regression-nguyen5-hboa.yml
-./edaf run -c configs/grammar_gp_suite/classification/classification-iris-boa.yml
-./edaf run -c configs/grammar_gp_suite/classification/classification-wine-multiclass-hboa.yml
-./edaf run -c configs/grammar_gp_suite/custom_grammar/custom-polynomial-regression-boa.yml
-```
-
-Each config is preconfigured with:
-
-- `run.runCount: 10` (ten independent runs)
-- DB sink enabled (`jdbc:sqlite:edaf-v3.db`)
-- HTML report generation
-- web-compatible artifacts
-
-Detailed guide:
-
-- `/Users/karloknezevic/Desktop/EDAF/docs/grammar-based-gp.md`
-
-## Getting Started
-
-### Prerequisites
-
-- Java 21+
-- Maven 3.9+
-
-### Build and Test
+### 1) Build and test
 
 ```bash
 mvn -q clean test
 ```
 
-### Build CLI Fat Jar
+### 2) Run a first experiment
 
 ```bash
-mvn -q -pl edaf-cli -am package
+./edaf run -c configs/docs/web-screenshot-onemax.yml
 ```
 
-### Run First Experiment
-
-```bash
-./edaf run -c configs/umda-onemax-v3.yml
-```
-
-The wrapper script automatically builds `edaf-cli` if needed.
-
-## Consume EDAF as a Maven Dependency
-
-Published coordinates use `groupId=io.github.karloknezevic`.
-Java package names intentionally remain `com.knezevic.edaf.v3.*` for source compatibility.
-
-Minimal dependency (`edaf-core`):
-
-```xml
-<dependency>
-  <groupId>io.github.karloknezevic</groupId>
-  <artifactId>edaf-core</artifactId>
-  <version>3.0.0</version>
-</dependency>
-```
-
-Common extension pair (`edaf-core` + `edaf-representations`):
-
-```xml
-<dependencies>
-  <dependency>
-    <groupId>io.github.karloknezevic</groupId>
-    <artifactId>edaf-core</artifactId>
-    <version>3.0.0</version>
-  </dependency>
-  <dependency>
-    <groupId>io.github.karloknezevic</groupId>
-    <artifactId>edaf-representations</artifactId>
-    <version>3.0.0</version>
-  </dependency>
-</dependencies>
-```
-
-Verify artifact resolution:
-
-```bash
-mvn -q -U dependency:get -Dartifact=io.github.karloknezevic:edaf-core:3.0.0
-```
-
-Full external integration walkthrough:
-
-- `/Users/karloknezevic/Desktop/EDAF/examples/external-package-sample`
-- `/Users/karloknezevic/Desktop/EDAF/docs/using-edaf-as-package.md`
-
-## CLI Commands
-
-Top-level help:
-
-```bash
-./edaf --help
-```
-
-### 1) Run
-
-```bash
-./edaf run -c configs/umda-onemax-v3.yml
-./edaf run -c configs/gaussian-sphere-v3.yml --verbosity verbose
-```
-
-### 2) Batch
-
-```bash
-./edaf batch -c configs/batch-v3.yml
-./edaf batch -c configs/batch-benchmark-core-v3.yml
-./edaf batch -c configs/batch-benchmark-crypto-v3.yml
-./edaf batch -c configs/batch-stat-sample-v3.yml
-```
-
-`configs/batch-v3.yml` is a compact sanity batch.
-`configs/batch-benchmark-core-v3.yml` is the serious cross-domain benchmark batch
-(OneMax, Knapsack, MAX-SAT, TSPLIB TSP, CEC2014, ZDT, DTLZ, Nguyen SR).
-`configs/batch-benchmark-crypto-v3.yml` runs the boolean-function cryptography suite
-(truth-table, permutation-balanced, token-tree, and multi-objective variants).
-`configs/batch-stat-sample-v3.yml` demonstrates experiment-level repetition orchestration for statistical significance
-with deterministic seed streams and auto-suffixed run ids.
-
-Batch execution is auto-parallelized at run level and coordinated with in-run fitness parallelism:
-
-- run-level concurrency hint: `availableProcessors / 2`
-- in-run fitness workers: dynamic `availableProcessors / activeRuns`
-- optional env overrides:
-  - `EDAF_BATCH_PARALLELISM`
-  - `EDAF_MAX_FITNESS_WORKERS`
-  - `EDAF_ASYNC_SINK_QUEUE` (per-sink queue capacity for async persistence writers)
-
-### 3) Resume from Checkpoint
-
-```bash
-./edaf resume --checkpoint results/checkpoints/gaussian-sphere-v3-iter-50.ckpt.yaml
-```
-
-### 4) Generate Reports from DB
-
-```bash
-./edaf report --run-id umda-onemax-v3 --out reports --db-url jdbc:sqlite:edaf-v3.db
-./edaf report --run-id umda-onemax-v3 --out reports --formats html,latex
-```
-
-### 5) Validate Config
-
-```bash
-./edaf config validate configs/umda-onemax-v3.yml
-./edaf config validate configs/batch-v3.yml
-```
-
-### 6) List Discoverable Plugins
-
-```bash
-./edaf list algorithms
-./edaf list models
-./edaf list problems
-```
-
-### 7) COCO Campaign Commands
-
-```bash
-./edaf coco run -c configs/coco/bbob-campaign-v3.yml
-./scripts/coco/build_reference_from_ppdata.py --functions 1,2,3,8,15 --dimensions 2,5,10,20 --target-label 1e-7 --target-value 1e-7 --out configs/coco/reference/coco-reference-bbob-ppdata-2009-2023-f1-2-3-8-15-d2-5-10-20-t1e-7.csv
-./edaf coco import-reference --csv configs/coco/reference/coco-reference-bbob-ppdata-2009-2023-f1-2-3-8-15-d2-5-10-20-t1e-7.csv --suite bbob --source-url https://numbbo.github.io/ppdata-archive/bbob/ --db-url jdbc:sqlite:edaf-v3.db
-./edaf coco run -c configs/coco/bbob-publishable-v4.yml
-./edaf coco report --campaign-id coco-bbob-publishable-v4 --out reports/coco --db-url jdbc:sqlite:edaf-v3.db
-```
-
-## Configuration
-
-EDAF uses strict YAML with `schema: "3.0"`.
-
-Top-level sections:
-
-- `run`
-- `representation`
-- `problem`
-- `algorithm`
-- `model`
-- `selection`
-- `replacement`
-- `stopping`
-- `constraints`
-- `localSearch`
-- `restart`
-- `niching`
-- `observability`
-- `persistence`
-- `reporting`
-- `web`
-- `logging`
-
-### Minimal Runnable Example
-
-```yaml
-schema: "3.0"
-
-run:
-  id: demo-umda
-  masterSeed: 12345
-  deterministicStreams: true
-  checkpointEveryIterations: 0
-
-representation:
-  type: bitstring
-  length: 64
-
-problem:
-  type: onemax
-
-algorithm:
-  type: umda
-  populationSize: 200
-  selectionRatio: 0.4
-
-model:
-  type: umda-bernoulli
-  smoothing: 0.01
-
-selection:
-  type: truncation
-
-replacement:
-  type: elitist
-
-stopping:
-  type: max-iterations
-  maxIterations: 120
-
-constraints:
-  type: identity
-
-localSearch:
-  type: none
-
-restart:
-  type: none
-
-niching:
-  type: none
-
-observability:
-  metricsEveryIterations: 10
-  emitModelDiagnostics: true
-
-persistence:
-  enabled: true
-  sinks: [console, csv, jsonl, db]
-  outputDirectory: ./results
-  database:
-    enabled: true
-    url: jdbc:sqlite:edaf-v3.db
-    user: ""
-    password: ""
-
-reporting:
-  enabled: true
-  formats: [html]
-  outputDirectory: ./reports
-
-web:
-  enabled: false
-  port: 7070
-  pollSeconds: 3
-
-logging:
-  modes: [console, jsonl, file, db]
-  verbosity: normal
-  jsonlFile: ./results/demo-umda-events.jsonl
-  logFile: ./results/logs/edaf-v3.log
-```
-
-Compatibility rules are validated semantically (for example, permutation representation cannot use Gaussian continuous models).
-
-### Latent Insights and Adaptive Control in YAML
-
-EDAF now exposes representation-aware latent telemetry and adaptive interventions directly through `algorithm` params.
-
-Common latent controls:
-
-- `latentTopK`
-- `latentDependencyTopK`
-- `latentPairwiseMaxDimensions`
-- `latentPairSampleLimit`
-- `latentFixationEpsilon`
-- `latentDependencyEnabled`
-
-Common adaptive controls:
-
-- `adaptiveEnabled`
-- `adaptiveEarlyIterationLimit`
-- `adaptiveExplorationFraction`
-- `adaptiveExplorationNoiseRate`
-- `adaptiveStagnationGenerations`
-- `adaptivePartialRestartFraction`
-
-Family thresholds:
-
-- binary: `adaptiveBinaryEntropyThreshold`, `adaptiveBinaryFixationThreshold`, `adaptiveBinaryEntropyDropThreshold`, `adaptiveBinaryDiversityThreshold`
-- permutation: `adaptivePermutationEntropyThreshold`, `adaptivePermutationDiversityThreshold`
-- real: `adaptiveRealSigmaThreshold`, `adaptiveRealDiversityThreshold`, `adaptiveRealNoiseScale`
-
-Available adaptive actions:
-
-- `entropy_collapse` -> `exploration_boost`
-- `stagnation_low_diversity` -> `partial_restart`
-
-Start with demo configs in `configs/latent-insights/`, then inspect:
-
-- static report: `results/.../runs/<runId>/report.html`
-- web run page: `/runs/<runId>` (`Insights` + `Events` tabs)
-
-Detailed reference:
-
-- [`docs/latent-insights.md`](docs/latent-insights.md)
-- [`docs/configuration.md`](docs/configuration.md)
-- [`docs/usage-guide.md`](docs/usage-guide.md)
-
-## COCO Benchmarking
-
-EDAF includes first-class COCO/BBOB campaign support via `edaf-coco`.
-
-Primary campaign configs:
-
-- `configs/coco/bbob-smoke-v3.yml` (quick smoke)
-- `configs/coco/bbob-campaign-v3.yml` (multi-slice benchmark)
-- `configs/coco/bbob-publishable-v4.yml` (larger publishable campaign with CMA variants)
-- `configs/coco/bbob-cma-compare-v3.yml` (CMA-ES vs Gaussian baselines)
-
-Reference CSV options:
-
-- `configs/coco/reference/coco-reference-template.csv`
-- `configs/coco/reference/coco-reference-bbob-ppdata-2009-2023-f1-2-3-8-15-d2-5-10-20-t1e-7.csv`
-
-Typical workflow:
-
-1. optionally generate fuller reference rows from official COCO ppdata via `scripts/coco/build_reference_from_ppdata.py`
-2. import reference rows
-3. run campaign with `./edaf coco run -c ...`
-4. inspect campaign explorer at `/coco`
-5. publish generated HTML report from `reports/coco/`
-
-Persisted campaign tables:
-
-- `coco_campaigns`
-- `coco_optimizer_configs`
-- `coco_trials`
-- `coco_reference_results`
-- `coco_aggregates`
-
-## Operators and Policies
-
-EDAF v3 separates probabilistic modeling from runtime policies. Instead of hard-coding operators inside each algorithm, the same algorithm can be composed with different policies through config.
-
-### Selection Policies
-
-| Type | Description | Typical use |
-| --- | --- | --- |
-| `truncation` | Select top-ranked prefix of population | EDA baselines with model fitting over elites |
-| `tournament` | Tournament-based stochastic selection | Robust alternative when fitness has noise |
-
-Config section:
-
-```yaml
-selection:
-  type: truncation
-```
-
-### Replacement Policies
-
-| Type | Description |
-| --- | --- |
-| `elitist` | Keep best individuals across generations |
-| `generational` | Alias to generational-style replacement (implemented by policy adapter) |
-
-Config section:
-
-```yaml
-replacement:
-  type: elitist
-```
-
-### Constraint Handling
-
-| Type | Description |
-| --- | --- |
-| `identity` | Assume sampled individuals are valid |
-| `repair` | Apply representation/problem repair logic |
-| `rejection` | Reject invalid samples and resample |
-| `penalty` | Keep invalid samples and penalize fitness |
-
-Config section:
-
-```yaml
-constraints:
-  type: repair
-```
-
-### Additional Runtime Policies
-
-| Policy area | Built-in types |
-| --- | --- |
-| Restart | `none`, `stagnation` |
-| Niching | `none`, `fitness-sharing` |
-| Local search | `none` (baseline no-op, extension point active) |
-
-## Logging and Observability
-
-Event sinks can be enabled via `logging.modes` and `persistence.sinks`.
-
-Supported sink names:
-
-- `console`
-- `csv`
-- `jsonl`
-- `file`
-- `db`
-
-Verbosity levels:
-
-- `quiet`
-- `normal`
-- `verbose`
-- `debug`
-
-Standard event types:
-
-- `run_started`
-- `iteration_completed`
-- `checkpoint_saved`
-- `run_resumed`
-- `run_completed`
-- `run_failed`
-
-Typical generated artifacts:
-
-- `results/<run-id>.csv`
-- `results/<run-id>.jsonl`
-- `results/logs/<run-id>.log` (or configured log file path under `results/`)
-- `results/checkpoints/<run-id>-iter-<k>.ckpt.yaml`
-- `reports/report-<run-id>.html` / `.tex`
-
-## Persistence and Database
-
-The JDBC layer persists both normalized metadata and searchable flattened configuration params.
-
-Main tables:
-
-- `experiments`
-- `experiment_params`
-- `runs`
-- `run_objectives`
-- `iterations`
-- `checkpoints`
-- `events`
-- `coco_campaigns`
-- `coco_optimizer_configs`
-- `coco_trials`
-- `coco_reference_results`
-- `coco_aggregates`
-
-Key behaviors:
-
-- Canonical `config_json` is hashed (`config_hash`) and used as stable `experiment_id`.
-- Nested YAML is flattened into path rows (e.g. `problem.genotype.maxDepth`, `problem.criteria[0]`).
-- Legacy schema is auto-detected and reset only when truly legacy (no unnecessary wipe).
-- Event persistence sinks run through bounded async wrappers (ordered, backpressured, flush-on-close).
-- Experiment hard-delete removes dependent run rows (`run_objectives`, `iterations`, `checkpoints`, `events`, `control_requests`, `runs`, `experiment_params`).
-
-For full schema and query details, see [`docs/database-schema.md`](docs/database-schema.md).
-
-## Web Dashboard and API
-
-Run web app locally:
-From a terminal opened at `/Users/karloknezevic/Desktop/EDAF`:
+### 3) Start local web dashboard
 
 ```bash
 ./scripts/run-web-local.sh
 ```
 
-Stop the server with `Ctrl+C` in that terminal.
+Open [http://localhost:7070](http://localhost:7070).
 
-Optional runtime overrides:
-
-```bash
-EDAF_WEB_PORT=7080 EDAF_DB_PATH="$(pwd)/edaf-v3.db" ./scripts/run-web-local.sh
-```
-
-Open:
-
-- [http://localhost:7070](http://localhost:7070)
-
-Core UI pages:
-
-- `/` run explorer
-- `/experiments` experiment explorer (grouped multi-run view)
-- `/runs/{runId}` run detail
-- `/experiments/{experimentId}` experiment-level analytics (box-plot, profiles, significance tables)
-- `/coco` COCO campaign explorer
-
-### Web UI Preview
-
-Representative screenshots captured from the built-in docs showcase runs:
-
-![Run explorer](docs/assets/screenshots/web-dashboard-runs.png)
-![Experiment explorer](docs/assets/screenshots/web-dashboard-experiments.png)
-![Experiment analytics](docs/assets/screenshots/web-dashboard-experiment-detail.png)
-![Run detail - fitness](docs/assets/screenshots/web-dashboard-run-fitness.png)
-![Run detail - insights](docs/assets/screenshots/web-dashboard-run-insights.png)
-![Run detail - events](docs/assets/screenshots/web-dashboard-run-events.png)
-![Run detail - configuration](docs/assets/screenshots/web-dashboard-run-configuration.png)
-![Run detail - grammar tree (UMDA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-umda.png)
-![Run detail - grammar tree (BOA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-boa.png)
-![Run detail - grammar tree (Chow-Liu EDA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-chow-liu.png)
-![Run detail - grammar tree (hBOA)](docs/assets/screenshots/web-dashboard-run-grammar-tree-hboa.png)
-
-Experiment deletion:
-
-- `/experiments` provides per-row **Stop**/**Delete** and bulk **Stop selected**/**Delete selected** actions.
-- `/experiments/{experimentId}` provides toolbar **Stop experiment** and **Delete experiment** actions.
-- `/runs/{runId}` provides a **Stop run** action.
-- Delete removes DB rows and best-effort filesystem run artifact directories.
-- Delete is rejected with `409 CONFLICT` while experiment has `RUNNING` runs.
-- Stop is cooperative: run finishes safely, flushes sinks, and persists final status as `STOPPED`.
-
-REST API:
-
-- `GET /api/experiments`
-- `GET /api/runs`
-- `GET /api/runs/{runId}`
-- `GET /api/runs/{runId}/iterations`
-- `GET /api/runs/{runId}/events`
-- `GET /api/runs/{runId}/checkpoints`
-- `GET /api/runs/{runId}/params`
-- `GET /api/facets`
-- `GET /api/experiments/{experimentId}`
-- `DELETE /api/experiments/{experimentId}`
-- `POST /api/experiments/{experimentId}/stop`
-- `POST /api/experiments/delete-bulk`
-- `GET /api/experiments/{experimentId}/runs`
-- `GET /api/experiments/{experimentId}/analysis`
-- `GET /api/experiments/{experimentId}/latex`
-- `POST /api/runs/{runId}/stop`
-- `GET /api/analysis/problem/{problemType}`
-- `GET /api/analysis/problem/{problemType}/latex`
-- `GET /api/coco/campaigns`
-- `GET /api/coco/campaigns/{campaignId}`
-- `GET /api/coco/campaigns/{campaignId}/optimizers`
-- `GET /api/coco/campaigns/{campaignId}/aggregates`
-- `GET /api/coco/campaigns/{campaignId}/trials`
-
-`/api/runs` supports search/filter/sort/pagination (`q`, `algorithm`, `model`, `problem`, `status`, `from`, `to`, `minBest`, `maxBest`, `page`, `size`, `sortBy`, `sortDir`).
-
-`/api/experiments` supports search/filter/sort/pagination (`q`, `algorithm`, `model`, `problem`, `from`, `to`, `page`, `size`, `sortBy`, `sortDir`).
-
-`/api/coco/campaigns` supports `q`, `status`, `suite`, `page`, `size`, `sortBy`, `sortDir`.
-
-## Docker Usage
-
-### Build and Start Full Stack
+### 4) Generate run report
 
 ```bash
-./scripts/docker-stack.sh up
+./edaf report --run-id <run-id> --out reports --db-url jdbc:sqlite:edaf.db
 ```
 
-Services:
+## Web Dashboard Preview
 
-- `db` (PostgreSQL)
-- `web` (dashboard on port `7070`)
-- `runner` (executes a DB-enabled experiment config)
+### Run explorer
 
-Default runner config used by compose:
+![EDAF Run Explorer](docs/assets/screenshots/web-dashboard-runs.png)
 
-- `configs/docker/umda-onemax-postgres-v3.yml`
+### Experiment analytics
 
-### Run in Detached Mode
+![EDAF Experiment Analytics](docs/assets/screenshots/web-dashboard-experiment-detail.png)
 
-```bash
-./scripts/docker-stack.sh up-all
+### Representation insights panel
+
+![EDAF Insights Panel](docs/assets/screenshots/web-dashboard-run-insights.png)
+
+### Grammar/tree visualization
+
+![EDAF Grammar Tree](docs/assets/screenshots/web-dashboard-run-grammar-tree.png)
+
+## Research-Grade Analytics Out Of The Box
+
+EDAF persists both run-level and experiment-level analytics, including:
+
+- convergence summaries with confidence intervals
+- success rate and success-vs-budget curves
+- time-to-target histograms
+- final-fitness box plots and ECDF
+- diversity and drift diagnostics
+- latent model insights (entropy/fixation/dependencies, permutation structure, real-valued uncertainty)
+- adaptive-event timeline (what triggered, what action was applied)
+- statistical comparison blocks (Wilcoxon/Friedman/Holm where configured)
+
+## Grammar-Based Symbolic Optimization
+
+EDAF includes grammar-based symbolic regression/classification with:
+
+- `grammar.mode: auto` and `grammar.mode: custom` (BNF)
+- deterministic encoding from derivation decisions
+- ephemeral random constants (ERC) with reproducible sampling
+- tree rendering in web UI (AST + infix + DOT + LaTeX export)
+- config suites in `configs/grammar_gp_suite/`
+
+Guide: [docs/foundations/grammar-based-gp.md](docs/foundations/grammar-based-gp.md)
+
+## Operability and Reproducibility
+
+- JSONL/CSV/file/DB sinks with structured payloads
+- asynchronous persistence path for high-throughput runs
+- cooperative stop controls for run/experiment from UI/API
+- batch orchestration and campaign workflows
+- deterministic checkpoint/resume
+- Docker-based local stack (runner + DB + web)
+
+## Use EDAF As A Dependency
+
+```xml
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>io.github.karloknezevic</groupId>
+      <artifactId>edaf-parent</artifactId>
+      <version>${edaf.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+<dependencies>
+  <dependency>
+    <groupId>io.github.karloknezevic</groupId>
+    <artifactId>edaf-core</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>io.github.karloknezevic</groupId>
+    <artifactId>edaf-algorithms</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>io.github.karloknezevic</groupId>
+    <artifactId>edaf-problems</artifactId>
+  </dependency>
+</dependencies>
 ```
 
-### Check Status and Logs
+Integration guide: [docs/guides/using-edaf-as-package.md](docs/guides/using-edaf-as-package.md)
 
-```bash
-./scripts/docker-stack.sh status
-./scripts/docker-stack.sh logs
-```
+## Academic Positioning and References
 
-### Stop / Shutdown
+EDAF is built for reproducible optimization research pipelines and comparative studies.
+It supports benchmark protocol workflows (COCO/BBOB and suite-style campaigns), run replication, and exportable report artifacts suitable for publications.
 
-```bash
-./scripts/docker-stack.sh down
-```
+Selected references:
 
-### Remove Volumes (delete DB state)
+1. Larrañaga, P., & Lozano, J. A. (Eds.). *Estimation of Distribution Algorithms*. Springer.
+2. Mühlenbein, H., & Paass, G. *From recombination of genes to the estimation of distributions I.*
+3. Mühlenbein, H., Bendisch, J., & Voigt, H. M. *From recombination of genes to the estimation of distributions II.*
+4. Pelikan, M., Goldberg, D. E., & Cantú-Paz, E. *BOA: the Bayesian optimization algorithm.*
 
-```bash
-./scripts/docker-stack.sh down-volumes
-```
-
-## Extending the Framework
-
-You can add new components without touching orchestration code.
-
-### Add a New Problem / Model / Algorithm / Representation
-
-1. Implement the corresponding plugin interface in the appropriate module:
-   - `ProblemPlugin<G>`
-   - `ModelPlugin<G>`
-   - `AlgorithmPlugin<G>`
-   - `RepresentationPlugin<G>`
-2. Implement `type()`, `description()`, and `create(...)`.
-3. Register class in `META-INF/services/<PluginInterfaceFQCN>`.
-4. Build and verify discovery with CLI list commands.
-5. Use new `type` in YAML.
-
-Full step-by-step examples are in [`docs/extending-the-framework.md`](docs/extending-the-framework.md).
-External-package integration and custom plugin walkthrough:
-
-- [docs/using-edaf-as-package.md](docs/using-edaf-as-package.md)
-
-## Using EDAF as Package
-
-For a concrete external Maven project example (custom plugin + run + web monitoring):
-
-- [docs/using-edaf-as-package.md](docs/using-edaf-as-package.md)
-- [examples/external-package-sample/README.md](examples/external-package-sample/README.md)
-
-## API JavaDoc
-
-EDAF includes package-level JavaDoc across core, algorithms, models, problems, persistence, CLI and web modules, plus expanded mathematical docs for key probabilistic models and algorithm drivers.
-
-Generate aggregated API docs locally:
-
-```bash
-./scripts/docs/build-javadocs.sh
-```
-
-Alternative direct Maven command:
-
-```bash
-mvn -q -P apidocs -DskipTests verify
-```
-
-Generated entrypoint:
-
-- `target/site/apidocs/index.html`
-
-## Release and Publishing
-
-For GitHub release, Maven Central (mvnrepository visibility), and Read the Docs publishing:
-
-- [docs/release-and-publishing.md](docs/release-and-publishing.md)
-
-Minimal maintainer flow (single command):
-
-```bash
-./scripts/release/cut-release.sh 3.0.1
-```
-
-This command updates `pom.xml` revision, commits, pushes `master`, creates `v3.0.1` tag, and pushes the tag.
-Pushed `v*` tags then automatically trigger:
-
-- GitHub release creation with attached `edaf-cli.jar`, `edaf-web.jar`, `SHA256SUMS.txt`
-- GitHub Packages Maven publish
-- Maven Central publish (auto-publish enabled on tag builds)
-
-Release helper scripts:
-
-```bash
-# Build/test/package + create/update GitHub release assets
-./scripts/release/github-release.sh v3.0.0 --push-tag
-
-# Trigger Read the Docs build (requires env vars)
-READTHEDOCS_PROJECT=edaf \
-READTHEDOCS_TOKEN=... \
-./scripts/release/publish-readthedocs.sh
-```
-
-## Testing and Quality
-
-Run all tests:
-
-```bash
-mvn -q clean test
-```
-
-Targeted suites:
-
-```bash
-mvn -pl edaf-experiments -am test
-mvn -pl edaf-persistence,edaf-web,edaf-reporting -am test
-```
-
-Coverage includes:
-
-- unit tests for models and config loader
-- integration slices for discrete/continuous/permutation pipelines
-- property-based tests (e.g., permutation representation validity)
-- persistence schema/reset and query filtering tests
-
-## Complexity and Performance
-
-Algorithmic complexity tables and measured runtime snapshots are documented in:
-
-- [docs/complexity-and-performance.md](docs/complexity-and-performance.md)
-
-## Bibliography
-
-Full EDA/baseline/statistical bibliography:
-
-- [docs/bibliography.md](docs/bibliography.md)
+Full bibliography: [docs/references/bibliography.md](docs/references/bibliography.md)
 
 ## Documentation Map
 
-- [docs/index.md](docs/index.md) - full map
-- [docs/getting-started.md](docs/getting-started.md) - practical first-run walkthrough
-- [docs/architecture.md](docs/architecture.md) - module and runtime design
-- [docs/configuration.md](docs/configuration.md) - complete config reference
-- [docs/algorithms.md](docs/algorithms.md) - algorithm-level details and status
-- [docs/representations.md](docs/representations.md) - representation contracts and parameters
-- [docs/problem-suites.md](docs/problem-suites.md) - non-COCO benchmark suites and extension rules
-- [docs/disjunct-matrix-problems.md](docs/disjunct-matrix-problems.md) - formal DM/RM/ADM definitions, fitness, and validation module
-- [docs/adm-paper-suite.md](docs/adm-paper-suite.md) - full multi-algorithm DM/RM/ADM paper-instance campaign setup and reporting flow
-- [docs/crypto-boolean-problems.md](docs/crypto-boolean-problems.md) - boolean-function cryptography suite and criteria
-- [docs/coco-integration.md](docs/coco-integration.md) - COCO campaign workflow, DB model, and comparison protocol
-- [docs/logging-and-observability.md](docs/logging-and-observability.md) - events, sinks, metrics
-- [docs/latent-insights.md](docs/latent-insights.md) - latent telemetry, adaptive controls, interpretation workflow
-- [docs/database-schema.md](docs/database-schema.md) - DB schema, relations, indexes, query model
-- [docs/web-dashboard.md](docs/web-dashboard.md) - UI/API behavior and filtering
-- [docs/benchmark-comparisons.md](docs/benchmark-comparisons.md) - reproducible side-by-side benchmark outputs
-- [docs/complexity-and-performance.md](docs/complexity-and-performance.md) - asymptotic complexity + measured runtime snapshot
-- [docs/testing-and-release.md](docs/testing-and-release.md) - release hardening checklist and validation pipeline
-- [docs/javadoc-api.md](docs/javadoc-api.md) - aggregated API docs generation and navigation guide
-- [docs/bibliography.md](docs/bibliography.md) - exhaustive EDA literature and benchmarking references
-- [docs/cli-reference.md](docs/cli-reference.md) - exhaustive command reference
-- [docs/docker.md](docs/docker.md) - containerized workflows
-- [docs/extending-the-framework.md](docs/extending-the-framework.md) - plugin authoring guide
-- [docs/using-edaf-as-package.md](docs/using-edaf-as-package.md) - consume EDAF from another Maven project and register custom plugins
-- [docs/usage-guide.md](docs/usage-guide.md) - command cookbook and recipes
-- [docs/release-and-publishing.md](docs/release-and-publishing.md) - GitHub release, Maven Central publishing, and Read the Docs deployment
+### Core and architecture
+
+- [docs/index.md](docs/index.md)
+- [docs/foundations/architecture.md](docs/foundations/architecture.md)
+- [docs/foundations/configuration.md](docs/foundations/configuration.md)
+- [docs/foundations/cli-reference.md](docs/foundations/cli-reference.md)
+- [docs/foundations/algorithms.md](docs/foundations/algorithms.md)
+- [docs/foundations/representations.md](docs/foundations/representations.md)
+- [docs/foundations/extending-the-framework.md](docs/foundations/extending-the-framework.md)
+
+### Runtime and analytics
+
+- [docs/runtime/web-dashboard.md](docs/runtime/web-dashboard.md)
+- [docs/runtime/database-schema.md](docs/runtime/database-schema.md)
+- [docs/runtime/latent-insights.md](docs/runtime/latent-insights.md)
+- [docs/runtime/logging-and-observability.md](docs/runtime/logging-and-observability.md)
+- [docs/runtime/metrics-and-results.md](docs/runtime/metrics-and-results.md)
+
+### Benchmarks and suites
+
+- [docs/benchmarks/problem-suites.md](docs/benchmarks/problem-suites.md)
+- [docs/benchmarks/coco-integration.md](docs/benchmarks/coco-integration.md)
+- [docs/benchmarks/disjunct-matrix-problems.md](docs/benchmarks/disjunct-matrix-problems.md)
+- [docs/benchmarks/adm-paper-suite.md](docs/benchmarks/adm-paper-suite.md)
+- [docs/benchmarks/crypto-boolean-problems.md](docs/benchmarks/crypto-boolean-problems.md)
+- [docs/benchmarks/benchmark-comparisons.md](docs/benchmarks/benchmark-comparisons.md)
+- [docs/benchmarks/complexity-and-performance.md](docs/benchmarks/complexity-and-performance.md)
+
+### Engineering and release
+
+- [docs/guides/getting-started.md](docs/guides/getting-started.md)
+- [docs/guides/usage-guide.md](docs/guides/usage-guide.md)
+- [docs/guides/docker.md](docs/guides/docker.md)
+- [docs/engineering/testing-and-release.md](docs/engineering/testing-and-release.md)
+- [docs/engineering/release-and-publishing.md](docs/engineering/release-and-publishing.md)
+- [docs/engineering/improvements.md](docs/engineering/improvements.md)
+- [docs/release-notes/index.md](docs/release-notes/index.md)
+
+### API docs
+
+- [docs/api/javadoc-api.md](docs/api/javadoc-api.md)
+
+## Author
+
+**Karlo Knezevic** (2013). *Evolucijski algoritmi temeljeni na vjerojatnosnim razdiobama* (Croatian).  
+*Master thesis, Nr. 540*, Faculty of Electrical Engineering and Computing, University of Zagreb.  
+[Google Scholar profile](https://scholar.google.hr/citations?view_op=view_citation&hl=en&user=vrxkfe0AAAAJ&citation_for_view=vrxkfe0AAAAJ:UeHWp8X0CEIC)
 
 ## License
 
-EDAF (Estimation of Distribution Algorithms Framework)  
-Copyright (C) 2026 Dr. Karlo Knezevic
-
-Licensed under Apache License 2.0. See [LICENSE](LICENSE).
+This project is licensed under [Apache License 2.0](LICENSE).
