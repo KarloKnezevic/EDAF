@@ -33,7 +33,7 @@
     </licenses>
 
     <properties>
-        <revision>3.0.0</revision>
+        <revision>3.1.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.outputTimestamp>2025-01-01T00:00:00Z</project.build.outputTimestamp>
